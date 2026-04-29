@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
-import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash } from "lucide-react";
+import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import Fuse from "fuse.js";
@@ -36,6 +36,8 @@ export const MemberList: React.FC = () => {
   const [detailsMember, setDetailsMember] = useState<Member | null>(null);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<keyof Member>("fullName");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [statusReason, setStatusReason] = useState("");
   const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
   const [newMember, setNewMember] = useState<Omit<Member, "id" | "createdAt" | "statusHistory">>({
@@ -43,8 +45,12 @@ export const MemberList: React.FC = () => {
     memberId: "",
     dob: "",
     gender: "Nam",
+    ethnic: "",
     hometown: "",
+    joinDate: "",
     unitId: "",
+    email: "",
+    phone: "",
     academicYear: "",
     achievementLevel: "Chưa xếp loại",
     status: "Đang sinh hoạt",
@@ -142,8 +148,28 @@ export const MemberList: React.FC = () => {
       result = fuse.search(searchTerm).map(r => r.item);
     }
 
+    // Sorting Logic
+    result.sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+
+      // Handle strings (case-insensitive)
+      if (typeof valA === "string" && typeof valB === "string") {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+      }
+
+      // Handle null/undefined
+      if (valA === undefined || valA === null) return 1;
+      if (valB === undefined || valB === null) return -1;
+
+      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
     return result;
-  }, [members, searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedGender, selectedHometown]);
+  }, [members, searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedGender, selectedHometown, sortField, sortDirection]);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -207,8 +233,12 @@ export const MemberList: React.FC = () => {
           memberId: "",
           dob: "",
           gender: "Nam",
+          ethnic: "",
           hometown: "",
+          joinDate: "",
           unitId: units[0]?.id || "",
+          email: "",
+          phone: "",
           academicYear: "",
           achievementLevel: "Chưa xếp loại",
           status: "Đang sinh hoạt",
@@ -225,8 +255,12 @@ export const MemberList: React.FC = () => {
           memberId: "",
           dob: "",
           gender: "Nam",
+          ethnic: "",
           hometown: "",
+          joinDate: "",
           unitId: units[0]?.id || "",
+          email: "",
+          phone: "",
           academicYear: "",
           achievementLevel: "Chưa xếp loại",
           status: "Đang sinh hoạt",
@@ -244,6 +278,15 @@ export const MemberList: React.FC = () => {
     // For now, reload via loadData is safer and handles real-time sync.
   };
 
+  const handleSort = (field: keyof Member) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
   const handleEdit = (member: Member) => {
     setEditingId(member.id);
     setStatusReason("");
@@ -252,8 +295,12 @@ export const MemberList: React.FC = () => {
       memberId: member.memberId,
       dob: member.dob,
       gender: member.gender,
+      ethnic: member.ethnic || "",
       hometown: member.hometown || "",
+      joinDate: member.joinDate || "",
       unitId: member.unitId,
+      email: member.email || "",
+      phone: member.phone || "",
       academicYear: member.academicYear || "",
       achievementLevel: member.achievementLevel || "Chưa xếp loại",
       status: member.status,
@@ -280,8 +327,12 @@ export const MemberList: React.FC = () => {
       memberId: "",
       dob: "",
       gender: "Nam",
+      ethnic: "",
       hometown: "",
+      joinDate: "",
       unitId: units[0]?.id || "",
+      email: "",
+      phone: "",
       academicYear: "",
       achievementLevel: "Chưa xếp loại",
       status: "Đang sinh hoạt",
@@ -487,10 +538,41 @@ export const MemberList: React.FC = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
-                  <th className="py-6 px-4 font-normal">Họ và tên</th>
-                  <th className="py-6 px-4 font-normal">Mã định danh</th>
+                  <th 
+                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    onClick={() => handleSort("fullName")}
+                  >
+                    <div className="flex items-center gap-2">
+                      Họ và tên
+                      <span className={cn("transition-opacity", sortField === "fullName" ? "opacity-100" : "opacity-0 group-hover/header:opacity-40")}>
+                        {sortField === "fullName" ? (sortDirection === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} />}
+                      </span>
+                    </div>
+                  </th>
+                  <th 
+                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    onClick={() => handleSort("memberId")}
+                  >
+                    <div className="flex items-center gap-2">
+                      Mã định danh
+                      <span className={cn("transition-opacity", sortField === "memberId" ? "opacity-100" : "opacity-0 group-hover/header:opacity-40")}>
+                        {sortField === "memberId" ? (sortDirection === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} />}
+                      </span>
+                    </div>
+                  </th>
                   <th className="py-6 px-4 font-normal text-center">Niên khóa / Xếp loại</th>
                   <th className="py-6 px-4 font-normal">Chi đoàn trực thuộc</th>
+                  <th 
+                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    onClick={() => handleSort("joinDate")}
+                  >
+                    <div className="flex items-center gap-2">
+                      Ngày vào đoàn
+                      <span className={cn("transition-opacity", sortField === "joinDate" ? "opacity-100" : "opacity-0 group-hover/header:opacity-40")}>
+                        {sortField === "joinDate" ? (sortDirection === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} />}
+                      </span>
+                    </div>
+                  </th>
                   <th className="py-6 px-4 font-normal">Trạng thái</th>
                   <th className="py-6 px-4 font-normal text-right">Thao tác</th>
                 </tr>
@@ -637,13 +719,41 @@ export const MemberList: React.FC = () => {
                       placeholder="VD: Nguyễn Hoàng Nam"
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Email</label>
+                    <input
+                      type="email"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.email}
+                      onChange={(e) => setNewMember({...newMember, email: e.target.value})}
+                      placeholder="VD: name@domain.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Số điện thoại</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 tabular-nums"
+                      value={newMember.phone}
+                      onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
+                      placeholder="VD: 090xxxxxxx"
+                    />
+                  </div>
+                  <div>
                     <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
                     <input
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
                       value={newMember.hometown}
                       onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
                       placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Dân tộc</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.ethnic}
+                      onChange={(e) => setNewMember({...newMember, ethnic: e.target.value})}
+                      placeholder="VD: Kinh..."
                     />
                   </div>
                   <div>
@@ -673,6 +783,15 @@ export const MemberList: React.FC = () => {
                       value={newMember.academicYear}
                       onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
                       placeholder="VD: K2020-2024"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày vào Đoàn</label>
+                    <input
+                      type="date"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      value={newMember.joinDate}
+                      onChange={(e) => setNewMember({...newMember, joinDate: e.target.value})}
                     />
                   </div>
                   <CustomSelect
