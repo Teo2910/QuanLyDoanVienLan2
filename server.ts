@@ -4,6 +4,8 @@ import path from "path";
 import sql from "mssql";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -28,6 +30,7 @@ async function connectDb() {
   try {
     pool = await sql.connect(dbConfig);
     console.log("Connected to SQL Server");
+// ... (schema init code follows in the file, but I'm editing a block)
     
     // Initialize Schema
     await pool.request().query(`
@@ -59,6 +62,7 @@ async function connectDb() {
         achievementLevel NVARCHAR(50),
         status NVARCHAR(50) NOT NULL,
         statusHistory NVARCHAR(MAX), -- JSON string
+        isOutstanding BIT DEFAULT 0,
         createdAt BIGINT NOT NULL
       );
 
@@ -83,6 +87,9 @@ async function connectDb() {
       IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('users') AND name = 'phone')
       ALTER TABLE users ADD phone NVARCHAR(50);
 
+      IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('members') AND name = 'isOutstanding')
+      ALTER TABLE members ADD isOutstanding BIT DEFAULT 0;
+
       IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='activities' AND xtype='U')
       CREATE TABLE activities (
         id NVARCHAR(50) PRIMARY KEY,
@@ -93,6 +100,11 @@ async function connectDb() {
         type NVARCHAR(50) NOT NULL,
         createdAt BIGINT NOT NULL
       );
+
+      -- Add default admin user if not exists
+      IF NOT EXISTS (SELECT * FROM users)
+      INSERT INTO users (uid, email, password, role, fullName, avatarUrl, phone)
+      VALUES ('admin-id', 'admin@gmail.com', 'admin', 'admin', 'Admin System', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin', '0900000000');
     `);
   } catch (err) {
     console.error("SQL Server Connection Failed: ", err);
@@ -103,6 +115,10 @@ async function startServer() {
   await connectDb();
 
   const app = express();
+  const httpServer = createServer(app);
+  const io = new Server(httpServer, {
+    cors: { origin: "*" }
+  });
   const PORT = 3000;
 
   app.use(express.json());
@@ -154,6 +170,8 @@ async function startServer() {
         .input("email", sql.NVarChar, email)
         .input("createdAt", sql.BigInt, createdAt)
         .query("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @createdAt)");
+      
+      io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -172,6 +190,8 @@ async function startServer() {
         .input("phone", sql.NVarChar, phone)
         .input("email", sql.NVarChar, email)
         .query("UPDATE units SET name = @name, code = @code, address = @address, phone = @phone, email = @email WHERE id = @id");
+      
+      io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -183,6 +203,8 @@ async function startServer() {
       await pool.request()
         .input("id", sql.NVarChar, req.params.id)
         .query("DELETE FROM units WHERE id = @id");
+      
+      io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -222,11 +244,14 @@ async function startServer() {
         .input("achievementLevel", sql.NVarChar, m.achievementLevel)
         .input("status", sql.NVarChar, m.status)
         .input("statusHistory", sql.NVarChar, JSON.stringify(m.statusHistory || []))
+        .input("isOutstanding", sql.Bit, m.isOutstanding ? 1 : 0)
         .input("createdAt", sql.BigInt, m.createdAt)
         .query(`
-          INSERT INTO members (id, fullName, memberId, dob, gender, ethnic, hometown, joinDate, unitId, email, phone, academicYear, achievementLevel, status, statusHistory, createdAt)
-          VALUES (@id, @fullName, @memberId, @dob, @gender, @ethnic, @hometown, @joinDate, @unitId, @email, @phone, @academicYear, @achievementLevel, @status, @statusHistory, @createdAt)
+          INSERT INTO members (id, fullName, memberId, dob, gender, ethnic, hometown, joinDate, unitId, email, phone, academicYear, achievementLevel, status, statusHistory, isOutstanding, createdAt)
+          VALUES (@id, @fullName, @memberId, @dob, @gender, @ethnic, @hometown, @joinDate, @unitId, @email, @phone, @academicYear, @achievementLevel, @status, @statusHistory, @isOutstanding, @createdAt)
         `);
+      
+      io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -253,14 +278,18 @@ async function startServer() {
         .input("achievementLevel", sql.NVarChar, m.achievementLevel)
         .input("status", sql.NVarChar, m.status)
         .input("statusHistory", sql.NVarChar, JSON.stringify(m.statusHistory || []))
+        .input("isOutstanding", sql.Bit, m.isOutstanding ? 1 : 0)
         .query(`
           UPDATE members SET 
             fullName = @fullName, memberId = @memberId, dob = @dob, gender = @gender, 
             ethnic = @ethnic, hometown = @hometown, joinDate = @joinDate, unitId = @unitId, 
             email = @email, phone = @phone, academicYear = @academicYear, 
-            achievementLevel = @achievementLevel, status = @status, statusHistory = @statusHistory
+            achievementLevel = @achievementLevel, status = @status, statusHistory = @statusHistory,
+            isOutstanding = @isOutstanding
           WHERE id = @id
         `);
+      
+      io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -272,6 +301,24 @@ async function startServer() {
       await pool.request()
         .input("id", sql.NVarChar, req.params.id)
         .query("DELETE FROM members WHERE id = @id");
+      
+      io.emit("members:changed");
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.patch("/api/members/:id/outstanding", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isOutstanding } = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("isOutstanding", sql.Bit, isOutstanding ? 1 : 0)
+        .query("UPDATE members SET isOutstanding = @isOutstanding WHERE id = @id");
+      
+      io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -383,6 +430,8 @@ async function startServer() {
         .input("type", sql.NVarChar, type)
         .input("createdAt", sql.BigInt, createdAt)
         .query("INSERT INTO activities (id, title, date, location, description, type, createdAt) VALUES (@id, @title, @date, @location, @description, @type, @createdAt)");
+      
+      io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -401,6 +450,8 @@ async function startServer() {
         .input("description", sql.NVarChar, description)
         .input("type", sql.NVarChar, type)
         .query("UPDATE activities SET title = @title, date = @date, location = @location, description = @description, type = @type WHERE id = @id");
+      
+      io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -412,6 +463,8 @@ async function startServer() {
       await pool.request()
         .input("id", sql.NVarChar, req.params.id)
         .query("DELETE FROM activities WHERE id = @id");
+      
+      io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -433,7 +486,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }

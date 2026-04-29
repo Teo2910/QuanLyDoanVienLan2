@@ -1,20 +1,22 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
-import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw } from "lucide-react";
+import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import Fuse from "fuse.js";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSearch } from "../../contexts/SearchContext";
+import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchPreset } from "../../types";
 
 export const MemberList: React.FC = () => {
   const { isAdmin, isSecretary, profile, savePreset, deletePreset } = useAuth();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [members, setMembers] = useState<Member[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUnit, setSelectedUnit] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("all");
@@ -30,6 +32,8 @@ export const MemberList: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [showUnitModal, setShowUnitModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsMember, setDetailsMember] = useState<Member | null>(null);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [statusReason, setStatusReason] = useState("");
@@ -43,7 +47,8 @@ export const MemberList: React.FC = () => {
     unitId: "",
     academicYear: "",
     achievementLevel: "Chưa xếp loại",
-    status: "Đang sinh hoạt"
+    status: "Đang sinh hoạt",
+    isOutstanding: false
   });
 
   const academicYears = useMemo(() => {
@@ -107,6 +112,9 @@ export const MemberList: React.FC = () => {
       }
     });
   };
+
+  useLiveSync("members:changed", loadData);
+  useLiveSync("units:changed", loadData);
 
   const getUnitName = (id: string) => {
     return units.find(u => u.id === id)?.name || "N/A";
@@ -203,7 +211,8 @@ export const MemberList: React.FC = () => {
           unitId: units[0]?.id || "",
           academicYear: "",
           achievementLevel: "Chưa xếp loại",
-          status: "Đang sinh hoạt"
+          status: "Đang sinh hoạt",
+          isOutstanding: false
         });
       });
     } else {
@@ -220,10 +229,19 @@ export const MemberList: React.FC = () => {
           unitId: units[0]?.id || "",
           academicYear: "",
           achievementLevel: "Chưa xếp loại",
-          status: "Đang sinh hoạt"
+          status: "Đang sinh hoạt",
+          isOutstanding: false
         });
       });
     }
+  };
+
+  const handleToggleOutstanding = async (member: Member) => {
+    const newValue = !member.isOutstanding;
+    await dataService.toggleMemberOutstanding(member.id, newValue);
+    // useLiveSync will handle the state update via loadData, 
+    // but we can optimistic update for better UX if needed.
+    // For now, reload via loadData is safer and handles real-time sync.
   };
 
   const handleEdit = (member: Member) => {
@@ -238,7 +256,8 @@ export const MemberList: React.FC = () => {
       unitId: member.unitId,
       academicYear: member.academicYear || "",
       achievementLevel: member.achievementLevel || "Chưa xếp loại",
-      status: member.status
+      status: member.status,
+      isOutstanding: !!member.isOutstanding
     });
     setShowModal(true);
   };
@@ -246,6 +265,11 @@ export const MemberList: React.FC = () => {
   const handleViewHistory = (member: Member) => {
     setHistoryMember(member);
     setShowHistoryModal(true);
+  };
+
+  const handleViewDetails = (member: Member) => {
+    setDetailsMember(member);
+    setShowDetailsModal(true);
   };
 
   const openAddModal = () => {
@@ -260,7 +284,8 @@ export const MemberList: React.FC = () => {
       unitId: units[0]?.id || "",
       academicYear: "",
       achievementLevel: "Chưa xếp loại",
-      status: "Đang sinh hoạt"
+      status: "Đang sinh hoạt",
+      isOutstanding: false
     });
     setShowModal(true);
   };
@@ -473,17 +498,36 @@ export const MemberList: React.FC = () => {
               <tbody className="divide-y divide-white/5">
                 {filteredMembers.map((member) => (
                   <tr key={member.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="py-6 px-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all">
-                          {member.fullName.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-serif italic text-white text-lg group-hover:text-accent transition-colors">{member.fullName}</p>
-                          <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{member.gender === "Nam" ? "Nam" : "Nữ"}</p>
-                        </div>
-                      </div>
-                    </td>
+    <td className="py-6 px-4">
+      <div className="flex items-center gap-4">
+        <div className="relative group/avatar">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all overflow-hidden">
+            {member.fullName.charAt(0)}
+          </div>
+          <button 
+            onClick={() => handleToggleOutstanding(member)}
+            className={cn(
+              "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110",
+              member.isOutstanding 
+                ? "bg-yellow-400 border-yellow-500 text-black shadow-[0_0_15px_rgba(250,204,21,0.4)]" 
+                : "bg-black/60 border-white/10 text-white/20 hover:text-white/60"
+            )}
+            title={member.isOutstanding ? "Bỏ đánh dấu tiêu biểu" : "Đánh dấu đoàn viên tiêu biểu"}
+          >
+            <Star size={10} fill={member.isOutstanding ? "currentColor" : "none"} />
+          </button>
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="font-serif italic text-white text-lg group-hover:text-accent transition-colors">{member.fullName}</p>
+            {member.isOutstanding && (
+              <span className="bg-yellow-400/10 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded-sm uppercase font-bold tracking-widest border border-yellow-500/20">Tiêu biểu</span>
+            )}
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{member.gender === "Nam" ? "Nam" : "Nữ"}</p>
+        </div>
+      </div>
+    </td>
                     <td className="py-6 px-4 font-mono text-xs text-white/40 tabular-nums">{member.memberId}</td>
                     <td className="py-6 px-4">
                       <div className="flex flex-col items-center">
@@ -512,6 +556,13 @@ export const MemberList: React.FC = () => {
                     </td>
                     <td className="py-6 px-4 text-right">
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <button 
+                          onClick={() => handleViewDetails(member)}
+                          className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-white/60 hover:bg-white/10 rounded-full transition-all flex items-center gap-1"
+                        >
+                          <Eye size={12} />
+                          Chi tiết
+                        </button>
                         <button 
                           onClick={() => handleViewHistory(member)}
                           className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-accent hover:bg-accent/10 rounded-full transition-all"
@@ -669,6 +720,28 @@ export const MemberList: React.FC = () => {
                     />
                     {!editingId && <p className="text-[10px] text-accent mt-2 italic font-bold">Mặc định cho đoàn viên mới đăng ký</p>}
                   </div>
+                  <div className="md:col-span-2">
+                    <label className="flex items-center gap-3 cursor-pointer group p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/30 transition-all">
+                      <div className={cn(
+                        "w-6 h-6 rounded-md border flex items-center justify-center transition-all",
+                        newMember.isOutstanding 
+                          ? "bg-yellow-400 border-yellow-500 text-black" 
+                          : "bg-white/5 border-white/10 text-transparent"
+                      )}>
+                        <Star size={14} fill={newMember.isOutstanding ? "currentColor" : "none"} />
+                      </div>
+                      <input 
+                        type="checkbox"
+                        className="hidden"
+                        checked={newMember.isOutstanding}
+                        onChange={(e) => setNewMember({...newMember, isOutstanding: e.target.checked})}
+                      />
+                      <div>
+                        <p className="text-sm font-bold text-white group-hover:text-accent transition-colors">Đoàn viên tiêu biểu</p>
+                        <p className="text-[10px] text-white/30 uppercase tracking-widest">Đánh dấu gương mặt xuất sắc của đơn vị</p>
+                      </div>
+                    </label>
+                  </div>
                   {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
                     <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
                       <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
@@ -698,6 +771,196 @@ export const MemberList: React.FC = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Detailed Member View Modal */}
+      {showDetailsModal && detailsMember && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-all">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-[#0a0a0a] border border-white/10 rounded-[3rem] w-full max-w-3xl shadow-[0_0_100px_-20px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[90vh]"
+          >
+            {/* Header with Avatar and Name */}
+            <div className="relative p-10 bg-gradient-to-br from-white/[0.03] to-transparent shrink-0">
+              <button 
+                onClick={() => setShowDetailsModal(false)}
+                className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-10"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                <div className="relative">
+                  <div className="w-28 h-28 rounded-[2rem] bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-5xl font-serif italic text-white shadow-2xl overflow-hidden">
+                    {detailsMember.fullName.charAt(0)}
+                  </div>
+                  {detailsMember.isOutstanding && (
+                    <div className="absolute -top-3 -right-3 bg-yellow-400 text-black p-2.5 rounded-2xl border-4 border-[#0a0a0a] shadow-xl">
+                      <Star size={16} fill="currentColor" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-center md:text-left pt-2">
+                  <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
+                    <h2 className="text-4xl font-serif italic text-white leading-tight">{detailsMember.fullName}</h2>
+                    <span className={cn(
+                      "px-4 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border",
+                      detailsMember.status === "Đang sinh hoạt" ? "text-green-400 bg-green-500/10 border-green-500/20 shadow-[0_0_20px_rgba(74,222,128,0.1)]" :
+                      detailsMember.status === "Đã chuyển sinh hoạt" ? "text-blue-400 bg-blue-500/10 border-blue-500/20" :
+                      detailsMember.status === "Đã trưởng thành" ? "text-gray-400 bg-white/5 border-white/10" :
+                      "text-red-400 bg-red-500/10 border-red-500/20"
+                    )}>
+                      {detailsMember.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm">
+                    <div className="flex items-center gap-2 text-white/40">
+                      <Hash size={14} className="text-accent" />
+                      <span className="font-mono text-xs">{detailsMember.memberId}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/40">
+                      <UserCircle size={14} className="text-accent" />
+                      <span>{detailsMember.gender}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/40">
+                      <MapPin size={14} className="text-accent" />
+                      <span>{detailsMember.hometown || "Chưa cập nhật"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Information Grid */}
+            <div className="flex-1 overflow-y-auto px-10 pb-10 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Academic Group */}
+                <div className="space-y-6">
+                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-accent/60 mb-4 border-b border-white/5 pb-2">Học tập & Hoạt động</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Chi đoàn</p>
+                      <p className="text-white text-sm font-medium italic">{getUnitName(detailsMember.unitId)}</p>
+                    </div>
+                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Niên khóa</p>
+                      <p className="text-white text-sm font-medium">{detailsMember.academicYear || "N/A"}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Xếp loại đoàn viên</p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-white font-bold">{detailsMember.achievementLevel || "Chưa xếp loại"}</p>
+                      {detailsMember.achievementLevel === "Xuất sắc" && (
+                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Ngày vào Đoàn</p>
+                    <div className="flex items-center gap-3 text-white">
+                      <CalendarIcon size={16} className="text-accent" />
+                      <p className="font-mono">{detailsMember.joinDate || "---"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Group */}
+                <div className="space-y-6">
+                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-4 border-b border-white/5 pb-2">Liên hệ & Cá nhân</h4>
+                  
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
+                      <Mail size={18} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-0.5 font-bold">Email</p>
+                      <p className="text-white text-sm truncate">{detailsMember.email || "Chưa cập nhật"}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
+                      <Phone size={18} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-0.5 font-bold">Số điện thoại</p>
+                      <p className="text-white text-sm font-mono tracking-tight">{detailsMember.phone || "---"}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Ngày sinh</p>
+                    <p className="text-white font-mono">{new Date(detailsMember.dob).toLocaleDateString("vi-VN")}</p>
+                  </div>
+                  
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Dân tộc</p>
+                    <p className="text-white">{detailsMember.ethnic || "---"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Timeline Snippet */}
+              <div className="mt-10">
+                 <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-6 border-b border-white/5 pb-2">Hoạt động gần nhất</h4>
+                 {detailsMember.statusHistory && detailsMember.statusHistory.length > 0 ? (
+                   <div className="space-y-4">
+                      {detailsMember.statusHistory.slice(-2).reverse().map((h, i) => (
+                        <div key={i} className="p-5 bg-white/[0.01] border border-white/5 rounded-3xl flex items-start gap-4">
+                           <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent shrink-0 mt-1">
+                              <History size={14} />
+                           </div>
+                           <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[10px] text-white/60 font-mono italic">{new Date(h.date).toLocaleDateString("vi-VN")}</span>
+                                <span className="text-accent">→</span>
+                                <span className="text-[10px] uppercase font-serif italic text-white">{h.newStatus}</span>
+                              </div>
+                              <p className="text-sm text-white/40 italic">"{h.reason}"</p>
+                           </div>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          setShowDetailsModal(false);
+                          handleViewHistory(detailsMember);
+                        }}
+                        className="text-[10px] uppercase tracking-widest font-bold text-accent py-2 px-6 rounded-full border border-accent/20 hover:bg-accent/10 transition-all"
+                      >
+                        Xem toàn bộ lịch sử
+                      </button>
+                   </div>
+                 ) : (
+                   <p className="text-sm text-white/20 italic">Chưa có thay đổi trạng thái nào được ghi nhận.</p>
+                 )}
+              </div>
+            </div>
+            
+            <div className="p-8 border-t border-white/5 flex gap-4 shrink-0 bg-white/[0.01]">
+              <button 
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  handleEdit(detailsMember);
+                }}
+                className="flex-1 py-4 bg-white text-black rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
+              >
+                Chỉnh sửa hồ sơ
+              </button>
+              <button 
+                onClick={() => setShowDetailsModal(false)}
+                className="px-10 py-4 bg-white/5 text-white/60 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10"
+              >
+                Đóng
+              </button>
             </div>
           </motion.div>
         </div>

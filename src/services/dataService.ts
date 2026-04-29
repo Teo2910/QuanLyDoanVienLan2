@@ -145,6 +145,14 @@ class DataService {
       body: JSON.stringify(updatedMember),
     });
   }
+
+  async toggleMemberOutstanding(id: string, isOutstanding: boolean): Promise<void> {
+    await fetch(`/api/members/${id}/outstanding`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isOutstanding }),
+    });
+  }
 }
 
 export const dataService = new DataService();

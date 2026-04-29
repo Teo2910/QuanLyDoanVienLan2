@@ -68,5 +68,6 @@ export interface Member {
   achievementLevel?: "Xuất sắc" | "Khá" | "Trung bình" | "Chưa xếp loại";
   status: "Đang sinh hoạt" | "Đã chuyển sinh hoạt" | "Đã trưởng thành" | "Bị kỷ luật";
   statusHistory?: StatusChange[];
+  isOutstanding?: boolean;
   createdAt: number;
 }

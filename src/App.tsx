@@ -8,9 +8,11 @@ import { dataService } from "./services/dataService";
 import { cn } from "./lib/utils";
 import { Users, Building2, Calendar, Star, LogIn, Plus } from "lucide-react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { SearchProvider } from "./contexts/SearchContext";
 import { Member, UserProfile, Activity } from "./types";
 import { motion, AnimatePresence } from "motion/react";
 import { CustomSelect } from "./components/CustomSelect";
+import { useLiveSync } from "./hooks/useLiveSync";
 
 const PageTransition = ({ children }: { children: React.ReactNode; key?: string }) => (
   <motion.div
@@ -29,7 +31,7 @@ const Dashboard = () => {
   const [recentMembers, setRecentMembers] = useState<(Member & { unitName: string })[]>([]);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
 
-  useEffect(() => {
+  const loadData = React.useCallback(() => {
     Promise.all([
       dataService.getUnits(), 
       dataService.getMembers(),
@@ -42,7 +44,8 @@ const Dashboard = () => {
 
       setStats({ 
         units: uData.length, 
-        members: filteredMembers.length 
+        members: filteredMembers.length,
+        outstanding: filteredMembers.filter(m => m.isOutstanding).length
       });
 
       // Get 3 most recent joiners
@@ -66,11 +69,19 @@ const Dashboard = () => {
     });
   }, [profile]);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useLiveSync("units:changed", loadData);
+  useLiveSync("members:changed", loadData);
+  useLiveSync("activities:changed", loadData);
+
   const cards = [
     { label: "Tổng số chi đoàn", value: stats.units, icon: Building2, color: "text-blue-400", bg: "bg-blue-500/10" },
     { label: "Tổng số đoàn viên", value: stats.members, icon: Users, color: "text-green-400", bg: "bg-green-500/10" },
-    { label: "Hoạt động tháng này", value: 12, icon: Calendar, color: "text-orange-400", bg: "bg-orange-500/10" },
-    { label: "Đoàn viên tiêu biểu", value: 4, icon: Star, color: "text-purple-400", bg: "bg-purple-500/10" },
+    { label: "Hoạt động sắp tới", value: recentActivities.length, icon: Calendar, color: "text-orange-400", bg: "bg-orange-500/10" },
+    { label: "Đoàn viên tiêu biểu", value: (stats as any).outstanding || 0, icon: Star, color: "text-purple-400", bg: "bg-purple-500/10" },
   ];
 
   return (
@@ -162,8 +173,15 @@ const Dashboard = () => {
                  const joinDate = m.createdAt ? new Date(m.createdAt).toLocaleDateString("vi-VN") : "N/A";
                  return (
                    <div key={m.id} className="flex items-center gap-5 group cursor-pointer">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all shadow-inner">
-                        {m.fullName.charAt(0)}
+                      <div className="relative">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all shadow-inner">
+                          {m.fullName.charAt(0)}
+                        </div>
+                        {m.isOutstanding && (
+                          <div className="absolute -top-1 -right-1 bg-yellow-400 text-black rounded-full p-1 border border-yellow-500 shadow-lg">
+                            <Star size={8} fill="currentColor" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <p className="font-serif italic text-white group-hover:text-accent transition-colors">{m.fullName}</p>
@@ -338,9 +356,11 @@ const AppContent = () => {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <SearchProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </SearchProvider>
     </AuthProvider>
   );
 }

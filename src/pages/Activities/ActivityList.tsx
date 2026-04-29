@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, FormEvent } from "react";
 import { dataService } from "../../services/dataService";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSearch } from "../../contexts/SearchContext";
+import { useLiveSync } from "../../hooks/useLiveSync";
 import { Activity } from "../../types";
 import { Calendar, MapPin, Plus, Trash2, Edit2, X, Check, Search } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
@@ -9,9 +11,11 @@ import { motion, AnimatePresence } from "motion/react";
 
 export const ActivityList = () => {
   const { isAdmin, isSecretary } = useAuth();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [formData, setFormData] = useState<Omit<Activity, "id" | "createdAt">>({
@@ -32,6 +36,8 @@ export const ActivityList = () => {
     setLoading(false);
   };
 
+  useLiveSync("activities:changed", loadActivities);
+
   const activityTypeOptions = [
     { value: "Hội họp", label: "Hội họp" },
     { value: "Phong trào", label: "Phong trào" },
@@ -41,15 +47,43 @@ export const ActivityList = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (editingActivity) {
-      await dataService.updateActivity(editingActivity.id, formData);
-    } else {
-      await dataService.addActivity(formData);
+    setSubmitting(true);
+    setProgress(0);
+
+    // Simulate progress
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(interval);
+          return prev;
+        }
+        return prev + 10;
+      });
+    }, 100);
+
+    try {
+      if (editingActivity) {
+        await dataService.updateActivity(editingActivity.id, formData);
+      } else {
+        await dataService.addActivity(formData);
+      }
+      
+      setProgress(100);
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setEditingActivity(null);
+        setFormData({ title: "", date: "", location: "", description: "", type: "Hội họp" });
+        setSubmitting(false);
+        setProgress(0);
+        loadActivities();
+      }, 300);
+    } catch (error) {
+      console.error("Error submitting activity:", error);
+      setSubmitting(false);
+      setProgress(0);
+    } finally {
+      clearInterval(interval);
     }
-    setIsModalOpen(false);
-    setEditingActivity(null);
-    setFormData({ title: "", date: "", location: "", description: "", type: "Hội họp" });
-    loadActivities();
   };
 
   const handleEdit = (activity: Activity) => {
@@ -189,62 +223,92 @@ export const ActivityList = () => {
             
             <div className="overflow-y-auto flex-1 custom-scrollbar">
               <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6">
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tên hoạt động</label>
-                  <input
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  />
-                </div>
+                {submitting && (
+                  <div className="mb-8 space-y-3">
+                    <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] font-black text-accent/60">
+                      <span>Đang xử lý dữ liệu...</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        className="h-full bg-accent shadow-[0_0_15px_rgba(var(--accent),0.5)]"
+                      />
+                    </div>
+                  </div>
+                )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className={cn("space-y-6 transition-all", submitting && "opacity-40 pointer-events-none blur-[2px]")}>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tổ chức</label>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tên hoạt động</label>
                     <input
                       required
-                      type="date"
+                      disabled={submitting}
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                      value={formData.date}
-                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
                     />
                   </div>
-                  <CustomSelect
-                    label="Loại hoạt động"
-                    options={activityTypeOptions}
-                    value={formData.type}
-                    onChange={(val) => setFormData({...formData, type: val})}
-                  />
-                </div>
 
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Địa điểm</label>
-                  <input
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  />
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tổ chức</label>
+                      <input
+                        required
+                        disabled={submitting}
+                        type="date"
+                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                        value={formData.date}
+                        onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      />
+                    </div>
+                    <CustomSelect
+                      label="Loại hoạt động"
+                      options={activityTypeOptions}
+                      value={formData.type}
+                      onChange={(val) => setFormData({...formData, type: val})}
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả chi tiết</label>
-                  <textarea
-                    rows={3}
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium resize-none"
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  />
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Địa điểm</label>
+                    <input
+                      required
+                      disabled={submitting}
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+                      value={formData.location}
+                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả chi tiết</label>
+                    <textarea
+                      rows={3}
+                      disabled={submitting}
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium resize-none"
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-4">
                   <button 
                     type="submit"
-                    className="w-full flex items-center justify-center gap-3 py-5 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+                    disabled={submitting}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-3 py-5 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs transition-all shadow-xl shadow-accent/20",
+                      submitting ? "opacity-50 cursor-not-allowed grayscale" : "hover:opacity-90"
+                    )}
                   >
-                    <Check size={18} />
-                    {editingActivity ? "Cập nhật hoạt động" : "Lưu hoạt động"}
+                    {submitting ? (
+                      <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
+                    ) : (
+                      <Check size={18} />
+                    )}
+                    {submitting ? "Đang lưu..." : (editingActivity ? "Cập nhật hoạt động" : "Lưu hoạt động")}
                   </button>
                 </div>
               </form>

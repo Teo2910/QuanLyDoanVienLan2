@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Users, LayoutDashboard, Building2, LogOut, Menu, X, Search, Calendar, User, Camera, Check } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSearch } from "../../contexts/SearchContext";
 
 import { motion, AnimatePresence } from "motion/react";
 
@@ -12,6 +13,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { profile, logout, updateProfile } = useAuth();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -165,6 +167,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 type="text" 
                 placeholder="Tìm kiếm nhanh..." 
                 className="bg-white/5 border border-white/10 rounded-full py-2 px-10 text-xs w-64 focus:outline-none focus:border-accent/50 focus:ring-0 transition-all placeholder:text-white/20"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
             </div>

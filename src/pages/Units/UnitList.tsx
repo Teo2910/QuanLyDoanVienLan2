@@ -3,12 +3,14 @@ import { dataService } from "../../services/dataService";
 import { Unit } from "../../types";
 import { Trash2, Edit3, Search, Plus, Building2, X, ShieldAlert } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSearch } from "../../contexts/SearchContext";
+import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion, AnimatePresence } from "motion/react";
 
 export const UnitList: React.FC = () => {
   const { isAdmin, isSecretary } = useAuth();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [units, setUnits] = useState<Unit[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -24,6 +26,8 @@ export const UnitList: React.FC = () => {
       setLoading(false);
     });
   };
+
+  useLiveSync("units:changed", loadUnits);
 
   const filteredUnits = units.filter(unit => 
     unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
