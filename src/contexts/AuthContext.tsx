@@ -1,16 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
-import { UserProfile, UserRole, SearchPreset } from "../types";
+import { UserProfile, SearchPreset } from "../types";
 
 interface AuthContextType {
-  user: User | null;
+  user: { uid: string; email: string } | null;
   profile: UserProfile | null;
   loading: boolean;
   isAdmin: boolean;
   isSecretary: boolean;
-  login: () => Promise<void>;
+  login: (email?: string) => Promise<void>;
   logout: () => Promise<void>;
   savePreset: (preset: SearchPreset) => Promise<void>;
   deletePreset: (presetId: string) => Promise<void>;
@@ -19,79 +16,108 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ uid: string; email: string } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ... same as before but ensure profile handling is consistent
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      if (firebaseUser) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (userDoc.exists()) {
-            setProfile(userDoc.data() as UserProfile);
-          } else {
-            const isDefaultAdmin = firebaseUser.email === "teongu2210@gmail.com";
-            const newProfile: UserProfile = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email || "",
-              role: isDefaultAdmin ? "admin" : "secretary",
-              presets: []
-            };
-            await setDoc(doc(db, "users", firebaseUser.uid), newProfile);
-            setProfile(newProfile);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          setProfile({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            role: "admin",
-            presets: []
-          });
-        }
-      } else {
-        setProfile(null);
-      }
+    const storedUser = localStorage.getItem("local_user");
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      setUser(userData);
+      fetchProfile(userData.uid);
+    } else {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
   }, []);
 
-  const login = async () => {
-    const provider = new GoogleAuthProvider();
+  const fetchProfile = async (uid: string) => {
     try {
-      await signInWithPopup(auth, provider);
+      const response = await fetch(`/api/users/${uid}`);
+      const data = await response.json();
+      if (data) {
+        setProfile(data);
+      } else {
+        // Fallback for new users if not seeded
+        const newProfile: UserProfile = {
+          uid,
+          email: user?.email || "user@local.test",
+          role: "secretary",
+          presets: []
+        };
+        setProfile(newProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (email = "admin@local.test") => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/users/by-email/${email}`);
+      let data = await response.json();
+      
+      if (!data) {
+        // Create user if not exists
+        const uid = Math.random().toString(36).substring(2, 11);
+        data = {
+          uid,
+          email,
+          role: "secretary",
+          presets: []
+        };
+        await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+      }
+
+      const userData = { uid: data.uid, email: data.email };
+      setUser(userData);
+      setProfile(data);
+      localStorage.setItem("local_user", JSON.stringify(userData));
     } catch (error) {
       console.error("Login failed:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    setUser(null);
+    setProfile(null);
+    localStorage.removeItem("local_user");
   };
 
   const savePreset = async (preset: SearchPreset) => {
-    if (!user || !profile) return;
+    if (!profile) return;
     const updatedPresets = [...(profile.presets || []), preset];
     const updatedProfile = { ...profile, presets: updatedPresets };
-    await setDoc(doc(db, "users", user.uid), updatedProfile);
+    
+    await fetch(`/api/users/${profile.uid}/presets`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ presets: updatedPresets })
+    });
+    
     setProfile(updatedProfile);
   };
 
   const deletePreset = async (presetId: string) => {
-    if (!user || !profile) return;
+    if (!profile) return;
     const updatedPresets = (profile.presets || []).filter(p => p.id !== presetId);
     const updatedProfile = { ...profile, presets: updatedPresets };
-    await setDoc(doc(db, "users", user.uid), updatedProfile);
+
+    await fetch(`/api/users/${profile.uid}/presets`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ presets: updatedPresets })
+    });
+
     setProfile(updatedProfile);
   };
 

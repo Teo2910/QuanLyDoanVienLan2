@@ -125,15 +125,23 @@ const AppContent = () => {
               <Star className="text-accent" size={40} />
             </div>
             <h1 className="text-4xl font-serif text-white italic mb-4">Quản Lý Đoàn Viên</h1>
-            <p className="text-white/40 mb-10 leading-relaxed text-sm">Vui lòng đăng nhập bằng tài khoản Google để truy cập hệ thống quản lý dữ liệu.</p>
+            <p className="text-white/40 mb-10 leading-relaxed text-sm">Hệ thống quản lý dữ liệu nội bộ. Vui lòng nhấn nút bên dưới để truy cập.</p>
             <button 
-              onClick={login}
-              className="w-full flex items-center justify-center gap-4 py-4 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white/90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl"
+              onClick={() => login("admin@local.test")}
+              className="w-full flex items-center justify-center gap-4 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-accent/20"
             >
               <LogIn size={20} />
-              Đăng nhập bằng Google
+              Truy cập Hệ thống (Admin)
             </button>
-            <p className="mt-8 text-[10px] text-white/20 uppercase tracking-[0.2em]">Cổng thông tin nội bộ</p>
+            <div className="mt-4 w-full">
+              <button 
+                onClick={() => login("sec@local.test")}
+                className="w-full flex items-center justify-center gap-4 py-4 bg-white/5 border border-white/10 text-white/60 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
+              >
+                Tiếp tục: Bí thư chi đoàn
+              </button>
+            </div>
+            <p className="mt-8 text-[10px] text-white/20 uppercase tracking-[0.2em]">Cổng thông tin nội bộ (Offline Mode)</p>
          </div>
       </div>
     );
