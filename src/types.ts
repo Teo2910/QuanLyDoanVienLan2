@@ -10,6 +10,7 @@ export interface SearchPreset {
     achievement: string;
     searchTerm: string;
     hometown: string;
+    gender?: string;
   };
 }
 
@@ -17,6 +18,9 @@ export interface UserProfile {
   uid: string;
   email: string;
   role: UserRole;
+  fullName?: string;
+  avatarUrl?: string;
+  phone?: string;
   unitId?: string;
   presets?: SearchPreset[];
 }
@@ -36,6 +40,16 @@ export interface StatusChange {
   newStatus: string;
   date: number;
   reason?: string;
+}
+
+export interface Activity {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  description?: string;
+  type: string;
+  createdAt: number;
 }
 
 export interface Member {

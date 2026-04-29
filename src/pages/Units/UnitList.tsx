@@ -3,6 +3,7 @@ import { dataService } from "../../services/dataService";
 import { Unit } from "../../types";
 import { Trash2, Edit3, Search, Plus, Building2, X, ShieldAlert } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { motion, AnimatePresence } from "motion/react";
 
 export const UnitList: React.FC = () => {
   const { isAdmin, isSecretary } = useAuth();
@@ -68,11 +69,11 @@ export const UnitList: React.FC = () => {
   };
 
   return (
-    <div id="unit-list-container" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div id="unit-list-container">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-3xl font-serif text-white flex items-center gap-3">
-            <Building2 className="text-accent" />
+          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
+            <Building2 className="text-accent" size={36} />
             Quản lý đơn vị
           </h2>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
@@ -174,10 +175,13 @@ export const UnitList: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl p-1 animate-in fade-in zoom-in duration-300">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl p-1"
+          >
             <div className="p-8 border-b border-white/5 flex justify-between items-center">
               <div>
                 <h3 className="text-2xl font-serif text-white italic">
@@ -250,7 +254,7 @@ export const UnitList: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

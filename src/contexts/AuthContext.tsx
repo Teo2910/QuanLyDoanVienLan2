@@ -7,8 +7,10 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   isSecretary: boolean;
-  login: (email?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: { email: string; password: string; role: 'admin' | 'secretary'; unitId?: string }) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: { fullName: string; avatarUrl: string; email: string; phone: string }) => Promise<void>;
   savePreset: (preset: SearchPreset) => Promise<void>;
   deletePreset: (presetId: string) => Promise<void>;
 }
@@ -43,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           uid,
           email: user?.email || "user@local.test",
           role: "secretary",
+          unitId: "unit-1", // Gán chi đoàn mẫu
           presets: []
         };
         setProfile(newProfile);
@@ -54,34 +57,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email = "admin@local.test") => {
+  const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/users/by-email/${email}`);
-      let data = await response.json();
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
       
-      if (!data) {
-        // Create user if not exists
-        const uid = Math.random().toString(36).substring(2, 11);
-        data = {
-          uid,
-          email,
-          role: "secretary",
-          presets: []
-        };
-        await fetch("/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Login failed");
       }
 
+      const data = await response.json();
       const userData = { uid: data.uid, email: data.email };
       setUser(userData);
       setProfile(data);
       localStorage.setItem("local_user", JSON.stringify(userData));
     } catch (error) {
       console.error("Login failed:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (regData: { email: string; password: string; role: 'admin' | 'secretary'; unitId?: string }) => {
+    setLoading(true);
+    try {
+      const uid = Math.random().toString(36).substring(2, 11);
+      const data = {
+        uid,
+        email: regData.email,
+        password: regData.password,
+        role: regData.role,
+        unitId: regData.unitId,
+        presets: []
+      };
+
+      await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const userData = { uid: data.uid, email: data.email };
+      setUser(userData);
+      // Clean up password before setting profile
+      const { password: _, ...profileWithoutPassword } = data;
+      setProfile(profileWithoutPassword as UserProfile);
+      localStorage.setItem("local_user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -91,6 +121,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setProfile(null);
     localStorage.removeItem("local_user");
+  };
+
+  const updateProfile = async (data: { fullName: string; avatarUrl: string; email: string; phone: string }) => {
+    if (!profile) return;
+    await fetch(`/api/users/${profile.uid}/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    setProfile(prev => prev ? { ...prev, ...data } : null);
+    if (user) {
+      const updatedUser = { ...user, email: data.email };
+      setUser(updatedUser);
+      localStorage.setItem("local_user", JSON.stringify(updatedUser));
+    }
   };
 
   const savePreset = async (preset: SearchPreset) => {
@@ -125,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isSecretary = profile?.role === "secretary";
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSecretary, login, logout, savePreset, deletePreset }}>
+    <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSecretary, login, register, logout, updateProfile, savePreset, deletePreset }}>
       {children}
     </AuthContext.Provider>
   );

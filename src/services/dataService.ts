@@ -1,6 +1,48 @@
-import { Unit, Member } from "../types";
+import { Unit, Member, Activity } from "../types";
 
 class DataService {
+  async getActivities(): Promise<Activity[]> {
+    try {
+      const response = await fetch("/api/activities");
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch activities:", error);
+      return [];
+    }
+  }
+
+  async addActivity(activity: Omit<Activity, "id" | "createdAt">): Promise<Activity> {
+    const newActivity: Activity = {
+      ...activity,
+      id: Math.random().toString(36).substring(2, 11),
+      createdAt: Date.now(),
+    };
+    try {
+      await fetch("/api/activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newActivity),
+      });
+    } catch (error) {
+      console.error("Failed to add activity:", error);
+    }
+    return newActivity;
+  }
+
+  async deleteActivity(id: string): Promise<void> {
+    await fetch(`/api/activities/${id}`, { method: "DELETE" });
+  }
+
+  async updateActivity(id: string, activity: Partial<Activity>): Promise<void> {
+    await fetch(`/api/activities/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(activity),
+    });
+  }
+
   async getUnits(): Promise<Unit[]> {
     try {
       const response = await fetch("/api/units");

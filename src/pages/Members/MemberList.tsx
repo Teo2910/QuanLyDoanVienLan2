@@ -2,9 +2,11 @@ import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
 import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw } from "lucide-react";
+import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import Fuse from "fuse.js";
 import { useAuth } from "../../contexts/AuthContext";
+import { motion, AnimatePresence } from "motion/react";
 import { SearchPreset } from "../../types";
 
 export const MemberList: React.FC = () => {
@@ -17,6 +19,7 @@ export const MemberList: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("all");
   const [selectedAchievement, setSelectedAchievement] = useState<string>("all");
+  const [selectedGender, setSelectedGender] = useState<string>("all");
   const [selectedHometown, setSelectedHometown] = useState<string>("");
   
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
@@ -51,20 +54,56 @@ export const MemberList: React.FC = () => {
 
   const achievementLevels = ["Xuất sắc", "Khá", "Trung bình", "Chưa xếp loại"];
 
+  const unitOptions = [{ value: "all", label: "Tất cả chi đoàn" }, ...units.map(u => ({ value: u.id, label: u.name }))];
+  const academicYearOptions = [{ value: "all", label: "Tất cả các khóa" }, ...academicYears.map(y => ({ value: y, label: y }))];
+  const achievementOptions = [{ value: "all", label: "Tất cả xếp loại" }, ...achievementLevels.map(l => ({ value: l, label: l }))];
+  const genderOptions = [
+    { value: "all", label: "Tất cả giới tính" },
+    { value: "Nam", label: "Nam" },
+    { value: "Nữ", label: "Nữ" },
+    { value: "Khác", label: "Khác" }
+  ];
+
+  const achievementOptionsModal = achievementLevels.map(l => ({ value: l, label: l }));
+  const genderOptionsModal = [
+    { value: "Nam", label: "Nam" },
+    { value: "Nữ", label: "Nữ" },
+    { value: "Khác", label: "Khác" }
+  ];
+  
+  const statusColors = {
+    "Đang sinh hoạt": "bg-green-100 text-green-700",
+    "Đã chuyển sinh hoạt": "bg-blue-100 text-blue-700",
+    "Đã trưởng thành": "bg-gray-100 text-gray-700",
+    "Bị kỷ luật": "bg-red-100 text-red-700",
+  };
+
+  const statusOptions = [{ value: "all", label: "Tất cả trạng thái" }, ...Object.keys(statusColors).map(s => ({ value: s, label: s }))];
+  const unitOptionsModal = units.map(u => ({ value: u.id, label: u.name }));
+  const statusOptionsModal = Object.keys(statusColors).map(s => ({ value: s, label: s }));
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [profile?.unitId]); // Reload when profile unit changes
 
   const loadData = () => {
     Promise.all([
       dataService.getMembers(),
       dataService.getUnits()
     ]).then(([mData, uData]) => {
-      setMembers(mData);
+      // Nếu là Bí thư, chỉ lấy đoàn viên thuộc chi đoàn của mình
+      const filteredMData = isSecretary && profile?.unitId 
+        ? mData.filter(m => m.unitId === profile.unitId)
+        : mData;
+
+      setMembers(filteredMData);
       setUnits(uData);
       setLoading(false);
+      
       if (uData.length > 0 && !newMember.unitId) {
-        setNewMember(prev => ({ ...prev, unitId: uData[0].id }));
+        // Bí thư thì mặc định chọn đúng đơn vị của mình
+        const defaultUnitId = isSecretary && profile?.unitId ? profile.unitId : uData[0].id;
+        setNewMember(prev => ({ ...prev, unitId: defaultUnitId }));
       }
     });
   };
@@ -80,8 +119,9 @@ export const MemberList: React.FC = () => {
       const matchesStatus = selectedStatus === "all" || member.status === selectedStatus;
       const matchesYear = selectedAcademicYear === "all" || member.academicYear === selectedAcademicYear;
       const matchesAchievement = selectedAchievement === "all" || member.achievementLevel === selectedAchievement;
+      const matchesGender = selectedGender === "all" || member.gender === selectedGender;
       const matchesHometown = !selectedHometown || (member.hometown || "").toLowerCase().includes(selectedHometown.toLowerCase());
-      return matchesUnit && matchesStatus && matchesYear && matchesAchievement && matchesHometown;
+      return matchesUnit && matchesStatus && matchesYear && matchesAchievement && matchesGender && matchesHometown;
     });
 
     if (searchTerm.trim()) {
@@ -95,7 +135,7 @@ export const MemberList: React.FC = () => {
     }
 
     return result;
-  }, [members, searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedHometown]);
+  }, [members, searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedGender, selectedHometown]);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -103,6 +143,7 @@ export const MemberList: React.FC = () => {
     setSelectedStatus("all");
     setSelectedAcademicYear("all");
     setSelectedAchievement("all");
+    setSelectedGender("all");
     setSelectedHometown("");
   };
 
@@ -116,6 +157,7 @@ export const MemberList: React.FC = () => {
         status: selectedStatus,
         academicYear: selectedAcademicYear,
         achievement: selectedAchievement,
+        gender: selectedGender,
         searchTerm: searchTerm,
         hometown: selectedHometown
       }
@@ -130,6 +172,7 @@ export const MemberList: React.FC = () => {
     setSelectedStatus(preset.filters.status);
     setSelectedAcademicYear(preset.filters.academicYear);
     setSelectedAchievement(preset.filters.achievement);
+    setSelectedGender(preset.filters.gender || "all");
     setSearchTerm(preset.filters.searchTerm);
     setSelectedHometown(preset.filters.hometown);
   };
@@ -232,19 +275,12 @@ export const MemberList: React.FC = () => {
     });
   };
 
-  const statusColors = {
-    "Đang sinh hoạt": "bg-green-100 text-green-700",
-    "Đã chuyển sinh hoạt": "bg-blue-100 text-blue-700",
-    "Đã trưởng thành": "bg-gray-100 text-gray-700",
-    "Bị kỷ luật": "bg-red-100 text-red-700",
-  };
-
   return (
-    <div id="member-list-container" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div id="member-list-container">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-3xl font-serif text-white flex items-center gap-3">
-            <Users className="text-accent" />
+          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
+            <Users className="text-accent" size={36} />
             Quản lý đoàn viên
           </h2>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
@@ -258,7 +294,7 @@ export const MemberList: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-8 mb-8 overflow-hidden">
+      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-8 mb-8 pb-32">
         {/* Main Search Row */}
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
           <div className="relative flex-1 group w-full md:max-w-2xl">
@@ -364,73 +400,40 @@ export const MemberList: React.FC = () => {
         {/* Advanced Filters Panel */}
         {isAdvancedSearchOpen && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-white/10 animate-in slide-in-from-top-4 duration-300">
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Chi đoàn</label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white/80 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all appearance-none cursor-pointer"
-                  value={selectedUnit}
-                  onChange={(e) => setSelectedUnit(e.target.value)}
-                >
-                  <option value="all" className="bg-surface text-white">Tất cả chi đoàn</option>
-                  {units.map(unit => (
-                    <option key={unit.id} value={unit.id} className="bg-surface text-white">{unit.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
-              </div>
-            </div>
+            <CustomSelect
+              label="Chi đoàn"
+              options={unitOptions}
+              value={selectedUnit}
+              onChange={setSelectedUnit}
+            />
 
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Niên khóa / Năm học</label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white/80 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all appearance-none cursor-pointer"
-                  value={selectedAcademicYear}
-                  onChange={(e) => setSelectedAcademicYear(e.target.value)}
-                >
-                  <option value="all" className="bg-surface text-white">Tất cả các khóa</option>
-                  {academicYears.map(year => (
-                    <option key={year} value={year} className="bg-surface text-white">{year}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
-              </div>
-            </div>
+            <CustomSelect
+              label="Niên khóa / Năm học"
+              options={academicYearOptions}
+              value={selectedAcademicYear}
+              onChange={setSelectedAcademicYear}
+            />
 
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Xếp loại đoàn viên</label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white/80 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all appearance-none cursor-pointer"
-                  value={selectedAchievement}
-                  onChange={(e) => setSelectedAchievement(e.target.value)}
-                >
-                  <option value="all" className="bg-surface text-white">Tất cả xếp loại</option>
-                  {achievementLevels.map(level => (
-                    <option key={level} value={level} className="bg-surface text-white">{level}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
-              </div>
-            </div>
+            <CustomSelect
+              label="Xếp loại đoàn viên"
+              options={achievementOptions}
+              value={selectedAchievement}
+              onChange={setSelectedAchievement}
+            />
 
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Trạng thái</label>
-              <div className="relative">
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white/80 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all appearance-none cursor-pointer"
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                >
-                  <option value="all" className="bg-surface text-white">Tất cả trạng thái</option>
-                  {Object.keys(statusColors).map(status => (
-                    <option key={status} value={status} className="bg-surface text-white">{status}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={16} />
-              </div>
-            </div>
+            <CustomSelect
+              label="Trạng thái"
+              options={statusOptions}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+            />
+
+            <CustomSelect
+              label="Giới tính"
+              options={genderOptions}
+              value={selectedGender}
+              onChange={setSelectedGender}
+            />
 
             <div className="lg:col-span-2">
               <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Quê quán (Lọc theo tỉnh/thành)</label>
@@ -548,11 +551,14 @@ export const MemberList: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-          <div className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl p-1 my-8 animate-in fade-in zoom-in duration-300">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]"
+          >
+            <div className="p-8 border-b border-white/5 flex justify-between items-center shrink-0 bg-white/[0.01]">
               <div>
                 <h3 className="text-2xl font-serif text-white italic">
                   {editingId ? "Cập nhật hồ sơ đoàn viên" : "Đăng ký đoàn viên mới"}
@@ -566,159 +572,145 @@ export const MemberList: React.FC = () => {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-10 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="md:col-span-2">
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Họ và tên đầy đủ</label>
-                  <input
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 italic"
-                    value={newMember.fullName}
-                    onChange={(e) => setNewMember({...newMember, fullName: e.target.value})}
-                    placeholder="VD: Nguyễn Hoàng Nam"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
-                  <input
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                    value={newMember.hometown}
-                    onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
-                    placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đoàn viên (MSSV)</label>
-                  <input
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
-                    value={newMember.memberId}
-                    onChange={(e) => setNewMember({...newMember, memberId: e.target.value})}
-                    placeholder="VD: 2024001"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tháng năm sinh</label>
-                  <input
-                    type="date"
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
-                    value={newMember.dob}
-                    onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
-                  <input
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                    value={newMember.academicYear}
-                    onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
-                    placeholder="VD: K2020-2024"
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Phân loại thành tích</label>
-                  <select
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none cursor-pointer"
-                    value={newMember.achievementLevel}
-                    onChange={(e) => setNewMember({...newMember, achievementLevel: e.target.value as any})}
-                  >
-                    {achievementLevels.map(level => (
-                      <option key={level} value={level} className="bg-surface">{level}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Giới tính</label>
-                  <select
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none cursor-pointer"
-                    value={newMember.gender}
-                    onChange={(e) => setNewMember({...newMember, gender: e.target.value as any})}
-                  >
-                    <option value="Nam" className="bg-surface">Nam</option>
-                    <option value="Nữ" className="bg-surface">Nữ</option>
-                    <option value="Khác" className="bg-surface">Khác</option>
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <div className="flex justify-between items-center mb-3">
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
-                    <button 
-                      type="button"
-                      onClick={() => setShowUnitModal(true)}
-                      className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
-                    >
-                      <Plus size={12} />
-                      Tạo đơn vị mới
-                    </button>
-                  </div>
-                  <select
-                    required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none cursor-pointer"
-                    value={newMember.unitId}
-                    onChange={(e) => setNewMember({...newMember, unitId: e.target.value})}
-                  >
-                    <option value="" disabled className="bg-surface">Chọn chi đoàn...</option>
-                    {units.map(unit => (
-                      <option key={unit.id} value={unit.id} className="bg-surface">{unit.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Trạng thái sinh hoạt</label>
-                  <select
-                    className={cn(
-                      "w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none",
-                      editingId ? "cursor-pointer" : "cursor-not-allowed opacity-60"
-                    )}
-                    value={newMember.status}
-                    onChange={(e) => setNewMember({...newMember, status: e.target.value as any})}
-                    disabled={!editingId}
-                  >
-                    <option value="Đang sinh hoạt" className="bg-surface">Đang sinh hoạt</option>
-                    <option value="Đã chuyển sinh hoạt" className="bg-surface">Đã chuyển sinh hoạt</option>
-                    <option value="Đã trưởng thành" className="bg-surface">Đã trưởng thành</option>
-                    <option value="Bị kỷ luật" className="bg-surface">Bị kỷ luật</option>
-                  </select>
-                  {!editingId && <p className="text-[10px] text-accent mt-2 italic font-bold">Mặc định cho đoàn viên mới đăng ký</p>}
-                </div>
-                {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
-                  <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
-                    <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
+            
+            <div className="overflow-y-auto flex-1 custom-scrollbar">
+              <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                  <div className="md:col-span-2">
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Họ và tên đầy đủ</label>
                     <input
                       required
-                      className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic"
-                      value={statusReason}
-                      onChange={(e) => setStatusReason(e.target.value)}
-                      placeholder="Nhập lý do thay đổi (VD: Chuyển trường, Hết tuổi Đoàn...)"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 italic"
+                      value={newMember.fullName}
+                      onChange={(e) => setNewMember({...newMember, fullName: e.target.value})}
+                      placeholder="VD: Nguyễn Hoàng Nam"
                     />
                   </div>
-                )}
-              </div>
-              <div className="pt-8 flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-8 py-4 border border-white/10 rounded-full font-bold text-sm uppercase tracking-widest text-white/60 hover:bg-white/5 transition-colors"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-8 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
-                >
-                  Lưu hồ sơ đoàn viên
-                </button>
-              </div>
-            </form>
-          </div>
+                  <div className="md:col-span-2">
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.hometown}
+                      onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
+                      placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đoàn viên (MSSV)</label>
+                    <input
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
+                      value={newMember.memberId}
+                      onChange={(e) => setNewMember({...newMember, memberId: e.target.value})}
+                      placeholder="VD: 2024001"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tháng năm sinh</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      value={newMember.dob}
+                      onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.academicYear}
+                      onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
+                      placeholder="VD: K2020-2024"
+                    />
+                  </div>
+                  <CustomSelect
+                    label="Phân loại thành tích"
+                    options={achievementOptionsModal}
+                    value={newMember.achievementLevel}
+                    onChange={(val) => setNewMember({...newMember, achievementLevel: val as any})}
+                  />
+                  <CustomSelect
+                    label="Giới tính"
+                    options={genderOptionsModal}
+                    value={newMember.gender}
+                    onChange={(val) => setNewMember({...newMember, gender: val as any})}
+                  />
+                  <div className="md:col-span-2">
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
+                      {isAdmin && (
+                        <button 
+                          type="button"
+                          onClick={() => setShowUnitModal(true)}
+                          className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
+                        >
+                          <Plus size={12} />
+                          Tạo đơn vị mới
+                        </button>
+                      )}
+                    </div>
+                    <CustomSelect
+                      disabled={isSecretary}
+                      options={unitOptionsModal}
+                      value={newMember.unitId}
+                      onChange={(val) => setNewMember({...newMember, unitId: val})}
+                      placeholder="Chọn chi đoàn..."
+                    />
+                    {isSecretary && <p className="text-[9px] text-white/20 mt-2 italic">Bạn chỉ có quyền quản lý đoàn viên trong chi đoàn được phân công.</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <CustomSelect
+                      label="Trạng thái sinh hoạt"
+                      disabled={!editingId}
+                      options={statusOptionsModal}
+                      value={newMember.status}
+                      onChange={(val) => setNewMember({...newMember, status: val as any})}
+                    />
+                    {!editingId && <p className="text-[10px] text-accent mt-2 italic font-bold">Mặc định cho đoàn viên mới đăng ký</p>}
+                  </div>
+                  {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
+                    <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
+                      <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
+                      <input
+                        required
+                        className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic"
+                        value={statusReason}
+                        onChange={(e) => setStatusReason(e.target.value)}
+                        placeholder="Nhập lý do thay đổi (VD: Chuyển trường, Hết tuổi Đoàn...)"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="pt-8 flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="flex-1 px-8 py-4 border border-white/10 rounded-full font-bold text-sm uppercase tracking-widest text-white/60 hover:bg-white/5 transition-colors"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-8 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
+                  >
+                    Lưu hồ sơ đoàn viên
+                  </button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
         </div>
       )}
 
       {/* Status History Modal */}
       {showHistoryModal && historyMember && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-          <div className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8 animate-in fade-in zoom-in duration-300">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8"
+          >
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] rounded-t-[2.4rem]">
               <div>
                 <h3 className="text-2xl font-serif text-white italic">
@@ -771,13 +763,17 @@ export const MemberList: React.FC = () => {
                   Đóng
                 </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
       {/* Quick Unit Modal */}
       {showUnitModal && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1 animate-in zoom-in-95 duration-200">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#1a1a1a] border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1"
+          >
             <div className="p-6 border-b border-white/5 flex justify-between items-center">
               <h4 className="text-white font-serif italic text-lg">Tạo đơn vị nhanh</h4>
               <button 
@@ -824,7 +820,7 @@ export const MemberList: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

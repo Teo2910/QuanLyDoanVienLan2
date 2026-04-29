@@ -66,9 +66,32 @@ async function connectDb() {
       CREATE TABLE users (
         uid NVARCHAR(50) PRIMARY KEY,
         email NVARCHAR(255) NOT NULL,
+        password NVARCHAR(255),
         role NVARCHAR(50) NOT NULL,
+        fullName NVARCHAR(255),
+        avatarUrl NVARCHAR(MAX),
         unitId NVARCHAR(50),
         presets NVARCHAR(MAX) -- JSON string
+      );
+
+      IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('users') AND name = 'fullName')
+      ALTER TABLE users ADD fullName NVARCHAR(255);
+      
+      IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('users') AND name = 'avatarUrl')
+      ALTER TABLE users ADD avatarUrl NVARCHAR(MAX);
+
+      IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('users') AND name = 'phone')
+      ALTER TABLE users ADD phone NVARCHAR(50);
+
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='activities' AND xtype='U')
+      CREATE TABLE activities (
+        id NVARCHAR(50) PRIMARY KEY,
+        title NVARCHAR(255) NOT NULL,
+        date NVARCHAR(50) NOT NULL,
+        location NVARCHAR(255) NOT NULL,
+        description NVARCHAR(MAX),
+        type NVARCHAR(50) NOT NULL,
+        createdAt BIGINT NOT NULL
       );
     `);
   } catch (err) {
@@ -86,6 +109,29 @@ async function startServer() {
 
   // API Routes
   
+  // Auth Login
+  app.post("/api/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const result = await pool.request()
+        .input("email", sql.NVarChar, email)
+        .input("password", sql.NVarChar, password)
+        .query("SELECT * FROM users WHERE email = @email AND password = @password");
+      
+      const user = result.recordset[0];
+      if (user) {
+        if (user.presets) user.presets = JSON.parse(user.presets);
+        // Don't send password back
+        const { password: _, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+      } else {
+        res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
+      }
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
   // Units
   app.get("/api/units", async (req, res) => {
     try {
@@ -261,19 +307,40 @@ async function startServer() {
 
   app.post("/api/users", async (req, res) => {
     try {
-      const { uid, email, role, unitId, presets } = req.body;
+      const { uid, email, password, role, fullName, avatarUrl, phone, unitId, presets } = req.body;
       await pool.request()
         .input("uid", sql.NVarChar, uid)
         .input("email", sql.NVarChar, email)
+        .input("password", sql.NVarChar, password)
         .input("role", sql.NVarChar, role)
+        .input("fullName", sql.NVarChar, fullName)
+        .input("avatarUrl", sql.NVarChar, avatarUrl)
+        .input("phone", sql.NVarChar, phone)
         .input("unitId", sql.NVarChar, unitId)
         .input("presets", sql.NVarChar, JSON.stringify(presets || []))
         .query(`
           IF EXISTS (SELECT * FROM users WHERE uid = @uid)
-            UPDATE users SET email = @email, role = @role, unitId = @unitId, presets = @presets WHERE uid = @uid
+            UPDATE users SET email = @email, password = @password, role = @role, fullName = @fullName, avatarUrl = @avatarUrl, phone = @phone, unitId = @unitId, presets = @presets WHERE uid = @uid
           ELSE
-            INSERT INTO users (uid, email, role, unitId, presets) VALUES (@uid, @email, @role, @unitId, @presets)
+            INSERT INTO users (uid, email, password, role, fullName, avatarUrl, phone, unitId, presets) VALUES (@uid, @email, @password, @role, @fullName, @avatarUrl, @phone, @unitId, @presets)
         `);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.put("/api/users/:uid/profile", async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { fullName, avatarUrl, email, phone } = req.body;
+      await pool.request()
+        .input("uid", sql.NVarChar, uid)
+        .input("fullName", sql.NVarChar, fullName)
+        .input("avatarUrl", sql.NVarChar, avatarUrl)
+        .input("email", sql.NVarChar, email)
+        .input("phone", sql.NVarChar, phone)
+        .query("UPDATE users SET fullName = @fullName, avatarUrl = @avatarUrl, email = @email, phone = @phone WHERE uid = @uid");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });
@@ -288,6 +355,63 @@ async function startServer() {
         .input("uid", sql.NVarChar, uid)
         .input("presets", sql.NVarChar, JSON.stringify(presets))
         .query("UPDATE users SET presets = @presets WHERE uid = @uid");
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  // Activities
+  app.get("/api/activities", async (req, res) => {
+    try {
+      const result = await pool.request().query("SELECT * FROM activities");
+      res.json(result.recordset);
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/activities", async (req, res) => {
+    try {
+      const { id, title, date, location, description, type, createdAt } = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("date", sql.NVarChar, date)
+        .input("location", sql.NVarChar, location)
+        .input("description", sql.NVarChar, description)
+        .input("type", sql.NVarChar, type)
+        .input("createdAt", sql.BigInt, createdAt)
+        .query("INSERT INTO activities (id, title, date, location, description, type, createdAt) VALUES (@id, @title, @date, @location, @description, @type, @createdAt)");
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.put("/api/activities/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, date, location, description, type } = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("date", sql.NVarChar, date)
+        .input("location", sql.NVarChar, location)
+        .input("description", sql.NVarChar, description)
+        .input("type", sql.NVarChar, type)
+        .query("UPDATE activities SET title = @title, date = @date, location = @location, description = @description, type = @type WHERE id = @id");
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.delete("/api/activities/:id", async (req, res) => {
+    try {
+      await pool.request()
+        .input("id", sql.NVarChar, req.params.id)
+        .query("DELETE FROM activities WHERE id = @id");
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });

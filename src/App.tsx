@@ -1,22 +1,70 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState, FormEvent } from "react";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { UnitList } from "./pages/Units/UnitList";
 import { MemberList } from "./pages/Members/MemberList";
-import { useEffect, useState } from "react";
+import { ActivityList } from "./pages/Activities/ActivityList";
 import { dataService } from "./services/dataService";
 import { cn } from "./lib/utils";
-import { Users, Building2, Calendar, Star, LogIn } from "lucide-react";
+import { Users, Building2, Calendar, Star, LogIn, Plus } from "lucide-react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { Member, UserProfile, Activity } from "./types";
+import { motion, AnimatePresence } from "motion/react";
+import { CustomSelect } from "./components/CustomSelect";
+
+const PageTransition = ({ children }: { children: React.ReactNode; key?: string }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    transition={{ duration: 0.3, ease: "easeOut" }}
+  >
+    {children}
+  </motion.div>
+);
 
 const Dashboard = () => {
   const { profile } = useAuth();
   const [stats, setStats] = useState({ units: 0, members: 0 });
+  const [recentMembers, setRecentMembers] = useState<(Member & { unitName: string })[]>([]);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
 
   useEffect(() => {
-    Promise.all([dataService.getUnits(), dataService.getMembers()]).then(([u, m]) => {
-      setStats({ units: u.length, members: m.length });
+    Promise.all([
+      dataService.getUnits(), 
+      dataService.getMembers(),
+      dataService.getActivities()
+    ]).then(([uData, mData, aData]) => {
+      // Filter data if secretary
+      const filteredMembers = profile?.isSecretary && profile?.unitId
+        ? mData.filter(m => m.unitId === profile.unitId)
+        : mData;
+
+      setStats({ 
+        units: uData.length, 
+        members: filteredMembers.length 
+      });
+
+      // Get 3 most recent joiners
+      const sortedMembers = [...filteredMembers]
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 3)
+        .map(m => ({
+          ...m,
+          unitName: uData.find(u => u.id === m.unitId)?.name || "N/A"
+        }));
+      
+      setRecentMembers(sortedMembers);
+
+      // Get 3 upcoming activities
+      const sortedActivities = [...aData]
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .filter(a => new Date(a.date).getTime() >= Date.now())
+        .slice(0, 3);
+      
+      setRecentActivities(sortedActivities);
     });
-  }, []);
+  }, [profile]);
 
   const cards = [
     { label: "Tổng số chi đoàn", value: stats.units, icon: Building2, color: "text-blue-400", bg: "bg-blue-500/10" },
@@ -26,10 +74,12 @@ const Dashboard = () => {
   ];
 
   return (
-    <div id="dashboard-page" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div id="dashboard-page">
       <div className="mb-12">
-        <h2 className="text-4xl font-serif text-white tracking-tight">Xin chào, {profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư'}</h2>
-        <p className="text-white/40 mt-2 text-sm uppercase tracking-widest font-medium">Hệ thống quản lý dữ liệu trực thuộc</p>
+        <h2 className="text-5xl font-serif text-white tracking-tighter italic">
+          Xin chào, {profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}
+        </h2>
+        <p className="text-white/40 mt-2 text-xs uppercase tracking-widest leading-relaxed">Hệ thống quản lý dữ liệu và hồ sơ đoàn viên trực thuộc</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -48,57 +98,86 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem]">
-           <div className="flex justify-between items-center mb-8">
-             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-               <Calendar className="text-accent" size={16} />
-               Hoạt động sắp tới
-             </h3>
-             <span className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</span>
-           </div>
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+                <Calendar className="text-accent" size={16} />
+                Hoạt động sắp tới
+              </h3>
+              <div className="flex items-center gap-4">
+                {(profile?.role === 'admin' || profile?.role === 'secretary') && (
+                  <Link 
+                    to="/activities" 
+                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                  >
+                    <Plus size={12} />
+                    Thêm mới
+                  </Link>
+                )}
+                <Link to="/activities" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+              </div>
+            </div>
            <div className="space-y-4">
-             {[
-               { title: "Đại hội Chi đoàn K44", date: "15/05/2026", type: "Hội họp" },
-               { title: "Chiến dịch Mùa hè xanh", date: "01/07/2026", type: "Phong trào" },
-               { title: "Lớp bồi dưỡng cảm tình Đoàn", date: "20/05/2026", type: "Giáo dục" },
-             ].map((evt) => (
-               <div key={evt.title} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/20 transition-all cursor-pointer group">
-                  <div>
-                    <p className="font-serif italic text-white text-lg group-hover:text-accent transition-colors">{evt.title}</p>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">{evt.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-white/60 tabular-nums">{evt.date}</p>
-                  </div>
+             {recentActivities.length > 0 ? (
+               recentActivities.map((evt) => (
+                 <div key={evt.id} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/20 transition-all cursor-pointer group">
+                    <div>
+                      <p className="font-serif italic text-white text-lg group-hover:text-accent transition-colors">{evt.title}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">{evt.type}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-white/60 tabular-nums">{new Date(evt.date).toLocaleDateString("vi-VN")}</p>
+                    </div>
+                 </div>
+               ))
+             ) : (
+               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
+                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có hoạt động tiếp theo</p>
                </div>
-             ))}
+             )}
            </div>
         </div>
 
         <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem]">
-           <div className="flex justify-between items-center mb-8">
-             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-               <Users className="text-accent" size={16} />
-               Gia nhập gần đây
-             </h3>
-             <span className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Phê duyệt</span>
-           </div>
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+                <Users className="text-accent" size={16} />
+                Gia nhập gần đây
+              </h3>
+              <div className="flex items-center gap-4">
+                {(profile?.role === 'admin' || profile?.role === 'secretary') && (
+                  <Link 
+                    to="/members" 
+                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                  >
+                    <Plus size={12} />
+                    Thêm mới
+                  </Link>
+                )}
+                <Link to="/members" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+              </div>
+            </div>
            <div className="space-y-6">
-             {[
-               { name: "Phạm Minh Hoàng", date: "Hôm nay", unit: "CNTT K44" },
-               { name: "Vũ Phương Linh", date: "Hôm qua", unit: "Toán K44" },
-               { name: "Nguyễn Tuấn Anh", date: "2 ngày trước", unit: "Vật lý K43" },
-             ].map((user) => (
-               <div key={user.name} className="flex items-center gap-5 group cursor-pointer">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all shadow-inner">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-serif italic text-white group-hover:text-accent transition-colors">{user.name}</p>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{user.unit}</p>
-                  </div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">{user.date}</p>
+             {recentMembers.length > 0 ? (
+               recentMembers.map((m) => {
+                 const joinDate = m.createdAt ? new Date(m.createdAt).toLocaleDateString("vi-VN") : "N/A";
+                 return (
+                   <div key={m.id} className="flex items-center gap-5 group cursor-pointer">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all shadow-inner">
+                        {m.fullName.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-serif italic text-white group-hover:text-accent transition-colors">{m.fullName}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{m.unitName}</p>
+                      </div>
+                      <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">{joinDate}</p>
+                   </div>
+                 );
+               })
+             ) : (
+               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
+                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có đoàn viên mới</p>
                </div>
-             ))}
+             )}
            </div>
         </div>
       </div>
@@ -106,8 +185,129 @@ const Dashboard = () => {
   );
 };
 
+const AuthScreen = () => {
+  const { login, register } = useAuth();
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<'admin' | 'secretary'>('secretary');
+  const [unitId, setUnitId] = useState("unit-1");
+  const [units, setUnits] = useState<{id: string, name: string}[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    dataService.getUnits().then(setUnits);
+  }, []);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      if (isRegister) {
+        await register({ email, password, role, unitId: role === 'secretary' ? unitId : undefined });
+      } else {
+        await login(email, password);
+      }
+    } catch (err: any) {
+      setError(err.message || "Có lỗi xảy ra, vui lòng thử lại");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+       <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-[3rem] text-center shadow-2xl flex flex-col items-center">
+          <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
+            <Star className="text-accent" size={32} />
+          </div>
+          <h1 className="text-3xl font-serif text-white italic mb-2">Quản Lý Đoàn Viên</h1>
+          <p className="text-white/40 mb-8 text-sm uppercase tracking-widest font-medium">
+            {isRegister ? "Đăng ký tài khoản mới" : "Cổng thông tin nội bộ"}
+          </p>
+
+          {error && (
+            <div className="w-full p-4 mb-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold uppercase tracking-widest">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="w-full space-y-4">
+            <input 
+              type="email"
+              placeholder="Email của bạn"
+              required
+              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <input 
+              type="password"
+              placeholder="Mật khẩu"
+              required
+              minLength={6}
+              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            
+            {isRegister && (
+              <>
+                <div className="flex gap-2">
+                  <button 
+                    type="button"
+                    onClick={() => setRole('secretary')}
+                    className={cn(
+                      "flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold border transition-all",
+                      role === 'secretary' ? "bg-accent/20 border-accent text-accent" : "bg-white/5 border-white/5 text-white/40"
+                    )}
+                  >
+                    Bí thư
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setRole('admin')}
+                    className={cn(
+                      "flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold border transition-all",
+                      role === 'admin' ? "bg-accent/20 border-accent text-accent" : "bg-white/5 border-white/5 text-white/40"
+                    )}
+                  >
+                    Quản trị viên
+                  </button>
+                </div>
+
+                {role === 'secretary' && (
+                  <CustomSelect
+                    options={units.map(u => ({ value: u.id, label: u.name }))}
+                    value={unitId}
+                    onChange={setUnitId}
+                    placeholder="Chọn chi đoàn..."
+                  />
+                )}
+              </>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full flex items-center justify-center gap-4 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+            >
+              {isRegister ? "Đăng ký ngay" : "Tiếp tục truy cập"}
+            </button>
+          </form>
+
+          <button 
+            onClick={() => { setIsRegister(!isRegister); setError(null); }}
+            className="mt-6 text-[10px] text-white/30 uppercase tracking-widest hover:text-white transition-colors"
+          >
+            {isRegister ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký tại đây"}
+          </button>
+       </div>
+    </div>
+  );
+};
+
 const AppContent = () => {
-  const { user, loading, login } = useAuth();
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -118,52 +318,29 @@ const AppContent = () => {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-         <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-12 rounded-[3rem] text-center shadow-2xl flex flex-col items-center">
-            <div className="w-20 h-20 bg-accent/10 rounded-3xl flex items-center justify-center mb-8">
-              <Star className="text-accent" size={40} />
-            </div>
-            <h1 className="text-4xl font-serif text-white italic mb-4">Quản Lý Đoàn Viên</h1>
-            <p className="text-white/40 mb-10 leading-relaxed text-sm">Hệ thống quản lý dữ liệu nội bộ. Vui lòng nhấn nút bên dưới để truy cập.</p>
-            <button 
-              onClick={() => login("admin@local.test")}
-              className="w-full flex items-center justify-center gap-4 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-accent/20"
-            >
-              <LogIn size={20} />
-              Truy cập Hệ thống (Admin)
-            </button>
-            <div className="mt-4 w-full">
-              <button 
-                onClick={() => login("sec@local.test")}
-                className="w-full flex items-center justify-center gap-4 py-4 bg-white/5 border border-white/10 text-white/60 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
-              >
-                Tiếp tục: Bí thư chi đoàn
-              </button>
-            </div>
-            <p className="mt-8 text-[10px] text-white/20 uppercase tracking-[0.2em]">Cổng thông tin nội bộ (Offline Mode)</p>
-         </div>
-      </div>
-    );
+    return <AuthScreen />;
   }
 
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/units" element={<UnitList />} />
-          <Route path="/members" element={<MemberList />} />
+    <Layout>
+      <AnimatePresence mode="wait" initial={false}>
+        <Routes location={location}>
+          <Route path="/" element={<PageTransition key="dashboard"><Dashboard /></PageTransition>} />
+          <Route path="/units" element={<PageTransition key="units"><UnitList /></PageTransition>} />
+          <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
+          <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
         </Routes>
-      </Layout>
-    </Router>
+      </AnimatePresence>
+    </Layout>
   );
 };
 
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AuthProvider>
   );
 }
