@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+
+    function isSecretary() {
+      return isSignedIn() && getUserData().role == 'secretary';
+    }
+
+    function isSecretaryOfUnit(unitId) {
+      return isSecretary() && getUserData().unitId == unitId;
+    }
+
+    // Units rules
+    match /units/{unitId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Members rules
+    match /members/{memberId} {
+      allow read: if isSignedIn();
+      
+      // Admin can manage everything
+      // Secretary can manage if they are admin or if they are responsible for that unit
+      // For simplicity in this ruleset, we check unitId in the existing/incoming data
+      allow create: if isAdmin() || (isSecretary() && isSecretaryOfUnit(request.resource.data.unitId));
+      allow update: if isAdmin() || (isSecretary() && isSecretaryOfUnit(resource.data.unitId) && (request.resource.data.unitId == resource.data.unitId));
+      allow delete: if isAdmin();
+    }
+
+    // User profiles rules
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // Only admins can create/update roles
+      allow write: if isAdmin();
+    }
+  }
+}
