@@ -2,8 +2,15 @@ import { Unit, Member } from "../types";
 
 class DataService {
   async getUnits(): Promise<Unit[]> {
-    const response = await fetch("/api/units");
-    return response.json();
+    try {
+      const response = await fetch("/api/units");
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch units:", error);
+      return [];
+    }
   }
 
   async addUnit(unit: Omit<Unit, "id" | "createdAt">): Promise<Unit> {
@@ -12,17 +19,28 @@ class DataService {
       id: Math.random().toString(36).substring(2, 11),
       createdAt: Date.now(),
     };
-    await fetch("/api/units", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newUnit),
-    });
+    try {
+      await fetch("/api/units", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUnit),
+      });
+    } catch (error) {
+      console.error("Failed to add unit:", error);
+    }
     return newUnit;
   }
 
   async getMembers(): Promise<Member[]> {
-    const response = await fetch("/api/members");
-    return response.json();
+    try {
+      const response = await fetch("/api/members");
+      if (!response.ok) return [];
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+      return [];
+    }
   }
 
   async addMember(member: Omit<Member, "id" | "createdAt">): Promise<Member> {

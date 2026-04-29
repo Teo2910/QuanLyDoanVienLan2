@@ -5,7 +5,7 @@ import { Trash2, Edit3, Search, Plus, Building2, X, ShieldAlert } from "lucide-r
 import { useAuth } from "../../contexts/AuthContext";
 
 export const UnitList: React.FC = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isSecretary } = useAuth();
   const [units, setUnits] = useState<Unit[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ export const UnitList: React.FC = () => {
           </h2>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
         </div>
-        {isAdmin && (
+        {(isAdmin || isSecretary) && (
           <button 
             onClick={openAddModal}
             className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-tighter hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2"
@@ -136,7 +136,7 @@ export const UnitList: React.FC = () => {
                     </td>
                     <td className="py-6 px-4 text-right">
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        {isAdmin ? (
+                        {(isAdmin || isSecretary) ? (
                           <>
                             <button 
                               onClick={() => handleEdit(unit)}

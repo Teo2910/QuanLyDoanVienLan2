@@ -25,10 +25,12 @@ export const MemberList: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showUnitModal, setShowUnitModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [statusReason, setStatusReason] = useState("");
+  const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
   const [newMember, setNewMember] = useState<Omit<Member, "id" | "createdAt" | "statusHistory">>({
     fullName: "",
     memberId: "",
@@ -42,6 +44,7 @@ export const MemberList: React.FC = () => {
   });
 
   const academicYears = useMemo(() => {
+    if (!Array.isArray(members)) return [];
     const years = members.map(m => m.academicYear).filter(Boolean) as string[];
     return Array.from(new Set(years)).sort();
   }, [members]);
@@ -71,6 +74,7 @@ export const MemberList: React.FC = () => {
   };
 
   const filteredMembers = useMemo(() => {
+    if (!Array.isArray(members)) return [];
     let result = members.filter(member => {
       const matchesUnit = selectedUnit === "all" || member.unitId === selectedUnit;
       const matchesStatus = selectedStatus === "all" || member.status === selectedStatus;
@@ -216,6 +220,16 @@ export const MemberList: React.FC = () => {
       status: "Đang sinh hoạt"
     });
     setShowModal(true);
+  };
+
+  const handleUnitSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dataService.addUnit(newUnit).then((createdUnit) => {
+      loadData();
+      setShowUnitModal(false);
+      setNewUnit({ name: "", code: "", email: "", address: "" });
+      setNewMember(prev => ({ ...prev, unitId: createdUnit.id }));
+    });
   };
 
   const statusColors = {
@@ -626,14 +640,25 @@ export const MemberList: React.FC = () => {
                     <option value="Khác" className="bg-surface">Khác</option>
                   </select>
                 </div>
-                <div>
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Chi đoàn trực thuộc</label>
+                <div className="md:col-span-2">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
+                    <button 
+                      type="button"
+                      onClick={() => setShowUnitModal(true)}
+                      className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
+                    >
+                      <Plus size={12} />
+                      Tạo đơn vị mới
+                    </button>
+                  </div>
                   <select
                     required
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none cursor-pointer"
                     value={newMember.unitId}
                     onChange={(e) => setNewMember({...newMember, unitId: e.target.value})}
                   >
+                    <option value="" disabled className="bg-surface">Chọn chi đoàn...</option>
                     {units.map(unit => (
                       <option key={unit.id} value={unit.id} className="bg-surface">{unit.name}</option>
                     ))}
@@ -746,6 +771,59 @@ export const MemberList: React.FC = () => {
                   Đóng
                 </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Quick Unit Modal */}
+      {showUnitModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1 animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center">
+              <h4 className="text-white font-serif italic text-lg">Tạo đơn vị nhanh</h4>
+              <button 
+                onClick={() => setShowUnitModal(false)}
+                className="text-white/20 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleUnitSubmit} className="p-8 space-y-6">
+              <div>
+                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Tên đơn vị</label>
+                <input 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                  value={newUnit.name}
+                  onChange={e => setNewUnit({...newUnit, name: e.target.value})}
+                  placeholder="VD: Chi đoàn K44"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Mã định danh</label>
+                <input 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                  value={newUnit.code}
+                  onChange={e => setNewUnit({...newUnit, code: e.target.value})}
+                  placeholder="VD: CD44"
+                />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setShowUnitModal(false)}
+                  className="flex-1 py-3 text-xs uppercase font-bold text-white/40 hover:bg-white/5 rounded-full transition-all"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 bg-accent text-accent-foreground rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/20"
+                >
+                  Lưu đơn vị
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
