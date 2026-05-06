@@ -43,6 +43,29 @@ async function startServer() {
     console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
     pool = await sql.connect(sqlConfig);
     console.log("Connected to SQL Server successfully.");
+
+    // Auto-migration: Ensure all required columns exist
+    const columnsToEnsure = [
+      { name: "ethnic", type: "NVARCHAR(MAX)" },
+      { name: "religion", type: "NVARCHAR(MAX)" },
+      { name: "placeOfBirth", type: "NVARCHAR(MAX)" },
+      { name: "permanentAddress", type: "NVARCHAR(MAX)" },
+      { name: "professionalLevel", type: "NVARCHAR(MAX)" },
+      { name: "position", type: "NVARCHAR(MAX)" }
+    ];
+
+    for (const col of columnsToEnsure) {
+      try {
+        await pool.request().query(`
+          IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('members') AND name = '${col.name}')
+          BEGIN
+            ALTER TABLE members ADD ${col.name} ${col.type};
+          END
+        `);
+      } catch (colErr) {
+        console.warn(`Could not add column ${col.name}:`, colErr.message);
+      }
+    }
   } catch (err) {
     console.error("SQL Server Connection Failed: ", err);
     // If it fails, the server should still start to serve frontend, but APIs will return 500
