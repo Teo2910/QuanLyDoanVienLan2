@@ -193,24 +193,35 @@ export const Statistics: React.FC = () => {
   return (
     <div className="space-y-12 pb-20">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
-        <div>
-          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
-            <BarChart3 className="text-accent" size={36} />
-            Thống kê số liệu
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight group cursor-default">
+            <motion.div
+              whileHover={{ rotate: 15, scale: 1.2 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <BarChart3 className="text-accent" size={36} />
+            </motion.div>
+            <span>Thống kê số liệu</span>
           </h2>
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mt-2 font-bold ml-12">
             Tổng hợp dữ liệu {selectedUnitName}
           </p>
-        </div>
+        </motion.div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 w-full lg:w-auto">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleExportExcel}
             className="group flex items-center gap-3 px-6 py-3 bg-accent/10 border border-accent/20 rounded-2xl text-accent hover:bg-accent hover:text-white transition-all duration-300 shadow-lg shadow-accent/5"
           >
             <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
             <span className="text-xs uppercase tracking-widest font-bold">Xuất file Excel</span>
-          </button>
+          </motion.button>
 
           {!isSecretary && (
             <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -229,11 +240,16 @@ export const Statistics: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Outstanding Members Highlight - New */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-accent/20 to-surface/40 border border-accent/20 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-[100px] -mr-32 -mt-32 rounded-full group-hover:bg-accent/20 transition-colors duration-700" />
+        <motion.div 
+          whileHover={{ scale: 1.01, translateY: -5 }}
+          className="lg:col-span-2 bg-gradient-to-br from-accent/20 to-surface/40 border border-accent/20 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group cursor-default transition-all duration-300 hover:shadow-accent/5"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-[100px] -mr-32 -mt-32 rounded-full group-hover:bg-accent/30 transition-colors duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+          
           <div className="relative flex flex-col md:flex-row justify-between items-center gap-10">
             <div className="flex-1 text-center md:text-left">
-              <h3 className="text-sm uppercase tracking-[0.3em] text-accent font-black mb-4">Danh hiệu danh dự</h3>
+              <h3 className="text-sm uppercase tracking-[0.3em] text-accent font-black mb-4 group-hover:tracking-[0.4em] transition-all duration-300">Danh hiệu danh dự</h3>
               <h2 className="text-5xl font-serif text-white italic leading-tight">
                 Đoàn viên <br />
                 <span className="text-accent not-italic font-sans font-bold uppercase tracking-tight">Tiêu biểu</span>
@@ -260,10 +276,13 @@ export const Statistics: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Gender Breakdown */}
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <motion.div 
+          whileHover={{ scale: 1.01, translateY: -5 }}
+          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
+        >
           <div className="flex justify-between items-start mb-8">
             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
               <PieChartIcon className="text-accent" size={16} />
@@ -313,10 +332,13 @@ export const Statistics: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Status Breakdown */}
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <motion.div 
+          whileHover={{ scale: 1.01, translateY: -5 }}
+          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
+        >
           <div className="flex justify-between items-start mb-8">
             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
               <Activity className="text-accent" size={16} />
@@ -362,10 +384,13 @@ export const Statistics: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Achievement Breakdown */}
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <motion.div 
+          whileHover={{ scale: 1.01, translateY: -5 }}
+          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
+        >
           <div className="flex justify-between items-start mb-8">
             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
               <Star className="text-accent" size={16} />
@@ -414,10 +439,13 @@ export const Statistics: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Top Ethnic Groups */}
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <motion.div 
+          whileHover={{ scale: 1.01, translateY: -5 }}
+          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
+        >
           <div className="flex justify-between items-start mb-8">
             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
               <Users className="text-accent" size={16} />
@@ -454,7 +482,7 @@ export const Statistics: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Member distribution by Unit (Only for Admin when showing All) */}
         {!isSecretary && selectedUnitId === "all" && (
