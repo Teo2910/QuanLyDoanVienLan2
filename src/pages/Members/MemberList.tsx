@@ -135,6 +135,8 @@ export const MemberList: React.FC = () => {
 
   const filteredMembers = useMemo(() => {
     if (!Array.isArray(members)) return [];
+    
+    // First apply sidebar/header dropdown filters
     let result = members.filter(member => {
       const matchesUnit = selectedUnit === "all" || member.unitId === selectedUnit;
       const matchesStatus = selectedStatus === "all" || member.status === selectedStatus;
@@ -146,13 +148,35 @@ export const MemberList: React.FC = () => {
     });
 
     if (searchTerm.trim()) {
-      const fuse = new Fuse(result, {
-        keys: ["fullName", "memberId", "hometown", "academicYear", "email", "phone"],
-        threshold: 0.4, 
-        distance: 100,
-        minMatchCharLength: 1,
-      });
-      result = fuse.search(searchTerm).map(r => r.item);
+      const lowerSearch = searchTerm.toLowerCase();
+      
+      // Try exact/include match first for identifiers (MSSV, Email, Name)
+      const exactMatches = result.filter(m => 
+        m.memberId.toLowerCase().includes(lowerSearch) || 
+        m.fullName.toLowerCase().includes(lowerSearch) ||
+        (m.email || "").toLowerCase().includes(lowerSearch)
+      );
+
+      if (exactMatches.length > 0) {
+        // If we have exact/substring matches, use them (prioritize those matching from start)
+        exactMatches.sort((a, b) => {
+          const aStarts = a.memberId.toLowerCase().startsWith(lowerSearch) || a.fullName.toLowerCase().startsWith(lowerSearch);
+          const bStarts = b.memberId.toLowerCase().startsWith(lowerSearch) || b.fullName.toLowerCase().startsWith(lowerSearch);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return 0;
+        });
+        result = exactMatches;
+      } else {
+        // Fallback to fuzzy search if no exact substring matches
+        const fuse = new Fuse(result, {
+          keys: ["fullName", "memberId", "hometown", "academicYear", "email", "phone"],
+          threshold: 0.3, // More strict threshold for precision
+          distance: 100,
+          minMatchCharLength: 1,
+        });
+        result = fuse.search(searchTerm).map(r => r.item);
+      }
     }
 
     // Sorting Logic
