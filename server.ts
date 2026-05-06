@@ -48,10 +48,37 @@ async function startServer() {
     // In preview environment, this will likely fail because localhost:1433 doesn't exist
   }
 
+  // User Presence Tracking
+  const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
+
+  io.on("connection", (socket) => {
+    socket.on("presence:online", (uid: string) => {
+      onlineUsers.set(socket.id, { uid, lastSeen: Date.now() });
+      io.emit("presence:update", Array.from(onlineUsers.values()));
+    });
+
+    socket.on("disconnect", () => {
+      onlineUsers.delete(socket.id);
+      io.emit("presence:update", Array.from(onlineUsers.values()));
+    });
+  });
+
   app.use(express.json());
 
   // API Routes
   
+  // Get all users (for admin/secretaries to see each other)
+  app.get("/api/users", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl FROM users");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
   // Auth Login
   app.post("/api/login", async (req, res) => {
     try {

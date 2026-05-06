@@ -1,9 +1,10 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Users, LayoutDashboard, Building2, LogOut, Menu, X, Search, Calendar, User, Camera, Check, BarChart3 } from "lucide-react";
+import { LogOut, Menu, X, Calendar, User, Camera, Check, BarChart3, Users, Building2, LayoutDashboard, Database, Activity } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../contexts/AuthContext";
-import { useSearch } from "../../contexts/SearchContext";
+import { dataService } from "../../services/dataService";
+import { io, Socket } from "socket.io-client";
 
 import { motion, AnimatePresence } from "motion/react";
 
@@ -13,9 +14,12 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { profile, logout, updateProfile } = useAuth();
-  const { searchTerm, setSearchTerm } = useSearch();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
+  const [isUserListOpen, setIsUserListOpen] = React.useState(false);
+  const [users, setUsers] = React.useState<any[]>([]);
+  const [onlineUids, setOnlineUids] = React.useState<string[]>([]);
+  const socketRef = React.useRef<Socket | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [profileForm, setProfileForm] = React.useState({
     fullName: profile?.fullName || "",
@@ -24,6 +28,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     phone: profile?.phone || ""
   });
   const location = useLocation();
+
+  React.useEffect(() => {
+    // Socket.io for Real-time presence
+    if (profile?.uid) {
+      socketRef.current = io();
+      
+      socketRef.current.on("connect", () => {
+        socketRef.current?.emit("presence:online", profile.uid);
+      });
+
+      socketRef.current.on("presence:update", (onlineUsers: { uid: string }[]) => {
+        setOnlineUids(onlineUsers.map(u => u.uid));
+      });
+
+      return () => {
+        socketRef.current?.disconnect();
+      };
+    }
+  }, [profile?.uid]);
+
+  React.useEffect(() => {
+    const fetchUsersData = async () => {
+      const data = await dataService.getUsers();
+      setUsers(data);
+    };
+    fetchUsersData();
+  }, []);
 
   React.useEffect(() => {
     if (profile) {
@@ -163,24 +194,95 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="relative hidden sm:block">
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm nhanh..." 
-                className="bg-white/5 border border-white/10 rounded-full py-2 px-10 text-xs w-64 focus:outline-none focus:border-accent/50 focus:ring-0 transition-all placeholder:text-white/20"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden lg:block">
-                <p className="text-[10px] uppercase tracking-widest text-white font-bold">{userRoleName}</p>
-                <div className="flex items-center justify-end gap-1">
-                   <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                   <p className="text-[9px] text-white/40 uppercase tracking-tighter">Trực tuyến</p>
+            <div className="relative">
+              <button 
+                onClick={() => setIsUserListOpen(!isUserListOpen)}
+                className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10"
+              >
+                <div className="text-right hidden lg:block">
+                  <p className="text-[10px] uppercase tracking-widest text-white font-bold">{userRoleName}</p>
+                  <div className="flex items-center justify-end gap-1">
+                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                     <p className="text-[9px] text-white/40 uppercase tracking-tighter">Trực tuyến</p>
+                  </div>
                 </div>
-              </div>
+                {profile?.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-white/10 shadow-lg" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center font-bold text-accent shadow-lg text-[10px]">
+                    {userInitials}
+                  </div>
+                )}
+              </button>
+
+              <AnimatePresence>
+                {isUserListOpen && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setIsUserListOpen(false)}
+                      className="fixed inset-0 z-40"
+                    />
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-4 w-72 bg-surface/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                    >
+                      <div className="p-4 border-b border-white/10 bg-white/5">
+                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-1">Người dùng hệ thống</h4>
+                        <p className="text-[9px] text-white/20 italic">Đang hiển thị trạng thái thời gian thực</p>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                        {users.map((u) => {
+                          const isOnline = onlineUids.includes(u.uid);
+                          return (
+                            <div key={u.uid} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+                              <div className="relative">
+                                {u.avatarUrl ? (
+                                  <img src={u.avatarUrl} alt={u.fullName} className="w-10 h-10 rounded-full object-cover shadow-md" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-white/40 text-[10px]">
+                                    {u.email.substring(0, 2).toUpperCase()}
+                                  </div>
+                                )}
+                                <div className={cn(
+                                  "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface shadow-sm",
+                                  isOnline ? "bg-green-500" : "bg-white/20"
+                                )} />
+                              </div>
+                              <div className="flex-1 overflow-hidden">
+                                <p className="text-[11px] font-bold text-white truncate">{u.fullName || u.email}</p>
+                                <div className="flex justify-between items-center">
+                                  <p className="text-[9px] text-white/30 uppercase tracking-tighter">
+                                    {u.role === 'admin' ? 'Quản trị viên' : 'Bí thư'}
+                                  </p>
+                                  <p className={cn(
+                                    "text-[9px] font-bold tracking-tighter",
+                                    isOnline ? "text-green-500" : "text-white/20"
+                                  )}>
+                                    {isOnline ? "ONLINE" : "OFFLINE"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="p-4 border-t border-white/10 flex justify-center">
+                         <button 
+                          onClick={() => { setIsUserListOpen(false); setIsProfileModalOpen(true); }}
+                          className="text-[9px] uppercase tracking-widest text-accent font-bold hover:underline"
+                        >
+                          Chỉnh sửa hồ sơ
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>

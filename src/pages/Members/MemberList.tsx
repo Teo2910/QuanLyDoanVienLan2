@@ -793,12 +793,30 @@ export const MemberList: React.FC = () => {
       />
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-        <div>
-          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
+        <div className="flex-1">
+          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight mb-4">
             <Users className="text-accent" size={36} />
             Quản lý đoàn viên
           </h2>
-          <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
+          <div className="relative max-w-md">
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm nhanh đoàn viên..." 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 text-sm text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all placeholder:text-white/20"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+          <p className="text-white/40 text-xs uppercase tracking-widest mt-3">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 mr-2">

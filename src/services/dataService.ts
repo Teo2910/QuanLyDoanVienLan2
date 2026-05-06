@@ -1,6 +1,17 @@
 import { Unit, Member, Activity } from "../types";
 
 class DataService {
+  async getUsers(): Promise<any[]> {
+    try {
+      const response = await fetch("/api/users");
+      if (!response.ok) throw new Error("Failed to fetch users");
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
   async getActivities(): Promise<Activity[]> {
     try {
       const response = await fetch("/api/activities");
