@@ -40,39 +40,26 @@ async function startServer() {
   // State
   const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
   const systemUsers = new Map<string, any>();
+  let pool: sql.ConnectionPool | null = null;
 
   app.use(express.json());
 
-  // Log all requests for debugging
-  app.use((req, res, next) => {
-    if (req.url.includes('presence')) {
-      console.log(`[Presence] DEBUG: ${req.method} ${req.url}`);
-    }
+  // Log all API requests for debugging
+  app.use("/api", (req, res, next) => {
+    console.log(`[Presence] API Request: ${req.method} ${req.url}`);
     next();
   });
 
-  // Very simple test endpoint to confirm routing is working
-  app.get("/api/presence-test", (req, res) => {
-    res.json({ ok: true, timestamp: Date.now() });
-  });
-
-  // Presence API - moving it up and ensuring it's clearly defined
-  app.get("/api/system-presence", async (req, res) => {
-    console.log(`[Presence] Handling /api/system-presence request`);
+  // Presence API - defined at the very top of API routes
+  app.get("/api/presence-system", async (req, res) => {
     try {
       let sqlUsers: any[] = [];
       if (pool && pool.connected) {
-        try {
-          const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
-          sqlUsers = result.recordset;
-        } catch (e) {
-          console.error("[Presence] DB Query failed:", e);
-        }
+        const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+        sqlUsers = result.recordset;
       }
       
       const allUsersMap = new Map();
-      
-      // 1. Add SQL users
       sqlUsers.forEach(u => {
         const uid = u.uid || `db-${u.id || u.email}`;
         allUsersMap.set(uid, {
@@ -85,22 +72,31 @@ async function startServer() {
         });
       });
 
-      // 2. Merge with in-memory users
       systemUsers.forEach((u, uid) => {
         allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
       });
 
-      const finalUsers = Array.from(allUsersMap.values());
-      console.log(`[Presence] Success: ${finalUsers.length} users found`);
-      res.json(finalUsers);
+      res.json(Array.from(allUsersMap.values()));
     } catch (err) {
-      console.error("[Presence] Error in route handler:", err);
+      console.error("[Presence] Handler error:", err);
       res.json(Array.from(systemUsers.values()));
     }
   });
 
+  // Log all requests for debugging
+  app.use((req, res, next) => {
+    if (req.url.includes('presence')) {
+      console.log(`[Presence] DEBUG: method=${req.method} url=${req.url}`);
+    }
+    next();
+  });
+
+  // Very simple test endpoint to confirm routing is working
+  app.get("/api/presence-test", (req, res) => {
+    res.json({ ok: true, timestamp: Date.now() });
+  });
+
   // Initialize MSSQL
-  let pool: sql.ConnectionPool;
   try {
     console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
     pool = await sql.connect(sqlConfig);
