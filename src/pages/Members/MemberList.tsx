@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
-import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash, ArrowUpDown, ArrowUp, ArrowDown, Download, Upload } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import Fuse from "fuse.js";
@@ -10,6 +10,8 @@ import { useSearch } from "../../contexts/SearchContext";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion, AnimatePresence } from "motion/react";
 import { SearchPreset } from "../../types";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export const MemberList: React.FC = () => {
   const { isAdmin, isSecretary, profile, savePreset, deletePreset } = useAuth();
@@ -393,6 +395,158 @@ export const MemberList: React.FC = () => {
     });
   };
 
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Danh sách Đoàn viên");
+
+    worksheet.columns = [
+      { header: "STT", key: "stt", width: 10 },
+      { header: "Họ và tên", key: "fullName", width: 25 },
+      { header: "MSSV", key: "memberId", width: 20 },
+      { header: "Giới tính", key: "gender", width: 12 },
+      { header: "Ngày sinh", key: "dob", width: 15 },
+      { header: "Dân tộc", key: "ethnic", width: 15 },
+      { header: "Tôn giáo", key: "religion", width: 15 },
+      { header: "Quê quán", key: "hometown", width: 25 },
+      { header: "Chi đoàn", key: "unit", width: 25 },
+      { header: "Email", key: "email", width: 25 },
+      { header: "Số điện thoại", key: "phone", width: 15 },
+      { header: "Niên khóa", key: "academicYear", width: 15 },
+      { header: "Xếp loại", key: "achievementLevel", width: 20 },
+      { header: "Trạng thái", key: "status", width: 20 },
+      { header: "Tiêu biểu", key: "isOutstanding", width: 12 }
+    ];
+
+    filteredMembers.forEach((member, index) => {
+      worksheet.addRow({
+        stt: index + 1,
+        fullName: member.fullName,
+        memberId: member.memberId,
+        gender: member.gender,
+        dob: member.dob,
+        ethnic: member.ethnic || "",
+        religion: member.religion || "",
+        hometown: member.hometown || "",
+        unit: getUnitName(member.unitId),
+        email: member.email || "",
+        phone: member.phone || "",
+        academicYear: member.academicYear || "",
+        achievementLevel: member.achievementLevel || "Chưa xếp loại",
+        status: member.status,
+        isOutstanding: member.isOutstanding ? "Có" : "Không"
+      });
+    });
+
+    // Styling
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `Danh_sach_Doan_vien_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const workbook = new ExcelJS.Workbook();
+    const reader = new FileReader();
+
+    reader.onload = async (evt) => {
+      try {
+        const buffer = evt.target?.result as ArrayBuffer;
+        await workbook.xlsx.load(buffer);
+        const worksheet = workbook.worksheets[0];
+        
+        setLoading(true);
+        let count = 0;
+        let isSpecialFormat = false;
+
+        // Detect format
+        const cellA1 = worksheet.getCell(1, 1).value?.toString() || "";
+        if (cellA1.includes("TỈNH ĐOÀN LÂM ĐỒNG") || cellA1.includes("BCH ĐOÀN THANH NIÊN")) {
+          isSpecialFormat = true;
+        }
+
+        worksheet.eachRow((row, rowNumber) => {
+          // Identify where data starts
+          const firstCell = row.getCell(1).value?.toString();
+          const stt = parseInt(firstCell || "0");
+          
+          // Skip headers: standard format skips row 1, special format usually starts around row 10
+          if (rowNumber === 1 && !isSpecialFormat) return;
+          if (isSpecialFormat && isNaN(stt)) return; 
+          if (isNaN(stt)) return; // Skip if first cell is not a number (STT)
+
+          let memberToImport: any = {};
+
+          if (isSpecialFormat) {
+            // Mapping for the specific report format provided
+            const namMark = row.getCell(4).value?.toString();
+            const nuMark = row.getCell(5).value?.toString();
+            const gender = nuMark?.toLowerCase() === 'x' ? "Nữ" : "Nam";
+            
+            const kinhMark = row.getCell(6).value?.toString();
+            const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(7).value?.toString() || "Kinh");
+
+            memberToImport = {
+              fullName: row.getCell(2).value?.toString() || "",
+              // This specific report doesn't have MSSV, generating a temporary one based on date and row
+              memberId: `22${new Date().getFullYear().toString().slice(-2)}${rowNumber.toString().padStart(4, '0')}`,
+              gender: gender as any,
+              dob: row.getCell(3).value?.toString() || "",
+              ethnic: ethnic,
+              religion: row.getCell(8).value?.toString() || "Không",
+              hometown: "", // Not explicitly in simple columns
+              unitId: profile?.unitId || units[0]?.id || "",
+              email: "",
+              phone: "",
+              academicYear: "K22", // Default for the system
+              achievementLevel: "Chưa xếp loại",
+              status: "Đang sinh hoạt",
+              isOutstanding: false,
+              joinDate: row.getCell(9).value?.toString() || row.getCell(10).value?.toString() || ""
+            };
+          } else {
+            // Standard simple column mapping (Header: STT, Name, MSSV, Gender, DOB...)
+            memberToImport = {
+              fullName: row.getCell(2).value?.toString() || "",
+              memberId: row.getCell(3).value?.toString() || "",
+              gender: (row.getCell(4).value?.toString() || "Nam") as any,
+              dob: row.getCell(5).value?.toString() || "",
+              ethnic: row.getCell(6).value?.toString() || "",
+              religion: row.getCell(7).value?.toString() || "",
+              hometown: row.getCell(8).value?.toString() || "",
+              unitId: units.find(u => u.name === row.getCell(9).value?.toString())?.id || profile?.unitId || units[0]?.id || "",
+              email: row.getCell(10).value?.toString() || "",
+              phone: row.getCell(11).value?.toString() || "",
+              academicYear: row.getCell(12).value?.toString() || "",
+              achievementLevel: (row.getCell(13).value?.toString() || "Chưa xếp loại") as any,
+              status: (row.getCell(14).value?.toString() || "Đang sinh hoạt") as any,
+              isOutstanding: row.getCell(15).value?.toString()?.toLowerCase() === "có"
+            };
+          }
+
+          if (memberToImport.fullName) {
+            dataService.addMember(memberToImport).catch(console.error);
+            count++;
+          }
+        });
+
+        alert(`Đã nhập thành công ${count} đoàn viên.`);
+        loadData();
+      } catch (error) {
+        console.error("Import error:", error);
+        alert("Có lỗi xảy ra khi nhập tệp Excel. Vui lòng kiểm tra lại định dạng tệp.");
+      } finally {
+        setLoading(false);
+        e.target.value = "";
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
   return (
     <div id="member-list-container">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
@@ -403,13 +557,42 @@ export const MemberList: React.FC = () => {
           </h2>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
         </div>
-        <button 
-          onClick={openAddModal}
-          className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-tighter hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2"
-        >
-          <Plus size={16} />
-          Thêm đoàn viên mới
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 mr-2">
+            <button 
+              onClick={exportToExcel}
+              className="bg-accent/10 text-accent border border-accent/20 px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-accent-foreground transition-all flex items-center gap-2 shadow-lg"
+              title="Xuất danh sách ra tệp Excel"
+            >
+              <Download size={14} />
+              Xuất Excel
+            </button>
+            <div className="relative">
+              <input 
+                type="file" 
+                accept=".xlsx, .xls" 
+                onChange={handleImportExcel}
+                className="hidden" 
+                id="excel-import"
+              />
+              <label 
+                htmlFor="excel-import"
+                className="cursor-pointer bg-white/5 text-white/60 border border-white/10 px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 hover:border-accent/40 hover:text-accent transition-all flex items-center gap-2 shadow-lg"
+                title="Nhập danh sách từ tệp Excel"
+              >
+                <Upload size={14} />
+                Nhập Excel
+              </label>
+            </div>
+          </div>
+          <button 
+            onClick={openAddModal}
+            className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-tighter hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2"
+          >
+            <Plus size={16} />
+            Thêm đoàn viên mới
+          </button>
+        </div>
       </div>
 
       <div className="bg-surface/40 border border-white/5 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl backdrop-blur-sm">
