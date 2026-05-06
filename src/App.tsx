@@ -314,7 +314,7 @@ const AuthScreen = () => {
 
           <button 
             onClick={() => { setIsRegister(!isRegister); setError(null); }}
-            className="mt-6 text-[10px] text-white/30 uppercase tracking-widest hover:text-white transition-colors"
+            className="mt-6 text-[10px] text-white/50 uppercase tracking-widest hover:text-white transition-colors"
           >
             {isRegister ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký tại đây"}
           </button>
