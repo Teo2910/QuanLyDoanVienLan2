@@ -147,47 +147,6 @@ export const Statistics: React.FC = () => {
         )}
       </div>
 
-      {/* Top Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-surface/50 border border-white/5 p-8 rounded-3xl backdrop-blur-sm shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-6">
-            <Users size={24} />
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Tổng cộng</p>
-          <h3 className="text-4xl font-light text-white tracking-tighter italic">{members.length}</h3>
-          <p className="text-[9px] text-white/20 uppercase mt-2">Đoàn viên</p>
-        </div>
-
-        <div className="bg-surface/50 border border-white/5 p-8 rounded-3xl backdrop-blur-sm shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center mb-6">
-            <Star size={24} />
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Tiêu biểu</p>
-          <h3 className="text-4xl font-light text-white tracking-tighter italic">{members.filter(m => m.isOutstanding).length}</h3>
-          <p className="text-[9px] text-white/20 uppercase mt-2">Gương mặt tiêu biểu</p>
-        </div>
-
-        <div className="bg-surface/50 border border-white/5 p-8 rounded-3xl backdrop-blur-sm shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
-            <Users size={24} />
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Dân tộc Kinh</p>
-          <h3 className="text-4xl font-light text-white tracking-tighter italic">
-            {members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length}
-          </h3>
-          <p className="text-[9px] text-white/20 uppercase mt-2">Trong tổng số đoàn viên</p>
-        </div>
-
-        <div className="bg-surface/50 border border-white/5 p-8 rounded-3xl backdrop-blur-sm shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-400 flex items-center justify-center mb-6">
-            <Building2 size={24} />
-          </div>
-          <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Số chi đoàn</p>
-          <h3 className="text-4xl font-light text-white tracking-tighter italic">{isSecretary ? 1 : units.length}</h3>
-          <p className="text-[9px] text-white/20 uppercase mt-2">Đang hoạt động</p>
-        </div>
-      </div>
-
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Gender Breakdown */}
