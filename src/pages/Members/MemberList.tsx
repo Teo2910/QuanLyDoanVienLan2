@@ -507,34 +507,68 @@ export const MemberList: React.FC = () => {
           if (isSpecialFormat && isNaN(stt)) return; 
           if (isNaN(stt)) return; // Skip if first cell is not a number (STT)
 
+          const parseDate = (val: any) => {
+            if (!val) return "";
+            if (val instanceof Date) {
+              return val.toISOString().split('T')[0];
+            }
+            const str = val.toString().trim();
+            if (!str) return "";
+            
+            // Try parsing common formats like DD/MM/YYYY or MM/DD/YYYY
+            const parts = str.split(/[/.-]/);
+            if (parts.length === 3) {
+              // Standard logic: if first part > 12, it must be DD/MM/YYYY
+              let d = parseInt(parts[0]);
+              let m = parseInt(parts[1]);
+              let y = parseInt(parts[2]);
+              
+              if (d > 12) { // DD/MM/YYYY
+                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+              } else if (m > 12) { // MM/DD/YYYY
+                return `${y}-${String(d).padStart(2, '0')}-${String(m).padStart(2, '0')}`;
+              } else {
+                // Ambiguous, assume MM/DD/YYYY as per Excel default or try to create date
+                const date = new Date(str);
+                return isNaN(date.getTime()) ? str : date.toISOString().split('T')[0];
+              }
+            }
+            
+            const date = new Date(str);
+            return isNaN(date.getTime()) ? str : date.toISOString().split('T')[0];
+          };
+
           let memberToImport: any = {};
 
           if (isSpecialFormat) {
             // Mapping for the specific report format provided
-            const namMark = row.getCell(4).value?.toString();
-            const nuMark = row.getCell(5).value?.toString();
+            const namMark = row.getCell(3).value?.toString(); // C column is Nam
+            const nuMark = row.getCell(4).value?.toString();  // D column is Nu
             const gender = nuMark?.toLowerCase() === 'x' ? "Nữ" : "Nam";
             
-            const kinhMark = row.getCell(6).value?.toString();
-            const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(7).value?.toString() || "Kinh");
+            // Note: In the provided screenshot, col B(2)=Name, C(3)=Nam, D(4)=Nu
+            const dobValue = gender === "Nam" ? row.getCell(3).value : row.getCell(4).value;
+            // Wait, looking at current screenshot: 
+            // B(2)=Họ tên, C(3)=Nam (Ngày sinh), D(4)=Nữ (Ngày sinh)
+            
+            const kinhMark = row.getCell(5).value?.toString();
+            const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(6).value?.toString() || "Kinh");
 
             memberToImport = {
               fullName: row.getCell(2).value?.toString() || "",
-              // This specific report doesn't have MSSV, generating a temporary one based on date and row
               memberId: `22${new Date().getFullYear().toString().slice(-2)}${rowNumber.toString().padStart(4, '0')}`,
               gender: gender as any,
-              dob: row.getCell(3).value?.toString() || "",
+              dob: parseDate(dobValue),
               ethnic: ethnic,
-              religion: row.getCell(8).value?.toString() || "Không",
-              hometown: "", // Not explicitly in simple columns
+              religion: row.getCell(7).value?.toString() || "Không",
+              hometown: "Chưa cập nhật",
               unitId: profile?.unitId || units[0]?.id || "",
               email: "",
-              phone: "",
-              academicYear: "K22", // Default for the system
+              phone: "--",
+              academicYear: "K22",
               achievementLevel: "Chưa xếp loại",
               status: "Đang sinh hoạt",
-              isOutstanding: false,
-              joinDate: row.getCell(9).value?.toString() || row.getCell(10).value?.toString() || ""
+              isOutstanding: false
             };
           } else {
             // Standard simple column mapping (Header: STT, Name, MSSV, Gender, DOB...)
@@ -542,7 +576,7 @@ export const MemberList: React.FC = () => {
               fullName: row.getCell(2).value?.toString() || "",
               memberId: row.getCell(3).value?.toString() || "",
               gender: (row.getCell(4).value?.toString() || "Nam") as any,
-              dob: row.getCell(5).value?.toString() || "",
+              dob: parseDate(row.getCell(5).value),
               ethnic: row.getCell(6).value?.toString() || "",
               religion: row.getCell(7).value?.toString() || "",
               hometown: row.getCell(8).value?.toString() || "",
