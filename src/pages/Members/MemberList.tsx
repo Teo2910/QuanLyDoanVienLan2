@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
-import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash, ArrowUpDown, ArrowUp, ArrowDown, Download, Upload } from "lucide-react";
+import { Trash2, Edit3, Search, Plus, Users, Filter, UserCircle, X, ChevronDown, ChevronUp, Save, Bookmark, History, RotateCcw, Star, Eye, Mail, Phone, MapPin, Calendar as CalendarIcon, Hash, ArrowUpDown, ArrowUp, ArrowDown, Download, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import Fuse from "fuse.js";
@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { SearchPreset } from "../../types";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { ToastContainer, ToastType } from "../../components/Toast";
+import { ConfirmModal } from "../../components/ConfirmModal";
 
 export const MemberList: React.FC = () => {
   const { isAdmin, isSecretary, profile, savePreset, deletePreset } = useAuth();
@@ -44,6 +46,34 @@ export const MemberList: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusReason, setStatusReason] = useState("");
+
+  // Notifications and Modal state
+  const [toasts, setToasts] = useState<any[]>([]);
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'info';
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const addToast = (message: string, type: ToastType = 'info') => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, message, type }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, variant: 'danger' | 'info' = 'info') => {
+    setConfirmConfig({ isOpen: true, title, message, onConfirm, variant });
+  };
   const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
   const [newMember, setNewMember] = useState<Omit<Member, "id" | "createdAt" | "statusHistory">>({
     fullName: "",
@@ -257,12 +287,20 @@ export const MemberList: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đoàn viên này?")) {
-      dataService.deleteMember(id).then(() => {
-        setMembers(members.filter(m => m.id !== id));
-        setSelectedIds(prev => prev.filter(i => i !== id));
-      });
-    }
+    showConfirm(
+      "Xác nhận xóa",
+      "Bạn có chắc chắn muốn xóa đoàn viên này? Hành động này không thể hoàn tác.",
+      () => {
+        dataService.deleteMember(id).then(() => {
+          setMembers(members.filter(m => m.id !== id));
+          setSelectedIds(prev => prev.filter(i => i !== id));
+          addToast("Đã xóa đoàn viên thành công", "success");
+        }).catch(err => {
+          addToast("Lỗi khi xóa đoàn viên: " + err.message, "error");
+        });
+      },
+      "danger"
+    );
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,41 +319,51 @@ export const MemberList: React.FC = () => {
 
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} đoàn viên đã chọn?`)) {
-      setLoading(true);
-      dataService.deleteMembers(selectedIds)
-        .then((result: any) => {
-          setSelectedIds([]);
-          loadData();
-          const count = result?.rowsAffected || selectedIds.length;
-          alert(`Đã xóa thành công ${count} mục!`);
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Có lỗi xảy ra khi xóa dữ liệu. Vui lòng kiểm tra lại kết nối server.");
-        })
-        .finally(() => setLoading(false));
-    }
+    showConfirm(
+      "Xóa hàng loạt",
+      `Bạn có chắc chắn muốn xóa ${selectedIds.length} đoàn viên đã chọn?`,
+      () => {
+        setLoading(true);
+        dataService.deleteMembers(selectedIds)
+          .then((result: any) => {
+            setSelectedIds([]);
+            loadData();
+            const count = result?.rowsAffected || selectedIds.length;
+            addToast(`Đã xóa thành công ${count} mục!`, "success");
+          })
+          .catch(err => {
+            console.error(err);
+            addToast("Có lỗi xảy ra khi xóa dữ liệu. Vui lòng kiểm tra lại kết nối server.", "error");
+          })
+          .finally(() => setLoading(false));
+      },
+      "danger"
+    );
   };
 
   const handleDeleteAllFiltered = () => {
     if (filteredMembers.length === 0) return;
-    if (window.confirm(`Bạn có chắc chắn muốn xóa TOÀN BỘ ${filteredMembers.length} đoàn viên trong danh sách hiện tại?`)) {
-      const ids = filteredMembers.map(m => m.id);
-      setLoading(true);
-      dataService.deleteMembers(ids)
-        .then(() => {
-          setSelectedIds([]);
-          loadData();
-          alert("Đã xóa toàn bộ thành công!");
-        })
-        .catch(err => {
-          console.error(err);
-          const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
-          alert(`Lỗi xóa toàn bộ! Chi tiết: ${errorMsg}`);
-        })
-        .finally(() => setLoading(false));
-    }
+    showConfirm(
+      "Xóa tất cả kết quả",
+      `Bạn có chắc chắn muốn xóa TOÀN BỘ ${filteredMembers.length} đoàn viên trong danh sách hiện tại?`,
+      () => {
+        const ids = filteredMembers.map(m => m.id);
+        setLoading(true);
+        dataService.deleteMembers(ids)
+          .then(() => {
+            setSelectedIds([]);
+            loadData();
+            addToast("Đã xóa toàn bộ đoàn viên thành công", "success");
+          })
+          .catch(err => {
+            console.error(err);
+            const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
+            addToast(`Lỗi xóa toàn bộ! Chi tiết: ${errorMsg}`, "error");
+          })
+          .finally(() => setLoading(false));
+      },
+      "danger"
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -604,11 +652,21 @@ export const MemberList: React.FC = () => {
             const namDobValue = row.getCell(3).value;
             const nuDobValue = row.getCell(4).value;
             
-            // Gender detection: if column 4 (Nu) has a value (Date or String), it's Female
-            const gender = (nuDobValue !== null && nuDobValue !== undefined && nuDobValue !== "") ? "Nữ" : "Nam";
+            // Gender detection: 
+            // In the spreadsheet: 
+            // Col 3 (C) has DOB if Male
+            // Col 4 (D) has DOB if Female
             
-            // Get DOB from the respective column
-            const dobValue = gender === "Nam" ? namDobValue : nuDobValue;
+            let gender: "Nam" | "Nữ" = "Nam";
+            let dobValue = null;
+
+            if (nuDobValue !== null && nuDobValue !== undefined && nuDobValue !== "") {
+              gender = "Nữ";
+              dobValue = nuDobValue;
+            } else if (namDobValue !== null && namDobValue !== undefined && namDobValue !== "") {
+              gender = "Nam";
+              dobValue = namDobValue;
+            }
             
             const kinhMark = row.getCell(5).value?.toString();
             const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(6).value?.toString() || "Kinh");
@@ -620,7 +678,7 @@ export const MemberList: React.FC = () => {
             memberToImport = {
               fullName: row.getCell(2).value?.toString() || "",
               memberId: `22${new Date().getFullYear().toString().slice(-2)}${rowNumber.toString().padStart(4, '0')}`,
-              gender: gender as any,
+              gender: gender,
               dob: parseDate(dobValue),
               ethnic: ethnic,
               religion: row.getCell(7).value?.toString() || "Không",
@@ -660,11 +718,11 @@ export const MemberList: React.FC = () => {
           }
         });
 
-        alert(`Đã nhập thành công ${count} đoàn viên.`);
+        addToast(`Đã nhập thành công ${count} đoàn viên.`, "success");
         loadData();
       } catch (error) {
         console.error("Import error:", error);
-        alert("Có lỗi xảy ra khi nhập tệp Excel. Vui lòng kiểm tra lại định dạng tệp.");
+        addToast("Có lỗi xảy ra khi nhập tệp Excel. Vui lòng kiểm tra lại định dạng tệp.", "error");
       } finally {
         setLoading(false);
         e.target.value = "";
@@ -676,6 +734,16 @@ export const MemberList: React.FC = () => {
 
   return (
     <div id="member-list-container">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        variant={confirmConfig.variant}
+      />
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
           <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
