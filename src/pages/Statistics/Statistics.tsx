@@ -12,20 +12,23 @@ const COLORS = ['#7aa2f7', '#bb9af7', '#7dcfff', '#9ece6a', '#e0af68', '#f7768e'
 
 export const Statistics: React.FC = () => {
   const { profile, isSecretary } = useAuth();
-  const [members, setMembers] = useState<Member[]>([]);
+  const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUnitId, setSelectedUnitId] = useState<string>("all");
+
+  useEffect(() => {
+    if (isSecretary && profile?.unitId) {
+      setSelectedUnitId(profile.unitId);
+    }
+  }, [isSecretary, profile?.unitId]);
 
   const loadData = () => {
     Promise.all([
       dataService.getMembers(),
       dataService.getUnits()
     ]).then(([mData, uData]) => {
-      const filteredMembers = isSecretary && profile?.unitId 
-        ? mData.filter(m => m.unitId === profile.unitId)
-        : mData;
-
-      setMembers(filteredMembers);
+      setAllMembers(mData);
       setUnits(uData);
       setLoading(false);
     });
@@ -33,10 +36,12 @@ export const Statistics: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [profile?.unitId]);
+  }, []);
 
-  useLiveSync("members:changed", loadData);
-  useLiveSync("units:changed", loadData);
+  const members = useMemo(() => {
+    if (selectedUnitId === "all") return allMembers;
+    return allMembers.filter(m => m.unitId === selectedUnitId);
+  }, [allMembers, selectedUnitId]);
 
   const stats = useMemo(() => {
     if (!members.length) return null;
@@ -91,6 +96,9 @@ export const Statistics: React.FC = () => {
     return { genderData, ethnicData, statusData, achievementData, unitData };
   }, [members, units]);
 
+  useLiveSync("members:changed", loadData);
+  useLiveSync("units:changed", loadData);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -99,18 +107,38 @@ export const Statistics: React.FC = () => {
     );
   }
 
+  const selectedUnitName = selectedUnitId === "all" ? "Toàn hệ thống" : units.find(u => u.id === selectedUnitId)?.name || "Chi đoàn";
+
   return (
-    <div className="space-y-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+    <div className="space-y-12 pb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
         <div>
           <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
             <BarChart3 className="text-accent" size={36} />
             Thống kê số liệu
           </h2>
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mt-2 font-bold ml-12">
-            Tổng hợp dữ liệu {isSecretary ? `tại ${units.find(u => u.id === profile?.unitId)?.name || 'đơn vị'}` : 'toàn hệ thống'}
+            Tổng hợp dữ liệu {selectedUnitName}
           </p>
         </div>
+
+        {!isSecretary && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
+             <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold whitespace-nowrap">Chọn đơn vị:</span>
+             <select 
+               value={selectedUnitId}
+               onChange={(e) => setSelectedUnitId(e.target.value)}
+               className="bg-surface/50 border border-white/10 text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-accent/50 transition-all w-full sm:w-64 appearance-none cursor-pointer hover:bg-surface-70"
+             >
+               <option value="all">Toàn hệ thống ({allMembers.length})</option>
+               {units.map(unit => (
+                 <option key={unit.id} value={unit.id}>
+                   {unit.name} ({allMembers.filter(m => m.unitId === unit.id).length})
+                 </option>
+               ))}
+             </select>
+          </div>
+        )}
       </div>
 
       {/* Top Overview Cards */}
@@ -277,8 +305,8 @@ export const Statistics: React.FC = () => {
           </div>
         </div>
 
-        {/* Member distribution by Unit (Only for Admin) */}
-        {!isSecretary && (
+        {/* Member distribution by Unit (Only for Admin when showing All) */}
+        {!isSecretary && selectedUnitId === "all" && (
           <div className="lg:col-span-2 bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
             <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
               <Building2 className="text-accent" size={16} />
