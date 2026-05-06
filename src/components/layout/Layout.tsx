@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Users, LayoutDashboard, Building2, LogOut, Menu, X, Search, Calendar, User, Camera, Check } from "lucide-react";
+import { Users, LayoutDashboard, Building2, LogOut, Menu, X, Search, Calendar, User, Camera, Check, BarChart3 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSearch } from "../../contexts/SearchContext";
@@ -61,6 +61,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Tổng quan", href: "/", icon: LayoutDashboard },
     { name: "Quản lý đơn vị", href: "/units", icon: Building2 },
     { name: "Danh sách đoàn viên", href: "/members", icon: Users },
+    { name: "Thống kê", href: "/statistics", icon: BarChart3 },
     { name: "Hoạt động", href: "/activities", icon: Calendar },
   ];
 

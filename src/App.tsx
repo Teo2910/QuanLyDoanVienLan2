@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react
 import { Layout } from "./components/layout/Layout";
 import { UnitList } from "./pages/Units/UnitList";
 import { MemberList } from "./pages/Members/MemberList";
+import { Statistics } from "./pages/Statistics/Statistics";
 import { ActivityList } from "./pages/Activities/ActivityList";
 import { dataService } from "./services/dataService";
 import { cn } from "./lib/utils";
@@ -346,6 +347,7 @@ const AppContent = () => {
           <Route path="/" element={<PageTransition key="dashboard"><Dashboard /></PageTransition>} />
           <Route path="/units" element={<PageTransition key="units"><UnitList /></PageTransition>} />
           <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
+          <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
           <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
         </Routes>
       </AnimatePresence>
