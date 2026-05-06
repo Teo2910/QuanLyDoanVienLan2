@@ -78,16 +78,32 @@ async function startServer() {
   // Get all users (for admin/secretaries to see each other)
   app.get("/api/users", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json([]);
-      const result = await pool.request().query(`
-        SELECT u.uid, u.email, u.role, u.fullName, u.avatarUrl, u.unitId, un.name as unitName 
-        FROM users u
-        LEFT JOIN units un ON u.unitId = un.id
-      `);
-      res.json(result.recordset);
+      if (!pool || !pool.connected) {
+        console.log("SQL Pool not connected in /api/users, attempting to reconnect...");
+        try {
+          pool = await sql.connect(sqlConfig);
+        } catch (e) {
+          return res.status(503).json({ error: "Database connection failed" });
+        }
+      }
+      
+      console.log("Fetching all users from database...");
+      const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+      console.log(`Successfully fetched ${result.recordset.length} users`);
+      
+      const users = result.recordset.map(u => ({
+        uid: u.uid || `anon-${u.email}`, // Fallback for users without UID
+        email: u.email,
+        role: u.role,
+        fullName: u.fullName,
+        avatarUrl: u.avatarUrl,
+        unitId: u.unitId
+      }));
+      
+      res.json(users);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Database error" });
+      console.error("CRITICAL error in /api/users:", err);
+      res.status(500).json({ error: "Database error during user fetch" });
     }
   });
 
@@ -112,9 +128,10 @@ async function startServer() {
           const newUid = Math.random().toString(36).substring(2, 11);
           await pool.request()
             .input("uid", sql.NVarChar, newUid)
-            .input("id", sql.Int, user.id || 0) // assuming an 'id' primary key exists
+            .input("email", sql.NVarChar, email)
             .query("UPDATE users SET uid = @uid WHERE email = @email");
           user.uid = newUid;
+          console.log(`Auto-assigned UID ${newUid} to user ${email}`);
         }
 
         if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;

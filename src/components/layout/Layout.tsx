@@ -18,6 +18,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isUserListOpen, setIsUserListOpen] = React.useState(false);
   const [users, setUsers] = React.useState<any[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = React.useState(false);
   const [onlineUids, setOnlineUids] = React.useState<string[]>([]);
   const socketRef = React.useRef<Socket | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -60,11 +61,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [profile?.uid]);
 
   const fetchUsersData = React.useCallback(async () => {
+    setIsLoadingUsers(true);
     try {
       const data = await dataService.getUsers();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching users:", error);
+    } finally {
+      setIsLoadingUsers(false);
     }
   }, []);
 
@@ -216,7 +220,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center gap-6">
             <div className="relative">
               <button 
-                onClick={() => setIsUserListOpen(!isUserListOpen)}
+                onClick={() => {
+                  const newState = !isUserListOpen;
+                  setIsUserListOpen(newState);
+                  if (newState) fetchUsersData();
+                }}
                 className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10"
               >
                 <div className="text-right hidden lg:block">
@@ -251,12 +259,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className="absolute right-0 mt-4 w-72 bg-surface/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden"
                     >
-                      <div className="p-4 border-b border-white/10 bg-white/5">
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-1">Người dùng hệ thống</h4>
-                        <p className="text-[9px] text-white/20 italic">Đang hiển thị trạng thái thời gian thực</p>
+                      <div className="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
+                        <div>
+                          <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-1">Người dùng hệ thống</h4>
+                          <p className="text-[9px] text-white/20 italic">Đang hiển thị trạng thái thời gian thực</p>
+                        </div>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); fetchUsersData(); }}
+                          className={cn("p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all", isLoadingUsers && "animate-spin")}
+                        >
+                          <Activity size={12} />
+                        </button>
                       </div>
                       <div className="max-h-80 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                        {users.length === 0 ? (
+                        {isLoadingUsers && users.length === 0 ? (
+                           <div className="py-8 text-center animate-pulse">
+                            <Activity size={24} className="mx-auto text-accent mb-2" />
+                            <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">Đang tải...</p>
+                          </div>
+                        ) : users.length === 0 ? (
                           <div className="py-8 text-center">
                             <Users size={24} className="mx-auto text-white/10 mb-2" />
                             <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">Không tìm thấy người dùng</p>
@@ -264,11 +285,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         ) : (
                           users.map((u) => {
                             const isOnline = onlineUids.includes(u.uid);
+                            const displayName = u.fullName || (u.email ? u.email.split('@')[0] : 'User');
                             return (
                               <div key={u.uid || u.email} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5 group">
                                 <div className="relative">
                                   {u.avatarUrl ? (
-                                    <img src={u.avatarUrl} alt={u.fullName} className="w-10 h-10 rounded-full object-cover shadow-md border border-white/10" />
+                                    <img src={u.avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover shadow-md border border-white/10" />
                                   ) : (
                                     <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
                                       <User size={14} className="text-white/20" />
@@ -281,7 +303,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                 </div>
                                 <div className="flex-1 overflow-hidden">
                                   <div className="flex justify-between items-start">
-                                    <p className="text-[11px] font-bold text-white truncate">{u.fullName || u.email.split('@')[0]}</p>
+                                    <p className="text-[11px] font-bold text-white truncate">{displayName}</p>
                                     <p className={cn(
                                       "text-[8px] font-bold tracking-widest px-1.5 py-0.5 rounded-full",
                                       isOnline ? "text-green-500 bg-green-500/10" : "text-white/20 bg-white/5"
@@ -290,7 +312,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                     </p>
                                   </div>
                                   <p className="text-[9px] text-white/30 uppercase tracking-tighter truncate mt-0.5">
-                                    {u.role === 'admin' ? 'Quản trị viên' : (u.unitName || 'Bí thư chi đoàn')}
+                                    {u.role === 'admin' ? 'Quản trị viên' : 'Bí thư chi đoàn'}
                                   </p>
                                 </div>
                               </div>
