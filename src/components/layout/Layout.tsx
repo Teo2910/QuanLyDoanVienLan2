@@ -236,40 +236,47 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <p className="text-[9px] text-white/20 italic">Đang hiển thị trạng thái thời gian thực</p>
                       </div>
                       <div className="max-h-80 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                        {users.map((u) => {
-                          const isOnline = onlineUids.includes(u.uid);
-                          return (
-                            <div key={u.uid} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
-                              <div className="relative">
-                                {u.avatarUrl ? (
-                                  <img src={u.avatarUrl} alt={u.fullName} className="w-10 h-10 rounded-full object-cover shadow-md" />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-white/40 text-[10px]">
-                                    {u.email.substring(0, 2).toUpperCase()}
+                        {users.length === 0 ? (
+                          <div className="py-8 text-center">
+                            <Users size={24} className="mx-auto text-white/10 mb-2" />
+                            <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">Không tìm thấy người dùng</p>
+                          </div>
+                        ) : (
+                          users.map((u) => {
+                            const isOnline = onlineUids.includes(u.uid);
+                            return (
+                              <div key={u.uid || u.email} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5 group">
+                                <div className="relative">
+                                  {u.avatarUrl ? (
+                                    <img src={u.avatarUrl} alt={u.fullName} className="w-10 h-10 rounded-full object-cover shadow-md border border-white/10" />
+                                  ) : (
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                                      <User size={14} className="text-white/20" />
+                                    </div>
+                                  )}
+                                  <div className={cn(
+                                    "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a1b26] shadow-sm transition-all duration-500",
+                                    isOnline ? "bg-green-500 scale-110" : "bg-white/20 scale-90"
+                                  )} />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                  <div className="flex justify-between items-start">
+                                    <p className="text-[11px] font-bold text-white truncate">{u.fullName || u.email.split('@')[0]}</p>
+                                    <p className={cn(
+                                      "text-[8px] font-bold tracking-widest px-1.5 py-0.5 rounded-full",
+                                      isOnline ? "text-green-500 bg-green-500/10" : "text-white/20 bg-white/5"
+                                    )}>
+                                      {isOnline ? "TRỰC TUYẾN" : "NGOẠI TUYẾN"}
+                                    </p>
                                   </div>
-                                )}
-                                <div className={cn(
-                                  "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface shadow-sm",
-                                  isOnline ? "bg-green-500" : "bg-white/20"
-                                )} />
-                              </div>
-                              <div className="flex-1 overflow-hidden">
-                                <p className="text-[11px] font-bold text-white truncate">{u.fullName || u.email}</p>
-                                <div className="flex justify-between items-center">
-                                  <p className="text-[9px] text-white/30 uppercase tracking-tighter">
-                                    {u.role === 'admin' ? 'Quản trị viên' : 'Bí thư'}
-                                  </p>
-                                  <p className={cn(
-                                    "text-[9px] font-bold tracking-tighter",
-                                    isOnline ? "text-green-500" : "text-white/20"
-                                  )}>
-                                    {isOnline ? "ONLINE" : "OFFLINE"}
+                                  <p className="text-[9px] text-white/30 uppercase tracking-tighter truncate mt-0.5">
+                                    {u.role === 'admin' ? 'Quản trị viên' : (u.unitName || 'Bí thư chi đoàn')}
                                   </p>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })
+                        )}
                       </div>
                       <div className="p-4 border-t border-white/10 flex justify-center">
                          <button 

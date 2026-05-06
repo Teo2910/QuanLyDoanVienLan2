@@ -53,12 +53,20 @@ async function startServer() {
 
   io.on("connection", (socket) => {
     socket.on("presence:online", (uid: string) => {
+      // Remove any existing entry for this UID from other sockets to avoid duplicates
+      for (const [sid, data] of onlineUsers.entries()) {
+        if (data.uid === uid) onlineUsers.delete(sid);
+      }
       onlineUsers.set(socket.id, { uid, lastSeen: Date.now() });
       io.emit("presence:update", Array.from(onlineUsers.values()));
     });
 
     socket.on("disconnect", () => {
-      onlineUsers.delete(socket.id);
+      const data = onlineUsers.get(socket.id);
+      if (data) {
+        // We could store the lastSeen in DB here if we wanted persistence
+        onlineUsers.delete(socket.id);
+      }
       io.emit("presence:update", Array.from(onlineUsers.values()));
     });
   });
@@ -71,7 +79,11 @@ async function startServer() {
   app.get("/api/users", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
-      const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl FROM users");
+      const result = await pool.request().query(`
+        SELECT u.uid, u.email, u.role, u.fullName, u.avatarUrl, u.unitId, un.name as unitName 
+        FROM users u
+        LEFT JOIN units un ON u.unitId = un.id
+      `);
       res.json(result.recordset);
     } catch (err) {
       console.error(err);
