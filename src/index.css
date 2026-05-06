@@ -4,11 +4,11 @@
 @theme {
   --color-primary: #ffffff;
   --color-primary-foreground: #000000;
-  --color-secondary: #16162a;
-  --color-secondary-foreground: #e0e0e0;
-  --color-accent: #7c3aed;
-  --color-background: #0d0d1a;
-  --color-surface: #1e1e2e;
+  --color-secondary: #232136;
+  --color-secondary-foreground: #e0def4;
+  --color-accent: #c4a7e7;
+  --color-background: #232136;
+  --color-surface: #2a273f;
   --color-border-subtle: rgba(255, 255, 255, 0.05);
   --font-sans: "Inter", system-ui, sans-serif;
   --font-serif: "Inter", system-ui, sans-serif;
@@ -17,6 +17,9 @@
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
+  background-image: radial-gradient(circle at top right, rgba(124, 58, 237, 0.05), transparent 400px),
+                    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 400px);
+  background-attachment: fixed;
   color: var(--color-secondary-foreground);
 }
 
@@ -26,7 +29,7 @@ body {
 
 @layer base {
   * {
-    @apply border-white/10 text-[#e0e0e0];
+    @apply border-white/5 text-[#e0e0e0];
   }
   
   input, select, textarea {
