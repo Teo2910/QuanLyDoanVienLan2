@@ -55,13 +55,13 @@ async function startServer() {
     try {
       let sqlUsers: any[] = [];
       if (pool && pool.connected) {
-        const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
         sqlUsers = result.recordset;
       }
       
       const allUsersMap = new Map();
       sqlUsers.forEach(u => {
-        const uid = u.uid || `db-${u.id || u.email}`;
+        const uid = u.uid || `db-${u.email}`;
         allUsersMap.set(uid, {
           uid,
           email: u.email,
@@ -104,9 +104,9 @@ async function startServer() {
     
     // Sync users into memory on startup
     try {
-      const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+      const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
       result.recordset.forEach(u => {
-        const uid = u.uid || `db-${u.id || u.email}`;
+        const uid = u.uid || `db-${u.email}`;
         systemUsers.set(uid, {
           uid,
           email: u.email,
