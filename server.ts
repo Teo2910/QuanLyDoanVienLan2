@@ -68,46 +68,6 @@ db.exec(`
     createdAt INTEGER NOT NULL
   );
 
-  -- Migration for existing databases
-  -- Check and add columns to members if they don't exist
-  PRAGMA table_info(members);
-`);
-
-// Robust column addition helper
-const addColumnIfMissing = (table: string, column: string, type: string) => {
-  try {
-    const info = db.prepare(`PRAGMA table_info(${table})`).all() as any[];
-    if (!info.find(c => c.name === column)) {
-      db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
-      console.log(`Added column ${column} to ${table}`);
-    }
-  } catch (err) {
-    console.error(`Failed to add column ${column} to ${table}:`, err);
-  }
-};
-
-addColumnIfMissing("members", "ethnic", "TEXT");
-addColumnIfMissing("members", "hometown", "TEXT");
-addColumnIfMissing("members", "joinDate", "TEXT");
-addColumnIfMissing("members", "email", "TEXT");
-addColumnIfMissing("members", "phone", "TEXT");
-addColumnIfMissing("members", "academicYear", "TEXT");
-addColumnIfMissing("members", "achievementLevel", "TEXT");
-addColumnIfMissing("members", "isOutstanding", "INTEGER DEFAULT 0");
-
-addColumnIfMissing("users", "fullName", "TEXT");
-addColumnIfMissing("users", "avatarUrl", "TEXT");
-addColumnIfMissing("users", "phone", "TEXT");
-addColumnIfMissing("users", "unitId", "TEXT");
-addColumnIfMissing("users", "presets", "TEXT");
-
-// Add ethnic and joinDate to users too just in case they want it in their profile
-addColumnIfMissing("users", "ethnic", "TEXT");
-addColumnIfMissing("users", "joinDate", "TEXT");
-addColumnIfMissing("users", "dob", "TEXT");
-addColumnIfMissing("users", "gender", "TEXT");
-
-db.exec(`
   -- Add default admin user if it doesn't exist
   INSERT OR IGNORE INTO users (uid, email, password, role, fullName, avatarUrl, phone)
   VALUES ('admin-id', 'admin@gmail.com', 'admin', 'admin', 'Admin System', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin', '0900000000');
@@ -326,9 +286,9 @@ async function startServer() {
   app.put("/api/users/:uid/profile", (req, res) => {
     try {
       const { uid } = req.params;
-      const { fullName, avatarUrl, email, phone, ethnic, joinDate, dob, gender } = req.body;
-      db.prepare("UPDATE users SET fullName = ?, avatarUrl = ?, email = ?, phone = ?, ethnic = ?, joinDate = ?, dob = ?, gender = ? WHERE uid = ?")
-        .run(fullName, avatarUrl, email, phone, ethnic || null, joinDate || null, dob || null, gender || null, uid);
+      const { fullName, avatarUrl, email, phone } = req.body;
+      db.prepare("UPDATE users SET fullName = ?, avatarUrl = ?, email = ?, phone = ? WHERE uid = ?")
+        .run(fullName, avatarUrl, email, phone, uid);
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ error: "Database error" });

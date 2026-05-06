@@ -21,11 +21,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     fullName: profile?.fullName || "",
     avatarUrl: profile?.avatarUrl || "",
     email: profile?.email || "",
-    phone: profile?.phone || "",
-    ethnic: (profile as any)?.ethnic || "",
-    joinDate: (profile as any)?.joinDate || "",
-    dob: (profile as any)?.dob || "",
-    gender: (profile as any)?.gender || "Nam"
+    phone: profile?.phone || ""
   });
   const location = useLocation();
 
@@ -35,11 +31,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         fullName: profile.fullName || "",
         avatarUrl: profile.avatarUrl || "",
         email: profile.email || "",
-        phone: profile.phone || "",
-        ethnic: (profile as any).ethnic || "",
-        joinDate: (profile as any).joinDate || "",
-        dob: (profile as any).dob || "",
-        gender: (profile as any).gender || "Nam"
+        phone: profile.phone || ""
       });
     }
   }, [profile]);
@@ -272,51 +264,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày sinh</label>
-                    <input
-                      type="date"
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                      value={profileForm.dob}
-                      onChange={(e) => setProfileForm({...profileForm, dob: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Giới tính</label>
-                    <select
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium appearance-none"
-                      value={profileForm.gender}
-                      onChange={(e) => setProfileForm({...profileForm, gender: e.target.value})}
-                    >
-                      <option value="Nam">Nam</option>
-                      <option value="Nữ">Nữ</option>
-                      <option value="Khác">Khác</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Dân tộc</label>
-                    <input
-                      placeholder="VD: Kinh"
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                      value={profileForm.ethnic}
-                      onChange={(e) => setProfileForm({...profileForm, ethnic: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày vào đoàn</label>
-                    <input
-                      type="date"
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-                      value={profileForm.joinDate}
-                      onChange={(e) => setProfileForm({...profileForm, joinDate: e.target.value})}
-                    />
-                  </div>
                 </div>
 
                 <div>

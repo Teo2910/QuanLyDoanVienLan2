@@ -290,37 +290,14 @@ export const MemberList: React.FC = () => {
   const handleEdit = (member: Member) => {
     setEditingId(member.id);
     setStatusReason("");
-    
-    // Ensure dates are in YYYY-MM-DD for input type="date"
-    const formatDateForInput = (dateStr: string | undefined) => {
-      if (!dateStr) return "";
-      // If it's already YYYY-MM-DD, return it
-      if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-      
-      try {
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) {
-          // Try parsing DD/MM/YYYY
-          const parts = dateStr.split("/");
-          if (parts.length === 3) {
-             return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-          }
-          return "";
-        }
-        return d.toISOString().split("T")[0];
-      } catch (e) {
-        return "";
-      }
-    };
-
     setNewMember({
       fullName: member.fullName,
       memberId: member.memberId,
-      dob: formatDateForInput(member.dob),
+      dob: member.dob,
       gender: member.gender,
       ethnic: member.ethnic || "",
       hometown: member.hometown || "",
-      joinDate: formatDateForInput(member.joinDate),
+      joinDate: member.joinDate || "",
       unitId: member.unitId,
       email: member.email || "",
       phone: member.phone || "",
@@ -730,209 +707,172 @@ export const MemberList: React.FC = () => {
             </div>
             
             <div className="overflow-y-auto flex-1 custom-scrollbar">
-              <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-8 md:space-y-10">
-                {/* Personal Information Group */}
-                <div className="space-y-6">
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-accent mb-4 flex items-center gap-2">
-                    <UserCircle size={14} />
-                    Thông tin cá nhân & Liên hệ
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Họ và tên đầy đủ <span className="text-red-500">*</span></label>
-                      <input
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 italic"
-                        value={newMember.fullName}
-                        onChange={(e) => setNewMember({...newMember, fullName: e.target.value})}
-                        placeholder="VD: Nguyễn Hoàng Nam"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Email liên hệ <span className="text-red-500">*</span></label>
-                      <input
-                        type="email"
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                        value={newMember.email}
-                        onChange={(e) => setNewMember({...newMember, email: e.target.value})}
-                        placeholder="VD: name@domain.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Số điện thoại <span className="text-red-500">*</span></label>
-                      <input
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 tabular-nums"
-                        value={newMember.phone}
-                        onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
-                        placeholder="VD: 090xxxxxxx"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Dân tộc</label>
-                      <input
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                        value={newMember.ethnic}
-                        onChange={(e) => setNewMember({...newMember, ethnic: e.target.value})}
-                        placeholder="VD: Kinh, Tày, Nùng..."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Giới tính</label>
-                      <CustomSelect
-                        options={genderOptionsModal}
-                        value={newMember.gender}
-                        onChange={(val) => setNewMember({...newMember, gender: val as any})}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày sinh <span className="text-red-500">*</span></label>
-                      <input
-                        type="date"
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
-                        value={newMember.dob}
-                        onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
-                      <input
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                        value={newMember.hometown}
-                        onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
-                        placeholder="Tỉnh/Thành phố..."
-                      />
-                    </div>
+              <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                  <div className="md:col-span-2">
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Họ và tên đầy đủ</label>
+                    <input
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 italic"
+                      value={newMember.fullName}
+                      onChange={(e) => setNewMember({...newMember, fullName: e.target.value})}
+                      placeholder="VD: Nguyễn Hoàng Nam"
+                    />
                   </div>
-                </div>
-
-                {/* Organization Information Group */}
-                <div className="space-y-6 pt-6 border-t border-white/5">
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-accent mb-4 flex items-center gap-2">
-                    <Bookmark size={14} />
-                    Thông tin công tác & Hoạt động
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đoàn viên (MSSV) <span className="text-red-500">*</span></label>
-                      <input
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
-                        value={newMember.memberId}
-                        onChange={(e) => setNewMember({...newMember, memberId: e.target.value})}
-                        placeholder="VD: 2024001"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
-                      <input
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                        value={newMember.academicYear}
-                        onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
-                        placeholder="VD: K2020-2024"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày vào Đoàn <span className="text-red-500">*</span></label>
-                      <input
-                        type="date"
-                        required
-                        className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
-                        value={newMember.joinDate}
-                        onChange={(e) => setNewMember({...newMember, joinDate: e.target.value})}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Phân loại thành tích</label>
-                      <CustomSelect
-                        options={achievementOptionsModal}
-                        value={newMember.achievementLevel}
-                        onChange={(val) => setNewMember({...newMember, achievementLevel: val as any})}
-                      />
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <div className="flex justify-between items-center mb-3">
-                        <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
-                        {isAdmin && (
-                          <button 
-                            type="button"
-                            onClick={() => setShowUnitModal(true)}
-                            className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
-                          >
-                            <Plus size={12} />
-                            Tạo đơn vị mới
-                          </button>
-                        )}
-                      </div>
-                      <CustomSelect
-                        disabled={isSecretary}
-                        options={unitOptionsModal}
-                        value={newMember.unitId}
-                        onChange={(val) => setNewMember({...newMember, unitId: val})}
-                        placeholder="Chọn chi đoàn..."
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <CustomSelect
-                        label="Trạng thái sinh hoạt"
-                        disabled={!editingId}
-                        options={statusOptionsModal}
-                        value={newMember.status}
-                        onChange={(val) => setNewMember({...newMember, status: val as any})}
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="flex items-center gap-3 cursor-pointer group p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/30 transition-all">
-                        <div className={cn(
-                          "w-6 h-6 rounded-md border flex items-center justify-center transition-all",
-                          newMember.isOutstanding 
-                            ? "bg-yellow-400 border-yellow-500 text-black" 
-                            : "bg-white/5 border-white/10 text-transparent"
-                        )}>
-                          <Star size={14} fill={newMember.isOutstanding ? "currentColor" : "none"} />
-                        </div>
-                        <input 
-                          type="checkbox"
-                          className="hidden"
-                          checked={newMember.isOutstanding}
-                          onChange={(e) => setNewMember({...newMember, isOutstanding: e.target.checked})}
-                        />
-                        <div>
-                          <p className="text-sm font-bold text-white group-hover:text-accent transition-colors">Đoàn viên tiêu biểu</p>
-                          <p className="text-[10px] text-white/30 uppercase tracking-widest">Đánh dấu gương mặt xuất sắc của đơn vị</p>
-                        </div>
-                      </label>
-                    </div>
-
-                    {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
-                      <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
-                        <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
-                        <input
-                          required
-                          className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic"
-                          value={statusReason}
-                          onChange={(e) => setStatusReason(e.target.value)}
-                          placeholder="Nhập lý do thay đổi..."
-                        />
-                      </div>
-                    )}
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Email</label>
+                    <input
+                      type="email"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.email}
+                      onChange={(e) => setNewMember({...newMember, email: e.target.value})}
+                      placeholder="VD: name@domain.com"
+                    />
                   </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Số điện thoại</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 tabular-nums"
+                      value={newMember.phone}
+                      onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
+                      placeholder="VD: 090xxxxxxx"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.hometown}
+                      onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
+                      placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Dân tộc</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.ethnic}
+                      onChange={(e) => setNewMember({...newMember, ethnic: e.target.value})}
+                      placeholder="VD: Kinh..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đoàn viên (MSSV)</label>
+                    <input
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
+                      value={newMember.memberId}
+                      onChange={(e) => setNewMember({...newMember, memberId: e.target.value})}
+                      placeholder="VD: 2024001"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tháng năm sinh</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      value={newMember.dob}
+                      onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.academicYear}
+                      onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
+                      placeholder="VD: K2020-2024"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày vào Đoàn</label>
+                    <input
+                      type="date"
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      value={newMember.joinDate}
+                      onChange={(e) => setNewMember({...newMember, joinDate: e.target.value})}
+                    />
+                  </div>
+                  <CustomSelect
+                    label="Phân loại thành tích"
+                    options={achievementOptionsModal}
+                    value={newMember.achievementLevel}
+                    onChange={(val) => setNewMember({...newMember, achievementLevel: val as any})}
+                  />
+                  <CustomSelect
+                    label="Giới tính"
+                    options={genderOptionsModal}
+                    value={newMember.gender}
+                    onChange={(val) => setNewMember({...newMember, gender: val as any})}
+                  />
+                  <div className="md:col-span-2">
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
+                      {isAdmin && (
+                        <button 
+                          type="button"
+                          onClick={() => setShowUnitModal(true)}
+                          className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
+                        >
+                          <Plus size={12} />
+                          Tạo đơn vị mới
+                        </button>
+                      )}
+                    </div>
+                    <CustomSelect
+                      disabled={isSecretary}
+                      options={unitOptionsModal}
+                      value={newMember.unitId}
+                      onChange={(val) => setNewMember({...newMember, unitId: val})}
+                      placeholder="Chọn chi đoàn..."
+                    />
+                    {isSecretary && <p className="text-[9px] text-white/20 mt-2 italic">Bạn chỉ có quyền quản lý đoàn viên trong chi đoàn được phân công.</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <CustomSelect
+                      label="Trạng thái sinh hoạt"
+                      disabled={!editingId}
+                      options={statusOptionsModal}
+                      value={newMember.status}
+                      onChange={(val) => setNewMember({...newMember, status: val as any})}
+                    />
+                    {!editingId && <p className="text-[10px] text-accent mt-2 italic font-bold">Mặc định cho đoàn viên mới đăng ký</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="flex items-center gap-3 cursor-pointer group p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/30 transition-all">
+                      <div className={cn(
+                        "w-6 h-6 rounded-md border flex items-center justify-center transition-all",
+                        newMember.isOutstanding 
+                          ? "bg-yellow-400 border-yellow-500 text-black" 
+                          : "bg-white/5 border-white/10 text-transparent"
+                      )}>
+                        <Star size={14} fill={newMember.isOutstanding ? "currentColor" : "none"} />
+                      </div>
+                      <input 
+                        type="checkbox"
+                        className="hidden"
+                        checked={newMember.isOutstanding}
+                        onChange={(e) => setNewMember({...newMember, isOutstanding: e.target.checked})}
+                      />
+                      <div>
+                        <p className="text-sm font-bold text-white group-hover:text-accent transition-colors">Đoàn viên tiêu biểu</p>
+                        <p className="text-[10px] text-white/30 uppercase tracking-widest">Đánh dấu gương mặt xuất sắc của đơn vị</p>
+                      </div>
+                    </label>
+                  </div>
+                  {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
+                    <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
+                      <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
+                      <input
+                        required
+                        className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic"
+                        value={statusReason}
+                        onChange={(e) => setStatusReason(e.target.value)}
+                        placeholder="Nhập lý do thay đổi (VD: Chuyển trường, Hết tuổi Đoàn...)"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="pt-8 flex gap-4">
                   <button
