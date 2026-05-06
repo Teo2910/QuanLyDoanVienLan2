@@ -121,6 +121,22 @@ export const MemberList: React.FC = () => {
     { value: "Nữ", label: "Nữ" },
     { value: "Khác", label: "Khác" }
   ];
+
+  const professionalLevelOptions = [
+    { value: "Tiến sỹ", label: "Tiến sỹ" },
+    { value: "Thạc sỹ", label: "Thạc sỹ" },
+    { value: "Đại học", label: "Đại học" },
+    { value: "Cao đẳng", label: "Cao đẳng" },
+    { value: "Trung cấp", label: "Trung cấp" },
+    { value: "Khác", label: "Khác" }
+  ];
+
+  const positionOptions = [
+    { value: "Bí thư", label: "Bí thư" },
+    { value: "Phó Bí thư", label: "Phó Bí thư" },
+    { value: "Ủy viên BCH", label: "Ủy viên BCH" },
+    { value: "Đoàn viên", label: "Đoàn viên" }
+  ];
   
   const statusColors = {
     "Đang sinh hoạt": "bg-green-100 text-green-700",
@@ -1382,24 +1398,18 @@ export const MemberList: React.FC = () => {
                       onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
                     />
                   </div>
-                  <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Chức vụ trong Đoàn</label>
-                    <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                      value={newMember.position}
-                      onChange={(e) => setNewMember({...newMember, position: e.target.value})}
-                      placeholder="VD: Bí thư, Phó Bí thư, Ủy viên..."
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Trình độ chuyên môn</label>
-                    <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
-                      value={newMember.professionalLevel}
-                      onChange={(e) => setNewMember({...newMember, professionalLevel: e.target.value})}
-                      placeholder="VD: Đại học, Cao đẳng..."
-                    />
-                  </div>
+                  <CustomSelect
+                    label="Chức vụ trong Đoàn"
+                    options={positionOptions}
+                    value={newMember.position}
+                    onChange={(val) => setNewMember({...newMember, position: val})}
+                  />
+                  <CustomSelect
+                    label="Trình độ chuyên môn"
+                    options={professionalLevelOptions}
+                    value={newMember.professionalLevel}
+                    onChange={(val) => setNewMember({...newMember, professionalLevel: val})}
+                  />
                   <div>
                     <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
                     <input
