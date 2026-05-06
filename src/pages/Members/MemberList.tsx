@@ -282,10 +282,18 @@ export const MemberList: React.FC = () => {
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
     if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} đoàn viên đã chọn?`)) {
-      dataService.deleteMembers(selectedIds).then(() => {
-        setSelectedIds([]);
-        loadData();
-      });
+      setLoading(true);
+      dataService.deleteMembers(selectedIds)
+        .then(() => {
+          setSelectedIds([]);
+          loadData();
+          alert("Đã xóa thành công!");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Có lỗi xảy ra khi xóa dữ liệu. Vui lòng kiểm tra lại kết nối server.");
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -293,10 +301,18 @@ export const MemberList: React.FC = () => {
     if (filteredMembers.length === 0) return;
     if (window.confirm(`Bạn có chắc chắn muốn xóa TOÀN BỘ ${filteredMembers.length} đoàn viên trong danh sách hiện tại?`)) {
       const ids = filteredMembers.map(m => m.id);
-      dataService.deleteMembers(ids).then(() => {
-        setSelectedIds([]);
-        loadData();
-      });
+      setLoading(true);
+      dataService.deleteMembers(ids)
+        .then(() => {
+          setSelectedIds([]);
+          loadData();
+          alert("Đã xóa toàn bộ thành công!");
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Lỗi xóa toàn bộ!");
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -546,33 +562,32 @@ export const MemberList: React.FC = () => {
 
           const parseDate = (val: any) => {
             if (!val) return "";
+            
+            // Handle Excel Date objects
             if (val instanceof Date) {
+              if (isNaN(val.getTime())) return "";
               return val.toISOString().split('T')[0];
             }
+
+            // Handle Excel serial numbers (e.g. 33883)
+            if (typeof val === 'number') {
+              const date = new Date((val - 25569) * 86400 * 1000);
+              if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+            }
+
             const str = val.toString().trim();
             if (!str) return "";
             
-            // Try parsing common formats like DD/MM/YYYY or MM/DD/YYYY
-            const parts = str.split(/[/.-]/);
-            if (parts.length === 3) {
-              // Standard logic: if first part > 12, it must be DD/MM/YYYY
-              let d = parseInt(parts[0]);
-              let m = parseInt(parts[1]);
-              let y = parseInt(parts[2]);
-              
-              if (d > 12) { // DD/MM/YYYY
-                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-              } else if (m > 12) { // MM/DD/YYYY
-                return `${y}-${String(d).padStart(2, '0')}-${String(m).padStart(2, '0')}`;
-              } else {
-                // Ambiguous, assume MM/DD/YYYY as per Excel default or try to create date
-                const date = new Date(str);
-                return isNaN(date.getTime()) ? str : date.toISOString().split('T')[0];
-              }
+            // Try parsing DD/MM/YYYY
+            const ddmmyyyy = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/;
+            const match = str.match(ddmmyyyy);
+            if (match) {
+              const [_, d, m, y] = match;
+              return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
             }
             
             const date = new Date(str);
-            return isNaN(date.getTime()) ? str : date.toISOString().split('T')[0];
+            return isNaN(date.getTime()) ? "" : date.toISOString().split('T')[0];
           };
 
           let memberToImport: any = {};

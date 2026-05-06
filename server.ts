@@ -210,17 +210,19 @@ async function startServer() {
 
   app.delete("/api/members/:id", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.post("/api/members/bulk-delete", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const { ids } = req.body;
       if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: "Invalid IDs" });
       
@@ -231,7 +233,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
