@@ -391,87 +391,95 @@ export const Statistics: React.FC = () => {
         )}
       </div>
 
-      {/* General Summary Table */}
+      {/* General Summary Table - Simplified Horizontal Rows */}
       <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm mt-10">
         <div className="flex justify-between items-start mb-10">
           <h3 className="text-sm uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
             <Activity className="text-accent" size={18} />
-            Tổng quát số liệu chi tiết
+            Bảng tổng hợp số liệu chi tiết
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-10">
-          {/* Gender Summary */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] uppercase tracking-widest text-accent font-bold">Giới tính</h4>
-            <div className="space-y-3">
+        <div className="space-y-10">
+          {/* Gender Row */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
+            <div className="lg:w-40 border-l-2 border-accent pl-4">
+              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Giới tính</h4>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
               {stats?.genderData.map((item) => (
-                <div key={item.name} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <span className="text-xs text-white/60">{item.name}</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white block">{item.value}</span>
-                    <span className="text-[10px] text-white/30 tracking-tighter">{((item.value / members.length) * 100).toFixed(1)}%</span>
+                <div key={item.name} className="flex items-center gap-3">
+                  <span className="text-xs text-white/60">{item.name}:</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
+                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Status Summary */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] uppercase tracking-widest text-accent font-bold">Sinh hoạt</h4>
-            <div className="space-y-3">
+          {/* Status Row */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
+            <div className="lg:w-40 border-l-2 border-accent pl-4">
+              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Sinh hoạt</h4>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
               {stats?.statusData.map((item) => (
-                <div key={item.name} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <span className="text-xs text-white/60">{item.name}</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white block">{item.value}</span>
-                    <span className="text-[10px] text-white/30 tracking-tighter">{((item.value / members.length) * 100).toFixed(1)}%</span>
+                <div key={item.name} className="flex items-center gap-3">
+                  <span className="text-xs text-white/60">{item.name}:</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
+                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Achievement Summary */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] uppercase tracking-widest text-accent font-bold">Xếp loại</h4>
-            <div className="space-y-3">
+          {/* Achievement Row */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
+            <div className="lg:w-40 border-l-2 border-accent pl-4">
+              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Xếp loại</h4>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
               {stats?.achievementData.map((item) => (
-                <div key={item.name} className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <span className="text-xs text-white/60">{item.name}</span>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white block">{item.value}</span>
-                    <span className="text-[10px] text-white/30 tracking-tighter">{((item.value / members.length) * 100).toFixed(1)}%</span>
+                <div key={item.name} className="flex items-center gap-3">
+                  <span className="text-xs text-white/60">{item.name}:</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
+                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Key Indicators Summary */}
-          <div className="space-y-6">
-            <h4 className="text-[10px] uppercase tracking-widest text-accent font-bold">Chỉ số khác</h4>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                <span className="text-xs text-white/60">Tiêu biểu</span>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-white block">{members.filter(m => m.isOutstanding).length}</span>
-                  <span className="text-[10px] text-white/30 tracking-tighter">{((members.filter(m => m.isOutstanding).length / members.length) * 100).toFixed(1)}%</span>
+          {/* Other Indicators Row */}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
+            <div className="lg:w-40 border-l-2 border-accent pl-4">
+              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Chỉ số khác</h4>
+            </div>
+            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-white/60">Tiêu biểu:</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.isOutstanding).length}</span>
+                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.isOutstanding).length / members.length) * 100).toFixed(1)}%)</span>
                 </div>
               </div>
-              <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                <span className="text-xs text-white/60">Dân tộc Kinh</span>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-white block">{members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length}</span>
-                  <span className="text-[10px] text-white/30 tracking-tighter">{((members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length / members.length) * 100).toFixed(1)}%</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-white/60">Dân tộc Kinh:</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length}</span>
+                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length / members.length) * 100).toFixed(1)}%)</span>
                 </div>
               </div>
-              <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                <span className="text-xs text-white/60">Dân tộc khác</span>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-white block">{members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length}</span>
-                  <span className="text-[10px] text-white/30 tracking-tighter">{((members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length / members.length) * 100).toFixed(1)}%</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-white/60">Các dân tộc khác:</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length}</span>
+                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length / members.length) * 100).toFixed(1)}%)</span>
                 </div>
               </div>
             </div>
