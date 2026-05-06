@@ -63,10 +63,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const fetchUsersData = React.useCallback(async () => {
     setIsLoadingUsers(true);
     try {
+      console.log("[Presence] Fetching system users...");
       const data = await dataService.getUsers();
+      console.log("[Presence] Received users:", data);
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("[Presence] Error fetching users:", error);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -76,12 +78,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     fetchUsersData();
     
     // Refresh user list occasionally to catch new registrations
-    const refreshInterval = setInterval(fetchUsersData, 60000);
+    const refreshInterval = setInterval(fetchUsersData, 30000);
     return () => clearInterval(refreshInterval);
   }, [fetchUsersData]);
 
   React.useEffect(() => {
     if (profile) {
+      console.log("[Presence] Current profile:", profile.email, profile.uid);
       setProfileForm({
         fullName: profile.fullName || "",
         avatarUrl: profile.avatarUrl || "",

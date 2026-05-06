@@ -43,6 +43,25 @@ async function startServer() {
     console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
     pool = await sql.connect(sqlConfig);
     console.log("Connected to SQL Server successfully.");
+    
+    // Sync users into memory on startup
+    try {
+      const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+      result.recordset.forEach(u => {
+        const uid = u.uid || `db-${u.id || u.email}`;
+        systemUsers.set(uid, {
+          uid,
+          email: u.email,
+          role: u.role,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl,
+          unitId: u.unitId
+        });
+      });
+      console.log(`[Presence] Initialized ${result.recordset.length} users from DB`);
+    } catch (e) {
+      console.error("[Presence] Failed to sync users from DB at startup:", e);
+    }
   } catch (err) {
     console.error("SQL Server Connection Failed: ", err);
     // In preview environment, this will likely fail because localhost:1433 doesn't exist
@@ -79,33 +98,49 @@ async function startServer() {
   // Get all users (for admin/secretaries to see each other)
   app.get("/api/users", async (req, res) => {
     try {
-      let users = [];
+      console.log("[Presence] /api/users called");
+      let sqlUsers = [];
       if (pool && pool.connected) {
         const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
-        users = result.recordset;
-      }
-      
-      // Merge with in-memory users for robustness in preview
-      const allUsers = [...users];
-      const existingUids = new Set(users.map(u => u.uid));
-      
-      for (const u of systemUsers.values()) {
-        if (!existingUids.has(u.uid)) {
-          allUsers.push(u);
+        sqlUsers = result.recordset;
+      } else {
+        console.warn("[Presence] SQL not connected for user fetch, trying to reconnect...");
+        try {
+          pool = await sql.connect(sqlConfig);
+          const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+          sqlUsers = result.recordset;
+        } catch (e) {
+          console.error("[Presence] Reconnection failed");
         }
       }
+      
+      const allUsersMap = new Map();
+      
+      // 1. Add SQL users
+      sqlUsers.forEach(u => {
+        // Ensure every user has a UID for tracking
+        const uid = u.uid || `db-${u.id || u.email}`;
+        allUsersMap.set(uid, {
+          uid,
+          email: u.email,
+          role: u.role,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl,
+          unitId: u.unitId
+        });
+      });
 
-      res.json(allUsers.map(u => ({
-        uid: u.uid || `anon-${u.email}`,
-        email: u.email,
-        role: u.role,
-        fullName: u.fullName,
-        avatarUrl: u.avatarUrl,
-        unitId: u.unitId
-      })));
+      // 2. Add/Merge with in-memory users
+      systemUsers.forEach((u, uid) => {
+        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
+      });
+
+      const finalUsers = Array.from(allUsersMap.values());
+      console.log(`[Presence] Returning ${finalUsers.length} system users`);
+      res.json(finalUsers);
     } catch (err) {
-      console.error("Error in /api/users:", err);
-      // Fallback to purely in-memory if SQL fails hard
+      console.error("[Presence] Error fetching users:", err);
+      // Absolute fallback to in-memory only
       res.json(Array.from(systemUsers.values()));
     }
   });
