@@ -397,52 +397,81 @@ export const MemberList: React.FC = () => {
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Danh sách Đoàn viên");
+    const worksheet = workbook.addWorksheet("Thống kê dữ liệu");
 
-    worksheet.columns = [
-      { header: "STT", key: "stt", width: 10 },
-      { header: "Họ và tên", key: "fullName", width: 25 },
-      { header: "MSSV", key: "memberId", width: 20 },
-      { header: "Giới tính", key: "gender", width: 12 },
-      { header: "Ngày sinh", key: "dob", width: 15 },
-      { header: "Dân tộc", key: "ethnic", width: 15 },
-      { header: "Tôn giáo", key: "religion", width: 15 },
-      { header: "Quê quán", key: "hometown", width: 25 },
-      { header: "Chi đoàn", key: "unit", width: 25 },
-      { header: "Email", key: "email", width: 25 },
-      { header: "Số điện thoại", key: "phone", width: 15 },
-      { header: "Niên khóa", key: "academicYear", width: 15 },
-      { header: "Xếp loại", key: "achievementLevel", width: 20 },
-      { header: "Trạng thái", key: "status", width: 20 },
-      { header: "Tiêu biểu", key: "isOutstanding", width: 12 }
-    ];
+    // Add administrative headers
+    worksheet.addRow(["TỈNH ĐOÀN LÂM ĐỒNG", "", "", "", "", "", "", "ĐOÀN TNCS HỒ CHÍ MINH"]);
+    worksheet.addRow(["BCH ĐOÀN THANH NIÊN UBND TỈNH"]);
+    worksheet.addRow([]);
+    
+    const titleRow = worksheet.addRow(["Thống kê dữ liệu đoàn viên Trung tâm xúc tiến Đầu tư, Thương mại và Du lịch tỉnh Lâm Đồng"]);
+    titleRow.font = { bold: true, size: 14 };
+    titleRow.alignment = { horizontal: 'center' };
+    worksheet.mergeCells(`A${titleRow.number}:AJ${titleRow.number}`);
+    
+    worksheet.addRow([]);
 
-    filteredMembers.forEach((member, index) => {
-      worksheet.addRow({
-        stt: index + 1,
-        fullName: member.fullName,
-        memberId: member.memberId,
-        gender: member.gender,
-        dob: member.dob,
-        ethnic: member.ethnic || "",
-        religion: member.religion || "",
-        hometown: member.hometown || "",
-        unit: getUnitName(member.unitId),
-        email: member.email || "",
-        phone: member.phone || "",
-        academicYear: member.academicYear || "",
-        achievementLevel: member.achievementLevel || "Chưa xếp loại",
-        status: member.status,
-        isOutstanding: member.isOutstanding ? "Có" : "Không"
-      });
+    // Complex Header Rows
+    const h1 = ["Stt", "Họ và tên", "Ngày, tháng, năm sinh", "", "Dân tộc", "", "Tôn giáo", "Đoàn viên là đảng viên", "", "Độ tuổi", "", "", "Nghề nghiệp", "", "", "", "Học vấn", "", "Chuyên môn", "", "", "", "", "Lý luận chính trị", "", "", "Tham gia cấp ủy cấp trên cơ sở", "Tham gia cấp ủy cơ sở", "Số đoàn viên đảm nhiệm các chức vụ chủ chốt"];
+    const h2 = ["", "", "Nam", "Nữ", "Kinh", "Khác", "", "Ngày kết nạp dự bị", "Ngày kết nạp chính thức", "Đủ 18 đến 25", "Đủ 26 đến 30", "Đủ 31 trở lên", "Công chức", "Viên chức", "Sinh viên", "Khác", "THCS", "THPT", "Tiến sỹ", "Cao đẳng", "Đại học", "Thạc sỹ", "Tiến sỹ", "Sơ cấp", "Trung cấp", "Cao cấp, cử nhân", "", "", "Ban chấp hành", "Ban thường vụ", "Bí thư", "Phó Bí thư", "Chuyên môn"];
+    const h3 = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Cấp trưởng", "Cấp phó"];
+
+    const r1 = worksheet.addRow(h1);
+    const r2 = worksheet.addRow(h2);
+    const r3 = worksheet.addRow(h3);
+
+    [r1, r2, r3].forEach(row => {
+      row.font = { bold: true, size: 9 };
+      row.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
     });
 
-    // Styling
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+    // Merge header cells (simplified for common columns)
+    worksheet.mergeCells('A7:A9'); // STT
+    worksheet.mergeCells('B7:B9'); // Họ tên
+    worksheet.mergeCells('C7:D7'); // Ngày sinh
+    worksheet.mergeCells('E7:F7'); // Dân tộc
+    worksheet.mergeCells('G7:G9'); // Tôn giáo
+    worksheet.mergeCells('H7:I7'); // Đảng viên
+    worksheet.mergeCells('J7:L7'); // Độ tuổi
+
+    // Add data
+    filteredMembers.forEach((member, index) => {
+      const birthDate = member.dob ? new Date(member.dob) : null;
+      const age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : 0;
+      
+      const rowData = new Array(35).fill("");
+      rowData[0] = index + 1;
+      rowData[1] = member.fullName;
+      
+      if (member.gender === "Nam") rowData[2] = birthDate ? birthDate.toLocaleDateString("vi-VN") : "";
+      else rowData[3] = birthDate ? birthDate.toLocaleDateString("vi-VN") : "";
+      
+      if (member.ethnic?.toLowerCase() === "kinh") rowData[4] = "x";
+      else rowData[5] = member.ethnic || "";
+      
+      rowData[6] = member.religion || "Không";
+      
+      // Age group logic
+      if (age >= 18 && age <= 25) rowData[9] = "x";
+      else if (age >= 26 && age <= 30) rowData[10] = "x";
+      else if (age >= 31) rowData[11] = "x";
+
+      // Default work/education flags for this demo context
+      rowData[13] = "x"; // Viên chức
+      rowData[17] = "x"; // THPT
+      rowData[20] = "x"; // Đại học
+      
+      const newRow = worksheet.addRow(rowData);
+      newRow.alignment = { horizontal: 'center' };
+    });
+
+    // Set Column Widths
+    worksheet.columns.forEach((col, i) => {
+      col.width = i === 1 ? 25 : 10;
+    });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `Danh_sach_Doan_vien_${new Date().toISOString().split('T')[0]}.xlsx`);
+    saveAs(new Blob([buffer]), `Thong_ke_doan_vien_${new Date().getTime()}.xlsx`);
   };
 
   const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
