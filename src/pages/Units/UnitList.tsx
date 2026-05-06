@@ -83,13 +83,15 @@ export const UnitList: React.FC = () => {
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
         </div>
         {(isAdmin || isSecretary) && (
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={openAddModal}
-            className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-tighter hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2"
+            className="group bg-accent border border-white/20 px-8 py-4 rounded-2xl transition-all shadow-xl shadow-accent/20 flex items-center gap-3 hover:bg-white"
           >
-            <Plus size={16} />
-            Thêm đơn vị mới
-          </button>
+            <Plus size={18} className="text-slate-950 group-hover:rotate-90 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-950">Thêm đơn vị mới</span>
+          </motion.button>
         )}
       </div>
 
@@ -140,24 +142,30 @@ export const UnitList: React.FC = () => {
                       </div>
                     </td>
                     <td className="py-6 px-4 text-right">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 duration-300">
                         {(isAdmin || isSecretary) ? (
                           <>
-                            <button 
+                            <motion.button 
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
                               onClick={() => handleEdit(unit)}
-                              className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-blue-400 hover:bg-blue-500/10 rounded-full transition-all"
+                              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-400/5 hover:bg-blue-400 hover:text-white rounded-xl border border-blue-400/10 hover:border-blue-400/40 transition-all flex items-center gap-2"
                             >
+                              <Edit3 size={12} />
                               Chỉnh sửa
-                            </button>
-                            <button 
+                            </motion.button>
+                            <motion.button 
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
                               onClick={() => handleDelete(unit.id)}
-                              className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-red-400 hover:bg-red-500/10 rounded-full transition-all"
+                              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-400 bg-red-400/5 hover:bg-red-500 hover:text-white rounded-xl border border-red-400/10 hover:border-red-500/40 transition-all flex items-center gap-2"
                             >
+                              <Trash2 size={12} />
                               Xóa
-                            </button>
+                            </motion.button>
                           </>
                         ) : (
-                          <span className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-white/20 italic">Chỉ đọc</span>
+                          <span className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/20 italic">Chỉ đọc</span>
                         )}
                       </div>
                     </td>
@@ -243,19 +251,23 @@ export const UnitList: React.FC = () => {
                 </div>
               </div>
               <div className="pt-6 flex gap-4">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02, x: -5 }}
+                  whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-8 py-4 border border-white/10 rounded-full font-bold text-xs uppercase tracking-widest text-white/60 hover:bg-white/5 transition-colors"
+                  className="flex-1 px-8 py-4 border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 hover:bg-white/5 transition-all"
                 >
                   Hủy thao tác
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="flex-1 px-8 py-4 bg-white text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
+                  className="flex-1 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white"
                 >
-                  Hoàn tất lưu
-                </button>
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-950">Hoàn tất lưu</span>
+                </motion.button>
               </div>
             </form>
           </motion.div>

@@ -140,13 +140,15 @@ export const ActivityList = () => {
           </div>
 
           {(isAdmin || isSecretary) && (
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => { setEditingActivity(null); setIsModalOpen(true); }}
-              className="flex items-center justify-center gap-3 px-8 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-[10px] hover:opacity-90 transition-all shadow-xl shadow-accent/20 shrink-0"
+              className="group flex items-center justify-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white shrink-0"
             >
-              <Plus size={16} />
-              Thêm hoạt động
-            </button>
+              <Plus size={18} className="text-slate-950 group-hover:rotate-90 transition-transform" />
+              <span className="font-black uppercase tracking-widest text-[10px] text-slate-950">Thêm hoạt động</span>
+            </motion.button>
           )}
         </div>
       </div>
@@ -161,12 +163,22 @@ export const ActivityList = () => {
                 </span>
                 {(isAdmin || isSecretary) && (
                   <div className="flex gap-2">
-                    <button onClick={() => handleEdit(activity)} className="p-2 text-white/20 hover:text-white transition-colors">
+                    <motion.button 
+                      whileHover={{ scale: 1.2, rotate: 15 }}
+                      whileTap={{ scale: 0.8 }}
+                      onClick={() => handleEdit(activity)} 
+                      className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-white/40 hover:text-white hover:border-white/30 transition-all shadow-lg"
+                    >
                       <Edit2 size={14} />
-                    </button>
-                    <button onClick={() => handleDelete(activity.id)} className="p-2 text-white/20 hover:text-red-400 transition-colors">
+                    </motion.button>
+                    <motion.button 
+                      whileHover={{ scale: 1.2, rotate: -15 }}
+                      whileTap={{ scale: 0.8 }}
+                      onClick={() => handleDelete(activity.id)} 
+                      className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/10"
+                    >
                       <Trash2 size={14} />
-                    </button>
+                    </motion.button>
                   </div>
                 )}
               </div>
@@ -295,21 +307,23 @@ export const ActivityList = () => {
                 </div>
 
                 <div className="pt-4">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={submitting}
                     className={cn(
-                      "w-full flex items-center justify-center gap-3 py-5 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs transition-all shadow-xl shadow-accent/20",
-                      submitting ? "opacity-50 cursor-not-allowed grayscale" : "hover:opacity-90"
+                      "w-full flex items-center justify-center gap-3 py-5 bg-accent border border-white/20 text-slate-900 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-accent/20",
+                      submitting ? "opacity-50 cursor-not-allowed grayscale" : "hover:bg-white"
                     )}
                   >
                     {submitting ? (
-                      <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
                     ) : (
                       <Check size={18} />
                     )}
                     {submitting ? "Đang lưu..." : (editingActivity ? "Cập nhật hoạt động" : "Lưu hoạt động")}
-                  </button>
+                  </motion.button>
                 </div>
               </form>
             </div>

@@ -59,26 +59,30 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <p className="text-white/60 mb-10 leading-relaxed">{message}</p>
               
               <div className="flex gap-4 w-full">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02, x: -5 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={onCancel}
-                  className="flex-1 px-8 py-4 rounded-full bg-white/5 text-white/60 font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all border border-white/10"
+                  className="flex-1 px-8 py-4 rounded-2xl bg-white/5 text-white/40 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all border border-white/5"
                 >
                   {cancelLabel}
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     onConfirm();
-                    onCancel(); // Optional: handled by parent but safe to close here
+                    onCancel(); 
                   }}
                   className={cn(
-                    "flex-1 px-8 py-4 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all shadow-lg",
+                    "flex-1 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl border border-white/10",
                     variant === 'danger' 
-                      ? "bg-red-600 text-white hover:bg-red-500" 
-                      : "bg-white text-black hover:bg-gray-200"
+                      ? "bg-red-500 text-white hover:bg-white hover:text-red-600 shadow-red-500/20 group" 
+                      : "bg-accent text-slate-950 hover:bg-white shadow-accent/20"
                   )}
                 >
                   {confirmLabel}
-                </button>
+                </motion.button>
               </div>
             </div>
             

@@ -214,13 +214,13 @@ export const Statistics: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 w-full lg:w-auto">
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleExportExcel}
-            className="group flex items-center gap-3 px-6 py-3 bg-accent/10 border border-accent/20 rounded-2xl text-accent hover:bg-accent hover:text-white transition-all duration-300 shadow-lg shadow-accent/5"
+            className="group flex items-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:bg-white"
           >
-            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
-            <span className="text-xs uppercase tracking-widest font-bold">Xuất file Excel</span>
+            <Download size={20} className="text-slate-950 group-hover:translate-y-0.5 transition-transform" />
+            <span className="text-xs uppercase tracking-widest font-black text-slate-950">Xuất file Excel</span>
           </motion.button>
 
           {!isSecretary && (

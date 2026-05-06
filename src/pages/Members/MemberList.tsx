@@ -820,14 +820,16 @@ export const MemberList: React.FC = () => {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 mr-2">
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={exportToExcel}
-              className="bg-accent/10 text-accent border border-accent/20 px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-accent-foreground transition-all flex items-center gap-2 shadow-lg"
+              className="group flex items-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:bg-white"
               title="Xuất danh sách ra tệp Excel"
             >
-              <Download size={14} />
-              Xuất Excel
-            </button>
+              <Download size={20} className="text-slate-950 group-hover:translate-y-0.5 transition-transform" />
+              <span className="text-xs font-black uppercase tracking-widest text-slate-950">Xuất Excel</span>
+            </motion.button>
             <div className="relative">
               <input 
                 type="file" 
@@ -836,23 +838,27 @@ export const MemberList: React.FC = () => {
                 className="hidden" 
                 id="excel-import"
               />
-              <label 
+              <motion.label 
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 htmlFor="excel-import"
-                className="cursor-pointer bg-white/5 text-white/60 border border-white/10 px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 hover:border-accent/40 hover:text-accent transition-all flex items-center gap-2 shadow-lg"
+                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 rounded-2xl text-white hover:border-accent hover:bg-accent transition-all duration-300 shadow-lg hover:shadow-accent/20"
                 title="Nhập danh sách từ tệp Excel"
               >
-                <Upload size={14} />
-                Nhập Excel
-              </label>
+                <Upload size={20} className="text-white group-hover:text-slate-950 group-hover:translate-y-0.5 transition-all" />
+                <span className="text-xs font-black uppercase tracking-widest text-white group-hover:text-slate-950 transition-colors">Nhập Excel</span>
+              </motion.label>
             </div>
           </div>
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={openAddModal}
-            className="bg-white text-black px-8 py-3 rounded-full text-xs font-bold uppercase tracking-tighter hover:bg-gray-200 transition-all shadow-lg flex items-center gap-2"
+            className="group flex items-center gap-3 px-8 py-4 bg-white border-2 border-white rounded-2xl transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-accent/40 hover:bg-accent hover:border-accent"
           >
-            <Plus size={16} />
-            Thêm đoàn viên mới
-          </button>
+            <Plus size={20} className="text-black group-hover:rotate-90 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-widest text-black">Thêm đoàn viên mới</span>
+          </motion.button>
         </div>
       </div>
 
@@ -1032,28 +1038,34 @@ export const MemberList: React.FC = () => {
                     <span className="text-red-400 text-lg font-serif italic block">
                       Đã chọn {selectedIds.length} đoàn viên
                     </span>
-                    <button 
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedIds([])}
-                      className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors"
+                      className="text-white/40 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 px-4 py-2 rounded-xl border border-white/5 hover:border-white/20 hover:bg-white/10"
                     >
                       Bỏ chọn tất cả
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
                 <div className="flex gap-3 w-full sm:w-auto">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleBulkDelete}
-                    className="flex-1 sm:flex-none bg-red-500 text-white px-10 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 active:scale-95"
+                    className="group flex-1 sm:flex-none bg-red-500 border border-white/10 rounded-2xl px-10 py-4 transition-all shadow-xl shadow-red-500/20 hover:bg-white"
                   >
-                    Xóa mục đã chọn
-                  </button>
+                    <span className="text-[11px] font-black text-white group-hover:text-red-600 uppercase tracking-widest transition-colors">Xóa mục đã chọn</span>
+                  </motion.button>
                   {selectedIds.length === filteredMembers.length && filteredMembers.length > 1 && (
-                    <button 
+                    <motion.button 
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={handleDeleteAllFiltered}
-                      className="flex-1 sm:flex-none bg-white text-red-600 px-10 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-red-50 transition-all shadow-xl active:scale-95"
+                      className="group flex-1 sm:flex-none bg-white border border-red-500/10 rounded-2xl px-10 py-4 transition-all shadow-xl hover:bg-red-500"
                     >
-                      Xóa tất cả ({filteredMembers.length})
-                    </button>
+                      <span className="text-[11px] font-black text-red-600 group-hover:text-white uppercase tracking-widest transition-colors">Xóa tất cả ({filteredMembers.length})</span>
+                    </motion.button>
                   )}
                 </div>
               </motion.div>
@@ -1229,33 +1241,44 @@ export const MemberList: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-6 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                        <button 
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 duration-300">
+                        <motion.button 
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleViewDetails(member)}
-                          className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-white/60 hover:bg-white/10 rounded-full transition-all flex items-center gap-1"
+                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/60 bg-white/5 hover:bg-white/10 hover:text-white rounded-xl border border-white/5 hover:border-white/20 transition-all flex items-center gap-2"
                         >
                           <Eye size={12} />
                           Chi tiết
-                        </button>
-                        <button 
+                        </motion.button>
+                        <motion.button 
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleViewHistory(member)}
-                          className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-accent hover:bg-accent/10 rounded-full transition-all"
+                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-accent bg-accent/5 hover:bg-accent hover:text-white rounded-xl border border-accent/10 hover:border-accent/40 transition-all flex items-center gap-2"
                         >
+                          <History size={12} />
                           Lịch sử
-                        </button>
-                        <button 
+                        </motion.button>
+                        <motion.button 
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
                           onClick={() => handleEdit(member)}
-                          className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-blue-400 hover:bg-blue-500/10 rounded-full transition-all"
+                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-400/5 hover:bg-blue-400 hover:text-white rounded-xl border border-blue-400/10 hover:border-blue-400/40 transition-all flex items-center gap-2"
                         >
+                          <Edit3 size={12} />
                           Hồ sơ
-                        </button>
+                        </motion.button>
                         {isAdmin && (
-                          <button 
+                          <motion.button 
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleDelete(member.id)}
-                            className="px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-red-400 hover:bg-red-500/10 rounded-full transition-all"
+                            className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-400 bg-red-400/5 hover:bg-red-500 hover:text-white rounded-xl border border-red-400/10 hover:border-red-500/40 transition-all flex items-center gap-2"
                           >
+                            <Trash2 size={12} />
                             Xóa
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     </td>
@@ -1278,13 +1301,15 @@ export const MemberList: React.FC = () => {
           
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none"
+                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none border border-white/5"
               >
                 <ChevronDown className="rotate-90" size={16} />
-              </button>
+              </motion.button>
               
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
@@ -1295,18 +1320,20 @@ export const MemberList: React.FC = () => {
                     (page >= currentPage - 1 && page <= currentPage + 1)
                   ) {
                     return (
-                      <button
+                      <motion.button
                         key={page}
+                        whileHover={{ scale: 1.1, y: -2 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setCurrentPage(page)}
                         className={cn(
-                          "w-8 h-8 rounded-lg text-[10px] font-bold transition-all outline-none",
+                          "w-8 h-8 rounded-lg text-[10px] font-black transition-all outline-none border",
                           currentPage === page 
-                            ? "bg-accent text-accent-foreground" 
-                            : "bg-white/5 text-white/40 hover:bg-white/10"
+                            ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" 
+                            : "bg-white/5 text-white/40 hover:bg-white/10 border-white/5"
                         )}
                       >
                         {page}
-                      </button>
+                      </motion.button>
                     );
                   } else if (
                     (page === currentPage - 2 && page > 1) || 
@@ -1318,13 +1345,15 @@ export const MemberList: React.FC = () => {
                 })}
               </div>
 
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none"
+                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none border border-white/5"
               >
                 <ChevronDown className="-rotate-90" size={16} />
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
@@ -1560,19 +1589,23 @@ export const MemberList: React.FC = () => {
                   )}
                 </div>
                 <div className="pt-8 flex gap-4">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02, x: -5 }}
+                    whileTap={{ scale: 0.98 }}
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 px-8 py-4 border border-white/10 rounded-full font-bold text-sm uppercase tracking-widest text-white/60 hover:bg-white/5 transition-colors"
+                    className="flex-1 px-8 py-4 border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 hover:bg-white/5 transition-all"
                   >
                     Hủy bỏ
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="flex-1 px-8 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
+                    className="flex-1 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white"
                   >
-                    Lưu hồ sơ đoàn viên
-                  </button>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-950">Lưu hồ sơ đoàn viên</span>
+                  </motion.button>
                 </div>
               </form>
             </div>
@@ -1772,15 +1805,17 @@ export const MemberList: React.FC = () => {
                            </div>
                         </div>
                       ))}
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.05, x: 5 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => {
                           setShowDetailsModal(false);
                           handleViewHistory(detailsMember);
                         }}
-                        className="text-[10px] uppercase tracking-widest font-bold text-accent py-2 px-6 rounded-full border border-accent/20 hover:bg-accent/10 transition-all"
+                        className="text-[10px] uppercase tracking-widest font-black text-accent py-2.5 px-8 rounded-xl border border-accent/20 bg-accent/5 hover:bg-accent hover:text-white transition-all shadow-lg shadow-accent/5"
                       >
                         Xem toàn bộ lịch sử
-                      </button>
+                      </motion.button>
                    </div>
                  ) : (
                    <p className="text-sm text-white/20 italic">Chưa có thay đổi trạng thái nào được ghi nhận.</p>
@@ -1789,21 +1824,25 @@ export const MemberList: React.FC = () => {
             </div>
             
             <div className="p-8 border-t border-white/5 flex gap-4 shrink-0 bg-white/[0.01]">
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setShowDetailsModal(false);
                   handleEdit(detailsMember);
                 }}
-                className="flex-1 py-4 bg-white text-black rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-all shadow-xl"
+                className="flex-1 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white"
               >
-                Chỉnh sửa hồ sơ
-              </button>
-              <button 
+                <span className="text-xs font-black uppercase tracking-widest text-slate-950">Chỉnh sửa hồ sơ</span>
+              </motion.button>
+              <motion.button 
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setShowDetailsModal(false)}
-                className="px-10 py-4 bg-white/5 text-white/60 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10"
+                className="px-10 py-4 bg-white/5 text-white/60 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10"
               >
                 Đóng
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </div>
@@ -1864,12 +1903,14 @@ export const MemberList: React.FC = () => {
               )}
             </div>
             <div className="p-8 border-t border-white/5 flex justify-end">
-               <button
+               <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setShowHistoryModal(false)}
-                  className="px-8 py-3 bg-white text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-gray-200 transition-all"
+                  className="px-10 py-3 bg-white/5 border border-white/10 text-white/60 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
                 >
                   Đóng
-                </button>
+                </motion.button>
             </div>
           </motion.div>
         </div>
@@ -1913,19 +1954,23 @@ export const MemberList: React.FC = () => {
                 />
               </div>
               <div className="pt-4 flex gap-3">
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.02, x: -5 }}
+                  whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setShowUnitModal(false)}
-                  className="flex-1 py-3 text-xs uppercase font-bold text-white/40 hover:bg-white/5 rounded-full transition-all"
+                  className="flex-1 py-4 text-xs uppercase font-black text-white/40 hover:bg-white/5 border border-white/5 rounded-2xl transition-all"
                 >
                   Hủy
-                </button>
-                <button 
+                </motion.button>
+                <motion.button 
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="flex-1 py-3 bg-accent text-accent-foreground rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/20"
+                  className="flex-1 py-4 bg-accent border border-white/20 rounded-2xl shadow-xl shadow-accent/20 hover:bg-white transition-all"
                 >
-                  Lưu đơn vị
-                </button>
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-950">Lưu đơn vị</span>
+                </motion.button>
               </div>
             </form>
           </motion.div>

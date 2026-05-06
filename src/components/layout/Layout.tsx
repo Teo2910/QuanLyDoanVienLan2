@@ -172,29 +172,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         <div className="p-6 border-t border-white/10">
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setIsProfileModalOpen(true)}
-            className="bg-white/5 p-4 rounded-xl flex items-center space-x-3 border border-white/5 w-full hover:bg-white/10 transition-all text-left"
+            className="bg-white/5 p-4 rounded-xl flex items-center space-x-3 border border-white/5 w-full hover:bg-white/10 transition-all text-left group"
           >
             {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-lg border border-white/10" />
+              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-lg border border-white/10 group-hover:border-accent/40" />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-[10px]">
                 {userInitials}
               </div>
             )}
             <div className="overflow-hidden">
-              <p className="text-xs font-semibold text-white truncate">{profile?.fullName || profile?.email}</p>
+              <p className="text-xs font-black text-white truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
               <p className="text-[10px] text-white/40 uppercase tracking-tighter">{userRoleName}</p>
             </div>
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.95 }}
             onClick={logout}
-            className="mt-4 flex items-center gap-3 px-4 py-2 w-full text-white/30 hover:text-white transition-colors text-xs font-medium uppercase tracking-widest"
+            className="mt-6 flex items-center gap-3 px-4 py-2 w-full text-white/30 hover:text-red-400 transition-all text-[10px] font-black uppercase tracking-widest bg-white/5 border border-transparent hover:border-red-500/10 rounded-xl"
           >
             <LogOut size={14} />
             <span>Đăng xuất</span>
-          </button>
+          </motion.button>
         </div>
       </aside>
 
@@ -222,18 +226,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
           <div className="flex items-center gap-6">
             <div className="relative">
-              <button 
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   const newState = !isUserListOpen;
                   setIsUserListOpen(newState);
                   if (newState) fetchUsersData();
                 }}
-                className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10"
+                className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
               >
                 <div className="text-right hidden lg:block">
-                  <p className="text-[10px] uppercase tracking-widest text-white font-bold">{userRoleName}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white font-black">{userRoleName}</p>
                   <div className="flex items-center justify-end gap-1">
-                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                      <p className="text-[9px] text-white/40 uppercase tracking-tighter">Trực tuyến</p>
                   </div>
                 </div>
@@ -244,7 +250,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     {userInitials}
                   </div>
                 )}
-              </button>
+              </motion.button>
 
               <AnimatePresence>
                 {isUserListOpen && (
@@ -324,13 +330,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                           })
                         )}
                       </div>
-                      <div className="p-4 border-t border-white/10 flex justify-center">
-                         <button 
+                      <div className="p-4 border-t border-white/10 flex justify-center bg-white/[0.02]">
+                         <motion.button 
+                          whileHover={{ scale: 1.1, color: "#fff" }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={() => { setIsUserListOpen(false); setIsProfileModalOpen(true); }}
-                          className="text-[9px] uppercase tracking-widest text-accent font-bold hover:underline"
+                          className="text-[9px] uppercase tracking-widest text-accent font-black hover:bg-accent/10 py-2 px-4 rounded-lg transition-all"
                         >
                           Chỉnh sửa hồ sơ
-                        </button>
+                        </motion.button>
                       </div>
                     </motion.div>
                   </>
@@ -434,13 +442,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 <div className="pt-4">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="w-full flex items-center justify-center gap-3 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-[10px] hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+                    className="w-full flex items-center justify-center gap-3 py-4 bg-accent border border-white/20 text-slate-900 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all shadow-xl shadow-accent/20"
                   >
                     <Check size={16} />
                     Lưu thay đổi
-                  </button>
+                  </motion.button>
                 </div>
               </form>
             </div>
