@@ -116,6 +116,38 @@ export const Statistics: React.FC = () => {
     return { genderData, ethnicData, statusData, achievementData, unitData, outstandingCount, outstandingData };
   }, [members, units]);
 
+  const unitTableStats = useMemo(() => {
+    if (!units.length) return [];
+    
+    return units.map(unit => {
+      const unitMembers = allMembers.filter(m => m.unitId === unit.id);
+      const males = unitMembers.filter(m => m.gender === "Nam").length;
+      const females = unitMembers.filter(m => m.gender === "Nữ").length;
+      const outstanding = unitMembers.filter(m => m.isOutstanding).length;
+      
+      // Status breakdown
+      const active = unitMembers.filter(m => m.status === "Đang sinh hoạt").length;
+      const moved = unitMembers.filter(m => m.status === "Chuyển sinh hoạt").length;
+      const left = unitMembers.filter(m => m.status === "Trưởng thành đoàn").length;
+      
+      // Achievement breakdown
+      const excellent = unitMembers.filter(m => m.achievementLevel === "Hoàn thành xuất sắc nhiệm vụ").length;
+      const good = unitMembers.filter(m => m.achievementLevel === "Hoàn thành tốt nhiệm vụ").length;
+      const average = unitMembers.filter(m => m.achievementLevel === "Hoàn thành nhiệm vụ").length;
+
+      return {
+        id: unit.id,
+        name: unit.name,
+        total: unitMembers.length,
+        males,
+        females,
+        outstanding,
+        status: { active, moved, left },
+        achievements: { excellent, good, average }
+      };
+    }).sort((a, b) => b.total - a.total);
+  }, [allMembers, units]);
+
   useLiveSync("members:changed", loadData);
   useLiveSync("units:changed", loadData);
 
@@ -532,101 +564,113 @@ export const Statistics: React.FC = () => {
         )}
       </div>
 
-      {/* General Summary Table - Simplified Horizontal Rows */}
-      <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm mt-10">
-        <div className="flex justify-between items-start mb-10">
-          <h3 className="text-sm uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-            <Activity className="text-accent" size={18} />
-            Bảng tổng hợp số liệu chi tiết
-          </h3>
+      {/* Unit-by-Unit Summary Table - Excel Style */}
+      <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm mt-10 overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+          <div>
+            <h3 className="text-sm uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <Building2 className="text-accent" size={18} />
+              Bảng tổng hợp số liệu chi tiết theo đơn vị
+            </h3>
+            <p className="text-[10px] text-white/20 uppercase tracking-widest mt-2">Dữ liệu thời gian thực được tổng hợp từ danh sách đoàn viên</p>
+          </div>
+          <div className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
+            <span className="text-[10px] text-white/40 uppercase font-black tracking-widest mr-4">Tổng các đơn vị</span>
+            <span className="text-xl font-serif italic text-white">{units.length}</span>
+          </div>
         </div>
 
-        <div className="space-y-10">
-          {/* Gender Row */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
-            <div className="lg:w-40 border-l-2 border-accent pl-4">
-              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Giới tính</h4>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
-              {stats?.genderData.map((item) => (
-                <div key={item.name} className="flex items-center gap-3">
-                  <span className="text-xs text-white/60">{item.name}:</span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
-                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
+        <div className="overflow-x-auto custom-scrollbar -mx-10 px-10">
+          <table className="w-full text-left border-collapse min-w-[1200px]">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black bg-white/[0.02]">STT</th>
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black bg-white/[0.02] sticky left-0 z-10">Tên đơn vị</th>
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center bg-accent/5">Tổng số</th>
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center">Nam</th>
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center">Nữ</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-l border-white/5">Đang SH</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Chuyển SH</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-r border-white/5">Tr. Thành</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Xuất sắc</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Tốt</th>
+                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-r border-white/5">H. Thành</th>
+                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-accent font-black text-center bg-accent/5">Tiêu biểu</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {unitTableStats.map((item, index) => (
+                <tr key={item.id} className="group hover:bg-white/[0.02] transition-colors">
+                  <td className="py-6 px-4 text-xs text-white/20 font-mono">{index + 1}</td>
+                  <td className="py-6 px-4 sticky left-0 z-10 bg-[#0c0d11]/80 backdrop-blur-md group-hover:bg-[#15161d]/80 transition-colors">
+                    <span className="text-xs text-white font-bold tracking-tight">{item.name}</span>
+                  </td>
+                  <td className="py-6 px-4 text-center bg-accent/5">
+                    <span className="text-base font-serif italic text-white font-black">{item.total}</span>
+                  </td>
+                  <td className="py-6 px-4 text-center text-xs text-white/60">{item.males}</td>
+                  <td className="py-6 px-4 text-center text-xs text-white/60">{item.females}</td>
+                  <td className="py-6 px-4 text-center text-xs text-white/40 border-l border-white/5">{item.status.active}</td>
+                  <td className="py-6 px-4 text-center text-xs text-white/40">{item.status.moved}</td>
+                  <td className="py-6 px-4 text-center text-xs text-white/40 border-r border-white/5">{item.status.left}</td>
+                  <td className="py-6 px-4 text-center text-xs text-green-400/80">{item.achievements.excellent}</td>
+                  <td className="py-6 px-4 text-center text-xs text-blue-400/80">{item.achievements.good}</td>
+                  <td className="py-6 px-4 text-center text-xs text-white/30 border-r border-white/5">{item.achievements.average}</td>
+                  <td className="py-6 px-4 text-center bg-accent/5">
+                    <motion.span 
+                      initial={{ scale: 0.8 }}
+                      whileHover={{ scale: 1.2 }}
+                      className="text-base font-serif italic text-accent font-black"
+                    >
+                      {item.outstanding}
+                    </motion.span>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
-
-          {/* Status Row */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
-            <div className="lg:w-40 border-l-2 border-accent pl-4">
-              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Sinh hoạt</h4>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
-              {stats?.statusData.map((item) => (
-                <div key={item.name} className="flex items-center gap-3">
-                  <span className="text-xs text-white/60">{item.name}:</span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
-                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Achievement Row */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
-            <div className="lg:w-40 border-l-2 border-accent pl-4">
-              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Xếp loại</h4>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
-              {stats?.achievementData.map((item) => (
-                <div key={item.name} className="flex items-center gap-3">
-                  <span className="text-xs text-white/60">{item.name}:</span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-serif italic text-white font-medium">{item.value}</span>
-                    <span className="text-[10px] text-white/20 font-bold">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Other Indicators Row */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-12 py-6 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-2xl transition-colors">
-            <div className="lg:w-40 border-l-2 border-accent pl-4">
-              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Chỉ số khác</h4>
-            </div>
-            <div className="flex-1 flex flex-wrap gap-x-12 gap-y-4">
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-white/60">Tiêu biểu:</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.isOutstanding).length}</span>
-                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.isOutstanding).length / members.length) * 100).toFixed(1)}%)</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-white/60">Dân tộc Kinh:</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length}</span>
-                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.ethnic?.toLowerCase() === 'kinh').length / members.length) * 100).toFixed(1)}%)</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-white/60">Các dân tộc khác:</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-lg font-serif italic text-white font-medium">{members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length}</span>
-                  <span className="text-[10px] text-white/20 font-bold">({((members.filter(m => m.ethnic?.toLowerCase() !== 'kinh').length / members.length) * 100).toFixed(1)}%)</span>
-                </div>
-              </div>
-            </div>
-          </div>
+              
+              {/* Grand Total Row */}
+              <tr className="bg-white/5 border-t-2 border-white/10">
+                <td className="py-6 px-4" colSpan={2}>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-white font-black">Tổng cộng hệ thống</span>
+                </td>
+                <td className="py-6 px-4 text-center">
+                  <span className="text-xl font-serif italic text-accent font-black">{allMembers.length}</span>
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white font-bold">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white font-bold">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white/60 border-l border-white/5">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white/60">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white/60 border-r border-white/5">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-green-400">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-blue-400">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}
+                </td>
+                <td className="py-6 px-4 text-center text-sm text-white/40 border-r border-white/5">
+                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}
+                </td>
+                <td className="py-6 px-4 text-center bg-accent/10">
+                  <span className="text-xl font-serif italic text-accent font-black">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+
     </div>
   );
 };
