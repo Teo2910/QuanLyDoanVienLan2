@@ -565,7 +565,7 @@ export const Statistics: React.FC = () => {
       </div>
 
       {/* Unit-by-Unit Summary Table - Excel Style */}
-      <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm mt-10 overflow-hidden">
+      <div className="bg-surface/40 border border-white/5 p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-xl backdrop-blur-sm mt-10 overflow-hidden">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
             <h3 className="text-sm uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
@@ -580,8 +580,8 @@ export const Statistics: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto custom-scrollbar -mx-10 px-10 pb-4">
-          <table className="w-full text-left border-collapse min-w-[1200px]">
+        <div className="w-full overflow-x-auto custom-scrollbar pb-4">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="border-b border-white/10">
                 <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black bg-white/[0.02]">STT</th>
