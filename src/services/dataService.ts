@@ -4,10 +4,14 @@ class DataService {
   async getUsers(): Promise<any[]> {
     try {
       const response = await fetch("/api/users");
-      if (!response.ok) throw new Error("Failed to fetch users");
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(`[Presence] API Error: ${response.status}`, text.substring(0, 200));
+        return [];
+      }
       return await response.json();
     } catch (error) {
-      console.error(error);
+      console.error("[Presence] Fetch failed:", error);
       return [];
     }
   }

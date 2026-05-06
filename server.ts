@@ -37,6 +37,11 @@ async function startServer() {
   });
   const PORT = 3000;
 
+  // State
+  const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
+  // Fallback in-memory user store for preview environment
+  const systemUsers = new Map<string, any>();
+
   // Initialize MSSQL
   let pool: sql.ConnectionPool;
   try {
@@ -67,11 +72,6 @@ async function startServer() {
     // In preview environment, this will likely fail because localhost:1433 doesn't exist
   }
 
-  // User Presence Tracking
-  const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
-  // Fallback in-memory user store for preview environment
-  const systemUsers = new Map<string, any>();
-
   io.on("connection", (socket) => {
     socket.on("presence:online", (uid: string) => {
       // Remove any existing entry for this UID from other sockets to avoid duplicates
@@ -94,11 +94,10 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-
-  // Get all users (for admin/secretaries to see each other)
   app.get("/api/users", async (req, res) => {
+    console.log(`[Presence] Incoming request: ${req.method} ${req.url} from ${req.ip}`);
     try {
-      console.log("[Presence] /api/users called");
+      console.log("[Presence] Fetching all users...");
       let sqlUsers = [];
       if (pool && pool.connected) {
         const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
@@ -468,6 +467,12 @@ async function startServer() {
       console.error(err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
+  });
+
+  // 404 catch-all for API to prevent falling into SPA
+  app.all("/api/*", (req, res) => {
+    console.warn(`[Presence] API route not found: ${req.method} ${req.url}`);
+    res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
   });
 
   // Vite middleware
