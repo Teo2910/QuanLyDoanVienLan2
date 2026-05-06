@@ -73,7 +73,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         id="sidebar"
         className={cn(
-          "bg-surface border-r border-white/10 w-64 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out z-50 flex flex-col",
+          "bg-surface/50 backdrop-blur-xl border-r border-white/5 w-64 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out z-50 flex flex-col shadow-2xl",
           !isSidebarOpen && "-translate-x-full"
         )}
       >

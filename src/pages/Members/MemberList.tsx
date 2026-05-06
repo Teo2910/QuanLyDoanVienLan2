@@ -616,7 +616,7 @@ export const MemberList: React.FC = () => {
               "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110",
               member.isOutstanding 
                 ? "bg-yellow-400 border-yellow-500 text-black shadow-[0_0_15px_rgba(250,204,21,0.4)]" 
-                : "bg-black/60 border-white/10 text-white/20 hover:text-white/60"
+                : "bg-surface/60 border-white/10 text-white/20 hover:text-white/60"
             )}
             title={member.isOutstanding ? "Bỏ đánh dấu tiêu biểu" : "Đánh dấu đoàn viên tiêu biểu"}
           >
@@ -764,7 +764,7 @@ export const MemberList: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1021,7 +1021,7 @@ export const MemberList: React.FC = () => {
 
       {/* Detailed Member View Modal */}
       {showDetailsModal && detailsMember && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-all">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-xl transition-all">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1242,7 +1242,7 @@ export const MemberList: React.FC = () => {
 
       {/* Status History Modal */}
       {showHistoryModal && historyMember && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md overflow-y-auto">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1305,7 +1305,7 @@ export const MemberList: React.FC = () => {
       )}
       {/* Quick Unit Modal */}
       {showUnitModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
