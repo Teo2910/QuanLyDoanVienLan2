@@ -59,12 +59,17 @@ export interface Member {
   dob: string;
   gender: "Nam" | "Nữ" | "Khác";
   ethnic?: string;
+  religion?: string;
+  placeOfBirth?: string;
   hometown?: string;
+  permanentAddress?: string;
   joinDate?: string;
   unitId: string;
   email?: string;
   phone?: string;
   academicYear?: string;
+  professionalLevel?: string;
+  position?: string;
   achievementLevel?: "Xuất sắc" | "Khá" | "Trung bình" | "Chưa xếp loại";
   status: "Đang sinh hoạt" | "Đã chuyển sinh hoạt" | "Đã trưởng thành" | "Bị kỷ luật";
   statusHistory?: StatusChange[];

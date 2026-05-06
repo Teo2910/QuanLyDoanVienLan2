@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import Database from "better-sqlite3";
+import sql from "mssql";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { createServer } from "http";
@@ -12,66 +12,22 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const db = new Database("data.db");
-
-// Initialize Schema
-db.exec(`
-  CREATE TABLE IF NOT EXISTS units (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    code TEXT NOT NULL,
-    address TEXT,
-    phone TEXT,
-    email TEXT,
-    createdAt INTEGER NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS members (
-    id TEXT PRIMARY KEY,
-    fullName TEXT NOT NULL,
-    memberId TEXT NOT NULL,
-    dob TEXT NOT NULL,
-    gender TEXT NOT NULL,
-    ethnic TEXT,
-    hometown TEXT,
-    joinDate TEXT,
-    unitId TEXT NOT NULL,
-    email TEXT,
-    phone TEXT,
-    academicYear TEXT,
-    achievementLevel TEXT,
-    status TEXT NOT NULL,
-    statusHistory TEXT, -- JSON string
-    isOutstanding INTEGER DEFAULT 0,
-    createdAt INTEGER NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS users (
-    uid TEXT PRIMARY KEY,
-    email TEXT NOT NULL,
-    password TEXT,
-    role TEXT NOT NULL,
-    fullName TEXT,
-    avatarUrl TEXT,
-    phone TEXT,
-    unitId TEXT,
-    presets TEXT -- JSON string
-  );
-
-  CREATE TABLE IF NOT EXISTS activities (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    date TEXT NOT NULL,
-    location TEXT NOT NULL,
-    description TEXT,
-    type TEXT NOT NULL,
-    createdAt INTEGER NOT NULL
-  );
-
-  -- Add default admin user if it doesn't exist
-  INSERT OR IGNORE INTO users (uid, email, password, role, fullName, avatarUrl, phone)
-  VALUES ('admin-id', 'admin@gmail.com', 'admin', 'admin', 'Admin System', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin', '0900000000');
-`);
+const sqlConfig: sql.config = {
+  user: process.env.DB_USER || "sa",
+  password: process.env.DB_PASSWORD || "your_strong_password",
+  database: process.env.DB_DATABASE || "QuanLyDoanVien",
+  server: process.env.DB_SERVER || "localhost",
+  port: parseInt(process.env.DB_PORT || "1433"),
+  pool: {
+    max: 10,
+    min: 0,
+    idleTimeoutMillis: 30000
+  },
+  options: {
+    encrypt: true, // For Azure
+    trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === "true", // change to true for local dev / self-signed certs
+  }
+};
 
 async function startServer() {
   const app = express();
@@ -81,16 +37,31 @@ async function startServer() {
   });
   const PORT = 3000;
 
+  // Initialize MSSQL
+  let pool: sql.ConnectionPool;
+  try {
+    console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
+    pool = await sql.connect(sqlConfig);
+    console.log("Connected to SQL Server successfully.");
+  } catch (err) {
+    console.error("SQL Server Connection Failed: ", err);
+    // If it fails, the server should still start to serve frontend, but APIs will return 500
+  }
+
   app.use(express.json());
 
   // API Routes
   
   // Auth Login
-  app.post("/api/login", (req, res) => {
+  app.post("/api/login", async (req, res) => {
     try {
       const { email, password } = req.body;
-      const user = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?").get(email, password) as any;
+      const result = await pool.request()
+        .input("email", sql.NVarChar, email)
+        .input("password", sql.NVarChar, password)
+        .query("SELECT * FROM users WHERE email = @email AND password = @password");
       
+      const user = result.recordset[0];
       if (user) {
         if (user.presets) user.presets = JSON.parse(user.presets);
         // Don't send password back
@@ -106,56 +77,76 @@ async function startServer() {
   });
 
   // Units
-  app.get("/api/units", (req, res) => {
+  app.get("/api/units", async (req, res) => {
     try {
-      const units = db.prepare("SELECT * FROM units").all();
-      res.json(units);
+      const result = await pool.request().query("SELECT * FROM units");
+      res.json(result.recordset);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.post("/api/units", (req, res) => {
+  app.post("/api/units", async (req, res) => {
     try {
       const { id, name, code, address, phone, email, createdAt } = req.body;
-      db.prepare("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .run(id, name, code, address, phone, email, createdAt);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("name", sql.NVarChar, name)
+        .input("code", sql.NVarChar, code)
+        .input("address", sql.NVarChar, address)
+        .input("phone", sql.NVarChar, phone)
+        .input("email", sql.NVarChar, email)
+        .input("createdAt", sql.BigInt, createdAt)
+        .query("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @createdAt)");
       
       io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.put("/api/units/:id", (req, res) => {
+  app.put("/api/units/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const { name, code, address, phone, email } = req.body;
-      db.prepare("UPDATE units SET name = ?, code = ?, address = ?, phone = ?, email = ? WHERE id = ?")
-        .run(name, code, address, phone, email, id);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("name", sql.NVarChar, name)
+        .input("code", sql.NVarChar, code)
+        .input("address", sql.NVarChar, address)
+        .input("phone", sql.NVarChar, phone)
+        .input("email", sql.NVarChar, email)
+        .query("UPDATE units SET name = @name, code = @code, address = @address, phone = @phone, email = @email WHERE id = @id");
       
       io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.delete("/api/units/:id", (req, res) => {
+  app.delete("/api/units/:id", async (req, res) => {
     try {
-      db.prepare("DELETE FROM units WHERE id = ?").run(req.params.id);
+      await pool.request()
+        .input("id", sql.NVarChar, req.params.id)
+        .query("DELETE FROM units WHERE id = @id");
       io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
   // Members
-  app.get("/api/members", (req, res) => {
+  app.get("/api/members", async (req, res) => {
     try {
-      const members = db.prepare("SELECT * FROM members").all() as any[];
+      const result = await pool.request().query("SELECT * FROM members");
+      const members = result.recordset;
       const formattedMembers = members.map((m: any) => ({
         ...m,
         statusHistory: m.statusHistory ? JSON.parse(m.statusHistory) : [],
@@ -163,22 +154,41 @@ async function startServer() {
       }));
       res.json(formattedMembers);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.post("/api/members", (req, res) => {
+  app.post("/api/members", async (req, res) => {
     try {
       const m = req.body;
-      db.prepare(`
-        INSERT INTO members (id, fullName, memberId, dob, gender, ethnic, hometown, joinDate, unitId, email, phone, academicYear, achievementLevel, status, statusHistory, isOutstanding, createdAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
-        m.id, m.fullName, m.memberId, m.dob, m.gender, m.ethnic, m.hometown, 
-        m.joinDate, m.unitId, m.email, m.phone, m.academicYear, 
-        m.achievementLevel, m.status, JSON.stringify(m.statusHistory || []), 
-        m.isOutstanding ? 1 : 0, m.createdAt
-      );
+      await pool.request()
+        .input("id", sql.NVarChar, m.id)
+        .input("fullName", sql.NVarChar, m.fullName)
+        .input("memberId", sql.NVarChar, m.memberId)
+        .input("dob", sql.NVarChar, m.dob)
+        .input("gender", sql.NVarChar, m.gender)
+        .input("ethnic", sql.NVarChar, m.ethnic)
+        .input("religion", sql.NVarChar, m.religion)
+        .input("placeOfBirth", sql.NVarChar, m.placeOfBirth)
+        .input("hometown", sql.NVarChar, m.hometown)
+        .input("permanentAddress", sql.NVarChar, m.permanentAddress)
+        .input("joinDate", sql.NVarChar, m.joinDate)
+        .input("unitId", sql.NVarChar, m.unitId)
+        .input("email", sql.NVarChar, m.email)
+        .input("phone", sql.NVarChar, m.phone)
+        .input("academicYear", sql.NVarChar, m.academicYear)
+        .input("professionalLevel", sql.NVarChar, m.professionalLevel)
+        .input("position", sql.NVarChar, m.position)
+        .input("achievementLevel", sql.NVarChar, m.achievementLevel)
+        .input("status", sql.NVarChar, m.status)
+        .input("statusHistory", sql.NVarChar, JSON.stringify(m.statusHistory || []))
+        .input("isOutstanding", sql.Bit, m.isOutstanding ? 1 : 0)
+        .input("createdAt", sql.BigInt, m.createdAt)
+        .query(`
+          INSERT INTO members (id, fullName, memberId, dob, gender, ethnic, religion, placeOfBirth, hometown, permanentAddress, joinDate, unitId, email, phone, academicYear, professionalLevel, position, achievementLevel, status, statusHistory, isOutstanding, createdAt)
+          VALUES (@id, @fullName, @memberId, @dob, @gender, @ethnic, @religion, @placeOfBirth, @hometown, @permanentAddress, @joinDate, @unitId, @email, @phone, @academicYear, @professionalLevel, @position, @achievementLevel, @status, @statusHistory, @isOutstanding, @createdAt)
+        `);
       
       io.emit("members:changed");
       res.json({ success: true });
@@ -188,168 +198,254 @@ async function startServer() {
     }
   });
 
-  app.put("/api/members/:id", (req, res) => {
+  app.put("/api/members/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const m = req.body;
-      db.prepare(`
-        UPDATE members SET 
-          fullName = ?, memberId = ?, dob = ?, gender = ?, 
-          ethnic = ?, hometown = ?, joinDate = ?, unitId = ?, 
-          email = ?, phone = ?, academicYear = ?, 
-          achievementLevel = ?, status = ?, statusHistory = ?,
-          isOutstanding = ?
-        WHERE id = ?
-      `).run(
-        m.fullName, m.memberId, m.dob, m.gender, 
-        m.ethnic, m.hometown, m.joinDate, m.unitId, 
-        m.email, m.phone, m.academicYear, 
-        m.achievementLevel, m.status, JSON.stringify(m.statusHistory || []), 
-        m.isOutstanding ? 1 : 0, id
-      );
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("fullName", sql.NVarChar, m.fullName)
+        .input("memberId", sql.NVarChar, m.memberId)
+        .input("dob", sql.NVarChar, m.dob)
+        .input("gender", sql.NVarChar, m.gender)
+        .input("ethnic", sql.NVarChar, m.ethnic)
+        .input("religion", sql.NVarChar, m.religion)
+        .input("placeOfBirth", sql.NVarChar, m.placeOfBirth)
+        .input("hometown", sql.NVarChar, m.hometown)
+        .input("permanentAddress", sql.NVarChar, m.permanentAddress)
+        .input("joinDate", sql.NVarChar, m.joinDate)
+        .input("unitId", sql.NVarChar, m.unitId)
+        .input("email", sql.NVarChar, m.email)
+        .input("phone", sql.NVarChar, m.phone)
+        .input("academicYear", sql.NVarChar, m.academicYear)
+        .input("professionalLevel", sql.NVarChar, m.professionalLevel)
+        .input("position", sql.NVarChar, m.position)
+        .input("achievementLevel", sql.NVarChar, m.achievementLevel)
+        .input("status", sql.NVarChar, m.status)
+        .input("statusHistory", sql.NVarChar, JSON.stringify(m.statusHistory || []))
+        .input("isOutstanding", sql.Bit, m.isOutstanding ? 1 : 0)
+        .query(`
+          UPDATE members SET 
+            fullName = @fullName, memberId = @memberId, dob = @dob, gender = @gender, 
+            ethnic = @ethnic, religion = @religion, placeOfBirth = @placeOfBirth,
+            hometown = @hometown, permanentAddress = @permanentAddress,
+            joinDate = @joinDate, unitId = @unitId, 
+            email = @email, phone = @phone, academicYear = @academicYear, professionalLevel = @professionalLevel,
+            position = @position, achievementLevel = @achievementLevel, status = @status, statusHistory = @statusHistory,
+            isOutstanding = @isOutstanding
+          WHERE id = @id
+        `);
       
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.delete("/api/members/:id", (req, res) => {
+  app.delete("/api/members/:id", async (req, res) => {
     try {
-      db.prepare("DELETE FROM members WHERE id = ?").run(req.params.id);
+      await pool.request()
+        .input("id", sql.NVarChar, req.params.id)
+        .query("DELETE FROM members WHERE id = @id");
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.patch("/api/members/:id/outstanding", (req, res) => {
+  app.patch("/api/members/:id/outstanding", async (req, res) => {
     try {
       const { id } = req.params;
       const { isOutstanding } = req.body;
-      db.prepare("UPDATE members SET isOutstanding = ? WHERE id = ?").run(isOutstanding ? 1 : 0, id);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("isOutstanding", sql.Bit, isOutstanding ? 1 : 0)
+        .query("UPDATE members SET isOutstanding = @isOutstanding WHERE id = @id");
       
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
   // Users / Profiles
-  app.get("/api/users/:uid", (req, res) => {
+  app.get("/api/users/:uid", async (req, res) => {
     try {
-      const user = db.prepare("SELECT * FROM users WHERE uid = ?").get(req.params.uid) as any;
+      const result = await pool.request()
+        .input("uid", sql.NVarChar, req.params.uid)
+        .query("SELECT * FROM users WHERE uid = @uid");
+      const user = result.recordset[0];
       if (user && user.presets) user.presets = JSON.parse(user.presets);
       res.json(user || null);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.get("/api/users/by-email/:email", (req, res) => {
+  app.get("/api/users/by-email/:email", async (req, res) => {
     try {
-      const user = db.prepare("SELECT * FROM users WHERE email = ?").get(req.params.email) as any;
+      const result = await pool.request()
+        .input("email", sql.NVarChar, req.params.email)
+        .query("SELECT * FROM users WHERE email = @email");
+      const user = result.recordset[0];
       if (user && user.presets) user.presets = JSON.parse(user.presets);
       res.json(user || null);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.post("/api/users", (req, res) => {
+  app.post("/api/users", async (req, res) => {
     try {
       const { uid, email, password, role, fullName, avatarUrl, phone, unitId, presets } = req.body;
-      const existing = db.prepare("SELECT uid FROM users WHERE uid = ?").get(uid);
+      const existingResult = await pool.request()
+        .input("uid", sql.NVarChar, uid)
+        .query("SELECT uid FROM users WHERE uid = @uid");
+      const existing = existingResult.recordset[0];
       
       if (existing) {
-        db.prepare(`
-          UPDATE users SET 
-            email = ?, password = ?, role = ?, fullName = ?, 
-            avatarUrl = ?, phone = ?, unitId = ?, presets = ? 
-          WHERE uid = ?
-        `).run(email, password, role, fullName, avatarUrl, phone, unitId, JSON.stringify(presets || []), uid);
+        await pool.request()
+          .input("uid", sql.NVarChar, uid)
+          .input("email", sql.NVarChar, email)
+          .input("password", sql.NVarChar, password)
+          .input("role", sql.NVarChar, role)
+          .input("fullName", sql.NVarChar, fullName)
+          .input("avatarUrl", sql.NVarChar, avatarUrl)
+          .input("phone", sql.NVarChar, phone)
+          .input("unitId", sql.NVarChar, unitId)
+          .input("presets", sql.NVarChar, JSON.stringify(presets || []))
+          .query(`
+            UPDATE users SET 
+              email = @email, password = @password, role = @role, fullName = @fullName, 
+              avatarUrl = @avatarUrl, phone = @phone, unitId = @unitId, presets = @presets 
+            WHERE uid = @uid
+          `);
       } else {
-        db.prepare(`
-          INSERT INTO users (uid, email, password, role, fullName, avatarUrl, phone, unitId, presets) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(uid, email, password, role, fullName, avatarUrl, phone, unitId, JSON.stringify(presets || []));
+        await pool.request()
+          .input("uid", sql.NVarChar, uid)
+          .input("email", sql.NVarChar, email)
+          .input("password", sql.NVarChar, password)
+          .input("role", sql.NVarChar, role)
+          .input("fullName", sql.NVarChar, fullName)
+          .input("avatarUrl", sql.NVarChar, avatarUrl)
+          .input("phone", sql.NVarChar, phone)
+          .input("unitId", sql.NVarChar, unitId)
+          .input("presets", sql.NVarChar, JSON.stringify(presets || []))
+          .query(`
+            INSERT INTO users (uid, email, password, role, fullName, avatarUrl, phone, unitId, presets) 
+            VALUES (@uid, @email, @password, @role, @fullName, @avatarUrl, @phone, @unitId, @presets)
+          `);
       }
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.put("/api/users/:uid/profile", (req, res) => {
+  app.put("/api/users/:uid/profile", async (req, res) => {
     try {
       const { uid } = req.params;
       const { fullName, avatarUrl, email, phone } = req.body;
-      db.prepare("UPDATE users SET fullName = ?, avatarUrl = ?, email = ?, phone = ? WHERE uid = ?")
-        .run(fullName, avatarUrl, email, phone, uid);
+      await pool.request()
+        .input("uid", sql.NVarChar, uid)
+        .input("fullName", sql.NVarChar, fullName)
+        .input("avatarUrl", sql.NVarChar, avatarUrl)
+        .input("email", sql.NVarChar, email)
+        .input("phone", sql.NVarChar, phone)
+        .query("UPDATE users SET fullName = @fullName, avatarUrl = @avatarUrl, email = @email, phone = @phone WHERE uid = @uid");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.put("/api/users/:uid/presets", (req, res) => {
+  app.put("/api/users/:uid/presets", async (req, res) => {
     try {
       const { uid } = req.params;
       const { presets } = req.body;
-      db.prepare("UPDATE users SET presets = ? WHERE uid = ?")
-        .run(JSON.stringify(presets), uid);
+      await pool.request()
+        .input("uid", sql.NVarChar, uid)
+        .input("presets", sql.NVarChar, JSON.stringify(presets))
+        .query("UPDATE users SET presets = @presets WHERE uid = @uid");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
   // Activities
-  app.get("/api/activities", (req, res) => {
+  app.get("/api/activities", async (req, res) => {
     try {
-      const activities = db.prepare("SELECT * FROM activities").all();
-      res.json(activities);
+      const result = await pool.request().query("SELECT * FROM activities");
+      res.json(result.recordset);
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.post("/api/activities", (req, res) => {
+  app.post("/api/activities", async (req, res) => {
     try {
       const { id, title, date, location, description, type, createdAt } = req.body;
-      db.prepare("INSERT INTO activities (id, title, date, location, description, type, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .run(id, title, date, location, description, type, createdAt);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("date", sql.NVarChar, date)
+        .input("location", sql.NVarChar, location)
+        .input("description", sql.NVarChar, description)
+        .input("type", sql.NVarChar, type)
+        .input("createdAt", sql.BigInt, createdAt)
+        .query("INSERT INTO activities (id, title, date, location, description, type, createdAt) VALUES (@id, @title, @date, @location, @description, @type, @createdAt)");
       
       io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.put("/api/activities/:id", (req, res) => {
+  app.put("/api/activities/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const { title, date, location, description, type } = req.body;
-      db.prepare("UPDATE activities SET title = ?, date = ?, location = ?, description = ?, type = ? WHERE id = ?")
-        .run(title, date, location, description, type, id);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("date", sql.NVarChar, date)
+        .input("location", sql.NVarChar, location)
+        .input("description", sql.NVarChar, description)
+        .input("type", sql.NVarChar, type)
+        .query("UPDATE activities SET title = @title, date = @date, location = @location, description = @description, type = @type WHERE id = @id");
       
       io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
 
-  app.delete("/api/activities/:id", (req, res) => {
+  app.delete("/api/activities/:id", async (req, res) => {
     try {
-      db.prepare("DELETE FROM activities WHERE id = ?").run(req.params.id);
+      await pool.request()
+        .input("id", sql.NVarChar, req.params.id)
+        .query("DELETE FROM activities WHERE id = @id");
       io.emit("activities:changed");
       res.json({ success: true });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ error: "Database error" });
     }
   });
@@ -375,3 +471,4 @@ async function startServer() {
 }
 
 startServer();
+

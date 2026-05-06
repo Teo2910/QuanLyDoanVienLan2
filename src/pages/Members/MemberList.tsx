@@ -46,12 +46,17 @@ export const MemberList: React.FC = () => {
     dob: "",
     gender: "Nam",
     ethnic: "",
+    religion: "",
+    placeOfBirth: "",
     hometown: "",
+    permanentAddress: "",
     joinDate: "",
     unitId: "",
     email: "",
     phone: "",
     academicYear: "",
+    professionalLevel: "",
+    position: "",
     achievementLevel: "Chưa xếp loại",
     status: "Đang sinh hoạt",
     isOutstanding: false
@@ -739,12 +744,30 @@ export const MemberList: React.FC = () => {
                     />
                   </div>
                   <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Nơi sinh</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.placeOfBirth}
+                      onChange={(e) => setNewMember({...newMember, placeOfBirth: e.target.value})}
+                      placeholder="VD: Hải Phòng..."
+                    />
+                  </div>
+                  <div>
                     <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
                     <input
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
                       value={newMember.hometown}
                       onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
                       placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Địa chỉ thường trú</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.permanentAddress}
+                      onChange={(e) => setNewMember({...newMember, permanentAddress: e.target.value})}
+                      placeholder="Nhập đầy đủ địa chỉ thường trú..."
                     />
                   </div>
                   <div>
@@ -754,6 +777,15 @@ export const MemberList: React.FC = () => {
                       value={newMember.ethnic}
                       onChange={(e) => setNewMember({...newMember, ethnic: e.target.value})}
                       placeholder="VD: Kinh..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tôn giáo</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.religion}
+                      onChange={(e) => setNewMember({...newMember, religion: e.target.value})}
+                      placeholder="VD: Không, Phật giáo..."
                     />
                   </div>
                   <div>
@@ -774,6 +806,24 @@ export const MemberList: React.FC = () => {
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
                       value={newMember.dob}
                       onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Chức vụ trong Đoàn</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.position}
+                      onChange={(e) => setNewMember({...newMember, position: e.target.value})}
+                      placeholder="VD: Bí thư, Phó Bí thư, Ủy viên..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Trình độ chuyên môn</label>
+                    <input
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      value={newMember.professionalLevel}
+                      onChange={(e) => setNewMember({...newMember, professionalLevel: e.target.value})}
+                      placeholder="VD: Đại học, Cao đẳng..."
                     />
                   </div>
                   <div>
@@ -968,9 +1018,40 @@ export const MemberList: React.FC = () => {
                       <p className="text-white text-sm font-medium italic">{getUnitName(detailsMember.unitId)}</p>
                     </div>
                     <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Niên khóa</p>
-                      <p className="text-white text-sm font-medium">{detailsMember.academicYear || "N/A"}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Quê quán</p>
+                      <p className="text-white text-sm font-medium">{detailsMember.hometown || "N/A"}</p>
                     </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Nơi sinh</p>
+                    <p className="text-white text-sm font-medium">{detailsMember.placeOfBirth || "Chưa cập nhật"}</p>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Địa chỉ thường trú</p>
+                    <p className="text-white text-sm font-medium">{detailsMember.permanentAddress || "Chưa cập nhật"}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Dân tộc</p>
+                      <p className="text-white text-sm font-medium">{detailsMember.ethnic || "Kinh"}</p>
+                    </div>
+                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Tôn giáo</p>
+                      <p className="text-white text-sm font-medium">{detailsMember.religion || "Không"}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Chức vụ</p>
+                    <p className="text-white text-sm font-medium italic">{detailsMember.position || "Đoàn viên"}</p>
+                  </div>
+
+                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Trình độ chuyên môn</p>
+                    <p className="text-white text-sm font-medium">{detailsMember.professionalLevel || "Chưa cập nhật"}</p>
                   </div>
 
                   <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
