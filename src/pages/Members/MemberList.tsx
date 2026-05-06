@@ -1007,12 +1007,29 @@ export const MemberList: React.FC = () => {
               <thead>
                 <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
                   <th className="py-6 px-4 font-normal text-center w-12">
-                    <input 
-                      type="checkbox"
-                      className="w-4 h-4 rounded border-white/10 bg-white/5 checked:bg-accent accent-accent transition-all cursor-pointer"
-                      checked={selectedIds.length > 0 && selectedIds.length === filteredMembers.length}
-                      onChange={handleSelectAll}
-                    />
+                    <div 
+                      onClick={() => {
+                        if (selectedIds.length > 0 && selectedIds.length === filteredMembers.length) {
+                          setSelectedIds([]);
+                        } else {
+                          setSelectedIds(filteredMembers.map(m => m.id));
+                        }
+                      }}
+                      className={cn(
+                        "w-5 h-5 rounded-md border-2 mx-auto cursor-pointer flex items-center justify-center transition-all duration-300",
+                        selectedIds.length > 0 && selectedIds.length === filteredMembers.length
+                          ? "bg-accent border-accent shadow-[0_0_15px_rgba(255,51,102,0.4)]" 
+                          : "border-white/10 hover:border-white/30 bg-white/5"
+                      )}
+                    >
+                      <motion.div
+                        initial={false}
+                        animate={{ scale: selectedIds.length > 0 && selectedIds.length === filteredMembers.length ? 1 : 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      >
+                        <CheckCircle2 size={12} className="text-white" />
+                      </motion.div>
+                    </div>
                   </th>
                   <th className="py-6 px-4 font-normal text-center w-12">STT</th>
                   <th 
@@ -1059,17 +1076,28 @@ export const MemberList: React.FC = () => {
                   <tr 
                     key={member.id} 
                     className={cn(
-                      "hover:bg-white/[0.02] transition-colors group",
-                      selectedIds.includes(member.id) && "bg-accent/[0.03]"
+                      "hover:bg-white/[0.04] transition-all duration-300 group",
+                      selectedIds.includes(member.id) ? "bg-accent/[0.06] backdrop-blur-sm" : ""
                     )}
                   >
                     <td className="py-6 px-4 text-center">
-                      <input 
-                        type="checkbox"
-                        className="w-4 h-4 rounded border-white/10 bg-white/5 checked:bg-accent accent-accent transition-all cursor-pointer"
-                        checked={selectedIds.includes(member.id)}
-                        onChange={() => handleSelectMember(member.id)}
-                      />
+                      <div 
+                        onClick={() => handleSelectMember(member.id)}
+                        className={cn(
+                          "w-5 h-5 rounded-md border-2 mx-auto cursor-pointer flex items-center justify-center transition-all duration-300",
+                          selectedIds.includes(member.id) 
+                            ? "bg-accent border-accent shadow-[0_0_15px_rgba(255,51,102,0.4)]" 
+                            : "border-white/10 group-hover:border-white/30 bg-white/5"
+                        )}
+                      >
+                        <motion.div
+                          initial={false}
+                          animate={{ scale: selectedIds.includes(member.id) ? 1 : 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        >
+                          <CheckCircle2 size={12} className="text-white" />
+                        </motion.div>
+                      </div>
                     </td>
                     <td className="py-6 px-4 text-center font-mono text-xs text-white/60 tabular-nums">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white/5 border border-white/5">
