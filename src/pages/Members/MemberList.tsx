@@ -630,9 +630,10 @@ export const MemberList: React.FC = () => {
                       </div>
                     </td>
                     <td className="py-6 px-4 text-white/60 text-sm italic">{getUnitName(member.unitId)}</td>
+                    <td className="py-6 px-4 font-mono text-[10px] text-white/40 tabular-nums">{member.joinDate || "---"}</td>
                     <td className="py-6 px-4">
                       <span className={cn(
-                        "px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase tracking-widest font-bold",
+                        "px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase tracking-normal font-bold whitespace-nowrap",
                         member.status === "Đang sinh hoạt" ? "text-green-400 border-green-500/20" :
                         member.status === "Đã chuyển sinh hoạt" ? "text-blue-400 border-blue-500/20" :
                         member.status === "Đã trưởng thành" ? "text-gray-400 border-white/10" :
@@ -978,7 +979,7 @@ export const MemberList: React.FC = () => {
                   <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
                     <h2 className="text-4xl font-serif italic text-white leading-tight">{detailsMember.fullName}</h2>
                     <span className={cn(
-                      "px-4 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-bold border",
+                      "px-4 py-1.5 rounded-full text-[10px] uppercase tracking-normal font-bold border whitespace-nowrap",
                       detailsMember.status === "Đang sinh hoạt" ? "text-green-400 bg-green-500/10 border-green-500/20 shadow-[0_0_20px_rgba(74,222,128,0.1)]" :
                       detailsMember.status === "Đã chuyển sinh hoạt" ? "text-blue-400 bg-blue-500/10 border-blue-500/20" :
                       detailsMember.status === "Đã trưởng thành" ? "text-gray-400 bg-white/5 border-white/10" :
