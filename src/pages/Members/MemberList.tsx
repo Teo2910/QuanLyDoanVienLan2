@@ -1111,12 +1111,13 @@ export const MemberList: React.FC = () => {
                 {paginatedMembers.map((member, index) => (
                   <tr 
                     key={member.id} 
+                    onClick={() => handleViewDetails(member)}
                     className={cn(
-                      "hover:bg-white/[0.04] transition-all duration-300 group",
+                      "hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer",
                       selectedIds.includes(member.id) ? "bg-accent/[0.06] backdrop-blur-sm" : ""
                     )}
                   >
-                    <td className="py-6 px-4 text-center">
+                    <td className="py-6 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                       <div 
                         onClick={() => handleSelectMember(member.id)}
                         className={cn(
@@ -1147,7 +1148,7 @@ export const MemberList: React.FC = () => {
             {member.fullName.charAt(0)}
           </div>
           <button 
-            onClick={() => handleToggleOutstanding(member)}
+            onClick={(e) => { e.stopPropagation(); handleToggleOutstanding(member); }}
             className={cn(
               "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110",
               member.isOutstanding 
@@ -1197,7 +1198,7 @@ export const MemberList: React.FC = () => {
                         {member.status}
                       </span>
                     </td>
-                    <td className="py-6 px-4 text-right">
+                    <td className="py-6 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
                         <button 
                           onClick={() => handleViewDetails(member)}
