@@ -44,7 +44,7 @@ class DataService {
 
   async getUnits(): Promise<Unit[]> {
     try {
-      const response = await fetch("/api/units");
+      const response = await fetch(`/api/units?t=${Date.now()}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
@@ -71,7 +71,7 @@ class DataService {
 
   async getMembers(): Promise<Member[]> {
     try {
-      const response = await fetch("/api/members");
+      const response = await fetch(`/api/members?t=${Date.now()}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];

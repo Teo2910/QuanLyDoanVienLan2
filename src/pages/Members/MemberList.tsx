@@ -310,7 +310,8 @@ export const MemberList: React.FC = () => {
         })
         .catch(err => {
           console.error(err);
-          alert("Lỗi xóa toàn bộ!");
+          const errorMsg = err instanceof Error ? err.message : "Có lỗi xảy ra";
+          alert(`Lỗi xóa toàn bộ! Chi tiết: ${errorMsg}`);
         })
         .finally(() => setLoading(false));
     }
@@ -489,15 +490,15 @@ export const MemberList: React.FC = () => {
 
     // Add data
     filteredMembers.forEach((member, index) => {
-      const birthDate = member.dob ? new Date(member.dob) : null;
-      const age = birthDate ? new Date().getFullYear() - birthDate.getFullYear() : 0;
-      
-      const rowData = new Array(35).fill("");
-      rowData[0] = index + 1;
-      rowData[1] = member.fullName;
-      
-      if (member.gender === "Nam") rowData[2] = birthDate ? birthDate.toLocaleDateString("vi-VN") : "";
-      else rowData[3] = birthDate ? birthDate.toLocaleDateString("vi-VN") : "";
+            const birthDate = member.dob ? new Date(member.dob) : null;
+            const age = birthDate && !isNaN(birthDate.getTime()) ? new Date().getFullYear() - birthDate.getFullYear() : 0;
+            
+            const rowData = new Array(35).fill("");
+            rowData[0] = index + 1;
+            rowData[1] = member.fullName;
+            
+            if (member.gender === "Nam") rowData[2] = birthDate && !isNaN(birthDate.getTime()) ? birthDate.toLocaleDateString("vi-VN") : "";
+            else rowData[3] = birthDate && !isNaN(birthDate.getTime()) ? birthDate.toLocaleDateString("vi-VN") : "";
       
       if (member.ethnic?.toLowerCase() === "kinh") rowData[4] = "x";
       else rowData[5] = member.ethnic || "";
@@ -560,34 +561,39 @@ export const MemberList: React.FC = () => {
           if (isSpecialFormat && isNaN(stt)) return; 
           if (isNaN(stt)) return; // Skip if first cell is not a number (STT)
 
-          const parseDate = (val: any) => {
+          const parseDate = (val: any): string => {
             if (!val) return "";
             
+            let date: Date | null = null;
+
             // Handle Excel Date objects
             if (val instanceof Date) {
-              if (isNaN(val.getTime())) return "";
-              return val.toISOString().split('T')[0];
+              date = val;
+            } else if (typeof val === 'number') {
+              // Excel serial date to JS date
+              date = new Date(Math.round((val - 25569) * 86400 * 1000));
+            } else {
+              const str = val.toString().trim();
+              if (!str) return "";
+              
+              // Try parsing DD/MM/YYYY
+              const ddmmyyyy = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/;
+              const match = str.match(ddmmyyyy);
+              if (match) {
+                const [_, d, m, y] = match;
+                return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+              }
+              
+              date = new Date(str);
             }
 
-            // Handle Excel serial numbers (e.g. 33883)
-            if (typeof val === 'number') {
-              const date = new Date((val - 25569) * 86400 * 1000);
-              if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
-            }
-
-            const str = val.toString().trim();
-            if (!str) return "";
+            if (!date || isNaN(date.getTime())) return "";
             
-            // Try parsing DD/MM/YYYY
-            const ddmmyyyy = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/;
-            const match = str.match(ddmmyyyy);
-            if (match) {
-              const [_, d, m, y] = match;
-              return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-            }
-            
-            const date = new Date(str);
-            return isNaN(date.getTime()) ? "" : date.toISOString().split('T')[0];
+            // Return YYYY-MM-DD using local parts to avoid timezone shifting
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
           };
 
           let memberToImport: any = {};
@@ -606,6 +612,10 @@ export const MemberList: React.FC = () => {
             const kinhMark = row.getCell(5).value?.toString();
             const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(6).value?.toString() || "Kinh");
 
+            // Ngày kết nạp (Join Date)
+            const officialJoinDate = row.getCell(9).value;
+            const probationJoinDate = row.getCell(8).value;
+
             memberToImport = {
               fullName: row.getCell(2).value?.toString() || "",
               memberId: `22${new Date().getFullYear().toString().slice(-2)}${rowNumber.toString().padStart(4, '0')}`,
@@ -614,6 +624,7 @@ export const MemberList: React.FC = () => {
               ethnic: ethnic,
               religion: row.getCell(7).value?.toString() || "Không",
               hometown: "Chưa cập nhật",
+              joinDate: parseDate(officialJoinDate || probationJoinDate),
               unitId: profile?.unitId || units[0]?.id || "",
               email: "",
               phone: "--",
@@ -1565,7 +1576,11 @@ export const MemberList: React.FC = () => {
 
                   <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
                     <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Ngày sinh</p>
-                    <p className="text-white font-mono">{new Date(detailsMember.dob).toLocaleDateString("vi-VN")}</p>
+                    <p className="text-white font-mono">
+                      {detailsMember.dob && !isNaN(new Date(detailsMember.dob).getTime()) 
+                        ? new Date(detailsMember.dob).toLocaleDateString("vi-VN") 
+                        : "---"}
+                    </p>
                   </div>
                   
                   <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
@@ -1587,7 +1602,11 @@ export const MemberList: React.FC = () => {
                            </div>
                            <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] text-white/60 font-mono italic">{new Date(h.date).toLocaleDateString("vi-VN")}</span>
+                                <span className="text-[10px] text-white/60 font-mono italic">
+                                  {h.date && !isNaN(new Date(h.date).getTime()) 
+                                    ? new Date(h.date).toLocaleDateString("vi-VN") 
+                                    : "---"}
+                                </span>
                                 <span className="text-accent">→</span>
                                 <span className="text-[10px] uppercase font-serif italic text-white">{h.newStatus}</span>
                               </div>
@@ -1674,7 +1693,9 @@ export const MemberList: React.FC = () => {
                                 <span className="text-[10px] uppercase font-bold text-white leading-none">{change.newStatus}</span>
                              </div>
                              <span className="text-[10px] text-white/20 font-mono tracking-tighter">
-                                {new Date(change.date).toLocaleDateString("vi-VN")}
+                                {change.date && !isNaN(new Date(change.date).getTime()) 
+                                  ? new Date(change.date).toLocaleDateString("vi-VN") 
+                                  : "---"}
                              </span>
                           </div>
                           <p className="text-sm text-white/60 italic font-serif leading-relaxed">"{change.reason || "Không có nội dung"}"</p>
