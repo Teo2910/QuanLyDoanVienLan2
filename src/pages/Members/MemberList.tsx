@@ -147,10 +147,10 @@ export const MemberList: React.FC = () => {
 
     if (searchTerm.trim()) {
       const fuse = new Fuse(result, {
-        keys: ["fullName", "memberId", "hometown", "academicYear"],
-        threshold: 0.35, 
+        keys: ["fullName", "memberId", "hometown", "academicYear", "email", "phone"],
+        threshold: 0.4, 
         distance: 100,
-        minMatchCharLength: 2,
+        minMatchCharLength: 1,
       });
       result = fuse.search(searchTerm).map(r => r.item);
     }
@@ -391,7 +391,10 @@ export const MemberList: React.FC = () => {
       <div className="bg-surface/40 border border-white/5 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl backdrop-blur-sm">
         {/* Main Search Row */}
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
-          <div className="relative flex-1 group w-full md:max-w-2xl">
+          <form 
+            onSubmit={(e) => e.preventDefault()}
+            className="relative flex-1 group w-full md:max-w-2xl"
+          >
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent transition-colors" size={20} />
             <input 
               type="text"
@@ -400,7 +403,7 @@ export const MemberList: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
+          </form>
           
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <button 
