@@ -552,7 +552,7 @@ export const MemberList: React.FC = () => {
 
     // Complex Header Rows
     const h1 = ["Stt", "Họ và tên", "Ngày, tháng, năm sinh", "", "Dân tộc", "", "Tôn giáo", "Đoàn viên là đảng viên", "", "Độ tuổi", "", "", "Nghề nghiệp", "", "", "", "Học vấn", "", "Chuyên môn", "", "", "", "", "Lý luận chính trị", "", "", "Tham gia cấp ủy cấp trên cơ sở", "Tham gia cấp ủy cơ sở", "Số đoàn viên đảm nhiệm các chức vụ chủ chốt"];
-    const h2 = ["", "", "Nam", "Nữ", "Kinh", "Khác", "", "Ngày kết nạp dự bị", "Ngày kết nạp chính thức", "Đủ 18 đến 25", "Đủ 26 đến 30", "Đủ 31 trở lên", "Công chức", "Viên chức", "Sinh viên", "Khác", "THCS", "THPT", "Tiến sỹ", "Cao đẳng", "Đại học", "Thạc sỹ", "Tiến sỹ", "Sơ cấp", "Trung cấp", "Cao cấp, cử nhân", "", "", "Ban chấp hành", "Ban thường vụ", "Bí thư", "Phó Bí thư", "Chuyên môn"];
+    const h2 = ["", "", "Nam", "Nữ", "Kinh", "Khác", "", "Ngày kết nạp dự bị", "Ngày kết nạp chính thức", "Đủ 18 đến 25", "Đủ 26 đến 30", "Đủ 31 trở lên", "Công chức", "Viên chức", "Sinh viên", "Khác", "THCS", "THPT", "Tiến sỹ", "Cao đẳng", "Đại học", "Thạc sỹ", "Trung cấp", "Sơ cấp", "Trung cấp", "Cao cấp, cử nhân", "", "", "Ban chấp hành", "Ban thường vụ", "Bí thư", "Phó Bí thư", "Chuyên môn"];
     const h3 = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Cấp trưởng", "Cấp phó"];
 
     const r1 = worksheet.addRow(h1);
@@ -598,7 +598,19 @@ export const MemberList: React.FC = () => {
       // Default work/education flags for this demo context
       rowData[13] = "x"; // Viên chức
       rowData[17] = "x"; // THPT
-      rowData[20] = "x"; // Đại học
+      
+      // Mapping Professional Level
+      if (member.professionalLevel === "Tiến sỹ") rowData[18] = "x";
+      else if (member.professionalLevel === "Cao đẳng") rowData[19] = "x";
+      else if (member.professionalLevel === "Đại học") rowData[20] = "x";
+      else if (member.professionalLevel === "Thạc sỹ") rowData[21] = "x";
+      else if (member.professionalLevel === "Trung cấp") rowData[22] = "x";
+      else if (member.professionalLevel) rowData[20] = "x"; // Default fallback to University if set but not matched
+
+      // Mapping Position
+      if (member.position === "Bí thư") rowData[30] = "x";
+      else if (member.position === "Phó Bí thư") rowData[31] = "x";
+      else if (member.position === "Ủy viên BCH") rowData[28] = "x";
       
       const newRow = worksheet.addRow(rowData);
       newRow.alignment = { horizontal: 'center' };
