@@ -599,8 +599,10 @@ export const MemberList: React.FC = () => {
               <tbody className="divide-y divide-white/5">
                 {paginatedMembers.map((member, index) => (
                   <tr key={member.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="py-6 px-4 text-center font-mono text-[10px] text-white/20 tabular-nums">
-                      {(currentPage - 1) * pageSize + index + 1}
+                    <td className="py-6 px-4 text-center font-mono text-xs text-white/60 tabular-nums">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white/5 border border-white/5">
+                        {(currentPage - 1) * pageSize + index + 1}
+                      </span>
                     </td>
                     <td className="py-6 px-4">
       <div className="flex items-center gap-4">
