@@ -584,13 +584,13 @@ export const Statistics: React.FC = () => {
           <table className="w-full text-left border-separate border-spacing-0 min-w-[1100px]">
             <thead>
               <tr className="sticky top-0 z-30">
-                <th className="py-5 px-4 text-[9px] uppercase tracking-[0.2em] text-white/30 font-black bg-[#2a2b3d] border-b border-r border-white/5 rounded-tl-2xl">STT</th>
-                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-white/30 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-40 backdrop-blur-xl">Tên đơn vị</th>
+                <th className="py-5 px-4 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-r border-white/5 rounded-tl-2xl">STT</th>
+                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-40 backdrop-blur-xl">Tên đơn vị</th>
                 
                 {/* Group Headers */}
-                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-accent/60 font-black text-center bg-accent/[0.05] border-b border-l border-white/5">Cơ bản</th>
-                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-purple-400/60 font-black text-center bg-purple-400/[0.05] border-b border-l border-white/5">Trạng thái</th>
-                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-blue-400/60 font-black text-center bg-blue-400/[0.05] border-b border-l border-white/5">Xếp loại</th>
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-accent font-black text-center bg-accent/[0.05] border-b border-l border-white/5">CƠ BẢN</th>
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-purple-400 font-black text-center bg-purple-400/[0.05] border-b border-l border-white/5">TRẠNG THÁI</th>
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-blue-400 font-black text-center bg-blue-400/[0.05] border-b border-l border-white/5">XẾP LOẠI</th>
                 
                 <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-amber-400 font-black text-center bg-amber-400/[0.08] border-b border-l border-white/5 rounded-tr-2xl">Tiêu biểu</th>
               </tr>
@@ -598,17 +598,17 @@ export const Statistics: React.FC = () => {
                 <th className="border-b border-r border-white/5"></th>
                 <th className="border-b border-white/5 sticky left-0 z-30 bg-[#2a2b3d]"></th>
                 
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/60 font-black text-center border-b border-l border-white/5">Tổng</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Nam</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Nữ</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-black text-center border-b border-l border-white/5">Tổng</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Nam</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Nữ</th>
                 
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b border-l border-white/5">Đang SH</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Chuyển</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Trưởng thành</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5">Đang SH</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Chuyển</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Trưởng thành</th>
                 
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b border-l border-white/5">Xuất sắc</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Tốt</th>
-                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">H. Thành</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5">Xuất sắc</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Tốt</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">H. Thành</th>
                 
                 <th className="border-b border-l border-white/5"></th>
               </tr>
@@ -616,7 +616,7 @@ export const Statistics: React.FC = () => {
             <tbody>
               {unitTableStats.map((item, index) => (
                 <tr key={item.id} className="group hover:bg-white/[0.04] transition-all duration-300">
-                  <td className="py-5 px-4 text-xs text-white/20 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
+                  <td className="py-5 px-4 text-xs text-white/50 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
                   <td className="py-5 px-6 sticky left-0 z-20 bg-[#24273a] transition-colors border-b border-white/5 group-hover:bg-[#2d3045]">
                     <div className="flex flex-col">
                       <span className="text-xs text-white font-bold tracking-tight group-hover:text-accent transition-colors">{item.name}</span>
@@ -625,37 +625,34 @@ export const Statistics: React.FC = () => {
                           <div className="h-full bg-blue-500/40" style={{ width: `${(item.males / (item.total || 1)) * 100}%` }} />
                           <div className="h-full bg-pink-500/40" style={{ width: `${(item.females / (item.total || 1)) * 100}%` }} />
                         </div>
-                        <span className="text-[8px] text-white/10 uppercase font-black">Ratio</span>
+                        <span className="text-[8px] text-white/40 uppercase font-black">Ratio</span>
                       </div>
                     </div>
                   </td>
                   <td className="py-5 px-4 text-center bg-white/[0.01] border-b border-l border-white/5">
-                    <span className="text-base font-serif italic text-white font-black group-hover:scale-110 inline-block transition-transform">{item.total}</span>
+                    <span className="text-base font-serif italic text-white font-black">{item.total}</span>
                   </td>
-                  <td className="py-5 px-4 text-center text-xs text-white/60 border-b">{item.males}</td>
-                  <td className="py-5 px-4 text-center text-xs text-white/60 border-b">{item.females}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white border-b">{item.males}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white border-b">{item.females}</td>
                   
-                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b border-l border-white/5">{item.status.active}</td>
-                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b">{item.status.moved}</td>
-                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b">{item.status.left}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/90 border-b border-l border-white/5">{item.status.active}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/80 border-b">{item.status.moved}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/80 border-b">{item.status.left}</td>
                   
                   <td className="py-5 px-4 text-center border-b border-l border-white/5">
-                    <span className={cn("text-xs font-bold", item.achievements.excellent > 0 ? "text-green-400" : "text-white/20")}>{item.achievements.excellent}</span>
+                    <span className={cn("text-xs font-bold", item.achievements.excellent > 0 ? "text-green-400" : "text-white/50")}>{item.achievements.excellent}</span>
                   </td>
                   <td className="py-5 px-4 text-center border-b">
-                    <span className={cn("text-xs font-bold", item.achievements.good > 0 ? "text-blue-400" : "text-white/20")}>{item.achievements.good}</span>
+                    <span className={cn("text-xs font-bold", item.achievements.good > 0 ? "text-blue-400" : "text-white/50")}>{item.achievements.good}</span>
                   </td>
                   <td className="py-5 px-4 text-center border-b">
-                    <span className="text-xs text-white/20">{item.achievements.average}</span>
+                    <span className="text-xs text-white/50">{item.achievements.average}</span>
                   </td>
                   
                   <td className="py-5 px-4 text-center bg-amber-400/[0.02] border-b border-l border-white/5">
-                    <motion.span 
-                      whileHover={{ scale: 1.2, rotate: 5 }}
-                      className={cn("text-base font-serif italic font-black", item.outstanding > 0 ? "text-amber-400" : "text-white/10")}
-                    >
+                    <span className={cn("text-base font-serif italic font-black", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
                       {item.outstanding}
-                    </motion.span>
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -669,14 +666,13 @@ export const Statistics: React.FC = () => {
                     </div>
                     <div>
                       <span className="text-[10px] uppercase tracking-[0.3em] text-accent font-black block">Tổng kết hệ thống</span>
-                      <span className="text-[8px] uppercase tracking-widest text-white/20">Cập nhật thời gian thực</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/50">Cập nhật thời gian thực</span>
                     </div>
                   </div>
                 </td>
                 <td className="py-8 px-4 text-center bg-accent/10 border-t border-accent/20">
                   <div className="relative inline-block">
                     <span className="text-3xl font-serif italic text-white font-black">{allMembers.length}</span>
-                    <div className="absolute -top-1 -right-4 w-2 h-2 bg-accent rounded-full animate-ping" />
                   </div>
                 </td>
                 <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.02]">
@@ -687,13 +683,13 @@ export const Statistics: React.FC = () => {
                 </td>
                 
                 <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-white/[0.01]">
-                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}</span>
+                  <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}</span>
                 </td>
                 <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
-                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}</span>
+                  <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}</span>
                 </td>
                 <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
-                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}</span>
+                  <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}</span>
                 </td>
                 
                 <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-white/[0.01]">
@@ -703,7 +699,7 @@ export const Statistics: React.FC = () => {
                   <span className="text-sm text-blue-400 font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}</span>
                 </td>
                 <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
-                  <span className="text-sm text-white/40">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}</span>
+                  <span className="text-sm text-white/70">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}</span>
                 </td>
                 
                 <td className="py-8 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 rounded-br-2xl">
