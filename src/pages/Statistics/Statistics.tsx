@@ -151,100 +151,170 @@ export const Statistics: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Gender Breakdown */}
         <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-          <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
-            <PieChartIcon className="text-accent" size={16} />
-            Cơ cấu giới tính
-          </h3>
-          <div className="h-64 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats?.genderData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {stats?.genderData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-                <Legend verticalAlign="bottom" height={36}/>
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between items-start mb-8">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <PieChartIcon className="text-accent" size={16} />
+              Cơ cấu giới tính
+            </h3>
+            <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Tổng cộng</span>
+              <p className="text-xl font-serif text-white italic">{members.length}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats?.genderData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {stats?.genderData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                    itemStyle={{ color: '#fff' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-4">
+              {stats?.genderData.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="text-sm text-white/80">{item.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-white">{item.value}</span>
+                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Status Breakdown */}
         <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-          <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
-            <Activity className="text-accent" size={16} />
-            Tình trạng sinh hoạt
-          </h3>
-          <div className="h-64 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.statusData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                <Tooltip 
-                   cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                   contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                   itemStyle={{ color: '#fff' }}
-                />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  {stats?.statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between items-start mb-8">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <Activity className="text-accent" size={16} />
+              Tình trạng sinh hoạt
+            </h3>
+            <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Đã ghi nhận</span>
+              <p className="text-xl font-serif text-white italic">{members.length}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats?.statusData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                    itemStyle={{ color: '#fff' }}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {stats?.statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-4">
+              {stats?.statusData.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="text-sm text-white/80">{item.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-white">{item.value}</span>
+                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Achievement Breakdown */}
         <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-          <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
-            <Star className="text-accent" size={16} />
-            Xếp loại đoàn viên
-          </h3>
-          <div className="h-64 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats?.achievementData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {stats?.achievementData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between items-start mb-8">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <Star className="text-accent" size={16} />
+              Xếp loại đoàn viên
+            </h3>
+            <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Đã xếp loại</span>
+              <p className="text-xl font-serif text-white italic">{members.length}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats?.achievementData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {stats?.achievementData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                    itemStyle={{ color: '#fff' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-4">
+              {stats?.achievementData.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                    <span className="text-sm text-white/80">{item.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-white">{item.value}</span>
+                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Top Ethnic Groups */}
         <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-          <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
-            <Users className="text-accent" size={16} />
-            Thống kê dân tộc
-          </h3>
+          <div className="flex justify-between items-start mb-8">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <Users className="text-accent" size={16} />
+              Thống kê dân tộc
+            </h3>
+            <div className="text-right">
+              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Số dân tộc</span>
+              <p className="text-xl font-serif text-white italic">{stats?.ethnicData.length}</p>
+            </div>
+          </div>
           <div className="space-y-6 overflow-y-auto max-h-64 custom-scrollbar pr-4">
             {stats?.ethnicData.map((item, index) => (
               <div key={item.name} className="flex items-center gap-4">
@@ -254,7 +324,10 @@ export const Statistics: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex justify-between text-xs mb-2">
                     <span className="text-white font-medium">{item.name}</span>
-                    <span className="text-white/40">{item.value} người</span>
+                    <div className="text-right">
+                      <span className="text-white font-bold">{item.value} người</span>
+                      <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
+                    </div>
                   </div>
                   <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <motion.div 
@@ -273,24 +346,46 @@ export const Statistics: React.FC = () => {
         {/* Member distribution by Unit (Only for Admin when showing All) */}
         {!isSecretary && selectedUnitId === "all" && (
           <div className="lg:col-span-2 bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3 mb-8">
-              <Building2 className="text-accent" size={16} />
-              Phân bổ theo Chi đoàn
-            </h3>
-            <div className="h-80 mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats?.unitData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                  <XAxis type="number" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} width={150} />
-                  <Tooltip 
-                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#7aa2f7" />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="flex justify-between items-start mb-8">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+                <Building2 className="text-accent" size={16} />
+                Phân bổ theo Chi đoàn
+              </h3>
+              <div className="text-right">
+                <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Tổng số chi đoàn</span>
+                <p className="text-xl font-serif text-white italic">{units.length}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              <div className="md:col-span-2 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats?.unitData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                    <XAxis type="number" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
+                    <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} width={150} />
+                    <Tooltip 
+                      cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                      contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#7aa2f7" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-3 overflow-y-auto max-h-80 custom-scrollbar pr-4">
+                {stats?.unitData.map((item, index) => (
+                  <div key={item.name} className="flex flex-col p-3 rounded-2xl bg-white/5 border border-white/5">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-white/80 font-medium truncate max-w-[150px]">{item.name}</span>
+                      <span className="text-xs font-bold text-white">{item.value} đ viên</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] text-white/30 uppercase tracking-tighter">
+                      <span>Tỷ trọng</span>
+                      <span>{((item.value / allMembers.length) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
