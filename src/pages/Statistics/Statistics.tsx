@@ -2,7 +2,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import { dataService } from "../../services/dataService";
 import { Member, Unit } from "../../types";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Users, BarChart3, PieChart as PieChartIcon, Activity, Star, Calendar, Building2 } from "lucide-react";
+import { Users, BarChart3, PieChart as PieChartIcon, Activity, Star, Calendar, Building2, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { useAuth } from "../../contexts/AuthContext";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion } from "motion/react";
@@ -121,6 +122,62 @@ export const Statistics: React.FC = () => {
 
   const selectedUnitName = selectedUnitId === "all" ? "Toàn hệ thống" : units.find(u => u.id === selectedUnitId)?.name || "Chi đoàn";
 
+  const handleExportExcel = () => {
+    if (!members.length) return;
+
+    // 1. Prepare Members List Sheet
+    const membersData = members.map((m, index) => ({
+      "STT": index + 1,
+      "Họ và Tên": m.fullName,
+      "Mã số": m.memberId,
+      "Giới tính": m.gender,
+      "Ngày sinh": m.birthday,
+      "Dân tộc": m.ethnic,
+      "Tình trạng": m.status,
+      "Xếp loại": m.achievementLevel || "Chưa xếp loại",
+      "Đơn vị": units.find(u => u.id === m.unitId)?.name || "N/A",
+      "Ghi chú": m.isOutstanding ? "Đoàn viên tiêu biểu" : ""
+    }));
+
+    // 2. Prepare Statistics Summary Sheet
+    const summaryData = [
+      ["BÁO CÁO THỐNG KÊ ĐOÀN VIÊN"],
+      [`Đơn vị: ${selectedUnitName}`],
+      [`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`],
+      [],
+      ["I. THỐNG KÊ GIỚI TÍNH"],
+      ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
+      ...stats?.genderData.map(d => [d.name, d.value, ((d.value / members.length) * 100).toFixed(1)]) || [],
+      [],
+      ["II. THỐNG KÊ TÌNH TRẠNG SINH HOẠT"],
+      ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
+      ...stats?.statusData.map(d => [d.name, d.value, ((d.value / members.length) * 100).toFixed(1)]) || [],
+      [],
+      ["III. THỐNG KÊ XẾP LOẠI"],
+      ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
+      ...stats?.achievementData.map(d => [d.name, d.value, ((d.value / members.length) * 100).toFixed(1)]) || [],
+      [],
+      ["IV. THỐNG KÊ DÂN TỘC"],
+      ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
+      ...stats?.ethnicData.map(d => [d.name, d.value, ((d.value / members.length) * 100).toFixed(1)]) || [],
+    ];
+
+    // Create workbook and add sheets
+    const wb = XLSX.utils.book_new();
+    
+    // Add Summary sheet first
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Báo cáo tổng hợp");
+
+    // Add Detailed List sheet
+    const wsMembers = XLSX.utils.json_to_sheet(membersData);
+    XLSX.utils.book_append_sheet(wb, wsMembers, "Danh sách chi tiết");
+
+    // Save file
+    const fileName = `Thong_ke_Doan_vien_${selectedUnitName.replace(/\s+/g, '_')}_${new Date().getTime()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
   return (
     <div className="space-y-12 pb-20">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
@@ -134,17 +191,27 @@ export const Statistics: React.FC = () => {
           </p>
         </div>
 
-        {!isSecretary && (
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
-             <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold whitespace-nowrap">Chọn đơn vị:</span>
-             <CustomSelect 
-               value={selectedUnitId}
-               onChange={setSelectedUnitId}
-               options={unitOptions}
-               className="w-full sm:w-80"
-             />
-          </div>
-        )}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 w-full lg:w-auto">
+          <button
+            onClick={handleExportExcel}
+            className="group flex items-center gap-3 px-6 py-3 bg-accent/10 border border-accent/20 rounded-2xl text-accent hover:bg-accent hover:text-white transition-all duration-300 shadow-lg shadow-accent/5"
+          >
+            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+            <span className="text-xs uppercase tracking-widest font-bold">Xuất file Excel</span>
+          </button>
+
+          {!isSecretary && (
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+               <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold whitespace-nowrap">Chọn đơn vị:</span>
+               <CustomSelect 
+                 value={selectedUnitId}
+                 onChange={setSelectedUnitId}
+                 options={unitOptions}
+                 className="w-full sm:w-80"
+               />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Charts Grid */}
