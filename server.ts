@@ -235,12 +235,13 @@ async function startServer() {
       if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: "Invalid IDs" });
       
       const idList = ids.map(id => `'${id.replace(/'/g, "''")}'`).join(",");
-      await pool.request().query(`DELETE FROM members WHERE id IN (${idList})`);
+      const result = await pool.request().query(`DELETE FROM members WHERE id IN (${idList})`);
       
+      console.log(`Bulk delete successful. Rows affected: ${result.rowsAffected[0]}`);
       io.emit("members:changed");
-      res.json({ success: true });
+      res.json({ success: true, rowsAffected: result.rowsAffected[0] });
     } catch (err) {
-      console.error(err);
+      console.error("Bulk delete error:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });

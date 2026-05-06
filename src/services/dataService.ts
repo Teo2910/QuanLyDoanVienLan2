@@ -101,13 +101,14 @@ class DataService {
     if (!response.ok) throw new Error("Failed to delete member");
   }
 
-  async deleteMembers(ids: string[]): Promise<void> {
+  async deleteMembers(ids: string[]): Promise<any> {
     const response = await fetch("/api/members/bulk-delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
     });
     if (!response.ok) throw new Error("Failed to delete members");
+    return response.json();
   }
 
   async deleteUnit(id: string): Promise<void> {

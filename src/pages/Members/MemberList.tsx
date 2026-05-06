@@ -284,10 +284,11 @@ export const MemberList: React.FC = () => {
     if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} đoàn viên đã chọn?`)) {
       setLoading(true);
       dataService.deleteMembers(selectedIds)
-        .then(() => {
+        .then((result: any) => {
           setSelectedIds([]);
           loadData();
-          alert("Đã xóa thành công!");
+          const count = result?.rowsAffected || selectedIds.length;
+          alert(`Đã xóa thành công ${count} mục!`);
         })
         .catch(err => {
           console.error(err);
@@ -600,21 +601,21 @@ export const MemberList: React.FC = () => {
 
           if (isSpecialFormat) {
             // Mapping for the specific report format provided
-            const namMark = row.getCell(3).value?.toString(); // C column is Nam
-            const nuMark = row.getCell(4).value?.toString();  // D column is Nu
-            const gender = nuMark?.toLowerCase() === 'x' ? "Nữ" : "Nam";
+            const namDobValue = row.getCell(3).value;
+            const nuDobValue = row.getCell(4).value;
             
-            // Note: In the provided screenshot, col B(2)=Name, C(3)=Nam, D(4)=Nu
-            const dobValue = gender === "Nam" ? row.getCell(3).value : row.getCell(4).value;
-            // Wait, looking at current screenshot: 
-            // B(2)=Họ tên, C(3)=Nam (Ngày sinh), D(4)=Nữ (Ngày sinh)
+            // Gender detection: if column 4 (Nu) has a value (Date or String), it's Female
+            const gender = (nuDobValue !== null && nuDobValue !== undefined && nuDobValue !== "") ? "Nữ" : "Nam";
+            
+            // Get DOB from the respective column
+            const dobValue = gender === "Nam" ? namDobValue : nuDobValue;
             
             const kinhMark = row.getCell(5).value?.toString();
             const ethnic = kinhMark?.toLowerCase() === 'x' ? "Kinh" : (row.getCell(6).value?.toString() || "Kinh");
-
-            // Ngày kết nạp (Join Date)
+            
             const officialJoinDate = row.getCell(9).value;
             const probationJoinDate = row.getCell(8).value;
+            const joinDateValue = officialJoinDate || probationJoinDate;
 
             memberToImport = {
               fullName: row.getCell(2).value?.toString() || "",
@@ -624,7 +625,7 @@ export const MemberList: React.FC = () => {
               ethnic: ethnic,
               religion: row.getCell(7).value?.toString() || "Không",
               hometown: "Chưa cập nhật",
-              joinDate: parseDate(officialJoinDate || probationJoinDate),
+              joinDate: parseDate(joinDateValue),
               unitId: profile?.unitId || units[0]?.id || "",
               email: "",
               phone: "--",
