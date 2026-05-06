@@ -93,9 +93,17 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Log all requests for debugging
+  app.use((req, res, next) => {
+    if (req.url.startsWith('/api')) {
+      console.log(`[Presence] API Request: ${req.method} ${req.url}`);
+    }
+    next();
+  });
+
   // API Routes
-  app.get("/api/users", async (req, res) => {
-    console.log(`[Presence] Incoming request: ${req.method} ${req.url} from ${req.ip}`);
+  app.get("/api/system-presence", async (req, res) => {
+    console.log(`[Presence] Processing /api/system-presence request`);
     try {
       console.log("[Presence] Fetching all users...");
       let sqlUsers = [];

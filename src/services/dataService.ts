@@ -3,13 +3,23 @@ import { Unit, Member, Activity } from "../types";
 class DataService {
   async getUsers(): Promise<any[]> {
     try {
-      const response = await fetch("/api/users");
+      console.log("[Presence] Calling /api/system-presence");
+      const response = await fetch("/api/system-presence");
       if (!response.ok) {
         const text = await response.text();
-        console.error(`[Presence] API Error: ${response.status}`, text.substring(0, 200));
+        console.error(`[Presence] API Error: ${response.status}`, text.substring(0, 100));
         return [];
       }
-      return await response.json();
+      
+      const text = await response.text();
+      try {
+        const data = JSON.parse(text);
+        console.log("[Presence] Parse successful, count:", Array.isArray(data) ? data.length : "not an array");
+        return data;
+      } catch (e) {
+        console.error("[Presence] JSON Parse failed. Response starts with:", text.substring(0, 200));
+        return [];
+      }
     } catch (error) {
       console.error("[Presence] Fetch failed:", error);
       return [];
