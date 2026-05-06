@@ -4,12 +4,12 @@
 @theme {
   --color-primary: #ffffff;
   --color-primary-foreground: #000000;
-  --color-secondary: #0f0f0f;
+  --color-secondary: #16162a;
   --color-secondary-foreground: #e0e0e0;
-  --color-accent: #3b82f6;
-  --color-background: #0a0a0a;
-  --color-surface: #0f0f0f;
-  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-accent: #7c3aed;
+  --color-background: #0d0d1a;
+  --color-surface: #1e1e2e;
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
   --font-sans: "Inter", system-ui, sans-serif;
   --font-serif: "Inter", system-ui, sans-serif;
 }
