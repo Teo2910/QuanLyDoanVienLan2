@@ -123,6 +123,8 @@ export const Statistics: React.FC = () => {
       const unitMembers = allMembers.filter(m => m.unitId === unit.id);
       const males = unitMembers.filter(m => m.gender === "Nam").length;
       const females = unitMembers.filter(m => m.gender === "Nữ").length;
+      const kinh = unitMembers.filter(m => m.ethnic?.toLowerCase() === 'kinh').length;
+      const others = unitMembers.filter(m => m.ethnic?.toLowerCase() !== 'kinh' && m.ethnic).length;
       const outstanding = unitMembers.filter(m => m.isOutstanding).length;
       
       // Status breakdown
@@ -141,6 +143,7 @@ export const Statistics: React.FC = () => {
         total: unitMembers.length,
         males,
         females,
+        ethnic: { kinh, others },
         outstanding,
         status: { active, moved, left },
         achievements: { excellent, good, average }
@@ -580,15 +583,16 @@ export const Statistics: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto custom-scrollbar pb-6 rounded-2xl border border-white/5">
-          <table className="w-full text-left border-separate border-spacing-0 min-w-[1100px]">
+        <div className="w-full overflow-x-auto overflow-y-auto custom-scrollbar pb-6 rounded-2xl border border-white/5 max-h-[700px]">
+          <table className="w-full text-left border-separate border-spacing-0 min-w-[1350px]">
             <thead>
               <tr className="sticky top-0 z-30">
                 <th className="py-5 px-4 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-r border-white/5 rounded-tl-2xl">STT</th>
-                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-40 backdrop-blur-xl">Tên đơn vị</th>
+                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-40 backdrop-blur-xl min-w-[250px]">Tên đơn vị</th>
                 
                 {/* Group Headers */}
                 <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-accent font-black text-center bg-accent/[0.05] border-b border-l border-white/5">CƠ BẢN</th>
+                <th colSpan={2} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-emerald-400 font-black text-center bg-emerald-400/[0.05] border-b border-l border-white/5">DÂN TỘC</th>
                 <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-purple-400 font-black text-center bg-purple-400/[0.05] border-b border-l border-white/5">TRẠNG THÁI</th>
                 <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-blue-400 font-black text-center bg-blue-400/[0.05] border-b border-l border-white/5">XẾP LOẠI</th>
                 
@@ -601,6 +605,9 @@ export const Statistics: React.FC = () => {
                 <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-black text-center border-b border-l border-white/5">Tổng</th>
                 <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Nam</th>
                 <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Nữ</th>
+                
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5">Kinh</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Khác</th>
                 
                 <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5">Đang SH</th>
                 <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b">Chuyển</th>
@@ -634,6 +641,15 @@ export const Statistics: React.FC = () => {
                   </td>
                   <td className="py-5 px-4 text-center text-xs text-white border-b">{item.males}</td>
                   <td className="py-5 px-4 text-center text-xs text-white border-b">{item.females}</td>
+                  
+                  <td className="py-5 px-4 text-center border-b border-l border-white/5 bg-emerald-400/[0.02]">
+                    <span className="text-xs text-white/80">{item.ethnic.kinh}</span>
+                  </td>
+                  <td className="py-5 px-4 text-center border-b bg-emerald-400/[0.02]">
+                    <span className={cn("text-xs font-bold", item.ethnic.others > 0 ? "text-emerald-400" : "text-white/30")}>
+                      {item.ethnic.others}
+                    </span>
+                  </td>
                   
                   <td className="py-5 px-4 text-center text-xs text-white/90 border-b border-l border-white/5">{item.status.active}</td>
                   <td className="py-5 px-4 text-center text-xs text-white/80 border-b">{item.status.moved}</td>
@@ -680,6 +696,13 @@ export const Statistics: React.FC = () => {
                 </td>
                 <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.02]">
                   <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}</span>
+                </td>
+                
+                <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-emerald-400/[0.05]">
+                  <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.ethnic.kinh, 0)}</span>
+                </td>
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-emerald-400/[0.05]">
+                  <span className="text-sm text-emerald-400 font-black">{unitTableStats.reduce((acc, curr) => acc + curr.ethnic.others, 0)}</span>
                 </td>
                 
                 <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-white/[0.01]">
