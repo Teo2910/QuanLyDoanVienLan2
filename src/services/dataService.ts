@@ -12,6 +12,12 @@ class DataService {
       }
       
       const text = await response.text();
+      if (text.trim().startsWith("<!doctype html>") || text.trim().startsWith("<html")) {
+        console.error("[Presence] RECEIVED HTML INSTEAD OF JSON! This means the route matched the SPA fallback.");
+        console.log("[Presence] HTML Snippet:", text.substring(0, 500));
+        return [];
+      }
+
       try {
         const data = JSON.parse(text);
         console.log("[Presence] Parse successful, count:", Array.isArray(data) ? data.length : "not an array");

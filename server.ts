@@ -39,8 +39,65 @@ async function startServer() {
 
   // State
   const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
-  // Fallback in-memory user store for preview environment
   const systemUsers = new Map<string, any>();
+
+  app.use(express.json());
+
+  // Log all requests for debugging
+  app.use((req, res, next) => {
+    if (req.url.includes('presence')) {
+      console.log(`[Presence] DEBUG: ${req.method} ${req.url}`);
+    }
+    next();
+  });
+
+  // Very simple test endpoint to confirm routing is working
+  app.get("/api/presence-test", (req, res) => {
+    res.json({ ok: true, timestamp: Date.now() });
+  });
+
+  // Presence API - moving it up and ensuring it's clearly defined
+  app.get("/api/system-presence", async (req, res) => {
+    console.log(`[Presence] Handling /api/system-presence request`);
+    try {
+      let sqlUsers: any[] = [];
+      if (pool && pool.connected) {
+        try {
+          const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+          sqlUsers = result.recordset;
+        } catch (e) {
+          console.error("[Presence] DB Query failed:", e);
+        }
+      }
+      
+      const allUsersMap = new Map();
+      
+      // 1. Add SQL users
+      sqlUsers.forEach(u => {
+        const uid = u.uid || `db-${u.id || u.email}`;
+        allUsersMap.set(uid, {
+          uid,
+          email: u.email,
+          role: u.role,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl,
+          unitId: u.unitId
+        });
+      });
+
+      // 2. Merge with in-memory users
+      systemUsers.forEach((u, uid) => {
+        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
+      });
+
+      const finalUsers = Array.from(allUsersMap.values());
+      console.log(`[Presence] Success: ${finalUsers.length} users found`);
+      res.json(finalUsers);
+    } catch (err) {
+      console.error("[Presence] Error in route handler:", err);
+      res.json(Array.from(systemUsers.values()));
+    }
+  });
 
   // Initialize MSSQL
   let pool: sql.ConnectionPool;
@@ -89,67 +146,6 @@ async function startServer() {
       }
       io.emit("presence:update", Array.from(onlineUsers.values()));
     });
-  });
-
-  app.use(express.json());
-
-  // Log all requests for debugging
-  app.use((req, res, next) => {
-    if (req.url.startsWith('/api')) {
-      console.log(`[Presence] API Request: ${req.method} ${req.url}`);
-    }
-    next();
-  });
-
-  // API Routes
-  app.get("/api/system-presence", async (req, res) => {
-    console.log(`[Presence] Processing /api/system-presence request`);
-    try {
-      console.log("[Presence] Fetching all users...");
-      let sqlUsers = [];
-      if (pool && pool.connected) {
-        const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
-        sqlUsers = result.recordset;
-      } else {
-        console.warn("[Presence] SQL not connected for user fetch, trying to reconnect...");
-        try {
-          pool = await sql.connect(sqlConfig);
-          const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
-          sqlUsers = result.recordset;
-        } catch (e) {
-          console.error("[Presence] Reconnection failed");
-        }
-      }
-      
-      const allUsersMap = new Map();
-      
-      // 1. Add SQL users
-      sqlUsers.forEach(u => {
-        // Ensure every user has a UID for tracking
-        const uid = u.uid || `db-${u.id || u.email}`;
-        allUsersMap.set(uid, {
-          uid,
-          email: u.email,
-          role: u.role,
-          fullName: u.fullName,
-          avatarUrl: u.avatarUrl,
-          unitId: u.unitId
-        });
-      });
-
-      // 2. Add/Merge with in-memory users
-      systemUsers.forEach((u, uid) => {
-        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
-      });
-
-      const finalUsers = Array.from(allUsersMap.values());
-      console.log(`[Presence] Returning ${finalUsers.length} system users`);
-      res.json(finalUsers);
-    } catch (err) {
-      console.error("[Presence] Error fetching users:", err);
-      // Absolute fallback to in-memory only
-      res.json(Array.from(systemUsers.values()));
-    }
   });
 
   // Auth Login
