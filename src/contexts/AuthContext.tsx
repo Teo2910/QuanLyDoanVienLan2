@@ -24,9 +24,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const storedUser = localStorage.getItem("local_user");
+    const storedProfile = localStorage.getItem("local_profile");
+    
     if (storedUser) {
       const userData = JSON.parse(storedUser);
       setUser(userData);
+      
+      if (storedProfile) {
+        setProfile(JSON.parse(storedProfile));
+        setLoading(false); // Can show UI immediately
+      }
+      
       fetchProfile(userData.uid);
     } else {
       setLoading(false);
@@ -37,13 +45,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await fetch(`/api/users/${uid}`);
       if (!response.ok) {
-        // If profile not found, don't necessarily overwrite with a fallback
-        // unless it's a completely new session.
+        if (response.status === 404) {
+          // If profile really doesn't exist (deleted?), we should probably logout
+          // But for now, let's just stop loading if we don't have a cached profile
+          if (!localStorage.getItem("local_profile")) {
+             setLoading(false);
+          }
+        }
         return;
       }
       const data = await response.json();
       if (data && data.uid) {
         setProfile(data);
+        localStorage.setItem("local_profile", JSON.stringify(data));
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -71,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       setProfile(data);
       localStorage.setItem("local_user", JSON.stringify(userData));
+      localStorage.setItem("local_profile", JSON.stringify(data));
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -116,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setProfile(null);
     localStorage.removeItem("local_user");
+    localStorage.removeItem("local_profile");
   };
 
   const updateProfile = async (data: { fullName: string; avatarUrl: string; email: string; phone: string }) => {
@@ -125,7 +141,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    setProfile(prev => prev ? { ...prev, ...data } : null);
+    const updatedProfile = prev => {
+      if (!prev) return null;
+      const newP = { ...prev, ...data };
+      localStorage.setItem("local_profile", JSON.stringify(newP));
+      return newP;
+    };
+    setProfile(updatedProfile);
     if (user) {
       const updatedUser = { ...user, email: data.email };
       setUser(updatedUser);

@@ -56,13 +56,28 @@ async function startServer() {
   app.post("/api/login", async (req, res) => {
     try {
       const { email, password } = req.body;
+      if (!pool || !pool.connected) {
+        // Very basic fallback if DB is not ready during login
+        return res.status(503).json({ error: "Database connecting... please try again in a few seconds." });
+      }
+      
       const result = await pool.request()
         .input("email", sql.NVarChar, email)
         .input("password", sql.NVarChar, password)
         .query("SELECT * FROM users WHERE email = @email AND password = @password");
       
-      const user = result.recordset[0];
+      let user = result.recordset[0];
       if (user) {
+        // Auto-fix if UID is missing
+        if (!user.uid) {
+          const newUid = Math.random().toString(36).substring(2, 11);
+          await pool.request()
+            .input("uid", sql.NVarChar, newUid)
+            .input("id", sql.Int, user.id || 0) // assuming an 'id' primary key exists
+            .query("UPDATE users SET uid = @uid WHERE email = @email");
+          user.uid = newUid;
+        }
+
         if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
         const { password: _, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
@@ -79,8 +94,7 @@ async function startServer() {
   app.get("/api/users/:uid", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
-        // Fallback or demo mode
-        return res.status(404).json({ error: "DB not connected" });
+        return res.status(503).json({ error: "DB connecting" });
       }
       const result = await pool.request()
         .input("uid", sql.NVarChar, req.params.uid)
