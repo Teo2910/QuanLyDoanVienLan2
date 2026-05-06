@@ -95,7 +95,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {cards.map((card) => (
-          <div key={card.label} className="bg-white/[0.03] border border-white/10 p-8 rounded-3xl flex flex-col justify-between transition-all hover:bg-white/[0.05] group">
+          <div key={card.label} className="bg-surface/50 border border-white/5 p-8 rounded-3xl flex flex-col justify-between transition-all hover:bg-surface/80 group shadow-lg backdrop-blur-sm">
             <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", card.bg, card.color)}>
               <card.icon size={24} />
             </div>
@@ -108,7 +108,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem]">
+        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
                 <Calendar className="text-accent" size={16} />
@@ -148,7 +148,7 @@ const Dashboard = () => {
            </div>
         </div>
 
-        <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem]">
+        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
                 <Users className="text-accent" size={16} />

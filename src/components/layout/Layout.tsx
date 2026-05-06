@@ -103,7 +103,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <div className={cn(
                     "w-2 h-2 rounded-full transition-all",
-                    isActive ? "bg-accent shadow-[0_0_8px_rgba(124,58,237,0.5)]" : "border border-white/30 group-hover:border-white/60"
+                    isActive ? "bg-accent shadow-[0_0_8px_rgba(122,162,247,0.5)]" : "border border-white/30 group-hover:border-white/60"
                   )} />
                   <span className="text-sm font-medium tracking-wide">{item.name}</span>
                 </motion.div>
@@ -120,7 +120,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {profile?.avatarUrl ? (
               <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-lg border border-white/10" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-indigo-900 flex items-center justify-center font-bold text-white shadow-lg text-[10px]">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-[10px]">
                 {userInitials}
               </div>
             )}

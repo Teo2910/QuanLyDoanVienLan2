@@ -93,7 +93,7 @@ export const UnitList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] overflow-hidden flex flex-col min-h-[500px]">
+      <div className="bg-surface/60 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col min-h-[500px] shadow-2xl backdrop-blur-md">
         {/* Search */}
         <div className="px-8 py-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="relative flex-1 w-full max-w-md">
@@ -184,7 +184,7 @@ export const UnitList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl p-1"
+            className="bg-surface border border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl p-1"
           >
             <div className="p-8 border-b border-white/5 flex justify-between items-center">
               <div>

@@ -388,7 +388,7 @@ export const MemberList: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] p-8 mb-8 pb-32">
+      <div className="bg-surface/40 border border-white/5 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl backdrop-blur-sm">
         {/* Main Search Row */}
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
           <div className="relative flex-1 group w-full md:max-w-2xl">
@@ -543,7 +543,7 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white/[0.02] border border-white/10 rounded-[2rem] overflow-hidden flex flex-col min-h-[600px]">
+      <div className="bg-surface/60 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md">
 
         {/* Table Content */}
         {loading ? (
@@ -768,7 +768,7 @@ export const MemberList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]"
+            className="bg-surface border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]"
           >
             <div className="p-8 border-b border-white/5 flex justify-between items-center shrink-0 bg-white/[0.01]">
               <div>
@@ -1025,7 +1025,7 @@ export const MemberList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-[#0a0a0a] border border-white/10 rounded-[3rem] w-full max-w-3xl shadow-[0_0_100px_-20px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[90vh]"
+            className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-3xl shadow-[0_0_100px_-20px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Header with Avatar and Name */}
             <div className="relative p-10 bg-gradient-to-br from-white/[0.03] to-transparent shrink-0">
@@ -1246,7 +1246,7 @@ export const MemberList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8"
+            className="bg-surface border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8"
           >
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] rounded-t-[2.4rem]">
               <div>
@@ -1271,7 +1271,7 @@ export const MemberList: React.FC = () => {
                 <div className="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-white/10">
                   {historyMember.statusHistory.map((change, idx) => (
                     <div key={idx} className="pl-10 relative">
-                       <div className="absolute left-0 top-2 w-6 h-6 bg-[#0f0f0f] border border-accent rounded-full flex items-center justify-center -translate-x-1/2">
+                       <div className="absolute left-0 top-2 w-6 h-6 bg-surface border border-accent rounded-full flex items-center justify-center -translate-x-1/2">
                           <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                        </div>
                        <div className="bg-white/[0.03] border border-white/5 p-5 rounded-2xl">
@@ -1309,7 +1309,7 @@ export const MemberList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#1a1a1a] border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1"
+            className="bg-surface border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1"
           >
             <div className="p-6 border-b border-white/5 flex justify-between items-center">
               <h4 className="text-white font-serif italic text-lg">Tạo đơn vị nhanh</h4>

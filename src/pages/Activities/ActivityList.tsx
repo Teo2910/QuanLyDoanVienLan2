@@ -153,7 +153,7 @@ export const ActivityList = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredActivities.map((activity) => (
-          <div key={activity.id} className="bg-white/[0.03] border border-white/10 rounded-[2rem] p-8 hover:bg-white/[0.05] transition-all group flex flex-col justify-between">
+          <div key={activity.id} className="bg-surface/50 border border-white/5 rounded-[2.5rem] p-8 hover:bg-surface/80 transition-all group flex flex-col justify-between shadow-xl backdrop-blur-sm">
             <div>
               <div className="flex justify-between items-start mb-6">
                 <span className="px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] uppercase tracking-widest font-bold text-accent">
