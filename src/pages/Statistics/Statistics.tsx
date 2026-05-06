@@ -580,7 +580,7 @@ export const Statistics: React.FC = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar -mx-10 px-10">
+        <div className="w-full overflow-x-auto custom-scrollbar -mx-10 px-10 pb-4">
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="border-b border-white/10">
