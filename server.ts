@@ -63,12 +63,88 @@ async function startServer() {
       
       const user = result.recordset[0];
       if (user) {
-        if (user.presets) user.presets = JSON.parse(user.presets);
+        if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
         const { password: _, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
       } else {
         res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
       }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  // User Profile Routes
+  app.get("/api/users/:uid", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) {
+        // Fallback or demo mode
+        return res.status(404).json({ error: "DB not connected" });
+      }
+      const result = await pool.request()
+        .input("uid", sql.NVarChar, req.params.uid)
+        .query("SELECT * FROM users WHERE uid = @uid");
+      
+      const user = result.recordset[0];
+      if (user) {
+        if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
+        const { password: _, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+      } else {
+        res.status(404).json({ error: "User not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/users", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { uid, email, password, role, unitId } = req.body;
+      await pool.request()
+        .input("uid", sql.NVarChar, uid)
+        .input("email", sql.NVarChar, email)
+        .input("password", sql.NVarChar, password)
+        .input("role", sql.NVarChar, role)
+        .input("unitId", sql.NVarChar, unitId || null)
+        .input("presets", sql.NVarChar, "[]")
+        .query("INSERT INTO users (uid, email, password, role, unitId, presets) VALUES (@uid, @email, @password, @role, @unitId, @presets)");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.put("/api/users/:uid/profile", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { fullName, avatarUrl, phone } = req.body;
+      await pool.request()
+        .input("uid", sql.NVarChar, req.params.uid)
+        .input("fullName", sql.NVarChar, fullName || null)
+        .input("avatarUrl", sql.NVarChar, avatarUrl || null)
+        .input("phone", sql.NVarChar, phone || null)
+        .query("UPDATE users SET fullName = @fullName, avatarUrl = @avatarUrl, phone = @phone WHERE uid = @uid");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.put("/api/users/:uid/presets", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { presets } = req.body;
+      await pool.request()
+        .input("uid", sql.NVarChar, req.params.uid)
+        .input("presets", sql.NVarChar, JSON.stringify(presets))
+        .query("UPDATE users SET presets = @presets WHERE uid = @uid");
+      res.json({ success: true });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Database error" });

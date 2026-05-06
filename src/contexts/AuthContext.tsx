@@ -36,19 +36,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = async (uid: string) => {
     try {
       const response = await fetch(`/api/users/${uid}`);
+      if (!response.ok) {
+        // If profile not found, don't necessarily overwrite with a fallback
+        // unless it's a completely new session.
+        return;
+      }
       const data = await response.json();
-      if (data) {
+      if (data && data.uid) {
         setProfile(data);
-      } else {
-        // Fallback for new users if not seeded
-        const newProfile: UserProfile = {
-          uid,
-          email: user?.email || "user@local.test",
-          role: "secretary",
-          unitId: "unit-1", // Gán chi đoàn mẫu
-          presets: []
-        };
-        setProfile(newProfile);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
