@@ -395,7 +395,7 @@ export const MemberList: React.FC = () => {
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent transition-colors" size={20} />
             <input 
               type="text"
-              placeholder="Tìm kiếm theo tên, mã số, quê quán..."
+              placeholder="Tìm kiếm theo tên, MSSV, quê quán..."
               className="w-full pl-16 pr-6 py-4 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white/[0.08] transition-all outline-none text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -573,7 +573,7 @@ export const MemberList: React.FC = () => {
                     onClick={() => handleSort("memberId")}
                   >
                     <div className="flex items-center gap-2">
-                      Mã định danh
+                      Mã số sinh viên
                       <span className={cn("transition-opacity", sortField === "memberId" ? "opacity-100" : "opacity-0 group-hover/header:opacity-40")}>
                         {sortField === "memberId" ? (sortDirection === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} />}
                       </span>
@@ -863,7 +863,7 @@ export const MemberList: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đoàn viên (MSSV)</label>
+                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã số sinh viên (MSSV)</label>
                     <input
                       required
                       className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
@@ -1332,7 +1332,7 @@ export const MemberList: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Mã định danh</label>
+                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Mã đơn vị</label>
                 <input 
                   required
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"

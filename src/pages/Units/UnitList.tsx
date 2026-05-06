@@ -203,7 +203,7 @@ export const UnitList: React.FC = () => {
             <form onSubmit={handleSubmit} className="p-10 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="col-span-1">
-                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã định danh</label>
+                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã đơn vị</label>
                   <input
                     required
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
