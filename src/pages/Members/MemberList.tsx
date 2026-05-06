@@ -36,6 +36,8 @@ export const MemberList: React.FC = () => {
   const [detailsMember, setDetailsMember] = useState<Member | null>(null);
   const [historyMember, setHistoryMember] = useState<Member | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const [sortField, setSortField] = useState<keyof Member>("fullName");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [statusReason, setStatusReason] = useState("");
@@ -175,6 +177,17 @@ export const MemberList: React.FC = () => {
 
     return result;
   }, [members, searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedGender, selectedHometown, sortField, sortDirection]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedUnit, selectedStatus, selectedAcademicYear, selectedAchievement, selectedGender, selectedHometown]);
+
+  const paginatedMembers = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredMembers.slice(startIndex, startIndex + pageSize);
+  }, [filteredMembers, currentPage]);
+
+  const totalPages = Math.ceil(filteredMembers.length / pageSize);
 
   const resetFilters = () => {
     setSearchTerm("");
@@ -543,6 +556,7 @@ export const MemberList: React.FC = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
+                  <th className="py-6 px-4 font-normal text-center w-12">STT</th>
                   <th 
                     className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
                     onClick={() => handleSort("fullName")}
@@ -583,9 +597,12 @@ export const MemberList: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredMembers.map((member) => (
+                {paginatedMembers.map((member, index) => (
                   <tr key={member.id} className="hover:bg-white/[0.02] transition-colors group">
-    <td className="py-6 px-4">
+                    <td className="py-6 px-4 text-center font-mono text-[10px] text-white/20 tabular-nums">
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </td>
+                    <td className="py-6 px-4">
       <div className="flex items-center gap-4">
         <div className="relative group/avatar">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-serif italic text-xl text-white group-hover:border-accent transition-all overflow-hidden">
@@ -685,8 +702,62 @@ export const MemberList: React.FC = () => {
           </div>
         )}
 
-        <div className="px-8 py-4 border-t border-white/5 flex justify-between items-center text-[10px] text-white/30 uppercase tracking-widest font-semibold mt-auto">
-          <span>Kết quả tìm kiếm: {filteredMembers.length} hồ sơ</span>
+        <div className="px-8 py-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
+          <span className="text-[10px] text-white/30 uppercase tracking-widest font-semibold italic">
+            Hiển thị {Math.min(filteredMembers.length, (currentPage - 1) * pageSize + 1)}-{Math.min(filteredMembers.length, currentPage * pageSize)} trong tổng số {filteredMembers.length} hồ sơ
+          </span>
+          
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none"
+              >
+                <ChevronDown className="rotate-90" size={16} />
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                  // Only show current page, first, last, and neighbors
+                  if (
+                    page === 1 || 
+                    page === totalPages || 
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={cn(
+                          "w-8 h-8 rounded-lg text-[10px] font-bold transition-all outline-none",
+                          currentPage === page 
+                            ? "bg-accent text-accent-foreground" 
+                            : "bg-white/5 text-white/40 hover:bg-white/10"
+                        )}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    (page === currentPage - 2 && page > 1) || 
+                    (page === currentPage + 2 && page < totalPages)
+                  ) {
+                    return <span key={page} className="px-1 text-white/20">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none"
+              >
+                <ChevronDown className="-rotate-90" size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
