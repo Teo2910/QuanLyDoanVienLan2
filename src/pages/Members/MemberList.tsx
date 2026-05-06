@@ -42,6 +42,7 @@ export const MemberList: React.FC = () => {
   const pageSize = 10;
   const [sortField, setSortField] = useState<keyof Member>("fullName");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [statusReason, setStatusReason] = useState("");
   const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
   const [newMember, setNewMember] = useState<Omit<Member, "id" | "createdAt" | "statusHistory">>({
@@ -259,6 +260,42 @@ export const MemberList: React.FC = () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa đoàn viên này?")) {
       dataService.deleteMember(id).then(() => {
         setMembers(members.filter(m => m.id !== id));
+        setSelectedIds(prev => prev.filter(i => i !== id));
+      });
+    }
+  };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedIds(filteredMembers.map(m => m.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectMember = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} đoàn viên đã chọn?`)) {
+      dataService.deleteMembers(selectedIds).then(() => {
+        setSelectedIds([]);
+        loadData();
+      });
+    }
+  };
+
+  const handleDeleteAllFiltered = () => {
+    if (filteredMembers.length === 0) return;
+    if (window.confirm(`Bạn có chắc chắn muốn xóa TOÀN BỘ ${filteredMembers.length} đoàn viên trong danh sách hiện tại?`)) {
+      const ids = filteredMembers.map(m => m.id);
+      dataService.deleteMembers(ids).then(() => {
+        setSelectedIds([]);
+        loadData();
       });
     }
   };
@@ -816,7 +853,52 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-surface/60 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md">
+      <div className="bg-surface/60 border border-white/5 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md mb-32">
+        <div className="px-8 pt-8">
+          <AnimatePresence>
+            {isAdmin && selectedIds.length > 0 && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                className="mb-8 flex flex-col sm:flex-row items-center justify-between bg-red-500/10 border border-red-500/20 p-6 rounded-[2rem] gap-6"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                    <Trash2 size={24} />
+                  </div>
+                  <div>
+                    <span className="text-red-400 text-lg font-serif italic block">
+                      Đã chọn {selectedIds.length} đoàn viên
+                    </span>
+                    <button 
+                      onClick={() => setSelectedIds([])}
+                      className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors"
+                    >
+                      Bỏ chọn tất cả
+                    </button>
+                  </div>
+                </div>
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <button 
+                    onClick={handleBulkDelete}
+                    className="flex-1 sm:flex-none bg-red-500 text-white px-10 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all shadow-xl shadow-red-500/20 active:scale-95"
+                  >
+                    Xóa mục đã chọn
+                  </button>
+                  {selectedIds.length === filteredMembers.length && filteredMembers.length > 1 && (
+                    <button 
+                      onClick={handleDeleteAllFiltered}
+                      className="flex-1 sm:flex-none bg-white text-red-600 px-10 py-4 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-red-50 transition-all shadow-xl active:scale-95"
+                    >
+                      Xóa tất cả ({filteredMembers.length})
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Table Content */}
         {loading ? (
@@ -829,6 +911,14 @@ export const MemberList: React.FC = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
+                  <th className="py-6 px-4 font-normal text-center w-12">
+                    <input 
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-white/10 bg-white/5 checked:bg-accent accent-accent transition-all cursor-pointer"
+                      checked={selectedIds.length > 0 && selectedIds.length === filteredMembers.length}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
                   <th className="py-6 px-4 font-normal text-center w-12">STT</th>
                   <th 
                     className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
@@ -871,7 +961,21 @@ export const MemberList: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {paginatedMembers.map((member, index) => (
-                  <tr key={member.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <tr 
+                    key={member.id} 
+                    className={cn(
+                      "hover:bg-white/[0.02] transition-colors group",
+                      selectedIds.includes(member.id) && "bg-accent/[0.03]"
+                    )}
+                  >
+                    <td className="py-6 px-4 text-center">
+                      <input 
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-white/10 bg-white/5 checked:bg-accent accent-accent transition-all cursor-pointer"
+                        checked={selectedIds.includes(member.id)}
+                        onChange={() => handleSelectMember(member.id)}
+                      />
+                    </td>
                     <td className="py-6 px-4 text-center font-mono text-xs text-white/60 tabular-nums">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white/5 border border-white/5">
                         {(currentPage - 1) * pageSize + index + 1}

@@ -162,6 +162,95 @@ async function startServer() {
     }
   });
 
+  app.put("/api/members/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const m = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("fullName", sql.NVarChar, m.fullName)
+        .input("memberId", sql.NVarChar, m.memberId)
+        .input("dob", sql.NVarChar, m.dob)
+        .input("gender", sql.NVarChar, m.gender)
+        .input("ethnic", sql.NVarChar, m.ethnic || null)
+        .input("religion", sql.NVarChar, m.religion || null)
+        .input("placeOfBirth", sql.NVarChar, m.placeOfBirth || null)
+        .input("hometown", sql.NVarChar, m.hometown || null)
+        .input("permanentAddress", sql.NVarChar, m.permanentAddress || null)
+        .input("joinDate", sql.NVarChar, m.joinDate || null)
+        .input("unitId", sql.NVarChar, m.unitId)
+        .input("email", sql.NVarChar, m.email || null)
+        .input("phone", sql.NVarChar, m.phone || null)
+        .input("academicYear", sql.NVarChar, m.academicYear || null)
+        .input("professionalLevel", sql.NVarChar, m.professionalLevel || null)
+        .input("position", sql.NVarChar, m.position || null)
+        .input("achievementLevel", sql.NVarChar, m.achievementLevel)
+        .input("status", sql.NVarChar, m.status)
+        .input("statusHistory", sql.NVarChar, JSON.stringify(m.statusHistory || []))
+        .input("isOutstanding", sql.Bit, m.isOutstanding)
+        .query(`
+          UPDATE members SET 
+            fullName = @fullName, memberId = @memberId, dob = @dob, gender = @gender,
+            ethnic = @ethnic, religion = @religion, placeOfBirth = @placeOfBirth,
+            hometown = @hometown, permanentAddress = @permanentAddress,
+            joinDate = @joinDate, unitId = @unitId, 
+            email = @email, phone = @phone, academicYear = @academicYear,
+            professionalLevel = @professionalLevel, position = @position,
+            achievementLevel = @achievementLevel, status = @status,
+            statusHistory = @statusHistory, isOutstanding = @isOutstanding
+          WHERE id = @id
+        `);
+      io.emit("members:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.delete("/api/members/:id", async (req, res) => {
+    try {
+      await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
+      io.emit("members:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/members/bulk-delete", async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: "Invalid IDs" });
+      
+      const idList = ids.map(id => `'${id.replace(/'/g, "''")}'`).join(",");
+      await pool.request().query(`DELETE FROM members WHERE id IN (${idList})`);
+      
+      io.emit("members:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.patch("/api/members/:id/outstanding", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isOutstanding } = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("isOutstanding", sql.Bit, isOutstanding)
+        .query("UPDATE members SET isOutstanding = @isOutstanding WHERE id = @id");
+      io.emit("members:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
   // Vite middleware
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

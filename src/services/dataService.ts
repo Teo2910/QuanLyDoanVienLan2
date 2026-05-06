@@ -103,6 +103,14 @@ class DataService {
     await fetch(`/api/members/${id}`, { method: "DELETE" });
   }
 
+  async deleteMembers(ids: string[]): Promise<void> {
+    await fetch("/api/members/bulk-delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+  }
+
   async deleteUnit(id: string): Promise<void> {
     // Note: server needs delete unit route if we want it fully implemented
     // For now I only added delete member. Let's assume we focus on members as per user requests.
