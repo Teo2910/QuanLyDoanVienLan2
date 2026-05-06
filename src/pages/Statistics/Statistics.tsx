@@ -580,47 +580,79 @@ export const Statistics: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto custom-scrollbar pb-4">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
+        <div className="w-full overflow-x-auto custom-scrollbar pb-6 rounded-2xl">
+          <table className="w-full text-left border-separate border-spacing-0 min-w-[1200px]">
             <thead>
-              <tr className="border-b border-white/10">
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black bg-white/[0.02]">STT</th>
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black bg-white/[0.02] sticky left-0 z-10">Tên đơn vị</th>
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center bg-accent/5">Tổng số</th>
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center">Nam</th>
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-white/40 font-black text-center">Nữ</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-l border-white/5">Đang SH</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Chuyển SH</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-r border-white/5">Tr. Thành</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Xuất sắc</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center">Tốt</th>
-                <th className="py-4 px-4 text-[9px] uppercase tracking-widest text-white/20 font-bold text-center border-r border-white/5">H. Thành</th>
-                <th className="py-6 px-4 text-[10px] uppercase tracking-widest text-accent font-black text-center bg-accent/5">Tiêu biểu</th>
+              <tr>
+                <th className="py-5 px-4 text-[9px] uppercase tracking-[0.2em] text-white/30 font-black bg-white/[0.03] border-b border-r border-white/5 rounded-tl-2xl">STT</th>
+                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-white/30 font-black bg-white/[0.05] border-b border-white/5 sticky left-0 z-20 backdrop-blur-xl">Tên đơn vị</th>
+                
+                {/* Group Headers */}
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-accent/60 font-black text-center bg-accent/[0.03] border-b border-l border-white/5">Cơ bản</th>
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-purple-400/60 font-black text-center bg-purple-400/[0.03] border-b border-l border-white/5">Trạng thái</th>
+                <th colSpan={3} className="py-3 px-4 text-[8px] uppercase tracking-[0.3em] text-blue-400/60 font-black text-center bg-blue-400/[0.03] border-b border-l border-white/5">Xếp loại</th>
+                
+                <th className="py-5 px-6 text-[9px] uppercase tracking-[0.2em] text-amber-400 font-black text-center bg-amber-400/[0.05] border-b border-l border-white/5 rounded-tr-2xl">Tiêu biểu</th>
+              </tr>
+              <tr className="bg-white/[0.02] backdrop-blur-md">
+                <th className="border-b border-r border-white/5"></th>
+                <th className="border-b border-white/5 sticky left-0 z-20 bg-white/[0.02]"></th>
+                
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/60 font-black text-center border-b border-l border-white/5">Tổng</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Nam</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Nữ</th>
+                
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b border-l border-white/5">Đang SH</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Chuyển</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Trưởng thành</th>
+                
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b border-l border-white/5">Xuất sắc</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">Tốt</th>
+                <th className="py-4 px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold text-center border-b">H. Thành</th>
+                
+                <th className="border-b border-l border-white/5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody>
               {unitTableStats.map((item, index) => (
-                <tr key={item.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="py-6 px-4 text-xs text-white/20 font-mono">{index + 1}</td>
-                  <td className="py-6 px-4 sticky left-0 z-10 bg-[#0c0d11]/80 backdrop-blur-md group-hover:bg-[#15161d]/80 transition-colors">
-                    <span className="text-xs text-white font-bold tracking-tight">{item.name}</span>
+                <tr key={item.id} className="group hover:bg-white/[0.03] transition-all duration-300">
+                  <td className="py-5 px-4 text-xs text-white/20 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
+                  <td className="py-5 px-6 sticky left-0 z-10 bg-[#0c0d11] transition-colors border-b border-white/5 group-hover:bg-[#15161d]">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-white font-bold tracking-tight group-hover:text-accent transition-colors">{item.name}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden flex">
+                          <div className="h-full bg-blue-500/40" style={{ width: `${(item.males / (item.total || 1)) * 100}%` }} />
+                          <div className="h-full bg-pink-500/40" style={{ width: `${(item.females / (item.total || 1)) * 100}%` }} />
+                        </div>
+                        <span className="text-[8px] text-white/10 uppercase font-black">Ratio</span>
+                      </div>
+                    </div>
                   </td>
-                  <td className="py-6 px-4 text-center bg-accent/5">
-                    <span className="text-base font-serif italic text-white font-black">{item.total}</span>
+                  <td className="py-5 px-4 text-center bg-white/[0.01] border-b border-l border-white/5">
+                    <span className="text-base font-serif italic text-white font-black group-hover:scale-110 inline-block transition-transform">{item.total}</span>
                   </td>
-                  <td className="py-6 px-4 text-center text-xs text-white/60">{item.males}</td>
-                  <td className="py-6 px-4 text-center text-xs text-white/60">{item.females}</td>
-                  <td className="py-6 px-4 text-center text-xs text-white/40 border-l border-white/5">{item.status.active}</td>
-                  <td className="py-6 px-4 text-center text-xs text-white/40">{item.status.moved}</td>
-                  <td className="py-6 px-4 text-center text-xs text-white/40 border-r border-white/5">{item.status.left}</td>
-                  <td className="py-6 px-4 text-center text-xs text-green-400/80">{item.achievements.excellent}</td>
-                  <td className="py-6 px-4 text-center text-xs text-blue-400/80">{item.achievements.good}</td>
-                  <td className="py-6 px-4 text-center text-xs text-white/30 border-r border-white/5">{item.achievements.average}</td>
-                  <td className="py-6 px-4 text-center bg-accent/5">
+                  <td className="py-5 px-4 text-center text-xs text-white/60 border-b">{item.males}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/60 border-b">{item.females}</td>
+                  
+                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b border-l border-white/5">{item.status.active}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b">{item.status.moved}</td>
+                  <td className="py-5 px-4 text-center text-xs text-white/40 border-b">{item.status.left}</td>
+                  
+                  <td className="py-5 px-4 text-center border-b border-l border-white/5">
+                    <span className={cn("text-xs font-bold", item.achievements.excellent > 0 ? "text-green-400" : "text-white/20")}>{item.achievements.excellent}</span>
+                  </td>
+                  <td className="py-5 px-4 text-center border-b">
+                    <span className={cn("text-xs font-bold", item.achievements.good > 0 ? "text-blue-400" : "text-white/20")}>{item.achievements.good}</span>
+                  </td>
+                  <td className="py-5 px-4 text-center border-b">
+                    <span className="text-xs text-white/20">{item.achievements.average}</span>
+                  </td>
+                  
+                  <td className="py-5 px-4 text-center bg-amber-400/[0.02] border-b border-l border-white/5">
                     <motion.span 
-                      initial={{ scale: 0.8 }}
-                      whileHover={{ scale: 1.2 }}
-                      className="text-base font-serif italic text-accent font-black"
+                      whileHover={{ scale: 1.2, rotate: 5 }}
+                      className={cn("text-base font-serif italic font-black", item.outstanding > 0 ? "text-amber-400" : "text-white/10")}
                     >
                       {item.outstanding}
                     </motion.span>
@@ -628,40 +660,54 @@ export const Statistics: React.FC = () => {
                 </tr>
               ))}
               
-              {/* Grand Total Row */}
-              <tr className="bg-white/5 border-t-2 border-white/10">
-                <td className="py-6 px-4" colSpan={2}>
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-white font-black">Tổng cộng hệ thống</span>
+              {/* Grand Total Row - Enhanced Designer Look */}
+              <tr className="relative">
+                <td colSpan={2} className="py-8 px-6 bg-gradient-to-r from-accent/20 to-transparent border-t border-accent/30 rounded-bl-2xl">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-accent rounded-xl shadow-lg shadow-accent/20">
+                      <Activity className="text-black" size={20} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-accent font-black block">Tổng kết hệ thống</span>
+                      <span className="text-[8px] uppercase tracking-widest text-white/20">Cập nhật thời gian thực</span>
+                    </div>
+                  </div>
                 </td>
-                <td className="py-6 px-4 text-center">
-                  <span className="text-xl font-serif italic text-accent font-black">{allMembers.length}</span>
+                <td className="py-8 px-4 text-center bg-accent/10 border-t border-accent/20">
+                  <div className="relative inline-block">
+                    <span className="text-3xl font-serif italic text-white font-black">{allMembers.length}</span>
+                    <div className="absolute -top-1 -right-4 w-2 h-2 bg-accent rounded-full animate-ping" />
+                  </div>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white font-bold">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.02]">
+                  <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white font-bold">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.02]">
+                  <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white/60 border-l border-white/5">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}
+                
+                <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white/60">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white/60 border-r border-white/5">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-white/60">{unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-green-400">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}
+                
+                <td className="py-8 px-4 text-center border-t border-l border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-green-400 font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-blue-400">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-blue-400 font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center text-sm text-white/40 border-r border-white/5">
-                  {unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}
+                <td className="py-8 px-4 text-center border-t border-white/10 bg-white/[0.01]">
+                  <span className="text-sm text-white/40">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}</span>
                 </td>
-                <td className="py-6 px-4 text-center bg-accent/10">
-                  <span className="text-xl font-serif italic text-accent font-black">
+                
+                <td className="py-8 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 rounded-br-2xl">
+                  <span className="text-3xl font-serif italic text-amber-400 font-black">
                     {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
                   </span>
                 </td>
