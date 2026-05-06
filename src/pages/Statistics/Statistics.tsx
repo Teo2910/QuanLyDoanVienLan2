@@ -95,6 +95,13 @@ export const Statistics: React.FC = () => {
 
     const achievementData = Object.entries(achievementMap).map(([name, value]) => ({ name, value }));
 
+    // Outstanding members count
+    const outstandingCount = members.filter(m => m.isOutstanding).length;
+    const outstandingData = [
+      { name: "Tiêu biểu", value: outstandingCount },
+      { name: "Khác", value: members.length - outstandingCount }
+    ];
+
     // Unit stats (only relevant for admin)
     const unitMap = members.reduce((acc, m) => {
       const unit = units.find(u => u.id === m.unitId)?.name || "N/A";
@@ -106,7 +113,7 @@ export const Statistics: React.FC = () => {
       .map(([name, value]) => ({ name, value: value as number }))
       .sort((a, b) => (b.value as number) - (a.value as number));
 
-    return { genderData, ethnicData, statusData, achievementData, unitData };
+    return { genderData, ethnicData, statusData, achievementData, unitData, outstandingCount, outstandingData };
   }, [members, units]);
 
   useLiveSync("members:changed", loadData);
@@ -160,6 +167,11 @@ export const Statistics: React.FC = () => {
       ["IV. THỐNG KÊ DÂN TỘC"],
       ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
       ...stats?.ethnicData.map(d => [d.name, d.value, ((d.value / members.length) * 100).toFixed(1)]) || [],
+      [],
+      ["V. THỐNG KÊ DANH HIỆU"],
+      ["Tiêu chí", "Số lượng", "Tỷ lệ (%)"],
+      ["Đoàn viên tiêu biểu", stats?.outstandingCount || 0, (((stats?.outstandingCount || 0) / members.length) * 100).toFixed(1)],
+      ["Khác", members.length - (stats?.outstandingCount || 0), (((members.length - (stats?.outstandingCount || 0)) / members.length) * 100).toFixed(1)],
     ];
 
     // Create workbook and add sheets
@@ -216,6 +228,40 @@ export const Statistics: React.FC = () => {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Outstanding Members Highlight - New */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-accent/20 to-surface/40 border border-accent/20 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-[100px] -mr-32 -mt-32 rounded-full group-hover:bg-accent/20 transition-colors duration-700" />
+          <div className="relative flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-sm uppercase tracking-[0.3em] text-accent font-black mb-4">Danh hiệu danh dự</h3>
+              <h2 className="text-5xl font-serif text-white italic leading-tight">
+                Đoàn viên <br />
+                <span className="text-accent not-italic font-sans font-bold uppercase tracking-tight">Tiêu biểu</span>
+              </h2>
+              <p className="text-white/40 text-sm mt-6 max-w-md leading-relaxed">
+                Những cá nhân có thành tích xuất sắc, đóng góp tích cực trong các hoạt động Đoàn và phong trào thanh thiếu nhi tại đơn vị.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-12">
+              <div className="text-center p-8 bg-white/5 backdrop-blur-md rounded-[2rem] border border-white/10 min-w-[160px] shadow-xl">
+                <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold block mb-2">Số lượng</span>
+                <span className="text-6xl font-serif italic text-white leading-none">
+                  {stats?.outstandingCount}
+                </span>
+                <span className="text-xs text-white/40 block mt-2 font-medium">Đoàn viên</span>
+              </div>
+              <div className="h-24 w-px bg-white/10 hidden md:block" />
+              <div className="text-center">
+                <span className="text-[10px] uppercase tracking-widest text-accent font-bold block mb-2">Tỷ lệ hệ thống</span>
+                <span className="text-4xl font-serif italic text-accent">
+                  {((stats?.outstandingCount || 0) / members.length * 100).toFixed(1)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Gender Breakdown */}
         <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
           <div className="flex justify-between items-start mb-8">
