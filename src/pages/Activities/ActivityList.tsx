@@ -204,9 +204,9 @@ export const ActivityList = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-xl relative shadow-2xl shadow-black/50 flex flex-col max-h-[90vh]"
+            className="bg-surface border border-white/5 rounded-[3rem] w-full max-w-xl relative shadow-2xl shadow-black/50 flex flex-col max-h-[90vh] overflow-hidden"
           >
-            <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-center shrink-0">
+            <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-center shrink-0 bg-white/[0.02]">
               <div>
                 <h3 className="text-3xl font-serif text-white italic mb-2">
                   {editingActivity ? "Chỉnh sửa hoạt động" : "Thêm hoạt động mới"}
