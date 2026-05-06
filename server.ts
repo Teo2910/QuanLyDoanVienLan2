@@ -78,16 +78,18 @@ async function startServer() {
   // Units
   app.get("/api/units", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const result = await pool.request().query("SELECT * FROM units");
       res.json(result.recordset);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.post("/api/units", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id, name, code, address, phone, email, createdAt } = req.body;
       await pool.request()
         .input("id", sql.NVarChar, id)
@@ -103,13 +105,17 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   // Members
   app.get("/api/members", async (req, res) => {
     try {
+      if (!pool || !pool.connected) {
+        // Return empty array and warning instead of 500 to keep UI functional but alert user
+        return res.json([]); 
+      }
       const result = await pool.request().query("SELECT * FROM members");
       const formattedMembers = result.recordset.map(m => ({
         ...m,
@@ -119,12 +125,13 @@ async function startServer() {
       res.json(formattedMembers);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.post("/api/members", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const m = req.body;
       await pool.request()
         .input("id", sql.NVarChar, m.id)
@@ -158,12 +165,13 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.put("/api/members/:id", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
       const m = req.body;
       await pool.request()
@@ -204,7 +212,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
@@ -239,6 +247,7 @@ async function startServer() {
 
   app.patch("/api/members/:id/outstanding", async (req, res) => {
     try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
       const { isOutstanding } = req.body;
       await pool.request()
@@ -249,7 +258,7 @@ async function startServer() {
       res.json({ success: true });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 

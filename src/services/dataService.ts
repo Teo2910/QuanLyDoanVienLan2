@@ -4,7 +4,7 @@ class DataService {
   async getActivities(): Promise<Activity[]> {
     try {
       const response = await fetch("/api/activities");
-      if (!response.ok) return [];
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     } catch (error) {
@@ -19,34 +19,33 @@ class DataService {
       id: Math.random().toString(36).substring(2, 11),
       createdAt: Date.now(),
     };
-    try {
-      await fetch("/api/activities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newActivity),
-      });
-    } catch (error) {
-      console.error("Failed to add activity:", error);
-    }
+    const response = await fetch("/api/activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newActivity),
+    });
+    if (!response.ok) throw new Error("Failed to add activity");
     return newActivity;
   }
 
   async deleteActivity(id: string): Promise<void> {
-    await fetch(`/api/activities/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/activities/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error("Failed to delete activity");
   }
 
   async updateActivity(id: string, activity: Partial<Activity>): Promise<void> {
-    await fetch(`/api/activities/${id}`, {
+    const response = await fetch(`/api/activities/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(activity),
     });
+    if (!response.ok) throw new Error("Failed to update activity");
   }
 
   async getUnits(): Promise<Unit[]> {
     try {
       const response = await fetch("/api/units");
-      if (!response.ok) return [];
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     } catch (error) {
@@ -61,22 +60,19 @@ class DataService {
       id: Math.random().toString(36).substring(2, 11),
       createdAt: Date.now(),
     };
-    try {
-      await fetch("/api/units", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUnit),
-      });
-    } catch (error) {
-      console.error("Failed to add unit:", error);
-    }
+    const response = await fetch("/api/units", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUnit),
+    });
+    if (!response.ok) throw new Error("Failed to add unit");
     return newUnit;
   }
 
   async getMembers(): Promise<Member[]> {
     try {
       const response = await fetch("/api/members");
-      if (!response.ok) return [];
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       return Array.isArray(data) ? data : [];
     } catch (error) {
@@ -91,24 +87,27 @@ class DataService {
       id: Math.random().toString(36).substring(2, 11),
       createdAt: Date.now(),
     };
-    await fetch("/api/members", {
+    const response = await fetch("/api/members", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newMember),
     });
+    if (!response.ok) throw new Error("Failed to add member");
     return newMember;
   }
 
   async deleteMember(id: string): Promise<void> {
-    await fetch(`/api/members/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/members/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error("Failed to delete member");
   }
 
   async deleteMembers(ids: string[]): Promise<void> {
-    await fetch("/api/members/bulk-delete", {
+    const response = await fetch("/api/members/bulk-delete", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids }),
     });
+    if (!response.ok) throw new Error("Failed to delete members");
   }
 
   async deleteUnit(id: string): Promise<void> {
@@ -147,19 +146,21 @@ class DataService {
 
     const updatedMember = { ...m, ...memberUpdates, statusHistory: updatedHistory };
     
-    await fetch(`/api/members/${id}`, {
+    const response = await fetch(`/api/members/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedMember),
     });
+    if (!response.ok) throw new Error("Failed to update member");
   }
 
   async toggleMemberOutstanding(id: string, isOutstanding: boolean): Promise<void> {
-    await fetch(`/api/members/${id}/outstanding`, {
+    const response = await fetch(`/api/members/${id}/outstanding`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isOutstanding }),
     });
+    if (!response.ok) throw new Error("Failed to toggle outstanding status");
   }
 }
 
