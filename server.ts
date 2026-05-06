@@ -50,6 +50,8 @@ async function startServer() {
 
   // User Presence Tracking
   const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
+  // Fallback in-memory user store for preview environment
+  const systemUsers = new Map<string, any>();
 
   io.on("connection", (socket) => {
     socket.on("presence:online", (uid: string) => {
@@ -64,7 +66,6 @@ async function startServer() {
     socket.on("disconnect", () => {
       const data = onlineUsers.get(socket.id);
       if (data) {
-        // We could store the lastSeen in DB here if we wanted persistence
         onlineUsers.delete(socket.id);
       }
       io.emit("presence:update", Array.from(onlineUsers.values()));
@@ -74,36 +75,38 @@ async function startServer() {
   app.use(express.json());
 
   // API Routes
-  
+
   // Get all users (for admin/secretaries to see each other)
   app.get("/api/users", async (req, res) => {
     try {
-      if (!pool || !pool.connected) {
-        console.log("SQL Pool not connected in /api/users, attempting to reconnect...");
-        try {
-          pool = await sql.connect(sqlConfig);
-        } catch (e) {
-          return res.status(503).json({ error: "Database connection failed" });
-        }
+      let users = [];
+      if (pool && pool.connected) {
+        const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
+        users = result.recordset;
       }
       
-      console.log("Fetching all users from database...");
-      const result = await pool.request().query("SELECT id, uid, email, role, fullName, avatarUrl, unitId FROM users");
-      console.log(`Successfully fetched ${result.recordset.length} users`);
+      // Merge with in-memory users for robustness in preview
+      const allUsers = [...users];
+      const existingUids = new Set(users.map(u => u.uid));
       
-      const users = result.recordset.map(u => ({
-        uid: u.uid || `anon-${u.email}`, // Fallback for users without UID
+      for (const u of systemUsers.values()) {
+        if (!existingUids.has(u.uid)) {
+          allUsers.push(u);
+        }
+      }
+
+      res.json(allUsers.map(u => ({
+        uid: u.uid || `anon-${u.email}`,
         email: u.email,
         role: u.role,
         fullName: u.fullName,
         avatarUrl: u.avatarUrl,
         unitId: u.unitId
-      }));
-      
-      res.json(users);
+      })));
     } catch (err) {
-      console.error("CRITICAL error in /api/users:", err);
-      res.status(500).json({ error: "Database error during user fetch" });
+      console.error("Error in /api/users:", err);
+      // Fallback to purely in-memory if SQL fails hard
+      res.json(Array.from(systemUsers.values()));
     }
   });
 
@@ -136,6 +139,18 @@ async function startServer() {
 
         if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
         const { password: _, ...userWithoutPassword } = user;
+        
+        // Register in system users for real-time visibility
+        const systemUserInfo = {
+          uid: user.uid,
+          email: user.email,
+          role: user.role,
+          fullName: user.fullName,
+          avatarUrl: user.avatarUrl,
+          unitId: user.unitId
+        };
+        systemUsers.set(user.uid, systemUserInfo);
+
         res.json(userWithoutPassword);
       } else {
         res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
@@ -199,6 +214,17 @@ async function startServer() {
         .input("avatarUrl", sql.NVarChar, avatarUrl || null)
         .input("phone", sql.NVarChar, phone || null)
         .query("UPDATE users SET fullName = @fullName, avatarUrl = @avatarUrl, phone = @phone WHERE uid = @uid");
+
+      // Update in-memory storage for real-time visibility
+      const existing = systemUsers.get(req.params.uid);
+      if (existing) {
+        systemUsers.set(req.params.uid, {
+          ...existing,
+          fullName: fullName || existing.fullName,
+          avatarUrl: avatarUrl || existing.avatarUrl
+        });
+      }
+
       res.json({ success: true });
     } catch (err) {
       console.error(err);

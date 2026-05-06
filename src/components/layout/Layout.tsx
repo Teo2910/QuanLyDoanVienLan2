@@ -262,11 +262,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <div className="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
                         <div>
                           <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-1">Người dùng hệ thống</h4>
-                          <p className="text-[9px] text-white/20 italic">Đang hiển thị trạng thái thời gian thực</p>
+                          <p className="text-[9px] text-white/20 italic">Trạng thái thời gian thực ({users.length})</p>
                         </div>
                         <button 
                           onClick={(e) => { e.stopPropagation(); fetchUsersData(); }}
                           className={cn("p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all", isLoadingUsers && "animate-spin")}
+                          title="Làm mới danh sách"
                         >
                           <Activity size={12} />
                         </button>
