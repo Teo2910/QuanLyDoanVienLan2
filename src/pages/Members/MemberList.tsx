@@ -230,13 +230,33 @@ export const MemberList: React.FC = () => {
 
     // Sorting Logic
     result.sort((a, b) => {
+      if (sortField === "fullName") {
+        const getLastName = (name: string) => {
+          const parts = name.trim().split(/\s+/);
+          return parts.length > 0 ? parts[parts.length - 1] : "";
+        };
+        
+        const nameA = getLastName(a.fullName);
+        const nameB = getLastName(b.fullName);
+        
+        // Use localeCompare for correct Vietnamese alphabetical order (handling accents)
+        const comp = nameA.localeCompare(nameB, 'vi', { sensitivity: 'accent' });
+        if (comp !== 0) return sortDirection === "asc" ? comp : -comp;
+        
+        // If last names are same, compare full names
+        return sortDirection === "asc" 
+          ? a.fullName.localeCompare(b.fullName, 'vi', { sensitivity: 'accent' })
+          : -a.fullName.localeCompare(b.fullName, 'vi', { sensitivity: 'accent' });
+      }
+
       let valA = a[sortField];
       let valB = b[sortField];
 
       // Handle strings (case-insensitive)
       if (typeof valA === "string" && typeof valB === "string") {
-        valA = valA.toLowerCase();
-        valB = valB.toLowerCase();
+        return sortDirection === "asc"
+          ? valA.localeCompare(valB, 'vi', { sensitivity: 'accent' })
+          : -valA.localeCompare(valB, 'vi', { sensitivity: 'accent' });
       }
 
       // Handle null/undefined
