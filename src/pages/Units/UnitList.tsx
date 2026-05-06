@@ -184,9 +184,9 @@ export const UnitList: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl p-1 relative overflow-hidden"
+            className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-lg shadow-2xl p-1 relative overflow-hidden flex flex-col max-h-[90vh]"
           >
-            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
               <div>
                 <h3 className="text-2xl font-serif text-white italic">
                   {editingId ? "Cập nhật đơn vị" : "Đăng ký đơn vị mới"}
@@ -200,7 +200,7 @@ export const UnitList: React.FC = () => {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-10 space-y-8">
+            <form onSubmit={handleSubmit} className="p-10 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="col-span-1">
                   <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã định danh</label>
