@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
+import { CustomSelect } from "../../components/CustomSelect";
 
 const COLORS = ['#7aa2f7', '#bb9af7', '#7dcfff', '#9ece6a', '#e0af68', '#f7768e'];
 
@@ -42,6 +43,17 @@ export const Statistics: React.FC = () => {
     if (selectedUnitId === "all") return allMembers;
     return allMembers.filter(m => m.unitId === selectedUnitId);
   }, [allMembers, selectedUnitId]);
+
+  const unitOptions = useMemo(() => {
+    const options = [
+      { value: "all", label: `Toàn hệ thống (${allMembers.length})` }
+    ];
+    units.forEach(unit => {
+      const count = allMembers.filter(m => m.unitId === unit.id).length;
+      options.push({ value: unit.id, label: `${unit.name} (${count})` });
+    });
+    return options;
+  }, [units, allMembers]);
 
   const stats = useMemo(() => {
     if (!members.length) return null;
@@ -125,18 +137,12 @@ export const Statistics: React.FC = () => {
         {!isSecretary && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
              <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold whitespace-nowrap">Chọn đơn vị:</span>
-             <select 
+             <CustomSelect 
                value={selectedUnitId}
-               onChange={(e) => setSelectedUnitId(e.target.value)}
-               className="bg-surface/50 border border-white/10 text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-accent/50 transition-all w-full sm:w-64 appearance-none cursor-pointer hover:bg-surface-70"
-             >
-               <option value="all">Toàn hệ thống ({allMembers.length})</option>
-               {units.map(unit => (
-                 <option key={unit.id} value={unit.id}>
-                   {unit.name} ({allMembers.filter(m => m.unitId === unit.id).length})
-                 </option>
-               ))}
-             </select>
+               onChange={setSelectedUnitId}
+               options={unitOptions}
+               className="w-full sm:w-80"
+             />
           </div>
         )}
       </div>
