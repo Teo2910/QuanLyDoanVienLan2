@@ -78,8 +78,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
       >
         <div className="p-8">
-          <h1 className="text-2xl font-serif italic text-white tracking-tight">V-Union</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mt-1">Management Suite</p>
+          <h1 className="text-2xl font-serif italic text-white tracking-tight">Quản lý Đoàn viên</h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mt-1">Hệ thống nội bộ</p>
         </div>
 
         <nav className="flex-1 px-4 space-y-1">
