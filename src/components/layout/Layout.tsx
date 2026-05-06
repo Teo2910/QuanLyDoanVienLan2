@@ -32,29 +32,49 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   React.useEffect(() => {
     // Socket.io for Real-time presence
     if (profile?.uid) {
+      // Connect to the same host
       socketRef.current = io();
       
       socketRef.current.on("connect", () => {
+        console.log("Connected to presence server");
         socketRef.current?.emit("presence:online", profile.uid);
       });
 
       socketRef.current.on("presence:update", (onlineUsers: { uid: string }[]) => {
+        console.log("Presence update received:", onlineUsers);
         setOnlineUids(onlineUsers.map(u => u.uid));
       });
 
+      // Periodically announce presence just in case of reconnections
+      const presenceInterval = setInterval(() => {
+        if (socketRef.current?.connected && profile.uid) {
+          socketRef.current.emit("presence:online", profile.uid);
+        }
+      }, 30000);
+
       return () => {
+        clearInterval(presenceInterval);
         socketRef.current?.disconnect();
       };
     }
   }, [profile?.uid]);
 
-  React.useEffect(() => {
-    const fetchUsersData = async () => {
+  const fetchUsersData = React.useCallback(async () => {
+    try {
       const data = await dataService.getUsers();
       setUsers(data);
-    };
-    fetchUsersData();
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   }, []);
+
+  React.useEffect(() => {
+    fetchUsersData();
+    
+    // Refresh user list occasionally to catch new registrations
+    const refreshInterval = setInterval(fetchUsersData, 60000);
+    return () => clearInterval(refreshInterval);
+  }, [fetchUsersData]);
 
   React.useEffect(() => {
     if (profile) {
