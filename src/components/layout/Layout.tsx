@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Menu, X, Calendar, User, Camera, Check, BarChart3, Users, Building2, LayoutDashboard, Database, Activity } from "lucide-react";
+import { LogOut, Menu, X, Calendar, User, Camera, Check, BarChart3, Users, Building2, LayoutDashboard, Database, Activity, Bot } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../contexts/AuthContext";
 import { dataService } from "../../services/dataService";
@@ -122,6 +122,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
     { name: "Hoạt động", href: "/activities", icon: Calendar },
     { name: "Nhật ký hệ thống", href: "/logs", icon: Activity },
+    { name: "Trợ lý AI", href: "/ai-assistant", icon: Bot },
   ];
 
   const userInitials = profile?.email?.substring(0, 2).toUpperCase() || "??";
