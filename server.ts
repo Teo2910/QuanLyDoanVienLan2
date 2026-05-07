@@ -641,12 +641,16 @@ const globalErrors: string[] = [];
       const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs'");
       if (tbl.recordset.length === 0) return res.json([]);
 
-      const result = await pool.request().query(`SELECT TOP 100 * FROM activity_logs`);
-      const mapped = result.recordset.map(row => {
+      const result = await pool.request().query(`
+        SELECT TOP 100 * FROM activity_logs 
+        ORDER BY 
+          CASE WHEN createdAt IS NOT NULL THEN createdAt ELSE 0 END DESC
+      `);
+      const mapped = result.recordset.map((row: any) => {
         row.timestamp = row.createdAt || row.timestamp || 0;
         return row;
       });
-      mapped.sort((a, b) => b.timestamp - a.timestamp);
+      mapped.sort((a: any, b: any) => b.timestamp - a.timestamp);
       
       res.json(mapped);
     } catch (err) {
