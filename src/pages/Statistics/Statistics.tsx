@@ -589,16 +589,16 @@ export const Statistics: React.FC = () => {
             <table className="w-full text-left border-separate border-spacing-0 min-w-[1150px]">
               <thead>
                 <tr className="sticky top-0 z-50">
-                  <th className="py-4 px-3 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-r border-white/5 text-center">STT</th>
-                  <th className="py-4 px-5 text-[9px] uppercase tracking-[0.2em] text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-50 backdrop-blur-xl min-w-[200px]">Tên đơn vị</th>
+                  <th className="py-4 px-3 text-xs uppercase tracking-widest text-white/80 font-black bg-[#2a2b3d] border-b border-r border-white/5 text-center">STT</th>
+                  <th className="py-4 px-5 text-xs uppercase tracking-widest text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-50 backdrop-blur-xl min-w-[200px]">Tên đơn vị</th>
                   
                   {/* Group Headers */}
-                  <th colSpan={3} className="py-2.5 px-3 text-[8px] uppercase tracking-[0.3em] text-accent font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">CƠ BẢN</th>
-                  <th colSpan={2} className="py-2.5 px-3 text-[8px] uppercase tracking-[0.3em] text-emerald-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">DÂN TỘC</th>
-                  <th colSpan={3} className="py-2.5 px-3 text-[8px] uppercase tracking-[0.3em] text-purple-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">TRẠNG THÁI</th>
-                  <th colSpan={3} className="py-2.5 px-3 text-[8px] uppercase tracking-[0.3em] text-blue-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">XẾP LOẠI</th>
+                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-accent font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">CƠ BẢN</th>
+                  <th colSpan={2} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-emerald-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">DÂN TỘC</th>
+                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-purple-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">TRẠNG THÁI</th>
+                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-blue-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">XẾP LOẠI</th>
                   
-                  <th className="py-4 px-5 text-[9px] uppercase tracking-[0.2em] text-amber-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">Tiêu biểu</th>
+                  <th className="py-4 px-5 text-xs uppercase tracking-[0.2em] text-amber-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">Tiêu biểu</th>
                 </tr>
                 <tr className="sticky top-[41px] z-40">
                   <th className="bg-[#24273a] border-b border-r border-white/5"></th>
@@ -625,50 +625,50 @@ export const Statistics: React.FC = () => {
               <tbody>
                 {unitTableStats.map((item, index) => (
                   <tr key={item.id} className="group hover:bg-white/[0.04] transition-all duration-300">
-                    <td className="py-4 px-3 text-xs text-white/50 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
+                    <td className="py-4 px-3 text-sm text-white/50 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
                     <td className="py-4 px-5 sticky left-0 z-20 bg-[#24273a] transition-colors border-b border-white/5 group-hover:bg-[#2d3045] shadow-[2px_0_10px_rgba(0,0,0,0.2)]">
                       <div className="flex flex-col">
-                        <span className="text-xs text-white font-bold tracking-tight group-hover:text-accent transition-colors truncate max-w-[180px]">{item.name}</span>
+                        <span className="text-sm text-white font-bold tracking-tight group-hover:text-accent transition-colors truncate max-w-[180px]">{item.name}</span>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="h-0.5 flex-1 bg-white/5 rounded-full overflow-hidden flex">
                             <div className="h-full bg-blue-500/40" style={{ width: `${(item.males / (item.total || 1)) * 100}%` }} />
                             <div className="h-full bg-pink-500/40" style={{ width: `${(item.females / (item.total || 1)) * 100}%` }} />
                           </div>
-                          <span className="text-[7px] text-white/40 uppercase font-black">Ratio</span>
+                          <span className="text-[8px] text-white/40 uppercase font-black">Ratio</span>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center bg-white/[0.01] border-b border-l border-white/5">
-                      <span className="text-base font-serif italic text-white font-black">{item.total}</span>
+                    <td className="py-4 px-3 text-center bg-white/[0.01] border-b border-l border-white/5 text-sm font-bold text-white">
+                      {item.total}
                     </td>
-                    <td className="py-4 px-3 text-center text-xs text-white border-b">{item.males}</td>
-                    <td className="py-4 px-3 text-center text-xs text-white border-b">{item.females}</td>
+                    <td className="py-4 px-3 text-center text-sm font-bold text-white border-b">{item.males}</td>
+                    <td className="py-4 px-3 text-center text-sm font-bold text-white border-b">{item.females}</td>
                     
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5 bg-emerald-400/[0.02]">
-                      <span className="text-xs text-white/80">{item.ethnic.kinh}</span>
+                    <td className="py-4 px-3 text-center border-b border-l border-white/5 bg-emerald-400/[0.02] text-sm text-white/80 font-bold">
+                      {item.ethnic.kinh}
                     </td>
-                    <td className="py-4 px-3 text-center border-b bg-emerald-400/[0.02]">
-                      <span className={cn("text-xs font-bold", item.ethnic.others > 0 ? "text-emerald-400" : "text-white/30")}>
+                    <td className="py-4 px-3 text-center border-b bg-emerald-400/[0.02] text-sm font-bold text-white/30">
+                      <span className={cn(item.ethnic.others > 0 && "text-emerald-400")}>
                         {item.ethnic.others}
                       </span>
                     </td>
                     
-                    <td className="py-4 px-3 text-center text-xs text-white/90 border-b border-l border-white/5">{item.status.active}</td>
-                    <td className="py-4 px-3 text-center text-xs text-white/80 border-b">{item.status.moved}</td>
-                    <td className="py-4 px-3 text-center text-xs text-white/80 border-b">{item.status.left}</td>
+                    <td className="py-4 px-3 text-center text-sm font-bold text-white/90 border-b border-l border-white/5">{item.status.active}</td>
+                    <td className="py-4 px-3 text-center text-sm font-bold text-white/80 border-b">{item.status.moved}</td>
+                    <td className="py-4 px-3 text-center text-sm font-bold text-white/80 border-b">{item.status.left}</td>
                     
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5">
-                      <span className={cn("text-xs font-bold", item.achievements.excellent > 0 ? "text-green-400" : "text-white/50")}>{item.achievements.excellent}</span>
+                    <td className="py-4 px-3 text-center border-b border-l border-white/5 text-sm font-bold text-white/50">
+                      <span className={cn(item.achievements.excellent > 0 && "text-green-400")}>{item.achievements.excellent}</span>
                     </td>
-                    <td className="py-4 px-3 text-center border-b">
-                      <span className={cn("text-xs font-bold", item.achievements.good > 0 ? "text-blue-400" : "text-white/50")}>{item.achievements.good}</span>
+                    <td className="py-4 px-3 text-center border-b text-sm font-bold text-white/50">
+                      <span className={cn(item.achievements.good > 0 && "text-blue-400")}>{item.achievements.good}</span>
                     </td>
-                    <td className="py-4 px-3 text-center border-b">
-                      <span className="text-xs text-white/50">{item.achievements.average}</span>
+                    <td className="py-4 px-3 text-center border-b text-sm font-bold text-white/50">
+                      {item.achievements.average}
                     </td>
                     
                     <td className="py-4 px-5 text-center bg-amber-400/[0.02] border-b border-l border-white/5">
-                      <span className={cn("text-base font-serif italic font-black", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
+                      <span className={cn("text-sm font-bold", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
                         {item.outstanding}
                       </span>
                     </td>
@@ -689,48 +689,46 @@ export const Statistics: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-6 px-3 text-center bg-accent/10 border-t border-accent/20">
-                    <div className="relative inline-block">
-                      <span className="text-2xl font-serif italic text-white font-black">{allMembers.length}</span>
+                    <div className="relative inline-block text-base text-white font-bold">
+                      {allMembers.length}
                     </div>
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02]">
-                    <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02]">
-                    <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}</span>
-                  </td>
-                  
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-emerald-400/[0.05]">
-                    <span className="text-sm text-white font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.ethnic.kinh, 0)}</span>
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-emerald-400/[0.05]">
-                    <span className="text-sm text-emerald-400 font-black">{unitTableStats.reduce((acc, curr) => acc + curr.ethnic.others, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}
                   </td>
                   
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-emerald-400/[0.05] text-base text-white font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.kinh, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}</span>
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-white/90">{unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-emerald-400/[0.05] text-base text-emerald-400 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.others, 0)}
                   </td>
                   
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-green-400 font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-blue-400 font-bold">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01]">
-                    <span className="text-sm text-white/70">{unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}</span>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}
                   </td>
                   
-                  <td className="py-6 px-6 text-center bg-amber-400/10 border-t border-amber-400/20">
-                    <span className="text-2xl font-serif italic text-amber-400 font-black">
-                      {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
-                    </span>
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-green-400 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}
+                  </td>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-blue-400 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}
+                  </td>
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/70 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}
+                  </td>
+                  
+                  <td className="py-6 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 text-base text-amber-400 font-bold">
+                    {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
                   </td>
                 </tr>
               </tbody>
