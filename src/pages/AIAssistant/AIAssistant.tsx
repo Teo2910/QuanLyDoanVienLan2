@@ -140,8 +140,8 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
                 </div>
               )}
               
-              <div className={`max-w-[80%] rounded-2xl p-4 shadow-sm leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-tr-sm border border-accent/20" : "bg-surface border border-white/10 text-white rounded-tl-sm shadow-md"}`}>
-                <div className={`text-[15px] prose prose-invert max-w-none whitespace-pre-wrap ${msg.role === "user" ? "font-medium" : ""}`}>
+              <div className={`max-w-[85%] rounded-2xl p-4 shadow-lg leading-relaxed ${msg.role === "user" ? "bg-accent rounded-tr-sm border border-accent/30 shadow-accent/10" : "bg-surface-light border border-white/10 text-white rounded-tl-sm"}`}>
+                <div className={`text-[16px] max-w-none whitespace-pre-wrap ${msg.role === "user" ? "text-[#1e1e2e] font-semibold" : "text-slate-100 prose prose-invert"}`}>
                   {msg.text}
                 </div>
               </div>
