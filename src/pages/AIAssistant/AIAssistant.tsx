@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { GoogleGenAI } from "@google/genai";
 import { Bot, Send, User, ChevronRight, Loader2, Database } from "lucide-react";
 
 export const AIAssistant = () => {
@@ -56,23 +57,34 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const dbRes = await fetch("/api/assistant/chat", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({ chatHistory: requestHistory, userText, dbContext })
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const systemInstruction = `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+Chỉ trả lời dựa trên dữ liệu thật sau (từ SQL Server):
+${JSON.stringify(dbContext)}
+
+Quy tắc:
+- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
+- Có thể dùng markdown để in đậm, tạo danh sách.
+- Nếu được hỏi thông tin không có trong dữ liệu, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`;
+
+      const contents = [];
+      for (let i = 1; i < chatHistory.length; i++) {
+         contents.push({
+           role: chatHistory[i].role,
+           parts: [{ text: chatHistory[i].text }]
+         });
+      }
+      contents.push({ role: "user", parts: [{ text: userText }] });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents,
+        config: {
+          systemInstruction: systemInstruction
+        }
       });
-      let data;
-      try {
-         data = await dbRes.json();
-      } catch (parseErr) {
-         throw new Error("Lỗi từ server: " + dbRes.statusText);
-      }
       
-      if (!dbRes.ok) {
-        throw new Error(data?.error || data?.text || "Lỗi Server");
-      }
-      
-      setChatHistory(prev => [...prev, { role: "model", text: data.text || "Tôi không có câu trả lời cho vấn đề này." }]);
+      setChatHistory(prev => [...prev, { role: "model", text: response.text || "Tôi không có câu trả lời cho vấn đề này." }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
       if (err.message?.includes("API key not valid") || err.message?.includes("API_KEY_INVALID")) {
