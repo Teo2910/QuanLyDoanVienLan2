@@ -47,7 +47,11 @@ async function startServer() {
 const globalErrors: string[] = [];
 
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
-    if (!pool || !pool.connected) return;
+    if (!pool || !pool.connected) {
+      console.log("logActivity skipped, no pool. pool:", !!pool, "connected:", pool ? pool.connected : false);
+      return;
+    }
+    console.log("logActivity executing for", action);
     try {
       const headerName = req.header("x-user-name") || req.header("X-User-Name");
       const headerId = req.header("x-user-id") || req.header("X-User-Id");
@@ -70,7 +74,7 @@ const globalErrors: string[] = [];
         .input("details", sql.NVarChar, details)
         .input("timestamp", sql.BigInt, timestamp)
         .query(`
-          IF NOT EXISTS (SELECT * FROM sys.tables WHERE name='activity_logs')
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
           BEGIN
             CREATE TABLE activity_logs (
               id NVARCHAR(50) PRIMARY KEY,
@@ -80,11 +84,19 @@ const globalErrors: string[] = [];
               entityType NVARCHAR(50),
               entityId NVARCHAR(50),
               details NVARCHAR(MAX),
-              [timestamp] BIGINT
+              createdAt BIGINT
             )
           END
+          ELSE
+          BEGIN
+            -- Try to add createdAt if it doesn't exist (in case of old table)
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='activity_logs' AND COLUMN_NAME='createdAt')
+            BEGIN
+              ALTER TABLE activity_logs ADD createdAt BIGINT;
+            END
+          END
 
-          INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, [timestamp])
+          INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, createdAt)
           VALUES (@id, @userId, @userName, @action, @entityType, @entityId, @details, @timestamp)
         `);
     } catch (err: any) {
@@ -154,17 +166,26 @@ const globalErrors: string[] = [];
     // Create activity_logs table if not exists
     try {
       await pool.request().query(`
-        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='activity_logs' and xtype='U')
-        CREATE TABLE activity_logs (
-          id NVARCHAR(50) PRIMARY KEY,
-          userId NVARCHAR(50),
-          userName NVARCHAR(255),
-          action NVARCHAR(255),
-          entityType NVARCHAR(50),
-          entityId NVARCHAR(50),
-          details NVARCHAR(MAX),
-          [timestamp] BIGINT
-        )
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
+        BEGIN
+          CREATE TABLE activity_logs (
+            id NVARCHAR(50) PRIMARY KEY,
+            userId NVARCHAR(50),
+            userName NVARCHAR(255),
+            action NVARCHAR(255),
+            entityType NVARCHAR(50),
+            entityId NVARCHAR(50),
+            details NVARCHAR(MAX),
+            createdAt BIGINT
+          )
+        END
+        ELSE
+        BEGIN
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='activity_logs' AND COLUMN_NAME='createdAt')
+          BEGIN
+            ALTER TABLE activity_logs ADD createdAt BIGINT;
+          END
+        END
       `);
       console.log("[Logs] activity_logs table checked/created.");
     } catch (e) {
@@ -551,7 +572,16 @@ const globalErrors: string[] = [];
   });
 
   app.get("/api/debug-errors", (req, res) => {
-    res.json(globalErrors);
+    res.json({
+      globalErrors,
+      pool: !!pool,
+      connected: pool ? pool.connected : null,
+      sqlConfig: {
+        server: sqlConfig.server,
+        port: sqlConfig.port,
+        database: sqlConfig.database
+      }
+    });
   });
 
   // Activity Logs
@@ -608,11 +638,17 @@ const globalErrors: string[] = [];
   app.get("/api/logs", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
-      const tbl = await pool.request().query("SELECT * FROM sys.tables WHERE name='activity_logs'");
+      const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs'");
       if (tbl.recordset.length === 0) return res.json([]);
 
-      const result = await pool.request().query("SELECT TOP 100 * FROM activity_logs ORDER BY [timestamp] DESC");
-      res.json(result.recordset);
+      const result = await pool.request().query(`SELECT TOP 100 * FROM activity_logs`);
+      const mapped = result.recordset.map(row => {
+        row.timestamp = row.createdAt || row.timestamp || 0;
+        return row;
+      });
+      mapped.sort((a, b) => b.timestamp - a.timestamp);
+      
+      res.json(mapped);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Database error" });
