@@ -327,6 +327,8 @@ const AuthScreen = () => {
   );
 };
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
 const AppContent = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -344,7 +346,7 @@ const AppContent = () => {
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <Layout>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location}>
@@ -358,7 +360,7 @@ const AppContent = () => {
         </AnimatePresence>
       </Layout>
       <ChatWidget />
-    </>
+    </ErrorBoundary>
   );
 };
 

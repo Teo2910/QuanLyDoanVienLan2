@@ -92,9 +92,11 @@ export const ChatWidget = () => {
     try {
       const res = await fetch("/api/chat/threads");
       const data = await res.json();
-      setThreads(data);
-      if (data && Array.isArray(data)) {
-         setUnreadTotal(data.reduce((acc, t) => acc + (t.unreadCount || 0), 0));
+      if (Array.isArray(data)) {
+        setThreads(data);
+        setUnreadTotal(data.reduce((acc, t) => acc + (t.unreadCount || 0), 0));
+      } else {
+        setThreads([]);
       }
     } catch (e) {
       console.error(e);
@@ -105,7 +107,11 @@ export const ChatWidget = () => {
     try {
       const res = await fetch(`/api/chat/messages/${threadId}`);
       const data = await res.json();
-      setMessages(data);
+      if (Array.isArray(data)) {
+        setMessages(data);
+      } else {
+        setMessages([]);
+      }
     } catch (e) {
       console.error(e);
     }
