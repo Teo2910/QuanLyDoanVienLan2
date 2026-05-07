@@ -766,7 +766,17 @@ const globalErrors: string[] = [];
       let updatedCount = 0;
       for (const m of members) {
         if (!m.dob) continue;
-        const dobDate = new Date(m.dob);
+        let dobDate: Date;
+        let dobStr = m.dob.trim();
+        // Check for DD/MM/YYYY or DD-MM-YYYY
+        const parts = dobStr.split(/[\/\-]/);
+        if (parts.length === 3 && parts[2].length === 4) {
+          // DD/ MM/ YYYY
+          dobDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        } else {
+          dobDate = new Date(dobStr);
+        }
+
         if (isNaN(dobDate.getTime())) continue;
         
         let age = new Date().getFullYear() - dobDate.getFullYear();
