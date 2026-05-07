@@ -80,11 +80,13 @@ export const AIAssistant = () => {
         errorMessage.includes("API key not valid") || 
         errorMessage.includes("API_KEY_INVALID") || 
         errorMessage.includes("API key should be set") ||
-        errorMessage.includes("GEMINI_API_KEY is not configured")
+        errorMessage.includes("GEMINI_API_KEY is not configured") ||
+        errorMessage.includes("Could not load the default credentials") ||
+        errorMessage.includes("Không thể tải API Key")
       ) {
         setChatHistory(prev => [...prev, { 
           role: "model", 
-          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key 'GEMINI_API_KEY' trong phần Cài đặt (Settings) của AI Studio." 
+          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key 'GEMINI_API_KEY' trong phần Cài đặt (Settings) của AI Studio bằng cách nhấn vào biểu tượng bánh răng ở góc trên bên phải, chọn 'Secrets' và thêm GEMINI_API_KEY." 
         }]);
       } else {
         setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + errorMessage }]);

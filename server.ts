@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
@@ -53,28 +53,13 @@ async function startServer() {
       const { chatHistory = [], userText, dbContext } = req.body;
 
       if (!process.env.GEMINI_API_KEY) {
-        throw new Error("GEMINI_API_KEY is not configured in the environment variables.");
+        throw new Error("GEMINI_API_KEY is not configured in the environment variables. Please add it to Secrets in AI Studio Settings.");
       }
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      
-      const contents = [];
-      for (let i = 0; i < chatHistory.length; i++) {
-         if (chatHistory[i].role && chatHistory[i].text) {
-           contents.push({
-             role: chatHistory[i].role === "model" ? "model" : "user",
-             parts: [{ text: chatHistory[i].text }]
-           });
-         }
-      }
-      
-      contents.push({ role: "user", parts: [{ text: userText }] });
-
-      const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents,
-        config: {
-          systemInstruction: `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+      const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = ai.getGenerativeModel({ 
+        model: "gemini-2.0-flash",
+        systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
 Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
 ${JSON.stringify(dbContext)}
 
@@ -82,15 +67,36 @@ Quy tắc:
 - Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
 - Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
 - Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
-        }
+      });
+      
+      const history = [];
+      for (let i = 0; i < chatHistory.length; i++) {
+         if (chatHistory[i].role && chatHistory[i].text) {
+           // Ensure role is exactly 'user' or 'model'
+           const role = chatHistory[i].role === "model" ? "model" : "user";
+           history.push({
+             role: role,
+             parts: [{ text: chatHistory[i].text }]
+           });
+         }
+      }
+      
+      const chat = model.startChat({
+        history: history,
       });
 
-      const responseText = response.text;
+      const result = await chat.sendMessage(userText);
+      const responseText = result.response.text();
       console.log(`[Assistant] Chat success: ${responseText?.substring(0, 50)}...`);
       res.json({ text: responseText });
     } catch (err: any) {
       console.error("AI Assistant Error:", err);
-      res.status(500).json({ error: err.message, text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." });
+      // Clean up error message if it's the internal credentials error
+      let displayError = err.message || String(err);
+      if (displayError.includes("Could not load the default credentials")) {
+        displayError = "Không thể tải API Key. Vui lòng cấu hình GEMINI_API_KEY trong phần Secrets của Settings.";
+      }
+      res.status(500).json({ error: displayError, text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." });
     }
   });
 
