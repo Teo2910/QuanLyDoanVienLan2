@@ -650,9 +650,22 @@ const globalErrors: string[] = [];
     }
   });
 
+  const chatMessagesInMemory: any[] = [];
+
   app.get("/api/chat/threads", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json([]);
+      if (!pool || !pool.connected) {
+        // In-memory fallback
+        const threadsMap = new Map<string, any>();
+        chatMessagesInMemory.forEach(m => {
+          const t = threadsMap.get(m.threadId) || { threadId: m.threadId, lastMessageAt: 0, unreadCount: 0 };
+          t.lastMessageAt = Math.max(t.lastMessageAt, m.createdAt);
+          if (!m.isRead && m.senderRole !== 'Admin') t.unreadCount++;
+          threadsMap.set(m.threadId, t);
+        });
+        const threadsArray = Array.from(threadsMap.values()).sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+        return res.json(threadsArray);
+      }
       const result = await pool.request().query(`
         SELECT threadId, MAX(createdAt) as lastMessageAt, SUM(CAST(CASE WHEN isRead = 0 AND senderRole != 'Admin' THEN 1 ELSE 0 END AS INT)) as unreadCount
         FROM chat_messages
@@ -667,7 +680,10 @@ const globalErrors: string[] = [];
 
   app.get("/api/chat/messages/:threadId", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json([]);
+      if (!pool || !pool.connected) {
+        const msgs = chatMessagesInMemory.filter(m => m.threadId === req.params.threadId).sort((a,b) => a.createdAt - b.createdAt);
+        return res.json(msgs);
+      }
       const result = await pool.request()
         .input("threadId", sql.NVarChar, req.params.threadId)
         .query("SELECT * FROM chat_messages WHERE threadId = @threadId ORDER BY createdAt ASC");
@@ -679,10 +695,17 @@ const globalErrors: string[] = [];
 
   app.post("/api/chat/messages", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json({ error: "No DB connection" });
       const m = req.body;
       const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
       const createdAt = Date.now();
+      const newMsg = { id, threadId: m.threadId, senderId: m.senderId, senderName: m.senderName, senderRole: m.senderRole, content: m.content, isRead: false, createdAt };
+
+      if (!pool || !pool.connected) {
+        chatMessagesInMemory.push(newMsg);
+        io.emit("chat:new", newMsg);
+        return res.json(newMsg);
+      }
+      
       await pool.request()
         .input("id", sql.NVarChar, id)
         .input("threadId", sql.NVarChar, m.threadId)
@@ -697,7 +720,6 @@ const globalErrors: string[] = [];
           VALUES (@id, @threadId, @senderId, @senderName, @senderRole, @content, @isRead, @createdAt)
         `);
       
-      const newMsg = { id, threadId: m.threadId, senderId: m.senderId, senderName: m.senderName, senderRole: m.senderRole, content: m.content, isRead: false, createdAt };
       io.emit("chat:new", newMsg);
       res.json(newMsg);
     } catch (err: any) {
@@ -707,11 +729,19 @@ const globalErrors: string[] = [];
 
   app.post("/api/chat/read/:threadId", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json({ success: false });
       const { role } = req.body;
       let condition = "senderRole != 'Admin'";
-      if (role === "User") {
-        condition = "senderRole = 'Admin'";
+      if (role === "User") condition = "senderRole = 'Admin'";
+
+      if (!pool || !pool.connected) {
+        chatMessagesInMemory.forEach(m => {
+          if (m.threadId === req.params.threadId) {
+            if (role === "User" && m.senderRole === "Admin") m.isRead = true;
+            if (role === "Admin" && m.senderRole !== "Admin") m.isRead = true;
+          }
+        });
+        io.emit("chat:read", { threadId: req.params.threadId, role });
+        return res.json({ success: true });
       }
 
       await pool.request()
