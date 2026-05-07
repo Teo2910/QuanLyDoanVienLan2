@@ -64,7 +64,7 @@ const globalErrors: string[] = [];
 
       const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
       const timestamp = Date.now();
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("userId", sql.NVarChar, userId)
         .input("userName", sql.NVarChar, userName)
@@ -165,7 +165,7 @@ const globalErrors: string[] = [];
     
     // Auto-migrate tables if needed
     try {
-      await pool.request().query(`
+      const upRes = await pool.request().query(`
         IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
         BEGIN
           IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
@@ -186,7 +186,7 @@ const globalErrors: string[] = [];
     
     // Create activity_logs table if not exists
     try {
-      await pool.request().query(`
+      const upRes = await pool.request().query(`
         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
         BEGIN
           CREATE TABLE activity_logs (
@@ -206,6 +206,8 @@ const globalErrors: string[] = [];
           BEGIN
             ALTER TABLE activity_logs ADD createdAt BIGINT;
           END
+        END
+        
         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
         BEGIN
           CREATE TABLE activities (
@@ -285,7 +287,7 @@ const globalErrors: string[] = [];
         // Auto-fix if UID is missing
         if (!user.uid) {
           const newUid = Math.random().toString(36).substring(2, 11);
-          await pool.request()
+          const upRes = await pool.request()
             .input("uid", sql.NVarChar, newUid)
             .input("email", sql.NVarChar, email)
             .query("UPDATE users SET uid = @uid WHERE email = @email");
@@ -345,7 +347,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { uid, email, password, role, unitId } = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("uid", sql.NVarChar, uid)
         .input("email", sql.NVarChar, email)
         .input("password", sql.NVarChar, password)
@@ -364,7 +366,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { fullName, avatarUrl, phone } = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("uid", sql.NVarChar, req.params.uid)
         .input("fullName", sql.NVarChar, fullName || null)
         .input("avatarUrl", sql.NVarChar, avatarUrl || null)
@@ -392,7 +394,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { presets } = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("uid", sql.NVarChar, req.params.uid)
         .input("presets", sql.NVarChar, JSON.stringify(presets))
         .query("UPDATE users SET presets = @presets WHERE uid = @uid");
@@ -419,7 +421,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id, name, code, address, phone, email, createdAt } = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("name", sql.NVarChar, name)
         .input("code", sql.NVarChar, code || null)
@@ -448,6 +450,8 @@ const globalErrors: string[] = [];
       const result = await pool.request().query("SELECT * FROM members");
       const formattedMembers = result.recordset.map(m => ({
         ...m,
+        id: m.id || m.ID || m.Id || m._id || m.MemberId || m.memberId,
+        status: m.status ? m.status.trim() : "Đang sinh hoạt",
         statusHistory: m.statusHistory ? JSON.parse(m.statusHistory) : [],
         isOutstanding: !!m.isOutstanding
       }));
@@ -462,7 +466,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const m = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, m.id)
         .input("fullName", sql.NVarChar, m.fullName)
         .input("memberId", sql.NVarChar, m.memberId)
@@ -504,7 +508,7 @@ const globalErrors: string[] = [];
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
       const m = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("fullName", sql.NVarChar, m.fullName)
         .input("memberId", sql.NVarChar, m.memberId)
@@ -556,7 +560,7 @@ const globalErrors: string[] = [];
       const memberQuery = await pool.request().input("id", sql.NVarChar, req.params.id).query("SELECT fullName FROM members WHERE id = @id");
       const memberName = memberQuery.recordset.length > 0 ? memberQuery.recordset[0].fullName : req.params.id;
 
-      await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
+      const upRes = await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
       await logActivity(req, "Xóa đoàn viên", "Member", req.params.id, `Đoàn viên: ${memberName}`);
       io.emit("members:changed");
       res.json({ success: true });
@@ -590,7 +594,7 @@ const globalErrors: string[] = [];
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
       const { isOutstanding } = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("isOutstanding", sql.Bit, isOutstanding)
         .query("UPDATE members SET isOutstanding = @isOutstanding WHERE id = @id");
@@ -636,7 +640,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const a = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, a.id)
         .input("title", sql.NVarChar, a.title)
         .input("date", sql.NVarChar, a.date)
@@ -662,7 +666,7 @@ const globalErrors: string[] = [];
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const a = req.body;
-      await pool.request()
+      const upRes = await pool.request()
         .input("id", sql.NVarChar, req.params.id)
         .input("title", sql.NVarChar, a.title)
         .input("date", sql.NVarChar, a.date)
@@ -692,7 +696,7 @@ const globalErrors: string[] = [];
       const q = await pool.request().input("id", sql.NVarChar, req.params.id).query("SELECT title FROM activities WHERE id = @id");
       const aName = q.recordset.length > 0 ? q.recordset[0].title : req.params.id;
 
-      await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM activities WHERE id = @id");
+      const upRes = await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM activities WHERE id = @id");
       await logActivity(req, "Xóa hoạt động", "Activity", req.params.id, `Hoạt động: ${aName}`);
       io.emit("activities:changed");
       res.json({ success: true });
@@ -714,7 +718,7 @@ const globalErrors: string[] = [];
       let created = false;
       let errInsert = null;
       if (tbl.recordset.length === 0) {
-        await pool.request().query(`
+        const upRes = await pool.request().query(`
           CREATE TABLE activity_logs (
             id NVARCHAR(50) PRIMARY KEY,
             userId NVARCHAR(50),
@@ -729,7 +733,7 @@ const globalErrors: string[] = [];
         created = true;
       }
       try {
-        await pool.request()
+        const upRes = await pool.request()
           .input("id", sql.NVarChar, "check-" + Date.now())
           .input("userId", sql.NVarChar, "system")
           .input("userName", sql.NVarChar, "sys")
@@ -774,6 +778,112 @@ const globalErrors: string[] = [];
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.get("/api/test-db", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json({ error: "no pool" });
+      const result = await pool.request().query("SELECT TOP 5 id, status, len(id) as idLen FROM members WHERE LTRIM(RTRIM(status)) = N'Đang sinh hoạt'");
+      res.json(result.recordset);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/trigger-cron", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json({ error: "No DB connection" });
+      const result = await pool.request().query("SELECT * FROM members WHERE LTRIM(RTRIM(status)) = N'Đang sinh hoạt'");
+      const members = result.recordset || [];
+      
+      let updatedCount = 0;
+      let logs = [];
+      for (const m of members) {
+        if (!m.dob) continue;
+        let dobDate: Date;
+        let dobStr = m.dob.trim();
+        const parts = dobStr.split(/[\/\-]/);
+        if (parts.length === 3 && parts[2].length === 4) {
+          dobDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        } else if (parts.length === 3 && parts[0].length === 4) {
+          dobDate = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+        } else {
+          dobDate = new Date(dobStr);
+        }
+
+        if (isNaN(dobDate.getTime())) continue;
+        
+        let age = new Date().getFullYear() - dobDate.getFullYear();
+        const mth = new Date().getMonth() - dobDate.getMonth();
+        if (mth < 0 || (mth === 0 && new Date().getDate() < dobDate.getDate())) {
+            age--;
+        }
+
+        if (age >= 30) {
+          let history: any[] = [];
+          if (m.statusHistory) {
+            try {
+              history = JSON.parse(m.statusHistory);
+              if (!Array.isArray(history)) history = [];
+            } catch (e) {
+              history = [];
+            }
+          }
+          
+          history.push({
+            status: "Đã trưởng thành",
+            date: new Date().toISOString(),
+            note: "Hệ thống tự động chuyển do đủ 30 tuổi"
+          });
+          
+          try {
+            const upRes = await pool.request()
+              .input("updateId", sql.NVarChar, m.id || m.ID || m.Id || m._id)
+              .input("updateStatus", sql.NVarChar, "Đã trưởng thành")
+              .input("updateHistory", sql.NVarChar, JSON.stringify(history))
+              .query(`
+                UPDATE members 
+                SET status = @updateStatus, statusHistory = @updateHistory
+                WHERE LTRIM(RTRIM(id)) = LTRIM(RTRIM(@updateId))
+              `);
+            
+            // Check rowsAffected
+            if (!upRes || !upRes.rowsAffected || upRes.rowsAffected[0] === 0) {
+              console.log('[Warning] Zero rows affected for update ID: ' + (m.id || m.ID || m.Id));
+              continue;
+            }
+
+            const idLog = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+            await pool.request()
+              .input("logId", sql.NVarChar, idLog)
+              .input("userId", sql.NVarChar, "system")
+              .input("logUserName", sql.NVarChar, "Hệ thống")
+              .input("logAction", sql.NVarChar, "Tự động cập nhật đoàn viên")
+              .input("logEntityType", sql.NVarChar, "Member")
+              .input("logEntityId", sql.NVarChar, m.id || m.ID || m.Id || m._id)
+              .input("logDetails", sql.NVarChar, `Đoàn viên: ${m.fullName} - Đã trưởng thành do đủ 30 tuổi`)
+              .input("logCreatedAt", sql.BigInt, Date.now())
+              .query(`
+                INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, createdAt)
+                VALUES (@logId, @userId, @logUserName, @logAction, @logEntityType, @logEntityId, @logDetails, @logCreatedAt)
+              `);
+
+            updatedCount++;
+            logs.push(`Updated ${m.fullName} (Age: ${age})`);
+          } catch(e: any) {
+             logs.push(`Error ${m.fullName}: ${e.message}`);
+          }
+        }
+      }
+      
+      if (updatedCount > 0) {
+        io.emit("members:changed");
+        io.emit("logs:changed");
+      }
+      res.json({ success: true, updatedCount, logs, processed: members.length });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
     }
   });
 
@@ -827,16 +937,22 @@ const globalErrors: string[] = [];
           });
           
           try {
-            await pool.request()
-              .input("updateId", sql.NVarChar, m.id)
+            const upRes = await pool.request()
+              .input("updateId", sql.NVarChar, m.id || m.ID || m.Id || m._id)
               .input("updateStatus", sql.NVarChar, "Đã trưởng thành")
               .input("updateHistory", sql.NVarChar, JSON.stringify(history))
               .query(`
                 UPDATE members 
                 SET status = @updateStatus, statusHistory = @updateHistory
-                WHERE id = @updateId
+                WHERE LTRIM(RTRIM(id)) = LTRIM(RTRIM(@updateId))
               `);
             
+            // Check rowsAffected
+            if (!upRes || !upRes.rowsAffected || upRes.rowsAffected[0] === 0) {
+              console.log('[Warning] Zero rows affected for update ID: ' + (m.id || m.ID || m.Id));
+              continue;
+            }
+
             const idLog = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
             await pool.request()
               .input("logId", sql.NVarChar, idLog)
@@ -844,7 +960,7 @@ const globalErrors: string[] = [];
               .input("logUserName", sql.NVarChar, "Hệ thống")
               .input("logAction", sql.NVarChar, "Tự động cập nhật đoàn viên")
               .input("logEntityType", sql.NVarChar, "Member")
-              .input("logEntityId", sql.NVarChar, m.id)
+              .input("logEntityId", sql.NVarChar, m.id || m.ID || m.Id || m._id)
               .input("logDetails", sql.NVarChar, `Đoàn viên: ${m.fullName} - Đã trưởng thành do đủ 30 tuổi`)
               .input("logCreatedAt", sql.BigInt, Date.now())
               .query(`
