@@ -195,7 +195,7 @@ export const ChatWidget = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => { setIsOpen(!isOpen); if (!isOpen && activeThreadId) markAsRead(activeThreadId); }}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-accent text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:shadow-[0_0_20px_rgba(var(--accent),0.4)] transition-all"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:bg-indigo-700 transition-all"
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={28} />}
         {unreadTotal > 0 && !isOpen && (
