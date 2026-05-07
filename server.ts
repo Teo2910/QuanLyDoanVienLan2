@@ -821,6 +821,46 @@ const globalErrors: string[] = [];
     }
   });
 
+  app.post("/api/assistant/chat", async (req, res) => {
+    try {
+      const { chatHistory = [], userText, dbContext } = req.body;
+
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const systemInstruction = `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQL):
+${JSON.stringify(dbContext)}
+
+Quy tắc:
+- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
+- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
+- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`;
+
+      const contents = [];
+      
+      for (let i = 1; i < chatHistory.length; i++) {
+         contents.push({
+           role: chatHistory[i].role,
+           parts: [{ text: chatHistory[i].text }]
+         });
+      }
+      
+      contents.push({ role: "user", parts: [{ text: userText }] });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.1-pro-preview",
+        contents,
+        config: {
+          systemInstruction
+        }
+      });
+
+      res.json({ text: response.text });
+    } catch (err: any) {
+      console.error("AI Assistant Error:", err);
+      res.status(500).json({ error: err.message, text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." });
+    }
+  });
+
   app.post("/api/activities", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
@@ -1174,46 +1214,6 @@ const globalErrors: string[] = [];
     }
   }, 10 * 1000); // 10 seconds check
   
-  app.post("/api/assistant/chat", async (req, res) => {
-    try {
-      const { chatHistory = [], userText, dbContext } = req.body;
-
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const systemInstruction = `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
-Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQL):
-${JSON.stringify(dbContext)}
-
-Quy tắc:
-- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
-- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
-- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`;
-
-      const contents = [];
-      
-      for (let i = 1; i < chatHistory.length; i++) {
-         contents.push({
-           role: chatHistory[i].role,
-           parts: [{ text: chatHistory[i].text }]
-         });
-      }
-      
-      contents.push({ role: "user", parts: [{ text: userText }] });
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
-        contents,
-        config: {
-          systemInstruction
-        }
-      });
-
-      res.json({ text: response.text });
-    } catch (err: any) {
-      console.error("AI Assistant Error:", err);
-      res.status(500).json({ error: err.message, text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." });
-    }
-  });
-
   // 404 catch-all for API to prevent falling into SPA
   app.all("/api/*", (req, res) => {
     console.warn(`[Presence] API route not found: ${req.method} ${req.url}`);
