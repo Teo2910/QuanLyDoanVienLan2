@@ -47,11 +47,16 @@ async function startServer() {
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) return;
     try {
-      const headerName = req.headers["x-user-name"] || req.header("X-User-Name");
-      const headerId = req.headers["x-user-id"] || req.header("X-User-Id");
-      const userName = headerName ? decodeURIComponent(headerName) : "Hệ thống";
-      const userId = headerId ? decodeURIComponent(headerId) : "system";
-      const id = Math.random().toString(36).substring(2, 11);
+      const headerName = req.header("x-user-name") || req.header("X-User-Name");
+      const headerId = req.header("x-user-id") || req.header("X-User-Id");
+      
+      let userName = "Hệ thống";
+      try { userName = headerName ? decodeURIComponent(headerName) : userName; } catch(e) { userName = String(headerName); }
+      
+      let userId = "system";
+      try { userId = headerId ? decodeURIComponent(headerId) : userId; } catch(e) { userId = String(headerId); }
+
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
       const timestamp = Date.now();
       await pool.request()
         .input("id", sql.NVarChar, id)
@@ -63,11 +68,25 @@ async function startServer() {
         .input("details", sql.NVarChar, details)
         .input("timestamp", sql.BigInt, timestamp)
         .query(`
+          IF NOT EXISTS (SELECT * FROM sys.tables WHERE name='activity_logs')
+          BEGIN
+            CREATE TABLE activity_logs (
+              id NVARCHAR(50) PRIMARY KEY,
+              userId NVARCHAR(50),
+              userName NVARCHAR(255),
+              action NVARCHAR(255),
+              entityType NVARCHAR(50),
+              entityId NVARCHAR(50),
+              details NVARCHAR(MAX),
+              timestamp BIGINT
+            )
+          END
+
           INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, timestamp)
           VALUES (@id, @userId, @userName, @action, @entityType, @entityId, @details, @timestamp)
         `);
-    } catch (err) {
-      console.error("Failed to log activity:", err);
+    } catch (err: any) {
+      console.error("Failed to log activity:", err.message);
     }
   }
 
@@ -529,9 +548,58 @@ async function startServer() {
   });
 
   // Activity Logs
+  app.get("/api/test-logs", async (req, res) => {
+    try {
+      if (!pool) return res.json({ error: "No pool" });
+      const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs'");
+      let created = false;
+      let errInsert = null;
+      if (tbl.recordset.length === 0) {
+        await pool.request().query(`
+          CREATE TABLE activity_logs (
+            id NVARCHAR(50) PRIMARY KEY,
+            userId NVARCHAR(50),
+            userName NVARCHAR(255),
+            action NVARCHAR(255),
+            entityType NVARCHAR(50),
+            entityId NVARCHAR(50),
+            details NVARCHAR(MAX),
+            timestamp BIGINT
+          )
+        `);
+        created = true;
+      }
+      try {
+        await pool.request()
+          .input("id", sql.NVarChar, "check-" + Date.now())
+          .input("userId", sql.NVarChar, "system")
+          .input("userName", sql.NVarChar, "sys")
+          .input("action", sql.NVarChar, "test")
+          .input("entityType", sql.NVarChar, "Log")
+          .input("entityId", sql.NVarChar, "0")
+          .input("details", sql.NVarChar, "test log")
+          .input("timestamp", sql.BigInt, Date.now())
+          .query(`
+            INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, timestamp)
+            VALUES (@id, @userId, @userName, @action, @entityType, @entityId, @details, @timestamp)
+          `);
+      } catch (err: any) {
+        errInsert = err.message || JSON.stringify(err);
+      }
+      
+      const select = await pool.request().query("SELECT * FROM activity_logs");
+      res.json({ tableExists: tbl.recordset.length > 0, created, insertedData: select.recordset, error: errInsert });
+    } catch (err: any) {
+      res.json({ error: err.message || JSON.stringify(err) });
+    }
+  });
+
   app.get("/api/logs", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
+      const tbl = await pool.request().query("SELECT * FROM sys.tables WHERE name='activity_logs'");
+      if (tbl.recordset.length === 0) return res.json([]);
+
       const result = await pool.request().query("SELECT TOP 100 * FROM activity_logs ORDER BY timestamp DESC");
       res.json(result.recordset);
     } catch (err) {
