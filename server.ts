@@ -163,6 +163,27 @@ const globalErrors: string[] = [];
     pool = await sql.connect(sqlConfig);
     console.log("Connected to SQL Server successfully.");
     
+    // Auto-migrate tables if needed
+    try {
+      await pool.request().query(`
+        IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
+        BEGIN
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
+          BEGIN
+            ALTER TABLE members ADD statusHistory NVARCHAR(MAX);
+          END
+          
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='createdAt')
+          BEGIN
+            ALTER TABLE members ADD createdAt BIGINT;
+          END
+        END
+      `);
+      console.log("[Setup] Members table migration checked.");
+    } catch(e: any) {
+      console.error("[Setup] Migration error:", e);
+    }
+    
     // Create activity_logs table if not exists
     try {
       await pool.request().query(`
@@ -760,8 +781,8 @@ const globalErrors: string[] = [];
   setInterval(async () => {
     if (!pool || !pool.connected) return;
     try {
-      const result = await pool.request().query("SELECT * FROM members WHERE status = N'Đang sinh hoạt'");
-      const members = result.recordset;
+      const result = await pool.request().query("SELECT * FROM members WHERE LTRIM(RTRIM(status)) = N'Đang sinh hoạt'");
+      const members = result.recordset || [];
       
       let updatedCount = 0;
       for (const m of members) {
@@ -773,6 +794,9 @@ const globalErrors: string[] = [];
         if (parts.length === 3 && parts[2].length === 4) {
           // DD/ MM/ YYYY
           dobDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        } else if (parts.length === 3 && parts[0].length === 4) {
+          // YYYY-MM-DD
+          dobDate = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
         } else {
           dobDate = new Date(dobStr);
         }
@@ -786,49 +810,66 @@ const globalErrors: string[] = [];
         }
 
         if (age >= 30) {
-          const history = m.statusHistory ? JSON.parse(m.statusHistory) : [];
+          let history: any[] = [];
+          if (m.statusHistory) {
+            try {
+              history = JSON.parse(m.statusHistory);
+              if (!Array.isArray(history)) history = [];
+            } catch (e) {
+              history = [];
+            }
+          }
+          
           history.push({
             status: "Đã trưởng thành",
             date: new Date().toISOString(),
             note: "Hệ thống tự động chuyển do đủ 30 tuổi"
           });
           
-          await pool.request()
-            .input("updateId", sql.NVarChar, m.id)
-            .input("updateStatus", sql.NVarChar, "Đã trưởng thành")
-            .input("updateHistory", sql.NVarChar, JSON.stringify(history))
-            .query(`
-              UPDATE members 
-              SET status = @updateStatus, statusHistory = @updateHistory
-              WHERE id = @updateId
-            `);
-          
-          const idLog = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-          await pool.request()
-            .input("logId", sql.NVarChar, idLog)
-            .input("userId", sql.NVarChar, "system")
-            .input("logUserName", sql.NVarChar, "Hệ thống")
-            .input("logAction", sql.NVarChar, "Tự động cập nhật đoàn viên")
-            .input("logEntityType", sql.NVarChar, "Member")
-            .input("logEntityId", sql.NVarChar, m.id)
-            .input("logDetails", sql.NVarChar, `Đoàn viên: ${m.fullName} - Đã trưởng thành do đủ 30 tuổi`)
-            .input("logCreatedAt", sql.BigInt, Date.now())
-            .query(`
-              INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, createdAt)
-              VALUES (@logId, @userId, @logUserName, @logAction, @logEntityType, @logEntityId, @logDetails, @logCreatedAt)
-            `);
+          try {
+            await pool.request()
+              .input("updateId", sql.NVarChar, m.id)
+              .input("updateStatus", sql.NVarChar, "Đã trưởng thành")
+              .input("updateHistory", sql.NVarChar, JSON.stringify(history))
+              .query(`
+                UPDATE members 
+                SET status = @updateStatus, statusHistory = @updateHistory
+                WHERE id = @updateId
+              `);
+            
+            const idLog = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+            await pool.request()
+              .input("logId", sql.NVarChar, idLog)
+              .input("userId", sql.NVarChar, "system")
+              .input("logUserName", sql.NVarChar, "Hệ thống")
+              .input("logAction", sql.NVarChar, "Tự động cập nhật đoàn viên")
+              .input("logEntityType", sql.NVarChar, "Member")
+              .input("logEntityId", sql.NVarChar, m.id)
+              .input("logDetails", sql.NVarChar, `Đoàn viên: ${m.fullName} - Đã trưởng thành do đủ 30 tuổi`)
+              .input("logCreatedAt", sql.BigInt, Date.now())
+              .query(`
+                INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, createdAt)
+                VALUES (@logId, @userId, @logUserName, @logAction, @logEntityType, @logEntityId, @logDetails, @logCreatedAt)
+              `);
 
-          updatedCount++;
+            updatedCount++;
+            console.log(`[Auto-Update] Tự động chuyển '${m.fullName}' (${dobStr} -> Age: ${age}) sang Đã trưởng thành`);
+          } catch(e: any) {
+             console.error(`[Auto-Update] Error updating member ${m.id}: ${e.message}`);
+             globalErrors.push(`[Auto-Update] ${e.message}`);
+          }
         }
       }
       
       if (updatedCount > 0) {
         console.log(`Background Task: Updated ${updatedCount} members to Đã trưởng thành`);
+        globalErrors.push(`[Auto-Update Success] Updated ${updatedCount} members.`);
         io.emit("members:changed");
         io.emit("logs:changed");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Background task error:", e);
+      globalErrors.push(`[Auto-Update Loop] ${e.message}`);
     }
   }, 10 * 1000); // 10 seconds check
   
