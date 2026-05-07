@@ -86,7 +86,7 @@ export const AIAssistant = () => {
       ) {
         setChatHistory(prev => [...prev, { 
           role: "model", 
-          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key 'GEMINI_API_KEY' trong phần Cài đặt (Settings) của AI Studio bằng cách nhấn vào biểu tượng bánh răng ở góc trên bên phải, chọn 'Secrets' và thêm GEMINI_API_KEY." 
+          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thực hiện các bước sau:\n1. Nhấn vào biểu tượng bánh răng (Settings) ở góc trên bên phải.\n2. Chọn mục 'Secrets'.\n3. Thêm khóa 'GEMINI_API_KEY' và chọn 'AI Studio Free Tier'.\n4. QUAN TRỌNG: Nhấn nút 'Apply changes' màu xanh ở dưới cùng để lưu lại." 
         }]);
       } else {
         setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + errorMessage }]);

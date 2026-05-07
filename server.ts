@@ -48,15 +48,17 @@ async function startServer() {
 
   // AI Assistant Route - placed early to avoid middleware issues
   app.post("/api/assistant/chat", async (req, res) => {
-    console.log(`[Assistant] Chat request received: ${req.body?.userText?.substring(0, 50)}`);
+    const { chatHistory = [], userText, dbContext } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    console.log(`[Assistant] Request received. Text length: ${userText?.length}, Key present: ${!!apiKey}`);
+    
     try {
-      const { chatHistory = [], userText, dbContext } = req.body;
-
-      if (!process.env.GEMINI_API_KEY) {
-        throw new Error("GEMINI_API_KEY is not configured in the environment variables. Please add it to Secrets in AI Studio Settings.");
+      if (!apiKey || apiKey.trim() === "" || apiKey === "undefined") {
+        throw new Error("GEMINI_API_KEY chưa được cấu hình hoặc giá trị không hợp lệ. Vui lòng kiểm tra lại trong phần Secrets (Settings).");
       }
 
-      const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const ai = new GoogleGenerativeAI(apiKey);
       const model = ai.getGenerativeModel({ 
         model: "gemini-2.0-flash",
         systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
@@ -72,10 +74,8 @@ Quy tắc:
       const history = [];
       for (let i = 0; i < chatHistory.length; i++) {
          if (chatHistory[i].role && chatHistory[i].text) {
-           // Ensure role is exactly 'user' or 'model'
-           const role = chatHistory[i].role === "model" ? "model" : "user";
            history.push({
-             role: role,
+             role: chatHistory[i].role === "model" ? "model" : "user",
              parts: [{ text: chatHistory[i].text }]
            });
          }
@@ -87,16 +87,20 @@ Quy tắc:
 
       const result = await chat.sendMessage(userText);
       const responseText = result.response.text();
-      console.log(`[Assistant] Chat success: ${responseText?.substring(0, 50)}...`);
+      console.log(`[Assistant] Chat success. Response length: ${responseText?.length}`);
       res.json({ text: responseText });
     } catch (err: any) {
-      console.error("AI Assistant Error:", err);
-      // Clean up error message if it's the internal credentials error
-      let displayError = err.message || String(err);
-      if (displayError.includes("Could not load the default credentials")) {
-        displayError = "Không thể tải API Key. Vui lòng cấu hình GEMINI_API_KEY trong phần Secrets của Settings.";
+      console.error("AI Assistant Error Detail:", err);
+      let errorMsg = err.message || String(err);
+      
+      if (errorMsg.includes("API key not valid") || errorMsg.includes("API_KEY_INVALID")) {
+        errorMsg = "API Key không hợp lệ. Hãy đảm bảo bạn đã chọn 'AI Studio Free Tier' và nhấn 'Apply changes' trong phần Secrets.";
       }
-      res.status(500).json({ error: displayError, text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." });
+      
+      res.status(500).json({ 
+        error: errorMsg, 
+        text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." 
+      });
     }
   });
 
