@@ -75,13 +75,19 @@ export const AIAssistant = () => {
       setChatHistory(prev => [...prev, { role: "model", text: data.text || "Tôi không có câu trả lời cho vấn đề này." }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
-      if (err.message?.includes("API key not valid") || err.message?.includes("API_KEY_INVALID") || err.message?.includes("API key should be set")) {
+      const errorMessage = err.message || "";
+      if (
+        errorMessage.includes("API key not valid") || 
+        errorMessage.includes("API_KEY_INVALID") || 
+        errorMessage.includes("API key should be set") ||
+        errorMessage.includes("GEMINI_API_KEY is not configured")
+      ) {
         setChatHistory(prev => [...prev, { 
           role: "model", 
-          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key bằng cách nhấn nút 'Cấu hình API Key' bên dưới hoặc kiểm tra lại." 
+          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key 'GEMINI_API_KEY' trong phần Cài đặt (Settings) của AI Studio." 
         }]);
       } else {
-        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + err.message }]);
+        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + errorMessage }]);
       }
     } finally {
       setIsLoading(false);
