@@ -185,9 +185,20 @@ const globalErrors: string[] = [];
           BEGIN
             ALTER TABLE activity_logs ADD createdAt BIGINT;
           END
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
+        BEGIN
+          CREATE TABLE activities (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255),
+            date NVARCHAR(100),
+            location NVARCHAR(255),
+            description NVARCHAR(MAX),
+            type NVARCHAR(100),
+            createdAt BIGINT
+          )
         END
       `);
-      console.log("[Logs] activity_logs table checked/created.");
+      console.log("[Logs] activity_logs and activities tables checked/created.");
     } catch (e) {
       console.error("[Logs] Error setup activity_logs:", e);
     }
@@ -584,6 +595,92 @@ const globalErrors: string[] = [];
     });
   });
 
+  // Activities
+  app.get("/api/activities", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      // Check if table exists
+      const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities'");
+      if (tbl.recordset.length === 0) return res.json([]);
+      
+      const result = await pool.request().query("SELECT * FROM activities ORDER BY date DESC");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/activities", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const a = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, a.id)
+        .input("title", sql.NVarChar, a.title)
+        .input("date", sql.NVarChar, a.date)
+        .input("location", sql.NVarChar, a.location || null)
+        .input("description", sql.NVarChar, a.description || null)
+        .input("type", sql.NVarChar, a.type)
+        .input("createdAt", sql.BigInt, a.createdAt || Date.now())
+        .query(`
+          INSERT INTO activities (id, title, date, location, description, type, createdAt)
+          VALUES (@id, @title, @date, @location, @description, @type, @createdAt)
+        `);
+      
+      await logActivity(req, "Thêm hoạt động", "Activity", a.id, `Hoạt động: ${a.title}`);
+      io.emit("activities:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.put("/api/activities/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const a = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, req.params.id)
+        .input("title", sql.NVarChar, a.title)
+        .input("date", sql.NVarChar, a.date)
+        .input("location", sql.NVarChar, a.location || null)
+        .input("description", sql.NVarChar, a.description || null)
+        .input("type", sql.NVarChar, a.type)
+        .query(`
+          UPDATE activities SET 
+            title = @title, date = @date, location = @location, 
+            description = @description, type = @type
+          WHERE id = @id
+        `);
+      
+      await logActivity(req, "Cập nhật hoạt động", "Activity", req.params.id, `Hoạt động: ${a.title}`);
+      io.emit("activities:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.delete("/api/activities/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      
+      const q = await pool.request().input("id", sql.NVarChar, req.params.id).query("SELECT title FROM activities WHERE id = @id");
+      const aName = q.recordset.length > 0 ? q.recordset[0].title : req.params.id;
+
+      await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM activities WHERE id = @id");
+      await logActivity(req, "Xóa hoạt động", "Activity", req.params.id, `Hoạt động: ${aName}`);
+      io.emit("activities:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
   // Activity Logs
   app.get("/api/test-logs", async (req, res) => {
     try {
@@ -659,6 +756,72 @@ const globalErrors: string[] = [];
     }
   });
 
+  // Start Background Job for Member Age Validation
+  setInterval(async () => {
+    if (!pool || !pool.connected) return;
+    try {
+      const result = await pool.request().query("SELECT * FROM members WHERE status = N'Đang sinh hoạt'");
+      const members = result.recordset;
+      
+      let updatedCount = 0;
+      for (const m of members) {
+        if (!m.dob) continue;
+        const dobDate = new Date(m.dob);
+        if (isNaN(dobDate.getTime())) continue;
+        
+        let age = new Date().getFullYear() - dobDate.getFullYear();
+        const mth = new Date().getMonth() - dobDate.getMonth();
+        if (mth < 0 || (mth === 0 && new Date().getDate() < dobDate.getDate())) {
+            age--;
+        }
+
+        if (age >= 30) {
+          const history = m.statusHistory ? JSON.parse(m.statusHistory) : [];
+          history.push({
+            status: "Đã trưởng thành",
+            date: new Date().toISOString(),
+            note: "Hệ thống tự động chuyển do đủ 30 tuổi"
+          });
+          
+          await pool.request()
+            .input("updateId", sql.NVarChar, m.id)
+            .input("updateStatus", sql.NVarChar, "Đã trưởng thành")
+            .input("updateHistory", sql.NVarChar, JSON.stringify(history))
+            .query(`
+              UPDATE members 
+              SET status = @updateStatus, statusHistory = @updateHistory
+              WHERE id = @updateId
+            `);
+          
+          const idLog = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+          await pool.request()
+            .input("logId", sql.NVarChar, idLog)
+            .input("userId", sql.NVarChar, "system")
+            .input("logUserName", sql.NVarChar, "Hệ thống")
+            .input("logAction", sql.NVarChar, "Tự động cập nhật đoàn viên")
+            .input("logEntityType", sql.NVarChar, "Member")
+            .input("logEntityId", sql.NVarChar, m.id)
+            .input("logDetails", sql.NVarChar, `Đoàn viên: ${m.fullName} - Đã trưởng thành do đủ 30 tuổi`)
+            .input("logCreatedAt", sql.BigInt, Date.now())
+            .query(`
+              INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, createdAt)
+              VALUES (@logId, @userId, @logUserName, @logAction, @logEntityType, @logEntityId, @logDetails, @logCreatedAt)
+            `);
+
+          updatedCount++;
+        }
+      }
+      
+      if (updatedCount > 0) {
+        console.log(`Background Task: Updated ${updatedCount} members to Đã trưởng thành`);
+        io.emit("members:changed");
+        io.emit("logs:changed");
+      }
+    } catch (e) {
+      console.error("Background task error:", e);
+    }
+  }, 10 * 1000); // 10 seconds check
+  
   // 404 catch-all for API to prevent falling into SPA
   app.all("/api/*", (req, res) => {
     console.warn(`[Presence] API route not found: ${req.method} ${req.url}`);
