@@ -132,16 +132,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         id="sidebar"
         className={cn(
-          "bg-surface/50 backdrop-blur-xl border-r border-white/5 w-64 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out z-50 flex flex-col shadow-2xl",
-          !isSidebarOpen && "-translate-x-full"
+          "bg-surface/50 backdrop-blur-xl border-r border-white/5 w-64 transition-all duration-300 ease-in-out z-50 flex flex-col shadow-2xl shrink-0 overflow-hidden",
+          !isSidebarOpen && "w-0 opacity-0 -translate-x-full"
         )}
       >
-        <div className="p-8">
+        <div className="p-8 w-64">
           <h1 className="text-2xl font-serif italic text-white tracking-tight">Quản lý Đoàn viên</h1>
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mt-1">Hệ thống nội bộ</p>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-1 w-64">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -171,7 +171,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           })}
         </nav>
 
-        <div className="p-6 border-t border-white/10">
+        <div className="p-6 border-t border-white/10 w-64">
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -203,10 +203,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className={cn(
-        "flex-1 transition-all duration-300 min-h-screen flex flex-col",
-        isSidebarOpen ? "ml-64" : "ml-0"
-      )}>
+      <main className="flex-1 transition-all duration-300 h-screen flex flex-col overflow-hidden">
         {/* Top Header */}
         <header className="h-20 border-b border-white/10 bg-background/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-10">
           <div className="flex items-center gap-4">
@@ -348,7 +345,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <div className="p-10 flex-1 overflow-auto custom-scrollbar">
+        <div className="p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </main>
