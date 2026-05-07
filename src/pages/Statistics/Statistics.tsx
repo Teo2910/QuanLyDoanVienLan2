@@ -628,7 +628,12 @@ export const Statistics: React.FC = () => {
                     <td className="py-4 px-3 text-sm text-white/50 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
                     <td className="py-4 px-5 sticky left-0 z-20 bg-[#24273a] transition-colors border-b border-white/5 group-hover:bg-[#2d3045] shadow-[2px_0_10px_rgba(0,0,0,0.2)]">
                       <div className="flex flex-col">
-                        <span className="text-sm text-white font-bold tracking-tight group-hover:text-accent transition-colors truncate max-w-[180px]">{item.name}</span>
+                        <span 
+                          className="text-sm text-white font-bold tracking-tight group-hover:text-accent transition-colors truncate max-w-[180px]"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </span>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="h-0.5 flex-1 bg-white/5 rounded-full overflow-hidden flex">
                             <div className="h-full bg-blue-500/40" style={{ width: `${(item.males / (item.total || 1)) * 100}%` }} />
@@ -638,37 +643,37 @@ export const Statistics: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-3 text-center bg-white/[0.01] border-b border-l border-white/5 text-sm font-bold text-white">
+                    <td className="py-4 px-3 text-center bg-white/[0.01] border-b border-l border-white/5 text-base font-bold font-mono text-white">
                       {item.total}
                     </td>
-                    <td className="py-4 px-3 text-center text-sm font-bold text-white border-b">{item.males}</td>
-                    <td className="py-4 px-3 text-center text-sm font-bold text-white border-b">{item.females}</td>
+                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white border-b">{item.males}</td>
+                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white border-b">{item.females}</td>
                     
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5 bg-emerald-400/[0.02] text-sm text-white/80 font-bold">
+                    <td className="py-4 px-3 text-center border-b border-l border-white/5 bg-emerald-400/[0.02] text-base text-white/80 font-bold font-mono">
                       {item.ethnic.kinh}
                     </td>
-                    <td className="py-4 px-3 text-center border-b bg-emerald-400/[0.02] text-sm font-bold text-white/30">
+                    <td className="py-4 px-3 text-center border-b bg-emerald-400/[0.02] text-base font-bold font-mono text-white/30">
                       <span className={cn(item.ethnic.others > 0 && "text-emerald-400")}>
                         {item.ethnic.others}
                       </span>
                     </td>
                     
-                    <td className="py-4 px-3 text-center text-sm font-bold text-white/90 border-b border-l border-white/5">{item.status.active}</td>
-                    <td className="py-4 px-3 text-center text-sm font-bold text-white/80 border-b">{item.status.moved}</td>
-                    <td className="py-4 px-3 text-center text-sm font-bold text-white/80 border-b">{item.status.left}</td>
+                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/90 border-b border-l border-white/5">{item.status.active}</td>
+                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/80 border-b">{item.status.moved}</td>
+                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/80 border-b">{item.status.left}</td>
                     
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5 text-sm font-bold text-white/50">
+                    <td className="py-4 px-3 text-center border-b border-l border-white/5 text-base font-bold font-mono text-white/50">
                       <span className={cn(item.achievements.excellent > 0 && "text-green-400")}>{item.achievements.excellent}</span>
                     </td>
-                    <td className="py-4 px-3 text-center border-b text-sm font-bold text-white/50">
+                    <td className="py-4 px-3 text-center border-b text-base font-bold font-mono text-white/50">
                       <span className={cn(item.achievements.good > 0 && "text-blue-400")}>{item.achievements.good}</span>
                     </td>
-                    <td className="py-4 px-3 text-center border-b text-sm font-bold text-white/50">
+                    <td className="py-4 px-3 text-center border-b text-base font-bold font-mono text-white/50">
                       {item.achievements.average}
                     </td>
                     
                     <td className="py-4 px-5 text-center bg-amber-400/[0.02] border-b border-l border-white/5">
-                      <span className={cn("text-sm font-bold", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
+                      <span className={cn("text-base font-bold font-mono", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
                         {item.outstanding}
                       </span>
                     </td>
@@ -689,45 +694,45 @@ export const Statistics: React.FC = () => {
                     </div>
                   </td>
                   <td className="py-6 px-3 text-center bg-accent/10 border-t border-accent/20">
-                    <div className="relative inline-block text-base text-white font-bold">
+                    <div className="relative inline-block text-base text-white font-bold font-mono">
                       {allMembers.length}
                     </div>
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}
                   </td>
                   
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-emerald-400/[0.05] text-base text-white font-bold">
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-emerald-400/[0.05] text-base text-white font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.kinh, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-emerald-400/[0.05] text-base text-emerald-400 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-emerald-400/[0.05] text-base text-emerald-400 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.others, 0)}
                   </td>
                   
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}
                   </td>
                   
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-green-400 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-green-400 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-blue-400 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-blue-400 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}
                   </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/70 font-bold">
+                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/70 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}
                   </td>
                   
-                  <td className="py-6 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 text-base text-amber-400 font-bold">
+                  <td className="py-6 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 text-base text-amber-400 font-bold font-mono">
                     {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
                   </td>
                 </tr>
