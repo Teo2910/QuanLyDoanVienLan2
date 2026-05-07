@@ -46,58 +46,6 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  // AI Assistant Route
-  app.post("/api/assistant/chat", async (req, res) => {
-    const { chatHistory = [], userText, dbContext } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    try {
-      if (!apiKey || apiKey.trim() === "" || apiKey === "undefined" || apiKey === "MY_GEMINI_API_KEY") {
-        throw new Error("GEMINI_API_KEY chưa được cấu hình hoặc đang mang giá trị mặc định. Vui lòng kiểm tra lại trong phần Secrets (Settings) của AI Studio.");
-      }
-
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
-Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
-${JSON.stringify(dbContext)}
-
-Quy tắc:
-- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
-- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
-- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
-      });
-
-      const history = chatHistory
-        .filter((m: any) => m.role && m.text)
-        .map((m: any) => ({
-          role: m.role === "model" ? "model" : "user",
-          parts: [{ text: m.text }]
-        }));
-
-      const chat = model.startChat({ history });
-      const result = await chat.sendMessage(userText);
-      const responseText = result.response.text();
-
-      console.log(`[Assistant] Chat response success (${responseText.length} chars)`);
-      res.json({ text: responseText });
-    } catch (err: any) {
-      console.error("AI Assistant Error Detail:", JSON.stringify(err, null, 2));
-      console.error("AI Assistant Error Message:", err.message);
-      let errorMsg = err.message || String(err);
-      
-      if (errorMsg.includes("API key not valid") || errorMsg.includes("API_KEY_INVALID")) {
-        errorMsg = "API Key không hợp lệ. Vui lòng kiểm tra lại cấu hình GEMINI_API_KEY trong phần Secrets. Nếu bạn đang dùng 'AI Studio Free Tier', hãy thử tạo một API Key mới tại aistudio.google.com và dán trực tiếp vào.";
-      }
-      
-      res.status(500).json({ 
-        error: errorMsg, 
-        text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." 
-      });
-    }
-  });
-
   const globalErrors: string[] = [];
 
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {

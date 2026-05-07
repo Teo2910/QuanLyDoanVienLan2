@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Send, User, ChevronRight, Loader2, Database } from "lucide-react";
+import { GoogleGenAI } from "@google/genai";
 
 export const AIAssistant = () => {
   const [query, setQuery] = useState("");
@@ -56,37 +57,58 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const dbRes = await fetch("/api/assistant/chat", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({ chatHistory: requestHistory, userText, dbContext })
+      // Always initialize with process.env.GEMINI_API_KEY as per skill
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+      
+      const contents = requestHistory
+        .filter(m => m.role && m.text)
+        .map(m => ({
+          role: m.role as "user" | "model",
+          parts: [{ text: m.text }]
+        }));
+      contents.push({ role: "user", parts: [{ text: userText }] });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents,
+        config: {
+          systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
+${JSON.stringify(dbContext)}
+
+Quy tắc:
+- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
+- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
+- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
+        }
       });
       
-      const data = await dbRes.json();
-      
-      if (!dbRes.ok) {
-        throw new Error(data.error || data.text || "Lỗi Server");
-      }
-      
-      const responseText = data.text || "Tôi không có câu trả lời cho vấn đề này.";
+      const responseText = response.text || "Tôi không có câu trả lời cho vấn đề này.";
       setChatHistory(prev => [...prev, { role: "model", text: responseText }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
-      const errorMessage = err.message || "";
+      const errorMessage = err.message || String(err);
+      
       if (
         errorMessage.includes("API key not valid") || 
         errorMessage.includes("API_KEY_INVALID") || 
         errorMessage.includes("API key should be set") ||
-        errorMessage.toLowerCase().includes("gemini_api_key") ||
-        errorMessage.includes("Could not load the default credentials") ||
-        errorMessage.includes("Không thể tải API Key")
+        errorMessage.toLowerCase().includes("gemini_api_key")
       ) {
         setChatHistory(prev => [...prev, { 
           role: "model", 
-          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thực hiện các bước sau:\n1. Nhấn vào biểu tượng bánh răng (Settings) ở góc trên bên phải.\n2. Chọn mục 'Secrets'.\n3. Thêm khóa 'GEMINI_API_KEY' và chọn 'AI Studio Free Tier'.\n4. QUAN TRỌNG: Nhấn nút 'Apply changes' màu xanh ở dưới cùng để lưu lại." 
+          text: `Lỗi kết nối AI: API Key chưa được xác thực hoặc không hợp lệ.
+
+Do "GEMINI_API_KEY" là khóa hệ thống, bạn vui lòng:
+1. Nhấn vào tab **Secrets** bên cột phải (hoặc trong phần Cài đặt).
+2. Tìm dòng **GEMINI_API_KEY**.
+3. Ở cột **Value**, hãy chắc chắn đã chọn **"AI Studio Free Tier"**.
+4. **QUAN TRỌNG:** Nhấn nút **"Apply changes"** màu xanh (ở dưới cùng bảng Secrets) để hệ thống ghi nhận.
+
+Nếu vẫn lỗi, hãy thử làm mới trang web.` 
         }]);
       } else {
-        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + errorMessage }]);
+        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Chi tiết lỗi: " + errorMessage }]);
       }
     } finally {
       setIsLoading(false);
@@ -142,18 +164,6 @@ export const AIAssistant = () => {
                 <span className="text-white/50 text-sm">AI đang suy nghĩ xử lý dữ liệu...</span>
               </div>
             </div>
-          )}
-          
-          {chatHistory.some(m => m.text.includes("thiết lập API Key")) && (
-             <div className="flex gap-4 justify-start">
-              <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 border border-accent/20 opacity-0"></div>
-              <button 
-                 onClick={() => { (window as any).aistudio?.openSelectKey?.(); }}
-                 className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-medium"
-              >
-                 Cấu hình API Key
-              </button>
-             </div>
           )}
           
           <div ref={messagesEndRef} />
