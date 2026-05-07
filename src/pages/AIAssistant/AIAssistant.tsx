@@ -55,6 +55,7 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
+      console.log("window.aistudio:", !!(window as any).aistudio);
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       
       const systemInstruction = `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
@@ -91,7 +92,14 @@ Quy tắc:
       setChatHistory(prev => [...prev, { role: "model", text: response.text || "Tôi không có câu trả lời cho vấn đề này." }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
-      setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau." }]);
+      if (err.message?.includes("API key not valid") || err.message?.includes("API_KEY_INVALID")) {
+        setChatHistory(prev => [...prev, { 
+          role: "model", 
+          text: "API Key chưa được cấu hình hoặc không hợp lệ. Vui lòng thiết lập API Key bằng cách nhấn nút 'Cấu hình API Key' bên dưới hoặc kiểm tra lại." 
+        }]);
+      } else {
+        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Vui lòng thử lại sau. Chi tiết lỗi: " + err.message }]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -146,6 +154,18 @@ Quy tắc:
                 <span className="text-white/50 text-sm">AI đang suy nghĩ xử lý dữ liệu...</span>
               </div>
             </div>
+          )}
+          
+          {chatHistory.some(m => m.text.includes("thiết lập API Key")) && (
+             <div className="flex gap-4 justify-start">
+              <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 border border-accent/20 opacity-0"></div>
+              <button 
+                 onClick={() => { (window as any).aistudio?.openSelectKey?.(); }}
+                 className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 font-medium"
+              >
+                 Cấu hình API Key
+              </button>
+             </div>
           )}
           
           <div ref={messagesEndRef} />
