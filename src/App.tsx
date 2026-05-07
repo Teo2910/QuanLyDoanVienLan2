@@ -5,6 +5,7 @@ import { UnitList } from "./pages/Units/UnitList";
 import { MemberList } from "./pages/Members/MemberList";
 import { Statistics } from "./pages/Statistics/Statistics";
 import { ActivityList } from "./pages/Activities/ActivityList";
+import { LogList } from "./pages/Logs/LogList";
 import { dataService } from "./services/dataService";
 import { cn } from "./lib/utils";
 import { Users, Building2, Calendar, Star, LogIn, Plus } from "lucide-react";
@@ -349,6 +350,7 @@ const AppContent = () => {
           <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
           <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
           <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
+          <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
         </Routes>
       </AnimatePresence>
     </Layout>

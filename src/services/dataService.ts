@@ -1,6 +1,25 @@
-import { Unit, Member, Activity } from "../types";
+import { Unit, Member, Activity, SystemLog } from "../types";
 
 class DataService {
+  private getAuthHeaders() {
+    let userName = "Unknown";
+    let userId = "Unknown";
+    try {
+      const profileStr = localStorage.getItem("local_profile");
+      if (profileStr) {
+        const profile = JSON.parse(profileStr);
+        userName = profile.fullName || profile.email;
+        userId = profile.uid;
+      }
+    } catch (e) {}
+    
+    return {
+      "Content-Type": "application/json",
+      "X-User-Name": encodeURIComponent(userName),
+      "X-User-Id": encodeURIComponent(userId)
+    };
+  }
+
   async getUsers(): Promise<any[]> {
     try {
       console.log("[Presence] Calling /api/presence-system");
@@ -38,6 +57,18 @@ class DataService {
     }
   }
 
+  async getLogs(): Promise<SystemLog[]> {
+    try {
+      const response = await fetch('/api/logs');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Failed to fetch logs:', error);
+      return [];
+    }
+  }
+
   async getActivities(): Promise<Activity[]> {
     try {
       const response = await fetch("/api/activities");
@@ -58,7 +89,7 @@ class DataService {
     };
     const response = await fetch("/api/activities", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(newActivity),
     });
     if (!response.ok) throw new Error("Failed to add activity");
@@ -66,14 +97,17 @@ class DataService {
   }
 
   async deleteActivity(id: string): Promise<void> {
-    const response = await fetch(`/api/activities/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/activities/${id}`, { 
+      method: "DELETE",
+      headers: this.getAuthHeaders()
+    });
     if (!response.ok) throw new Error("Failed to delete activity");
   }
 
   async updateActivity(id: string, activity: Partial<Activity>): Promise<void> {
     const response = await fetch(`/api/activities/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(activity),
     });
     if (!response.ok) throw new Error("Failed to update activity");
@@ -99,7 +133,7 @@ class DataService {
     };
     const response = await fetch("/api/units", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(newUnit),
     });
     if (!response.ok) throw new Error("Failed to add unit");
@@ -126,7 +160,7 @@ class DataService {
     };
     const response = await fetch("/api/members", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(newMember),
     });
     if (!response.ok) throw new Error("Failed to add member");
@@ -134,14 +168,17 @@ class DataService {
   }
 
   async deleteMember(id: string): Promise<void> {
-    const response = await fetch(`/api/members/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/members/${id}`, { 
+      method: "DELETE",
+      headers: this.getAuthHeaders()
+    });
     if (!response.ok) throw new Error("Failed to delete member");
   }
 
   async deleteMembers(ids: string[]): Promise<any> {
     const response = await fetch("/api/members/bulk-delete", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify({ ids }),
     });
     if (!response.ok) throw new Error("Failed to delete members");
@@ -152,13 +189,16 @@ class DataService {
     // Note: server needs delete unit route if we want it fully implemented
     // For now I only added delete member. Let's assume we focus on members as per user requests.
     // I will update server.ts to include more routes if needed.
-    await fetch(`/api/units/${id}`, { method: "DELETE" });
+    await fetch(`/api/units/${id}`, { 
+      method: "DELETE",
+      headers: this.getAuthHeaders()
+    });
   }
 
   async updateUnit(id: string, unit: Partial<Unit>): Promise<void> {
     await fetch(`/api/units/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(unit),
     });
   }
@@ -186,7 +226,7 @@ class DataService {
     
     const response = await fetch(`/api/members/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify(updatedMember),
     });
     if (!response.ok) throw new Error("Failed to update member");
@@ -195,7 +235,7 @@ class DataService {
   async toggleMemberOutstanding(id: string, isOutstanding: boolean): Promise<void> {
     const response = await fetch(`/api/members/${id}/outstanding`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: this.getAuthHeaders(),
       body: JSON.stringify({ isOutstanding }),
     });
     if (!response.ok) throw new Error("Failed to toggle outstanding status");

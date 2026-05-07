@@ -1,7 +1,17 @@
 export type UserRole = "admin" | "secretary";
 
-export interface SearchPreset {
+export interface SystemLog {
   id: string;
+  userId: string;
+  userName: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  details: string;
+  timestamp: number;
+}
+
+export interface SearchPreset {
   name: string;
   filters: {
     unit: string;

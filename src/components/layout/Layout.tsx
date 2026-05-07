@@ -121,6 +121,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Danh sách đoàn viên", href: "/members", icon: Users },
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
     { name: "Hoạt động", href: "/activities", icon: Calendar },
+    { name: "Nhật ký hệ thống", href: "/logs", icon: Activity },
   ];
 
   const userInitials = profile?.email?.substring(0, 2).toUpperCase() || "??";

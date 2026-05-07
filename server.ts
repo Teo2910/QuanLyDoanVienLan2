@@ -44,6 +44,31 @@ async function startServer() {
 
   app.use(express.json());
 
+  async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
+    if (!pool || !pool.connected) return;
+    try {
+      const userName = decodeURIComponent(req.header("X-User-Name") || "Hệ thống");
+      const userId = decodeURIComponent(req.header("X-User-Id") || "system");
+      const id = Math.random().toString(36).substring(2, 11);
+      const timestamp = Date.now();
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("userId", sql.NVarChar, userId)
+        .input("userName", sql.NVarChar, userName)
+        .input("action", sql.NVarChar, action)
+        .input("entityType", sql.NVarChar, entityType)
+        .input("entityId", sql.NVarChar, entityId)
+        .input("details", sql.NVarChar, details)
+        .input("timestamp", sql.BigInt, timestamp)
+        .query(`
+          INSERT INTO activity_logs (id, userId, userName, action, entityType, entityId, details, timestamp)
+          VALUES (@id, @userId, @userName, @action, @entityType, @entityId, @details, @timestamp)
+        `);
+    } catch (err) {
+      console.error("Failed to log activity:", err);
+    }
+  }
+
   // Log all API requests for debugging
   app.use("/api", (req, res, next) => {
     console.log(`[Presence] API Request: ${req.method} ${req.url}`);
@@ -102,7 +127,27 @@ async function startServer() {
     pool = await sql.connect(sqlConfig);
     console.log("Connected to SQL Server successfully.");
     
-    // Sync users into memory on startup
+    // Create activity_logs table if not exists
+    try {
+      await pool.request().query(`
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='activity_logs' and xtype='U')
+        CREATE TABLE activity_logs (
+          id NVARCHAR(50) PRIMARY KEY,
+          userId NVARCHAR(50),
+          userName NVARCHAR(255),
+          action NVARCHAR(255),
+          entityType NVARCHAR(50),
+          entityId NVARCHAR(50),
+          details NVARCHAR(MAX),
+          timestamp BIGINT
+        )
+      `);
+      console.log("[Logs] activity_logs table checked/created.");
+    } catch (e) {
+      console.error("[Logs] Error setup activity_logs:", e);
+    }
+    
+      // Sync users into memory on startup
     try {
       const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
       result.recordset.forEach(u => {
@@ -307,6 +352,7 @@ async function startServer() {
         .input("createdAt", sql.BigInt, createdAt)
         .query("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @createdAt)");
       
+      await logActivity(req, "Thêm đơn vị mới", "Unit", id, `Đơn vị: ${name}`);
       io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {
@@ -367,6 +413,7 @@ async function startServer() {
           VALUES (@id, @fullName, @memberId, @dob, @gender, @ethnic, @religion, @placeOfBirth, @hometown, @permanentAddress, @joinDate, @unitId, @email, @phone, @academicYear, @professionalLevel, @position, @achievementLevel, @status, @statusHistory, @isOutstanding, @createdAt)
         `);
       
+      await logActivity(req, "Thêm đoàn viên", "Member", m.id, `Đoàn viên: ${m.fullName}`);
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
@@ -414,6 +461,8 @@ async function startServer() {
             statusHistory = @statusHistory, isOutstanding = @isOutstanding
           WHERE id = @id
         `);
+        
+      await logActivity(req, "Cập nhật đoàn viên", "Member", req.params.id, `Đoàn viên: ${m.fullName}`);
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
@@ -426,6 +475,7 @@ async function startServer() {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
+      await logActivity(req, "Xóa đoàn viên", "Member", req.params.id, `ID: ${req.params.id}`);
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
@@ -444,6 +494,7 @@ async function startServer() {
       const result = await pool.request().query(`DELETE FROM members WHERE id IN (${idList})`);
       
       console.log(`Bulk delete successful. Rows affected: ${result.rowsAffected[0]}`);
+      await logActivity(req, "Xóa nhiều đoàn viên", "Member", "bulk", `Đã xóa ${result.rowsAffected[0]} đoàn viên`);
       io.emit("members:changed");
       res.json({ success: true, rowsAffected: result.rowsAffected[0] });
     } catch (err) {
@@ -461,11 +512,24 @@ async function startServer() {
         .input("id", sql.NVarChar, id)
         .input("isOutstanding", sql.Bit, isOutstanding)
         .query("UPDATE members SET isOutstanding = @isOutstanding WHERE id = @id");
+      await logActivity(req, "Cập nhật đoàn viên tiêu biểu", "Member", id, `Trạng thái: ${isOutstanding ? "Tiêu biểu" : "Bình thường"}`);
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  // Activity Logs
+  app.get("/api/logs", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const result = await pool.request().query("SELECT TOP 100 * FROM activity_logs ORDER BY timestamp DESC");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
     }
   });
 
