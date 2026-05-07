@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Send, User, ChevronRight, Loader2, Database } from "lucide-react";
+import { GoogleGenAI } from "@google/genai";
 
 export const AIAssistant = () => {
   const [query, setQuery] = useState("");
@@ -56,23 +57,48 @@ export const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const dbRes = await fetch("/api/assistant/chat", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({ chatHistory: requestHistory, userText, dbContext })
+      // Try multiple ways to get the API Key in this environment
+      const apiKey = 
+        (window as any).process?.env?.GEMINI_API_KEY || 
+        process.env.GEMINI_API_KEY || 
+        (import.meta as any).env.GEMINI_API_KEY || 
+        (import.meta as any).env.VITE_GEMINI_API_KEY;
+
+      console.log("[AI Assistant] Key detection debug:", {
+        hasKey: !!apiKey,
+        keyLength: apiKey?.length,
+        isLiteralUndefined: apiKey === "undefined"
       });
-      let data;
-      try {
-         data = await dbRes.json();
-      } catch (parseErr) {
-         throw new Error("Lỗi từ server: " + dbRes.statusText);
-      }
       
-      if (!dbRes.ok) {
-        throw new Error(data?.error || data?.text || "Lỗi Server");
+      if (!apiKey || apiKey === "undefined") {
+         throw new Error("GEMINI_API_KEY is not configured in environment");
       }
+
+      const ai = new GoogleGenAI({ apiKey });
       
-      setChatHistory(prev => [...prev, { role: "model", text: data.text || "Tôi không có câu trả lời cho vấn đề này." }]);
+      const contents = requestHistory.filter(m => m.role && m.text).map(m => ({
+         role: m.role as "user" | "model",
+         parts: [{ text: m.text }]
+      }));
+      contents.push({ role: "user", parts: [{ text: userText }] });
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents,
+        config: {
+          systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
+${JSON.stringify(dbContext)}
+
+Quy tắc:
+- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
+- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
+- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
+        }
+      });
+      
+      const responseText = response.text || "Tôi không có câu trả lời cho vấn đề này.";
+      setChatHistory(prev => [...prev, { role: "model", text: responseText }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
       const errorMessage = err.message || "";
@@ -80,7 +106,7 @@ export const AIAssistant = () => {
         errorMessage.includes("API key not valid") || 
         errorMessage.includes("API_KEY_INVALID") || 
         errorMessage.includes("API key should be set") ||
-        errorMessage.includes("GEMINI_API_KEY is not configured") ||
+        errorMessage.toLowerCase().includes("gemini_api_key") ||
         errorMessage.includes("Could not load the default credentials") ||
         errorMessage.includes("Không thể tải API Key")
       ) {

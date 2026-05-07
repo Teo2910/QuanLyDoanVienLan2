@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
@@ -45,64 +44,6 @@ async function startServer() {
 
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-
-  // AI Assistant Route - placed early to avoid middleware issues
-  app.post("/api/assistant/chat", async (req, res) => {
-    const { chatHistory = [], userText, dbContext } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    console.log(`[Assistant] Request received. Text length: ${userText?.length}, Key present: ${!!apiKey}`);
-    
-    try {
-      if (!apiKey || apiKey.trim() === "" || apiKey === "undefined") {
-        throw new Error("GEMINI_API_KEY chưa được cấu hình hoặc giá trị không hợp lệ. Vui lòng kiểm tra lại trong phần Secrets (Settings).");
-      }
-
-      const ai = new GoogleGenerativeAI(apiKey);
-      const model = ai.getGenerativeModel({ 
-        model: "gemini-2.0-flash",
-        systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
-Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
-${JSON.stringify(dbContext)}
-
-Quy tắc:
-- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
-- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
-- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
-      });
-      
-      const history = [];
-      for (let i = 0; i < chatHistory.length; i++) {
-         if (chatHistory[i].role && chatHistory[i].text) {
-           history.push({
-             role: chatHistory[i].role === "model" ? "model" : "user",
-             parts: [{ text: chatHistory[i].text }]
-           });
-         }
-      }
-      
-      const chat = model.startChat({
-        history: history,
-      });
-
-      const result = await chat.sendMessage(userText);
-      const responseText = result.response.text();
-      console.log(`[Assistant] Chat success. Response length: ${responseText?.length}`);
-      res.json({ text: responseText });
-    } catch (err: any) {
-      console.error("AI Assistant Error Detail:", err);
-      let errorMsg = err.message || String(err);
-      
-      if (errorMsg.includes("API key not valid") || errorMsg.includes("API_KEY_INVALID")) {
-        errorMsg = "API Key không hợp lệ. Hãy đảm bảo bạn đã chọn 'AI Studio Free Tier' và nhấn 'Apply changes' trong phần Secrets.";
-      }
-      
-      res.status(500).json({ 
-        error: errorMsg, 
-        text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." 
-      });
-    }
-  });
 
 const globalErrors: string[] = [];
 
