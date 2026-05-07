@@ -32,6 +32,11 @@ export const ChatWidget = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [unreadTotal, setUnreadTotal] = useState(0);
+  const activeThreadIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeThreadIdRef.current = activeThreadId;
+  }, [activeThreadId]);
 
   useEffect(() => {
     if (!profile) return;
@@ -47,8 +52,11 @@ export const ChatWidget = () => {
       }
 
       setMessages((prev) => {
+        // Prevent duplicate if we already optimistically added it
+        if (prev.some(m => m.id === msg.id)) return prev;
+
         if (profile.role === 'admin') {
-           if (msg.threadId === activeThreadId) return [...prev, msg];
+           if (msg.threadId === activeThreadIdRef.current) return [...prev, msg];
            return prev; // don't add to list if not active thread, unread will update from loadThreads
         } else {
            // Standard user
@@ -57,8 +65,8 @@ export const ChatWidget = () => {
         }
       });
 
-      // Show unread badge logic could go here or re-fetch threads/messages depending on state
-      if (profile.role !== 'admin' && !isOpen && msg.senderRole === 'Admin') {
+      // Show unread badge logic
+      if (profile.role !== 'admin' && msg.senderRole === 'Admin') {
          setUnreadTotal(prev => prev + 1);
       }
     });
@@ -70,7 +78,7 @@ export const ChatWidget = () => {
     return () => {
       newSocket.close();
     };
-  }, [profile, activeThreadId, isOpen]);
+  }, [profile]); // Removed activeThreadId and isOpen from deps to avoid reconnect loops
 
   useEffect(() => {
     if (profile?.role === 'admin') {
@@ -137,19 +145,30 @@ export const ChatWidget = () => {
     const tId = profile.role === 'admin' ? activeThreadId : profile.uid;
     if (!tId) return;
 
+    const tempId = "temp-" + Date.now();
+    const newMsg: ChatMessage = {
+      id: tempId,
+      threadId: tId,
+      senderId: profile.uid,
+      senderName: profile.fullName || (profile.role === 'admin' ? 'Đại học Đà Lạt' : 'Bí thư'),
+      senderRole: profile.role === 'admin' ? 'Admin' : 'User',
+      content: inputText.trim(),
+      isRead: true,
+      createdAt: Date.now()
+    };
+
+    setMessages(prev => [...prev, newMsg]);
+    setInputText("");
+
     try {
-      await fetch("/api/chat/messages", {
+      const res = await fetch("/api/chat/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          threadId: tId,
-          senderId: profile.uid,
-          senderName: profile.fullName || (profile.role === 'admin' ? 'Đại học Đà Lạt' : 'Bí thư'),
-          senderRole: profile.role === 'admin' ? 'Admin' : 'User',
-          content: inputText.trim()
-        })
+        body: JSON.stringify(newMsg)
       });
-      setInputText("");
+      const data = await res.json();
+      
+      setMessages(prev => prev.map(m => m.id === tempId ? data : m));
     } catch (e) {
       console.error(e);
     }
