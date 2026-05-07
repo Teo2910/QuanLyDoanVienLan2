@@ -1023,7 +1023,7 @@ export const MemberList: React.FC = () => {
       <div className="bg-surface/60 border border-white/5 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md mb-32">
         <div className="px-8 pt-8">
           <AnimatePresence>
-            {isAdmin && selectedIds.length > 0 && (
+            {(isAdmin || isSecretary) && selectedIds.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1269,7 +1269,7 @@ export const MemberList: React.FC = () => {
                           <Edit3 size={12} />
                           Hồ sơ
                         </motion.button>
-                        {isAdmin && (
+                        {(isAdmin || isSecretary) && (
                           <motion.button 
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}

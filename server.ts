@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
@@ -45,7 +46,59 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-const globalErrors: string[] = [];
+  // AI Assistant Route
+  app.post("/api/assistant/chat", async (req, res) => {
+    const { chatHistory = [], userText, dbContext } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    try {
+      if (!apiKey || apiKey.trim() === "" || apiKey === "undefined" || apiKey === "MY_GEMINI_API_KEY") {
+        throw new Error("GEMINI_API_KEY chưa được cấu hình hoặc đang mang giá trị mặc định. Vui lòng kiểm tra lại trong phần Secrets (Settings) của AI Studio.");
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
+Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
+${JSON.stringify(dbContext)}
+
+Quy tắc:
+- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
+- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
+- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
+      });
+
+      const history = chatHistory
+        .filter((m: any) => m.role && m.text)
+        .map((m: any) => ({
+          role: m.role === "model" ? "model" : "user",
+          parts: [{ text: m.text }]
+        }));
+
+      const chat = model.startChat({ history });
+      const result = await chat.sendMessage(userText);
+      const responseText = result.response.text();
+
+      console.log(`[Assistant] Chat response success (${responseText.length} chars)`);
+      res.json({ text: responseText });
+    } catch (err: any) {
+      console.error("AI Assistant Error Detail:", JSON.stringify(err, null, 2));
+      console.error("AI Assistant Error Message:", err.message);
+      let errorMsg = err.message || String(err);
+      
+      if (errorMsg.includes("API key not valid") || errorMsg.includes("API_KEY_INVALID")) {
+        errorMsg = "API Key không hợp lệ. Vui lòng kiểm tra lại cấu hình GEMINI_API_KEY trong phần Secrets. Nếu bạn đang dùng 'AI Studio Free Tier', hãy thử tạo một API Key mới tại aistudio.google.com và dán trực tiếp vào.";
+      }
+      
+      res.status(500).json({ 
+        error: errorMsg, 
+        text: "Xin lỗi, đã xảy ra lỗi khi trao đổi với AI." 
+      });
+    }
+  });
+
+  const globalErrors: string[] = [];
 
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) {
@@ -447,6 +500,52 @@ const globalErrors: string[] = [];
         .query("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @createdAt)");
       
       await logActivity(req, "Thêm đơn vị mới", "Unit", id, `Đơn vị: ${name}`);
+      io.emit("units:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.put("/api/units/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const { name, code, address, phone, email } = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("name", sql.NVarChar, name)
+        .input("code", sql.NVarChar, code || null)
+        .input("address", sql.NVarChar, address || null)
+        .input("phone", sql.NVarChar, phone || null)
+        .input("email", sql.NVarChar, email || null)
+        .query("UPDATE units SET name = @name, code = @code, address = @address, phone = @phone, email = @email WHERE id = @id");
+      
+      await logActivity(req, "Cập nhật đơn vị", "Unit", id, `Đơn vị: ${name}`);
+      io.emit("units:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.delete("/api/units/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      
+      const checkRes = await pool.request()
+        .input("id", sql.NVarChar, id)
+        .query("SELECT COUNT(*) as count FROM members WHERE unitId = @id");
+      
+      if (checkRes.recordset[0].count > 0) {
+        return res.status(400).json({ error: "Không thể xóa đơn vị đang có đoàn viên sinh hoạt. Vui lòng chuyển đoàn viên sang đơn vị khác trước." });
+      }
+
+      await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM units WHERE id = @id");
+      await logActivity(req, "Xóa đơn vị", "Unit", id, `ID Đơn vị: ${id}`);
       io.emit("units:changed");
       res.json({ success: true });
     } catch (err) {

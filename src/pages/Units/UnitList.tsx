@@ -6,6 +6,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSearch } from "../../contexts/SearchContext";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { motion, AnimatePresence } from "motion/react";
+import { ConfirmModal } from "../../components/ConfirmModal";
+import { ToastContainer, ToastType } from "../../components/Toast";
 
 export const UnitList: React.FC = () => {
   const { isAdmin, isSecretary } = useAuth();
@@ -16,13 +18,45 @@ export const UnitList: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
 
+  const [toasts, setToasts] = useState<any[]>([]);
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'info';
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
+  const addToast = (message: string, type: ToastType = 'info') => {
+    const id = Date.now().toString();
+    setToasts(prev => [...prev, { id, message, type }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const showConfirm = (title: string, message: string, onConfirm: () => void, variant: 'danger' | 'info' = 'info') => {
+    setConfirmConfig({ isOpen: true, title, message, onConfirm, variant });
+  };
+
   useEffect(() => {
     loadUnits();
   }, []);
 
   const loadUnits = () => {
+    setLoading(true);
     dataService.getUnits().then((data) => {
       setUnits(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      addToast("Lỗi khi tải danh sách đơn vị", "error");
       setLoading(false);
     });
   };
@@ -31,15 +65,26 @@ export const UnitList: React.FC = () => {
 
   const filteredUnits = units.filter(unit => 
     unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    unit.code.toLowerCase().includes(searchTerm.toLowerCase())
+    (unit.code && unit.code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đơn vị này?")) {
-      dataService.deleteUnit(id).then(() => {
-        setUnits(units.filter(u => u.id !== id));
-      });
-    }
+    showConfirm(
+      "Xác nhận xóa",
+      "Bạn có chắc muốn xóa chi đoàn này? Toàn bộ dữ liệu liên quan sẽ bị ảnh hưởng.",
+      () => {
+        dataService.deleteUnit(id)
+          .then(() => {
+            setUnits(units.filter(u => u.id !== id));
+            addToast("Đã xóa chi đoàn thành công", "success");
+          })
+          .catch(err => {
+            console.error(err);
+            addToast("Lỗi: " + (err.message || "Không thể xóa đơn vị"), "error");
+          });
+      },
+      "danger"
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -74,6 +119,15 @@ export const UnitList: React.FC = () => {
 
   return (
     <div id="unit-list-container">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        variant={confirmConfig.variant}
+      />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
           <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
