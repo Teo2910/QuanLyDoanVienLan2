@@ -129,13 +129,13 @@ export const Statistics: React.FC = () => {
       
       // Status breakdown
       const active = unitMembers.filter(m => m.status === "Đang sinh hoạt").length;
-      const moved = unitMembers.filter(m => m.status === "Chuyển sinh hoạt").length;
-      const left = unitMembers.filter(m => m.status === "Trưởng thành đoàn").length;
+      const moved = unitMembers.filter(m => m.status === "Đã chuyển sinh hoạt").length;
+      const left = unitMembers.filter(m => m.status === "Đã trưởng thành").length;
       
       // Achievement breakdown
-      const excellent = unitMembers.filter(m => m.achievementLevel === "Hoàn thành xuất sắc nhiệm vụ").length;
-      const good = unitMembers.filter(m => m.achievementLevel === "Hoàn thành tốt nhiệm vụ").length;
-      const average = unitMembers.filter(m => m.achievementLevel === "Hoàn thành nhiệm vụ").length;
+      const excellent = unitMembers.filter(m => m.achievementLevel === "Xuất sắc").length;
+      const good = unitMembers.filter(m => m.achievementLevel === "Khá").length;
+      const average = unitMembers.filter(m => m.achievementLevel === "Trung bình").length;
 
       return {
         id: unit.id,
@@ -616,8 +616,8 @@ export const Statistics: React.FC = () => {
                   <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">T. Thành</th>
                   
                   <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md">X. Sắc</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Tốt</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">H. Thành</th>
+                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Khá</th>
+                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">T. Bình</th>
                   
                   <th className="border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md"></th>
                 </tr>
