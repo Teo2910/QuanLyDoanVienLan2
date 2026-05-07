@@ -61,10 +61,15 @@ export const AIAssistant = () => {
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify({ chatHistory: requestHistory, userText, dbContext })
       });
-      const data = await dbRes.json();
+      let data;
+      try {
+         data = await dbRes.json();
+      } catch (parseErr) {
+         throw new Error("Lỗi từ server: " + dbRes.statusText);
+      }
       
       if (!dbRes.ok) {
-        throw new Error(data.error || data.text || "Lỗi Server");
+        throw new Error(data?.error || data?.text || "Lỗi Server");
       }
       
       setChatHistory(prev => [...prev, { role: "model", text: data.text || "Tôi không có câu trả lời cho vấn đề này." }]);

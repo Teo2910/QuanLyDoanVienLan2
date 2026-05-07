@@ -43,7 +43,8 @@ async function startServer() {
   const systemUsers = new Map<string, any>();
   let pool: sql.ConnectionPool | null = null;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const globalErrors: string[] = [];
 
