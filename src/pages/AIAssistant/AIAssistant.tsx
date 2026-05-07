@@ -140,8 +140,8 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
                 </div>
               )}
               
-              <div className={`max-w-[70%] rounded-2xl p-4 leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-tr-sm" : "bg-white/5 border border-white/10 text-white rounded-tl-sm"}`}>
-                <div className="text-sm prose prose-invert max-w-none whitespace-pre-wrap">
+              <div className={`max-w-[80%] rounded-2xl p-4 shadow-sm leading-relaxed ${msg.role === "user" ? "bg-accent text-accent-foreground rounded-tr-sm border border-accent/20" : "bg-surface border border-white/10 text-white rounded-tl-sm shadow-md"}`}>
+                <div className={`text-[15px] prose prose-invert max-w-none whitespace-pre-wrap ${msg.role === "user" ? "font-medium" : ""}`}>
                   {msg.text}
                 </div>
               </div>
@@ -177,7 +177,7 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
               onChange={(e) => setQuery(e.target.value)}
               placeholder={isInitializing ? "Đang đồng bộ dữ liệu hệ thống..." : "Hỏi AI về đoàn viên, hoạt động... (VD: Ai là chi đoàn trưởng khoa Công Nghệ Thông Tin?)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 pr-16 text-white focus:outline-none focus:ring-1 focus:ring-accent/50 disabled:opacity-50"
+              className="w-full bg-surface-light border border-white/10 rounded-2xl px-6 py-5 pr-16 text-white focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:opacity-50 transition-all shadow-inner"
             />
             <button
               type="submit"

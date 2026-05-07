@@ -10,6 +10,7 @@
   --color-accent-foreground: #1e1e2e;
   --color-background: #1e1e2e;
   --color-surface: #313244;
+  --color-surface-light: #45475a;
   --color-border-subtle: rgba(255, 255, 255, 0.05);
   --font-sans: "Inter", system-ui, sans-serif;
   --font-serif: "Inter", system-ui, sans-serif;
