@@ -81,7 +81,7 @@ Quy tắc:
       contents.push({ role: "user", parts: [{ text: userText }] });
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-3-flash-preview",
         contents,
         config: {
           systemInstruction: systemInstruction
