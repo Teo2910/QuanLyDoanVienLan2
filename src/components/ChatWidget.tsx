@@ -168,9 +168,18 @@ export const ChatWidget = () => {
       });
       const data = await res.json();
       
-      setMessages(prev => prev.map(m => m.id === tempId ? data : m));
+      if (data.error) {
+        console.error("Failed to save chat message to DB:", data.error);
+        alert("Lỗi máy chủ: Chưa tạo bảng chat_messages hoặc mất kết nối DB (" + data.error + ")");
+        // Instead of removing, we can just leave the message there with an error indicator if we wanted,
+        // but for now let's just keep it in the UI and warn them.
+        setMessages(prev => prev.map(m => m.id === tempId ? { ...m, content: m.content + " [Lỗi gửi]" } : m));
+      } else {
+        setMessages(prev => prev.map(m => m.id === tempId ? data : m));
+      }
     } catch (e) {
       console.error(e);
+      setMessages(prev => prev.map(m => m.id === tempId ? { ...m, content: m.content + " [Lỗi mạng]" } : m));
     }
   };
 

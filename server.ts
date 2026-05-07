@@ -652,6 +652,29 @@ const globalErrors: string[] = [];
 
   const chatMessagesInMemory: any[] = [];
 
+  const ensureChatTable = async () => {
+    if (!pool || !pool.connected) return;
+    try {
+      await pool.request().query(`
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
+        BEGIN
+          CREATE TABLE chat_messages (
+            id NVARCHAR(50) PRIMARY KEY,
+            threadId NVARCHAR(50),
+            senderId NVARCHAR(50),
+            senderName NVARCHAR(255),
+            senderRole NVARCHAR(50),
+            content NVARCHAR(MAX),
+            isRead BIT,
+            createdAt BIGINT
+          )
+        END
+      `);
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
   app.get("/api/chat/threads", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
@@ -674,7 +697,18 @@ const globalErrors: string[] = [];
       `);
       res.json(result.recordset);
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      await ensureChatTable();
+      try {
+        const result = await pool.request().query(`
+          SELECT threadId, MAX(createdAt) as lastMessageAt, SUM(CAST(CASE WHEN isRead = 0 AND senderRole != 'Admin' THEN 1 ELSE 0 END AS INT)) as unreadCount
+          FROM chat_messages
+          GROUP BY threadId
+          ORDER BY lastMessageAt DESC
+        `);
+        res.json(result.recordset);
+      } catch (innerErr: any) {
+        res.status(500).json({ error: innerErr.message });
+      }
     }
   });
 
@@ -684,10 +718,18 @@ const globalErrors: string[] = [];
         const msgs = chatMessagesInMemory.filter(m => m.threadId === req.params.threadId).sort((a,b) => a.createdAt - b.createdAt);
         return res.json(msgs);
       }
-      const result = await pool.request()
-        .input("threadId", sql.NVarChar, req.params.threadId)
-        .query("SELECT * FROM chat_messages WHERE threadId = @threadId ORDER BY createdAt ASC");
-      res.json(result.recordset);
+      try {
+        const result = await pool.request()
+          .input("threadId", sql.NVarChar, req.params.threadId)
+          .query("SELECT * FROM chat_messages WHERE threadId = @threadId ORDER BY createdAt ASC");
+        res.json(result.recordset);
+      } catch(err: any) {
+        await ensureChatTable();
+        const result = await pool.request()
+          .input("threadId", sql.NVarChar, req.params.threadId)
+          .query("SELECT * FROM chat_messages WHERE threadId = @threadId ORDER BY createdAt ASC");
+        res.json(result.recordset);
+      }
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -706,19 +748,37 @@ const globalErrors: string[] = [];
         return res.json(newMsg);
       }
       
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("threadId", sql.NVarChar, m.threadId)
-        .input("senderId", sql.NVarChar, m.senderId)
-        .input("senderName", sql.NVarChar, m.senderName)
-        .input("senderRole", sql.NVarChar, m.senderRole)
-        .input("content", sql.NVarChar, m.content)
-        .input("isRead", sql.Bit, 0)
-        .input("createdAt", sql.BigInt, createdAt)
-        .query(`
-          INSERT INTO chat_messages (id, threadId, senderId, senderName, senderRole, content, isRead, createdAt)
-          VALUES (@id, @threadId, @senderId, @senderName, @senderRole, @content, @isRead, @createdAt)
-        `);
+      try {
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("threadId", sql.NVarChar, m.threadId)
+          .input("senderId", sql.NVarChar, m.senderId)
+          .input("senderName", sql.NVarChar, m.senderName)
+          .input("senderRole", sql.NVarChar, m.senderRole)
+          .input("content", sql.NVarChar, m.content)
+          .input("isRead", sql.Bit, 0)
+          .input("createdAt", sql.BigInt, createdAt)
+          .query(`
+            INSERT INTO chat_messages (id, threadId, senderId, senderName, senderRole, content, isRead, createdAt)
+            VALUES (@id, @threadId, @senderId, @senderName, @senderRole, @content, @isRead, @createdAt)
+          `);
+      } catch (err: any) {
+        // Table might be missing, try recreating and inserting again
+        await ensureChatTable();
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("threadId", sql.NVarChar, m.threadId)
+          .input("senderId", sql.NVarChar, m.senderId)
+          .input("senderName", sql.NVarChar, m.senderName)
+          .input("senderRole", sql.NVarChar, m.senderRole)
+          .input("content", sql.NVarChar, m.content)
+          .input("isRead", sql.Bit, 0)
+          .input("createdAt", sql.BigInt, createdAt)
+          .query(`
+            INSERT INTO chat_messages (id, threadId, senderId, senderName, senderRole, content, isRead, createdAt)
+            VALUES (@id, @threadId, @senderId, @senderName, @senderRole, @content, @isRead, @createdAt)
+          `);
+      }
       
       io.emit("chat:new", newMsg);
       res.json(newMsg);
@@ -744,9 +804,13 @@ const globalErrors: string[] = [];
         return res.json({ success: true });
       }
 
-      await pool.request()
-        .input("threadId", sql.NVarChar, req.params.threadId)
-        .query(`UPDATE chat_messages SET isRead = 1 WHERE threadId = @threadId AND ${condition}`);
+      try {
+        await pool.request()
+          .input("threadId", sql.NVarChar, req.params.threadId)
+          .query(`UPDATE chat_messages SET isRead = 1 WHERE threadId = @threadId AND ${condition}`);
+      } catch (err) {
+        await ensureChatTable();
+      }
         
       io.emit("chat:read", { threadId: req.params.threadId, role });
       res.json({ success: true });
