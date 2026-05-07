@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { GoogleGenAI } from "@google/genai";
 import { Bot, Send, User, ChevronRight, Loader2, Database } from "lucide-react";
 
 export const AIAssistant = () => {
@@ -51,45 +50,24 @@ export const AIAssistant = () => {
     const userText = query.trim();
     setQuery("");
     
+    const requestHistory = [...chatHistory];
+    
     setChatHistory(prev => [...prev, { role: "user", text: userText }]);
     setIsLoading(true);
 
     try {
-      console.log("window.aistudio:", !!(window as any).aistudio);
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const dbRes = await fetch("/api/assistant/chat", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({ chatHistory: requestHistory, userText, dbContext })
+      });
+      const data = await dbRes.json();
       
-      const systemInstruction = `Bạn là Trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
-Chỉ trả lời dựa trên dữ liệu thật sau (từ SQL Server):
-${JSON.stringify(dbContext)}
-
-Quy tắc:
-- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
-- Có thể dùng markdown để in đậm, tạo danh sách.
-- Nếu được hỏi thông tin không có trong dữ liệu, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`;
-
-      // Build contents array strictly alternating user and model
-      const contents = [];
-      
-      // Start with user input (GenAI API requires contents to start with user, 
-      // but if we have previous history, we must include it properly)
-      for (let i = 1; i < chatHistory.length; i++) { // Skip the first model greeting
-         contents.push({
-           role: chatHistory[i].role,
-           parts: [{ text: chatHistory[i].text }]
-         });
+      if (!dbRes.ok) {
+        throw new Error(data.error || data.text || "Lỗi Server");
       }
       
-      contents.push({ role: "user", parts: [{ text: userText }] });
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents,
-        config: {
-          systemInstruction: systemInstruction
-        }
-      });
-
-      setChatHistory(prev => [...prev, { role: "model", text: response.text || "Tôi không có câu trả lời cho vấn đề này." }]);
+      setChatHistory(prev => [...prev, { role: "model", text: data.text || "Tôi không có câu trả lời cho vấn đề này." }]);
     } catch (err: any) {
       console.error("Gemini API Error:", err);
       if (err.message?.includes("API key not valid") || err.message?.includes("API_KEY_INVALID")) {
