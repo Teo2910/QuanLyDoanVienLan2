@@ -220,6 +220,20 @@ const globalErrors: string[] = [];
             createdAt BIGINT
           )
         END
+        
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
+        BEGIN
+          CREATE TABLE chat_messages (
+            id NVARCHAR(50) PRIMARY KEY,
+            threadId NVARCHAR(50),
+            senderId NVARCHAR(50),
+            senderName NVARCHAR(255),
+            senderRole NVARCHAR(50),
+            content NVARCHAR(MAX),
+            isRead BIT,
+            createdAt BIGINT
+          )
+        END
       `);
       console.log("[Logs] activity_logs and activities tables checked/created.");
     } catch (e) {
@@ -633,6 +647,81 @@ const globalErrors: string[] = [];
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.get("/api/chat/threads", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const result = await pool.request().query(`
+        SELECT threadId, MAX(createdAt) as lastMessageAt, SUM(CAST(CASE WHEN isRead = 0 AND senderRole != 'Admin' THEN 1 ELSE 0 END AS INT)) as unreadCount
+        FROM chat_messages
+        GROUP BY threadId
+        ORDER BY lastMessageAt DESC
+      `);
+      res.json(result.recordset);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/chat/messages/:threadId", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const result = await pool.request()
+        .input("threadId", sql.NVarChar, req.params.threadId)
+        .query("SELECT * FROM chat_messages WHERE threadId = @threadId ORDER BY createdAt ASC");
+      res.json(result.recordset);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/chat/messages", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json({ error: "No DB connection" });
+      const m = req.body;
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const createdAt = Date.now();
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("threadId", sql.NVarChar, m.threadId)
+        .input("senderId", sql.NVarChar, m.senderId)
+        .input("senderName", sql.NVarChar, m.senderName)
+        .input("senderRole", sql.NVarChar, m.senderRole)
+        .input("content", sql.NVarChar, m.content)
+        .input("isRead", sql.Bit, 0)
+        .input("createdAt", sql.BigInt, createdAt)
+        .query(`
+          INSERT INTO chat_messages (id, threadId, senderId, senderName, senderRole, content, isRead, createdAt)
+          VALUES (@id, @threadId, @senderId, @senderName, @senderRole, @content, @isRead, @createdAt)
+        `);
+      
+      const newMsg = { id, threadId: m.threadId, senderId: m.senderId, senderName: m.senderName, senderRole: m.senderRole, content: m.content, isRead: false, createdAt };
+      io.emit("chat:new", newMsg);
+      res.json(newMsg);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/chat/read/:threadId", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json({ success: false });
+      const { role } = req.body;
+      let condition = "senderRole != 'Admin'";
+      if (role === "User") {
+        condition = "senderRole = 'Admin'";
+      }
+
+      await pool.request()
+        .input("threadId", sql.NVarChar, req.params.threadId)
+        .query(`UPDATE chat_messages SET isRead = 1 WHERE threadId = @threadId AND ${condition}`);
+        
+      io.emit("chat:read", { threadId: req.params.threadId, role });
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
     }
   });
 

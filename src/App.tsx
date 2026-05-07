@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { CustomSelect } from "./components/CustomSelect";
 import { useLiveSync } from "./hooks/useLiveSync";
 
+import { ChatWidget } from "./components/ChatWidget";
+
 const PageTransition = ({ children }: { children: React.ReactNode; key?: string }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
@@ -342,18 +344,21 @@ const AppContent = () => {
   }
 
   return (
-    <Layout>
-      <AnimatePresence mode="wait" initial={false}>
-        <Routes location={location}>
-          <Route path="/" element={<PageTransition key="dashboard"><Dashboard /></PageTransition>} />
-          <Route path="/units" element={<PageTransition key="units"><UnitList /></PageTransition>} />
-          <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
-          <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
-          <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
-          <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
-        </Routes>
-      </AnimatePresence>
-    </Layout>
+    <>
+      <Layout>
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location}>
+            <Route path="/" element={<PageTransition key="dashboard"><Dashboard /></PageTransition>} />
+            <Route path="/units" element={<PageTransition key="units"><UnitList /></PageTransition>} />
+            <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
+            <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
+            <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
+            <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
+          </Routes>
+        </AnimatePresence>
+      </Layout>
+      <ChatWidget />
+    </>
   );
 };
 
