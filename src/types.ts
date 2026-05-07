@@ -12,6 +12,7 @@ export interface SystemLog {
 }
 
 export interface SearchPreset {
+  id: string;
   name: string;
   filters: {
     unit: string;

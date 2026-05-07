@@ -47,8 +47,10 @@ async function startServer() {
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) return;
     try {
-      const userName = decodeURIComponent(req.header("X-User-Name") || "Hệ thống");
-      const userId = decodeURIComponent(req.header("X-User-Id") || "system");
+      const headerName = req.headers["x-user-name"] || req.header("X-User-Name");
+      const headerId = req.headers["x-user-id"] || req.header("X-User-Id");
+      const userName = headerName ? decodeURIComponent(headerName) : "Hệ thống";
+      const userId = headerId ? decodeURIComponent(headerId) : "system";
       const id = Math.random().toString(36).substring(2, 11);
       const timestamp = Date.now();
       await pool.request()
@@ -474,8 +476,13 @@ async function startServer() {
   app.delete("/api/members/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
+      
+      // Fetch the member name before deleting so we can log it
+      const memberQuery = await pool.request().input("id", sql.NVarChar, req.params.id).query("SELECT fullName FROM members WHERE id = @id");
+      const memberName = memberQuery.recordset.length > 0 ? memberQuery.recordset[0].fullName : req.params.id;
+
       await pool.request().input("id", sql.NVarChar, req.params.id).query("DELETE FROM members WHERE id = @id");
-      await logActivity(req, "Xóa đoàn viên", "Member", req.params.id, `ID: ${req.params.id}`);
+      await logActivity(req, "Xóa đoàn viên", "Member", req.params.id, `Đoàn viên: ${memberName}`);
       io.emit("members:changed");
       res.json({ success: true });
     } catch (err) {
