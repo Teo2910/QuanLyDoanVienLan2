@@ -2,21 +2,29 @@ import { Unit, Member, Activity, SystemLog } from "../types";
 
 class DataService {
   private getAuthHeaders() {
-    let userName = "Unknown";
-    let userId = "Unknown";
+    let userName = "Hệ thống";
+    let userId = "system";
     try {
       const profileStr = localStorage.getItem("local_profile");
+      const userStr = localStorage.getItem("local_user");
+      
       if (profileStr) {
         const profile = JSON.parse(profileStr);
-        userName = profile.fullName || profile.email;
-        userId = profile.uid;
+        userName = profile.fullName || profile.email || "Hệ thống";
+        userId = profile.uid || "system";
+      } else if (userStr) {
+        const user = JSON.parse(userStr);
+        userName = user.fullName || user.email || "Hệ thống";
+        userId = user.uid || "system";
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("Failed to parse local profile/user", e);
+    }
     
     return {
       "Content-Type": "application/json",
-      "X-User-Name": encodeURIComponent(userName),
-      "X-User-Id": encodeURIComponent(userId)
+      "x-user-name": encodeURIComponent(userName),
+      "x-user-id": encodeURIComponent(userId)
     };
   }
 

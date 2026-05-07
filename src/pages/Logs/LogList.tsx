@@ -33,7 +33,7 @@ export const LogList = () => {
   if (loading) return <div className="p-10 text-center text-white/40 uppercase tracking-widest text-xs">Đang tải...</div>;
 
   return (
-    <div>
+    <div className="relative min-h-[calc(100vh-8rem)]">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12">
         <div>
           <h2 className="text-4xl font-serif text-white tracking-tight italic">Nhật ký hoạt động</h2>
@@ -41,7 +41,7 @@ export const LogList = () => {
         </div>
       </div>
 
-      <div className="bg-surface/50 border border-white/5 rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-sm overflow-hidden">
+      <div className="bg-surface/50 border border-white/5 rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-sm overflow-hidden min-h-[500px]">
         {logs.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-white/10 rounded-[2rem]">
             <p className="text-white/20 uppercase tracking-[0.2em] font-bold text-xs">
@@ -78,7 +78,7 @@ export const LogList = () => {
                     <div className="space-y-2 mt-4 pt-4 border-t border-white/5 inline-block text-left">
                       <div className="flex items-center gap-2 text-white/40 text-[11px]">
                         <User size={12} className="text-accent/60" />
-                        <span className="truncate">{decodeURIComponent(log.userName)}</span>
+                        <span className="truncate">{log.userName}</span>
                       </div>
                       <div className="flex items-center gap-2 text-white/40 text-[11px]">
                         <Tag size={12} className="text-accent/60" />
