@@ -118,7 +118,7 @@ export const UnitList: React.FC = () => {
   };
 
   return (
-    <div id="unit-list-container" className="h-full flex flex-col gap-6 overflow-hidden p-6 text-white">
+    <div id="unit-list-container">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <ConfirmModal 
         isOpen={confirmConfig.isOpen}
@@ -128,56 +128,56 @@ export const UnitList: React.FC = () => {
         onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         variant={confirmConfig.variant}
       />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-3xl font-bold text-white flex items-center gap-4 tracking-tight">
-            <Building2 className="text-accent" size={32} />
+          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
+            <Building2 className="text-accent" size={36} />
             Quản lý đơn vị
           </h2>
-          <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
+          <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
         </div>
         {(isAdmin || isSecretary) && (
           <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={openAddModal}
-            className="group bg-accent border border-white/20 px-6 py-3 rounded-xl transition-all shadow-xl shadow-accent/10 flex items-center gap-2 hover:bg-white"
+            className="group bg-accent border border-white/20 px-8 py-4 rounded-2xl transition-all shadow-xl shadow-accent/20 flex items-center gap-3 hover:bg-white"
           >
-            <Plus size={16} className="text-slate-950 group-hover:rotate-90 transition-transform" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-950">Thêm mới</span>
+            <Plus size={18} className="text-slate-950 group-hover:rotate-90 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-950">Thêm đơn vị mới</span>
           </motion.button>
         )}
       </div>
 
-      <div className="flex-1 min-h-0 bg-surface/60 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col shadow-2xl backdrop-blur-md">
+      <div className="bg-surface/60 border border-white/5 rounded-[2rem] overflow-hidden flex flex-col min-h-[500px] shadow-2xl backdrop-blur-md">
         {/* Search */}
-        <div className="px-8 py-4 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0">
+        <div className="px-8 py-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="relative flex-1 w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" size={14} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên hoặc mã..."
-              className="w-full pl-10 pr-6 py-2 bg-white/5 border border-white/10 rounded-full text-xs focus:outline-none focus:border-accent/40 transition-all placeholder:text-white/20"
+              placeholder="Tìm kiếm theo tên hoặc mã đơn vị..."
+              className="w-full pl-12 pr-6 py-3 bg-white/5 border border-white/10 rounded-full text-sm focus:outline-none focus:border-accent/40 transition-all placeholder:text-white/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="hidden md:flex gap-2">
-            <span className="px-4 py-1.5 bg-white/5 rounded-full text-[9px] text-white/40 uppercase tracking-widest font-bold">Tổng số {units.length} đơn vị</span>
+            <span className="px-4 py-2 bg-white/5 rounded-full text-[10px] text-white/40 uppercase tracking-widest font-bold">Tất cả {units.length} đơn vị</span>
           </div>
         </div>
 
         {/* Table Content */}
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <div className="p-24 text-center items-center flex flex-col gap-4">
              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-             <p className="text-white/40 text-[10px] uppercase tracking-widest">Đang tải dữ liệu</p>
+             <p className="text-white/40 text-xs uppercase tracking-widest">Đang tải dữ liệu hệ thống</p>
           </div>
         ) : filteredUnits.length > 0 ? (
-          <div className="flex-1 overflow-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-[#12131a] z-10 shadow-sm">
-                <tr className="text-[10px] text-white/30 uppercase tracking-tighter border-b border-white/5">
+          <div className="flex-1 overflow-x-auto px-4">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
                   <th className="py-6 px-4 font-normal">Mã đơn vị</th>
                   <th className="py-6 px-4 font-normal">Tên đơn vị</th>
                   <th className="py-6 px-4 font-normal">Thông tin liên hệ</th>

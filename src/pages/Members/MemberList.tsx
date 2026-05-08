@@ -781,7 +781,7 @@ export const MemberList: React.FC = () => {
   };
 
   return (
-    <div id="member-list-container" className="h-full flex flex-col gap-6 overflow-hidden p-6">
+    <div id="member-list-container">
       <ToastContainer toasts={toasts} removeToast={removeToast} />
       <ConfirmModal 
         isOpen={confirmConfig.isOpen}
@@ -792,42 +792,43 @@ export const MemberList: React.FC = () => {
         variant={confirmConfig.variant}
       />
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 shrink-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div className="flex-1">
-          <h2 className="text-3xl font-bold text-white flex items-center gap-4 tracking-tight mb-2">
-            <Users className="text-accent" size={32} />
+          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight mb-4">
+            <Users className="text-accent" size={36} />
             Quản lý đoàn viên
           </h2>
-          <div className="relative max-w-sm">
+          <div className="relative max-w-md">
             <input 
               type="text" 
-              placeholder="Tìm kiếm..." 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-2 px-10 text-xs text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all placeholder:text-white/20"
+              placeholder="Tìm kiếm nhanh đoàn viên..." 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 text-sm text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all placeholder:text-white/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
               >
-                <X size={14} />
+                <X size={16} />
               </button>
             )}
           </div>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-3">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 mr-2">
             <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={exportToExcel}
-              className="group flex items-center gap-2 px-4 py-2 bg-accent border border-white/20 rounded-xl transition-all duration-300 shadow-xl shadow-accent/10 hover:bg-white"
+              className="group flex items-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:bg-white"
+              title="Xuất danh sách ra tệp Excel"
             >
-              <Download size={16} className="text-slate-950" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-950">Xuất</span>
+              <Download size={20} className="text-slate-950 group-hover:translate-y-0.5 transition-transform" />
+              <span className="text-xs font-black uppercase tracking-widest text-slate-950">Xuất Excel</span>
             </motion.button>
             <div className="relative">
               <input 
@@ -838,24 +839,25 @@ export const MemberList: React.FC = () => {
                 id="excel-import"
               />
               <motion.label 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 htmlFor="excel-import"
-                className="cursor-pointer group flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white hover:border-accent transition-all duration-300"
+                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 rounded-2xl text-white hover:border-accent hover:bg-accent transition-all duration-300 shadow-lg hover:shadow-accent/20"
+                title="Nhập danh sách từ tệp Excel"
               >
-                <Upload size={16} className="text-white group-hover:text-slate-950" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white group-hover:text-slate-950 transition-colors">Nhập</span>
+                <Upload size={20} className="text-white group-hover:text-slate-950 group-hover:translate-y-0.5 transition-all" />
+                <span className="text-xs font-black uppercase tracking-widest text-white group-hover:text-slate-950 transition-colors">Nhập Excel</span>
               </motion.label>
             </div>
           </div>
           <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={openAddModal}
-            className="group flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-white rounded-xl transition-all duration-300 shadow-xl hover:bg-accent hover:border-accent"
+            className="group flex items-center gap-3 px-8 py-4 bg-white border-2 border-white rounded-2xl transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-accent/40 hover:bg-accent hover:border-accent"
           >
-            <Plus size={16} className="text-black group-hover:rotate-90 transition-transform" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-black">Thêm mới</span>
+            <Plus size={20} className="text-black group-hover:rotate-90 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-widest text-black">Thêm đoàn viên mới</span>
           </motion.button>
         </div>
       </div>
@@ -1018,8 +1020,8 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="flex-1 min-h-0 bg-surface/60 border border-white/5 rounded-[2.5rem] flex flex-col shadow-2xl backdrop-blur-md overflow-hidden">
-        <div className="px-8 pt-6 shrink-0">
+      <div className="bg-surface/60 border border-white/5 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md mb-32">
+        <div className="px-8 pt-8">
           <AnimatePresence>
             {(isAdmin || isSecretary) && selectedIds.length > 0 && (
               <motion.div 
@@ -1078,10 +1080,10 @@ export const MemberList: React.FC = () => {
              <p className="text-white/40 text-xs uppercase tracking-widest">Đang kết nối cơ sở dữ liệu</p>
           </div>
         ) : filteredMembers.length > 0 ? (
-          <div className="flex-1 overflow-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-[#0a0b10] z-20">
-                <tr className="text-[10px] text-white/30 uppercase tracking-tighter shadow-sm">
+          <div className="flex-1 overflow-x-auto px-4">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
                   <th className="py-6 px-4 font-normal text-center w-12">
                     <div 
                       onClick={() => {

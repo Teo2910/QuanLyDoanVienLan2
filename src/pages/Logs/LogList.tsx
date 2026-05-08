@@ -33,17 +33,16 @@ export const LogList = () => {
   if (loading) return <div className="p-10 text-center text-white/40 uppercase tracking-widest text-xs">Đang tải...</div>;
 
   return (
-    <div className="h-full flex flex-col gap-6 overflow-hidden p-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0 pt-2">
+    <div className="relative min-h-[calc(100vh-8rem)]">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight">Nhật ký hoạt động</h2>
-          <p className="text-white/40 mt-1 text-[10px] uppercase tracking-widest">Ai đã làm gì?</p>
+          <h2 className="text-4xl font-bold text-white tracking-tight">Nhật ký hoạt động</h2>
+          <p className="text-white/40 mt-1 text-xs uppercase tracking-widest">Ai đã làm gì?</p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
-        <div className="bg-surface/50 border border-white/5 rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-sm overflow-hidden mb-12">
-          {logs.length === 0 ? (
+      <div className="bg-surface/50 border border-white/5 rounded-[2.5rem] p-6 sm:p-8 md:p-10 shadow-2xl backdrop-blur-sm overflow-hidden min-h-[500px]">
+        {logs.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-white/10 rounded-[2rem]">
             <p className="text-white/20 uppercase tracking-[0.2em] font-bold text-xs">
               Chưa có hoạt động nào được ghi nhận
@@ -98,6 +97,5 @@ export const LogList = () => {
         )}
       </div>
     </div>
-  </div>
-);
+  );
 };
