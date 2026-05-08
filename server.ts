@@ -107,10 +107,10 @@ async function startServer() {
       console.error("Failed to log activity:", err.message);
       globalErrors.push(`Log Error: ${err.message}`);
     }
-   // --- API Routes START ---
+  // --- API Routes START ---
   app.use((req, res, next) => {
-    if (req.url.startsWith("/api")) {
-      console.log(`[API DEBUG] ${req.method} ${req.url} - Content-Type: ${req.get('content-type')}`);
+    if (req.path.startsWith("/api")) {
+      console.log(`[API DEBUG] ${req.method} ${req.path} - Content-Type: ${req.get('content-type')}`);
     }
     next();
   });
@@ -1291,9 +1291,9 @@ async function startServer() {
   }, 10 * 1000); // 10 seconds check
   
   // 404 catch-all for API to prevent falling into SPA
-  app.all("/api/*", (req, res) => {
-    console.warn(`[Presence] API route not found: ${req.method} ${req.url}`);
-    res.status(404).json({ error: `API route ${req.method} ${req.url} not found` });
+  app.use("/api", (req, res) => {
+    console.warn(`[API] Route not found: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ error: `API route ${req.method} ${req.originalUrl} not found` });
   });
 
   // Vite middleware
