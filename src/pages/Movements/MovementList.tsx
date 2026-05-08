@@ -422,7 +422,7 @@ export const MovementList: React.FC = () => {
                     {units.find(u => u.id === viewingReport.unitId)?.name || "Đơn vị ẩn"}
                   </h3>
                   <p className="text-[10px] text-white/40 uppercase font-medium mt-1">
-                    Nộp ngày: {new Date(viewingReport.submittedAt).toLocaleString("vi-VN")}
+                    Nộp ngày: {viewingReport.submittedAt ? new Date(Number(viewingReport.submittedAt)).toLocaleString("vi-VN") : "N/A"}
                   </p>
                 </div>
                 <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
@@ -440,25 +440,57 @@ export const MovementList: React.FC = () => {
                 {viewingReport.attachments.length > 0 && (
                   <div>
                     <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Minh chứng đính kèm</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {viewingReport.attachments.map((file, idx) => (
-                        <a 
-                          key={idx} 
-                          href={file.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/40 transition-all group"
-                        >
-                          <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
-                            {file.type === "Image" ? <ImageIcon size={20} /> : <FileText size={20} />}
-                          </div>
-                          <div className="flex-1 overflow-hidden">
-                            <p className="text-[11px] font-bold text-white truncate">{file.name}</p>
-                            <p className="text-[9px] text-white/20 uppercase font-medium">{file.type}</p>
-                          </div>
-                          <ExternalLink size={14} className="text-white/20 group-hover:text-accent" />
-                        </a>
-                      ))}
+                    <div className="space-y-6">
+                      {/* Image Preview Gallery */}
+                      {viewingReport.attachments.some(a => a.type === "Image") && (
+                        <div className="grid grid-cols-1 gap-4">
+                          {viewingReport.attachments.filter(a => a.type === "Image").map((file, idx) => (
+                            <div key={`img-${idx}`} className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+                              <img 
+                                src={file.url} 
+                                alt={file.name} 
+                                className="w-full h-full object-contain"
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                                <a 
+                                  href={file.url} 
+                                  download={file.name}
+                                  className="p-3 bg-accent text-accent-foreground rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
+                                >
+                                  <Upload size={16} className="rotate-180" />
+                                  <span className="text-[10px] font-bold uppercase tracking-widest">Tải về</span>
+                                </a>
+                              </div>
+                              <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
+                                <p className="text-[10px] font-bold text-white uppercase tracking-wider truncate max-w-[200px]">{file.name}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* File Links */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {viewingReport.attachments.map((file, idx) => (
+                          <a 
+                            key={idx} 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/40 transition-all group"
+                          >
+                            <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                              {file.type === "Image" ? <ImageIcon size={20} /> : <FileText size={20} />}
+                            </div>
+                            <div className="flex-1 overflow-hidden">
+                              <p className="text-[11px] font-bold text-white truncate">{file.name}</p>
+                              <p className="text-[9px] text-white/20 uppercase font-medium">{file.type}</p>
+                            </div>
+                            <ExternalLink size={14} className="text-white/20 group-hover:text-accent" />
+                          </a>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
