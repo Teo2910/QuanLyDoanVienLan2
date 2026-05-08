@@ -123,4 +123,5 @@ export interface MovementReport {
   description: string;
   attachments: Attachment[];
   submittedAt: number;
+  submissionCount?: number;
 }

@@ -225,6 +225,15 @@ class DataService {
     return response.json();
   }
 
+  async updateMovementReport(id: string, report: Partial<MovementReport>): Promise<void> {
+    const response = await fetch(`/api/movement-reports/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(report),
+    });
+    if (!response.ok) throw new Error("Failed to update report");
+  }
+
   async getUnits(): Promise<Unit[]> {
     try {
       const response = await fetch(`/api/units?t=${Date.now()}`);

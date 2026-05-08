@@ -515,8 +515,13 @@ async function startServer() {
             unitId NVARCHAR(50),
             description NVARCHAR(MAX),
             attachments NVARCHAR(MAX),
-            submittedAt BIGINT
+            submittedAt BIGINT,
+            submissionCount INT DEFAULT 1
           )
+        END
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='movement_reports' AND COLUMN_NAME='submissionCount')
+        BEGIN
+          ALTER TABLE movement_reports ADD submissionCount INT DEFAULT 1;
         END`
       ];
 
@@ -704,7 +709,8 @@ async function startServer() {
       const result = await request.query(query);
       const formatted = result.recordset.map(r => ({
         ...r,
-        attachments: r.attachments ? JSON.parse(r.attachments) : []
+        attachments: r.attachments ? JSON.parse(r.attachments) : [],
+        submissionCount: r.submissionCount || 1
       }));
       res.json(formatted);
     } catch (err) {
@@ -725,14 +731,52 @@ async function startServer() {
         .input("description", sql.NVarChar, r.description)
         .input("attachments", sql.NVarChar, JSON.stringify(r.attachments || []))
         .input("submittedAt", sql.BigInt, Date.now())
+        .input("submissionCount", sql.Int, 1)
         .query(`
-          INSERT INTO movement_reports (id, movementId, unitId, description, attachments, submittedAt)
-          VALUES (@id, @movementId, @unitId, @description, @attachments, @submittedAt)
+          INSERT INTO movement_reports (id, movementId, unitId, description, attachments, submittedAt, submissionCount)
+          VALUES (@id, @movementId, @unitId, @description, @attachments, @submittedAt, @submissionCount)
         `);
       
       await logActivity(req, "Nộp báo cáo phong trào", "MovementReport", id, `ID phong trào: ${r.movementId}`);
       io.emit("movement-reports:changed", { movementId: r.movementId });
       res.json({ success: true, id });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  apiRouter.put("/movement-reports/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const r = req.body;
+      
+      // Get current count
+      const currentRes = await pool.request()
+        .input("id", sql.NVarChar, id)
+        .query("SELECT submissionCount FROM movement_reports WHERE id = @id");
+      
+      const currentCount = (currentRes.recordset[0]?.submissionCount || 0) + 1;
+
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("description", sql.NVarChar, r.description)
+        .input("attachments", sql.NVarChar, JSON.stringify(r.attachments || []))
+        .input("submittedAt", sql.BigInt, Date.now())
+        .input("submissionCount", sql.Int, currentCount)
+        .query(`
+          UPDATE movement_reports 
+          SET description = @description, 
+              attachments = @attachments, 
+              submittedAt = @submittedAt,
+              submissionCount = @submissionCount
+          WHERE id = @id
+        `);
+      
+      await logActivity(req, "Cập nhật báo cáo phong trào", "MovementReport", id, `Lần sửa thứ: ${currentCount}`);
+      io.emit("movement-reports:changed", { id });
+      res.json({ success: true });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });

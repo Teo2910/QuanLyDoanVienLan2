@@ -25,6 +25,7 @@ export const MovementList: React.FC = () => {
   const [selectedMovement, setSelectedMovement] = useState<Movement | null>(null);
   const [viewingReport, setViewingReport] = useState<MovementReport | null>(null);
   const [editingMovement, setEditingMovement] = useState<Partial<Movement> | null>(null);
+  const [editingReport, setEditingReport] = useState<MovementReport | null>(null);
   
   // Form States
   const [newMovement, setNewMovement] = useState<Partial<Movement>>({
@@ -138,13 +139,21 @@ export const MovementList: React.FC = () => {
     if (!selectedMovement || !profile?.unitId) return;
     
     try {
-      await dataService.addMovementReport({
-        movementId: selectedMovement.id,
-        unitId: profile.unitId,
-        description: newReport.description || "",
-        attachments: newReport.attachments || []
-      });
+      if (editingReport) {
+        await dataService.updateMovementReport(editingReport.id, {
+          description: newReport.description || "",
+          attachments: newReport.attachments || []
+        });
+      } else {
+        await dataService.addMovementReport({
+          movementId: selectedMovement.id,
+          unitId: profile.unitId,
+          description: newReport.description || "",
+          attachments: newReport.attachments || []
+        });
+      }
       setIsReportModalOpen(false);
+      setEditingReport(null);
       setNewReport({ description: "", attachments: [] });
     } catch (err: any) {
       alert(`Lỗi khi gửi báo cáo: ${err.message || "Lỗi không xác định"}`);
@@ -187,6 +196,74 @@ export const MovementList: React.FC = () => {
           </motion.button>
         )}
       </div>
+
+      {isAdmin && (
+        <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+          <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+             <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center text-accent">
+                   <BarChart3 size={20} />
+                </div>
+                <h3 className="text-xl font-bold text-white tracking-tight">Thống kê báo cáo phong trào</h3>
+             </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/[0.02]">
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5">Phong trào</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center">Đơn vị tham gia</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center">Đã báo cáo</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center text-orange-400/60">Chưa báo cáo</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-right">Tỉ lệ (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {movements.map((movement) => {
+                  const movementReports = reports.filter(r => r.movementId === movement.id);
+                  const reportedCount = movementReports.length;
+                  const totalUnits = movement.participatingUnitIds.length;
+                  const pendingCount = totalUnits - reportedCount;
+                  const rate = totalUnits > 0 ? (reportedCount / totalUnits * 100).toFixed(1) : "0.0";
+
+                  return (
+                    <motion.tr 
+                      key={movement.id}
+                      onClick={() => {
+                        setSelectedMovement(movement);
+                        setIsDetailModalOpen(true);
+                      }}
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      className="cursor-pointer transition-colors group"
+                    >
+                      <td className="px-8 py-6 border-b border-white/5">
+                        <span className="text-sm font-bold text-white group-hover:text-accent transition-colors">{movement.title}</span>
+                      </td>
+                      <td className="px-8 py-6 border-b border-white/5 text-center">
+                        <span className="text-sm font-bold text-white/60">{totalUnits}</span>
+                      </td>
+                      <td className="px-8 py-6 border-b border-white/5 text-center">
+                        <span className="text-sm font-bold text-green-400">{reportedCount}</span>
+                      </td>
+                      <td className="px-8 py-6 border-b border-white/5 text-center">
+                        <span className="text-sm font-bold text-orange-400">{pendingCount}</span>
+                      </td>
+                      <td className="px-8 py-6 border-b border-white/5 text-right">
+                         <div className="flex items-center justify-end gap-3">
+                            <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                               <div className="h-full bg-accent transition-all duration-1000" style={{ width: `${rate}%` }} />
+                            </div>
+                            <span className="text-xs font-black text-white/40 w-10">{rate}%</span>
+                         </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {visibleMovements.map((movement) => {
@@ -273,12 +350,14 @@ export const MovementList: React.FC = () => {
               )}
 
               {!isAdmin && (
-                <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-end gap-3">
                    {!hasReported ? (
                      <button 
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedMovement(movement);
+                        setEditingReport(null);
+                        setNewReport({ description: "", attachments: [] });
                         setIsReportModalOpen(true);
                       }}
                       className="flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
@@ -287,20 +366,41 @@ export const MovementList: React.FC = () => {
                       <ChevronRight size={12} />
                      </button>
                    ) : (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const myReport = reports.find(r => r.movementId === movement.id && r.unitId === profile?.unitId);
-                        if (myReport) {
-                          setViewingReport(myReport);
-                          setIsViewingReportModalOpen(true);
-                        }
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all shadow-lg"
-                    >
-                      Xem báo cáo đã nộp
-                      <ChevronRight size={12} />
-                    </button>
+                    <>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const myReport = reports.find(r => r.movementId === movement.id && r.unitId === profile?.unitId);
+                          if (myReport) {
+                            setSelectedMovement(movement);
+                            setEditingReport(myReport);
+                            setNewReport({
+                              description: myReport.description,
+                              attachments: myReport.attachments
+                            });
+                            setIsReportModalOpen(true);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                      >
+                        Chỉnh sửa báo cáo
+                        <Plus size={12} />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const myReport = reports.find(r => r.movementId === movement.id && r.unitId === profile?.unitId);
+                          if (myReport) {
+                            setViewingReport(myReport);
+                            setIsViewingReportModalOpen(true);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all shadow-lg"
+                      >
+                        Xem đã nộp
+                        <ChevronRight size={12} />
+                      </button>
+                    </>
                    )}
                 </div>
               )}
@@ -512,7 +612,14 @@ export const MovementList: React.FC = () => {
                                     className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center justify-between cursor-pointer group"
                                   >
                                     <div className="flex flex-col gap-0.5">
-                                      <span className="text-xs font-bold text-white/90 group-hover:text-white transition-colors">{unit?.name}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs font-bold text-white/90 group-hover:text-white transition-colors">{unit?.name}</span>
+                                        {r.submissionCount && r.submissionCount > 1 && (
+                                          <span className="px-1.5 py-0.5 bg-accent/20 text-accent text-[8px] font-black rounded-md">
+                                            {r.submissionCount} lần báo
+                                          </span>
+                                        )}
+                                      </div>
                                       <span className="text-[8px] text-white/20 uppercase font-bold tracking-tighter">
                                         Nộp ngày {new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt)).toLocaleDateString("vi-VN")}
                                       </span>
@@ -869,7 +976,9 @@ export const MovementList: React.FC = () => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl">
            <div className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
               <div className="p-10 border-b border-white/5 bg-white/[0.02]">
-                 <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-2">Báo cáo phong trào</h4>
+                 <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-2">
+                   {editingReport ? "Cập nhật báo cáo phong trào" : "Báo cáo phong trào"}
+                 </h4>
                  <h3 className="text-2xl font-bold text-white tracking-tight">{selectedMovement.title}</h3>
               </div>
               
@@ -969,7 +1078,7 @@ export const MovementList: React.FC = () => {
                       className="flex-[2] py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] hover:opacity-90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
                     >
                        <Send size={16} />
-                       Gửi báo cáo hệ thống
+                       {editingReport ? "Cập nhật báo cáo" : "Gửi báo cáo hệ thống"}
                     </button>
                  </div>
               </form>
