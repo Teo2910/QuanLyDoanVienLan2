@@ -33,7 +33,7 @@ const PageTransition = ({ children }: { children: React.ReactNode; key?: string 
 
 const Dashboard = () => {
   const { profile } = useAuth();
-  const [stats, setStats] = useState({ units: 0, members: 0 });
+  const [stats, setStats] = useState({ units: 0, members: 0, outstanding: 0 });
   const [recentMembers, setRecentMembers] = useState<(Member & { unitName: string })[]>([]);
   const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
 

@@ -173,7 +173,7 @@ export const Statistics: React.FC = () => {
       "Họ và Tên": m.fullName,
       "Mã số": m.memberId,
       "Giới tính": m.gender,
-      "Ngày sinh": m.birthday,
+      "Ngày sinh": m.dob,
       "Dân tộc": m.ethnic,
       "Tình trạng": m.status,
       "Xếp loại": m.achievementLevel || "Chưa xếp loại",

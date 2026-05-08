@@ -29,6 +29,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   role: UserRole;
+  isSecretary?: boolean;
   fullName?: string;
   avatarUrl?: string;
   phone?: string;

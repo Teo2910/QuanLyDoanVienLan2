@@ -109,98 +109,183 @@ async function startServer() {
     }
   }
   // --- API Routes START ---
-  app.use((req, res, next) => {
-    if (req.path.startsWith("/api")) {
-      console.log(`[API] ${req.method} Path: ${req.path} | URL: ${req.url} | Original: ${req.originalUrl}`);
-    }
+  const apiRouter = express.Router();
+
+  apiRouter.use((req, res, next) => {
+    console.log(`[API Diagnostic] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
     next();
   });
 
-  app.get("/api/ping", (req, res) => res.json({ pong: true, time: Date.now() }));
+  apiRouter.get("/ping", (req, res) => res.json({ pong: true }));
 
-  // Knowledge Base - Moved here to ensure priority
-  app.get("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] GET /api/knowledge-base hit");
+  // Knowledge Base explicit route handlers
+  apiRouter.route("/knowledge-base")
+    .get(async (req, res) => {
+      console.log("[Knowledge] GET hit at /api/knowledge-base");
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
+        res.json(result.recordset);
+      } catch (err) {
+        console.error("[Knowledge] GET error:", err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    })
+    .post(async (req, res) => {
+      console.log("[Knowledge] POST hit at /api/knowledge-base", req.body);
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const { title, content, category } = req.body;
+        const id = Date.now().toString(16) + Math.random().toString(16).substring(2, 5);
+        const updatedAt = Date.now();
+        
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("title", sql.NVarChar, title)
+          .input("content", sql.NVarChar, content)
+          .input("category", sql.NVarChar, category || null)
+          .input("updatedAt", sql.BigInt, updatedAt)
+          .query("INSERT INTO knowledge_base (id, title, content, category, updatedAt) VALUES (@id, @title, @content, @category, @updatedAt)");
+        
+        await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+        res.json({ success: true, id });
+      } catch (err) {
+        console.error("[Knowledge] POST error:", err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    });
+
+  apiRouter.route("/knowledge-base/:id")
+    .put(async (req, res) => {
+      console.log("[Knowledge] PUT hit:", req.params.id);
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const { id } = req.params;
+        const { title, content, category } = req.body;
+        const updatedAt = Date.now();
+        
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("title", sql.NVarChar, title)
+          .input("content", sql.NVarChar, content)
+          .input("category", sql.NVarChar, category || null)
+          .input("updatedAt", sql.BigInt, updatedAt)
+          .query("UPDATE knowledge_base SET title = @title, content = @content, category = @category, updatedAt = @updatedAt WHERE id = @id");
+        
+        await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+        res.json({ success: true });
+      } catch (err) {
+        console.error("[Knowledge] PUT error:", err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    })
+    .delete(async (req, res) => {
+      console.log("[Knowledge] DELETE hit:", req.params.id);
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const { id } = req.params;
+        await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM knowledge_base WHERE id = @id");
+        await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
+        res.json({ success: true });
+      } catch (err) {
+        console.error("[Knowledge] DELETE error:", err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    });
+
+  // Attach Router
+  app.use("/api", apiRouter);
+
+  // Presence API
+  apiRouter.get("/presence-system", async (req, res) => {
     try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
-      res.json(result.recordset);
+      let sqlUsers: any[] = [];
+      if (pool && pool.connected) {
+        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
+        sqlUsers = result.recordset;
+      }
+      
+      const allUsersMap = new Map();
+      sqlUsers.forEach(u => {
+        const uid = u.uid || `db-${u.email}`;
+        allUsersMap.set(uid, {
+          uid,
+          email: u.email,
+          role: u.role,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl,
+          unitId: u.unitId
+        });
+      });
+
+      systemUsers.forEach((u, uid) => {
+        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
+      });
+
+      res.json(Array.from(allUsersMap.values()));
     } catch (err) {
-      console.error("[Knowledge] GET error:", err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      console.error("[Presence] Handler error:", err);
+      res.json(Array.from(systemUsers.values()));
     }
   });
 
-  app.post("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] POST /api/knowledge-base hit", req.body);
+  // User Profile Routes
+  apiRouter.post("/login", async (req, res) => {
     try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { title, content, category } = req.body;
-      const id = Date.now().toString(16) + Math.random().toString(16).substring(2, 5);
-      const updatedAt = Date.now();
+      const { email, password } = req.body;
+      if (!pool || !pool.connected) {
+        // Very basic fallback if DB is not ready during login
+        return res.status(503).json({ error: "Database connecting... please try again in a few seconds." });
+      }
       
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, title)
-        .input("content", sql.NVarChar, content)
-        .input("category", sql.NVarChar, category || null)
-        .input("updatedAt", sql.BigInt, updatedAt)
-        .query("INSERT INTO knowledge_base (id, title, content, category, updatedAt) VALUES (@id, @title, @content, @category, @updatedAt)");
+      const result = await pool.request()
+        .input("email", sql.NVarChar, email)
+        .input("password", sql.NVarChar, password)
+        .query("SELECT * FROM users WHERE email = @email AND password = @password");
       
-      await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
-      res.json({ success: true, id });
-    } catch (err) {
-      console.error("[Knowledge] POST error:", err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
+      let user = result.recordset[0];
+      if (user) {
+        // Auto-fix if UID is missing
+        if (!user.uid) {
+          const newUid = Math.random().toString(36).substring(2, 11);
+          const upRes = await pool.request()
+            .input("uid", sql.NVarChar, newUid)
+            .input("email", sql.NVarChar, email)
+            .query("UPDATE users SET uid = @uid WHERE email = @email");
+          user.uid = newUid;
+          console.log(`Auto-assigned UID ${newUid} to user ${email}`);
+        }
 
-  app.put("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] PUT /api/knowledge-base hit:", req.params.id);
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      const { title, content, category } = req.body;
-      const updatedAt = Date.now();
-      
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, title)
-        .input("content", sql.NVarChar, content)
-        .input("category", sql.NVarChar, category || null)
-        .input("updatedAt", sql.BigInt, updatedAt)
-        .query("UPDATE knowledge_base SET title = @title, content = @content, category = @category, updatedAt = @updatedAt WHERE id = @id");
-      
-      await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
-      res.json({ success: true });
-    } catch (err) {
-      console.error("[Knowledge] PUT error:", err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
+        if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
+        const { password: _, ...userWithoutPassword } = user;
+        
+        // Register in system users for real-time visibility
+        const systemUserInfo = {
+          uid: user.uid,
+          email: user.email,
+          role: user.role,
+          fullName: user.fullName,
+          avatarUrl: user.avatarUrl,
+          unitId: user.unitId
+        };
+        systemUsers.set(user.uid, systemUserInfo);
 
-  app.delete("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] DELETE /api/knowledge-base hit:", req.params.id);
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      
-      await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM knowledge_base WHERE id = @id");
-      await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
-      res.json({ success: true });
+        res.json(userWithoutPassword);
+      } else {
+        res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
+      }
     } catch (err) {
-      console.error("[Knowledge] DELETE error:", err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
     }
   });
 
   // DB Connection & Migration
-  // We run this AFTER registering routes so routes are available even if DB is slow
   const initDb = async () => {
     try {
-      console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
+      console.log(`[DB] Connecting to ${sqlConfig.server}...`);
       pool = await sql.connect(sqlConfig);
-      console.log("Connected to SQL Server successfully.");
+      console.log("[DB] Connected successfully.");
       
       // Auto-migrate tables if needed
       try {
@@ -218,10 +303,7 @@ async function startServer() {
             END
           END
         `);
-        console.log("[Setup] Members table migration checked.");
-      } catch(e: any) {
-        console.error("[Setup] Migration error:", e);
-      }
+      } catch(e) { console.error("[DB] Migration error:", e); }
       
       // Create tables if not exists
       try {
@@ -278,10 +360,8 @@ async function startServer() {
             )
           END
         `);
-        console.log("[Setup] All tables checked/created.");
-      } catch (e) {
-        console.error("[Setup] Error setup tables:", e);
-      }
+        console.log("[DB] Tables verified.");
+      } catch (e) { console.error("[DB] Setup tables error:", e); }
       
       // Sync users into memory
       try {
@@ -292,19 +372,15 @@ async function startServer() {
             uid, email: u.email, role: u.role, fullName: u.fullName, avatarUrl: u.avatarUrl, unitId: u.unitId
           });
         });
-        console.log(`[Presence] Initialized ${result.recordset.length} users from DB`);
-      } catch (e) {
-        console.error("[Presence] Failed to sync users from DB at startup:", e);
-      }
+      } catch (e) { console.error("[DB] Initial user sync failed:", e); }
     } catch (err) {
-      console.error("SQL Server Connection Failed: ", err);
+      console.error("[DB] Connection Failed:", err);
     }
   };
-  initDb(); // Non-blocking!
+  initDb();
 
   io.on("connection", (socket) => {
     socket.on("presence:online", (uid: string) => {
-      // Remove any existing entry for this UID from other sockets to avoid duplicates
       for (const [sid, data] of onlineUsers.entries()) {
         if (data.uid === uid) onlineUsers.delete(sid);
       }
@@ -313,66 +389,10 @@ async function startServer() {
     });
 
     socket.on("disconnect", () => {
-      const data = onlineUsers.get(socket.id);
-      if (data) {
-        onlineUsers.delete(socket.id);
-      }
+      onlineUsers.delete(socket.id);
       io.emit("presence:update", Array.from(onlineUsers.values()));
     });
   });
-
-
-  // Presence API
-  app.get("/api/presence-system", async (req, res) => {
-    try {
-      let sqlUsers: any[] = [];
-      if (pool && pool.connected) {
-        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
-        sqlUsers = result.recordset;
-      }
-      
-      const allUsersMap = new Map();
-      sqlUsers.forEach(u => {
-        const uid = u.uid || `db-${u.email}`;
-        allUsersMap.set(uid, {
-          uid,
-          email: u.email,
-          role: u.role,
-          fullName: u.fullName,
-          avatarUrl: u.avatarUrl,
-          unitId: u.unitId
-        });
-      });
-
-      systemUsers.forEach((u, uid) => {
-        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
-      });
-
-      res.json(Array.from(allUsersMap.values()));
-    } catch (err) {
-      console.error("[Presence] Handler error:", err);
-      res.json(Array.from(systemUsers.values()));
-    }
-  });
-
-  app.post("/api/login", async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      if (!pool || !pool.connected) {
-        // Very basic fallback if DB is not ready during login
-        return res.status(503).json({ error: "Database connecting... please try again in a few seconds." });
-      }
-      
-      const result = await pool.request()
-        .input("email", sql.NVarChar, email)
-        .input("password", sql.NVarChar, password)
-        .query("SELECT * FROM users WHERE email = @email AND password = @password");
-      
-      let user = result.recordset[0];
-      if (user) {
-        // Auto-fix if UID is missing
-        if (!user.uid) {
-          const newUid = Math.random().toString(36).substring(2, 11);
           const upRes = await pool.request()
             .input("uid", sql.NVarChar, newUid)
             .input("email", sql.NVarChar, email)
