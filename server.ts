@@ -8,6 +8,8 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+console.log(">>> [SERVER] BOOTING - REVISION 3 <<<");
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -110,86 +112,12 @@ async function startServer() {
   // --- API Routes START ---
   app.use((req, res, next) => {
     if (req.url.startsWith("/api")) {
-      console.log(`[API DEBUG] ${req.method} ${req.url}`);
+      console.log(`[API DEBUG] ${req.method} ${req.url} - Content-Type: ${req.get('content-type')}`);
     }
     next();
   });
 
-  // Knowledge Base
-  app.get("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] GET /api/knowledge-base");
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
-      res.json(result.recordset);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
-
-  app.post("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] POST /api/knowledge-base", req.body);
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { title, content, category } = req.body;
-      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-      const updatedAt = Date.now();
-      
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, title)
-        .input("content", sql.NVarChar, content)
-        .input("category", sql.NVarChar, category || null)
-        .input("updatedAt", sql.BigInt, updatedAt)
-        .query("INSERT INTO knowledge_base (id, title, content, category, updatedAt) VALUES (@id, @title, @content, @category, @updatedAt)");
-      
-      await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
-      res.json({ success: true, id });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
-
-  app.put("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] PUT /api/knowledge-base/", req.params.id);
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      const { title, content, category } = req.body;
-      const updatedAt = Date.now();
-      
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, title)
-        .input("content", sql.NVarChar, content)
-        .input("category", sql.NVarChar, category || null)
-        .input("updatedAt", sql.BigInt, updatedAt)
-        .query("UPDATE knowledge_base SET title = @title, content = @content, category = @category, updatedAt = @updatedAt WHERE id = @id");
-      
-      await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
-      res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
-
-  app.delete("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] DELETE /api/knowledge-base/", req.params.id);
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      
-      await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM knowledge_base WHERE id = @id");
-      await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
-      res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
+  app.get("/api/ping", (req, res) => res.json({ pong: true, time: Date.now() }));
 
   // Auth Login
   try {
@@ -328,6 +256,81 @@ async function startServer() {
   });
 
   // Auth Login
+  app.get("/api/knowledge-base", async (req, res) => {
+    console.log("[Knowledge] GET /api/knowledge-base");
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.post("/api/knowledge-base", async (req, res) => {
+    console.log("[Knowledge] POST /api/knowledge-base", req.body);
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { title, content, category } = req.body;
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const updatedAt = Date.now();
+      
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("content", sql.NVarChar, content)
+        .input("category", sql.NVarChar, category || null)
+        .input("updatedAt", sql.BigInt, updatedAt)
+        .query("INSERT INTO knowledge_base (id, title, content, category, updatedAt) VALUES (@id, @title, @content, @category, @updatedAt)");
+      
+      await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+      res.json({ success: true, id });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.put("/api/knowledge-base/:id", async (req, res) => {
+    console.log("[Knowledge] PUT /api/knowledge-base/", req.params.id);
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const { title, content, category } = req.body;
+      const updatedAt = Date.now();
+      
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("content", sql.NVarChar, content)
+        .input("category", sql.NVarChar, category || null)
+        .input("updatedAt", sql.BigInt, updatedAt)
+        .query("UPDATE knowledge_base SET title = @title, content = @content, category = @category, updatedAt = @updatedAt WHERE id = @id");
+      
+      await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.delete("/api/knowledge-base/:id", async (req, res) => {
+    console.log("[Knowledge] DELETE /api/knowledge-base/", req.params.id);
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      
+      await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM knowledge_base WHERE id = @id");
+      await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
   app.post("/api/login", async (req, res) => {
     try {
       const { email, password } = req.body;
