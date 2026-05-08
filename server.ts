@@ -290,6 +290,14 @@ async function startServer() {
       // Auto-migrate tables if needed
       try {
         await pool.request().query(`
+          IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='units')
+          BEGIN
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='units' AND COLUMN_NAME='parentId')
+            BEGIN
+              ALTER TABLE units ADD parentId NVARCHAR(50);
+            END
+          END
+
           IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
           BEGIN
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
@@ -357,6 +365,33 @@ async function startServer() {
               content NVARCHAR(MAX) NOT NULL,
               category NVARCHAR(100),
               updatedAt BIGINT
+            )
+          END
+
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movements')
+          BEGIN
+            CREATE TABLE movements (
+              id NVARCHAR(50) PRIMARY KEY,
+              title NVARCHAR(255),
+              startDate NVARCHAR(100),
+              endDate NVARCHAR(100),
+              description NVARCHAR(MAX),
+              attachments NVARCHAR(MAX),
+              participatingUnitIds NVARCHAR(MAX),
+              creatorId NVARCHAR(50),
+              createdAt BIGINT
+            )
+          END
+
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movement_reports')
+          BEGIN
+            CREATE TABLE movement_reports (
+              id NVARCHAR(50) PRIMARY KEY,
+              movementId NVARCHAR(50),
+              unitId NVARCHAR(50),
+              description NVARCHAR(MAX),
+              attachments NVARCHAR(MAX),
+              submittedAt BIGINT
             )
           END
         `);
@@ -495,7 +530,7 @@ async function startServer() {
   app.post("/api/units", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id, name, code, address, phone, email, createdAt } = req.body;
+      const { id, name, code, address, phone, email, createdAt, parentId } = req.body;
       const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("name", sql.NVarChar, name)
@@ -503,8 +538,9 @@ async function startServer() {
         .input("address", sql.NVarChar, address || null)
         .input("phone", sql.NVarChar, phone || null)
         .input("email", sql.NVarChar, email || null)
+        .input("parentId", sql.NVarChar, parentId || null)
         .input("createdAt", sql.BigInt, createdAt)
-        .query("INSERT INTO units (id, name, code, address, phone, email, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @createdAt)");
+        .query("INSERT INTO units (id, name, code, address, phone, email, parentId, createdAt) VALUES (@id, @name, @code, @address, @phone, @email, @parentId, @createdAt)");
       
       await logActivity(req, "Thêm đơn vị mới", "Unit", id, `Đơn vị: ${name}`);
       io.emit("units:changed");
@@ -515,11 +551,108 @@ async function startServer() {
     }
   });
 
+  // Movements
+  app.get("/api/movements", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const result = await pool.request().query("SELECT * FROM movements ORDER BY createdAt DESC");
+      const formatted = result.recordset.map(m => ({
+        ...m,
+        attachments: m.attachments ? JSON.parse(m.attachments) : [],
+        participatingUnitIds: m.participatingUnitIds ? JSON.parse(m.participatingUnitIds) : []
+      }));
+      res.json(formatted);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/movements", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const m = req.body;
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, m.title)
+        .input("startDate", sql.NVarChar, m.startDate)
+        .input("endDate", sql.NVarChar, m.endDate)
+        .input("description", sql.NVarChar, m.description || null)
+        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
+        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
+        .input("creatorId", sql.NVarChar, m.creatorId)
+        .input("createdAt", sql.BigInt, Date.now())
+        .query(`
+          INSERT INTO movements (id, title, startDate, endDate, description, attachments, participatingUnitIds, creatorId, createdAt)
+          VALUES (@id, @title, @startDate, @endDate, @description, @attachments, @participatingUnitIds, @creatorId, @createdAt)
+        `);
+      
+      await logActivity(req, "Tạo phong trào mới", "Movement", id, `Phong trào: ${m.title}`);
+      io.emit("movements:changed");
+      res.json({ success: true, id });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  // Movement Reports
+  app.get("/api/movement-reports", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) return res.json([]);
+      const { movementId } = req.query;
+      let query = "SELECT * FROM movement_reports";
+      const request = pool.request();
+      
+      if (movementId) {
+        query += " WHERE movementId = @movementId";
+        request.input("movementId", sql.NVarChar, movementId);
+      }
+      
+      const result = await request.query(query);
+      const formatted = result.recordset.map(r => ({
+        ...r,
+        attachments: r.attachments ? JSON.parse(r.attachments) : []
+      }));
+      res.json(formatted);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Database error" });
+    }
+  });
+
+  app.post("/api/movement-reports", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const r = req.body;
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("movementId", sql.NVarChar, r.movementId)
+        .input("unitId", sql.NVarChar, r.unitId)
+        .input("description", sql.NVarChar, r.description)
+        .input("attachments", sql.NVarChar, JSON.stringify(r.attachments || []))
+        .input("submittedAt", sql.BigInt, Date.now())
+        .query(`
+          INSERT INTO movement_reports (id, movementId, unitId, description, attachments, submittedAt)
+          VALUES (@id, @movementId, @unitId, @description, @attachments, @submittedAt)
+        `);
+      
+      await logActivity(req, "Nộp báo cáo phong trào", "MovementReport", id, `ID phong trào: ${r.movementId}`);
+      io.emit("movement-reports:changed", { movementId: r.movementId });
+      res.json({ success: true, id });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
   app.put("/api/units/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
-      const { name, code, address, phone, email } = req.body;
+      const { name, code, address, phone, email, parentId } = req.body;
       await pool.request()
         .input("id", sql.NVarChar, id)
         .input("name", sql.NVarChar, name)
@@ -527,7 +660,8 @@ async function startServer() {
         .input("address", sql.NVarChar, address || null)
         .input("phone", sql.NVarChar, phone || null)
         .input("email", sql.NVarChar, email || null)
-        .query("UPDATE units SET name = @name, code = @code, address = @address, phone = @phone, email = @email WHERE id = @id");
+        .input("parentId", sql.NVarChar, parentId || null)
+        .query("UPDATE units SET name = @name, code = @code, address = @address, phone = @phone, email = @email, parentId = @parentId WHERE id = @id");
       
       await logActivity(req, "Cập nhật đơn vị", "Unit", id, `Đơn vị: ${name}`);
       io.emit("units:changed");

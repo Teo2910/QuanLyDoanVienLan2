@@ -41,6 +41,7 @@ export interface Unit {
   id: string;
   name: string;
   code: string;
+  parentId?: string;
   address?: string;
   phone?: string;
   email?: string;
@@ -95,4 +96,31 @@ export interface Member {
   statusHistory?: StatusChange[];
   isOutstanding?: boolean;
   createdAt: number;
+}
+
+export interface Attachment {
+  name: string;
+  url: string;
+  type: string;
+}
+
+export interface Movement {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+  attachments: Attachment[];
+  participatingUnitIds: string[];
+  creatorId: string;
+  createdAt: number;
+}
+
+export interface MovementReport {
+  id: string;
+  movementId: string;
+  unitId: string;
+  description: string;
+  attachments: Attachment[];
+  submittedAt: number;
 }

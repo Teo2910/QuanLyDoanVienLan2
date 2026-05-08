@@ -1,4 +1,4 @@
-import { Unit, Member, Activity, SystemLog, KnowledgeItem } from "../types";
+import { Unit, Member, Activity, SystemLog, KnowledgeItem, Movement, MovementReport } from "../types";
 
 class DataService {
   async getKnowledgeBase(): Promise<KnowledgeItem[]> {
@@ -162,6 +162,41 @@ class DataService {
       body: JSON.stringify(activity),
     });
     if (!response.ok) throw new Error("Failed to update activity");
+  }
+
+  async addMovement(movement: Omit<Movement, "id" | "createdAt">): Promise<Movement> {
+    const response = await fetch("/api/movements", {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(movement),
+    });
+    if (!response.ok) throw new Error("Failed to add movement");
+    const data = await response.json();
+    return { ...movement, id: data.id, createdAt: Date.now() } as Movement;
+  }
+
+  async getMovements(): Promise<Movement[]> {
+    const response = await fetch("/api/movements");
+    if (!response.ok) throw new Error("Failed to fetch movements");
+    return response.json();
+  }
+
+  async addMovementReport(report: Omit<MovementReport, "id" | "submittedAt">): Promise<MovementReport> {
+    const response = await fetch("/api/movement-reports", {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(report),
+    });
+    if (!response.ok) throw new Error("Failed to submit report");
+    const data = await response.json();
+    return { ...report, id: data.id, submittedAt: Date.now() } as MovementReport;
+  }
+
+  async getMovementReports(movementId?: string): Promise<MovementReport[]> {
+    const url = movementId ? `/api/movement-reports?movementId=${movementId}` : "/api/movement-reports";
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch reports");
+    return response.json();
   }
 
   async getUnits(): Promise<Unit[]> {

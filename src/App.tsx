@@ -5,6 +5,7 @@ import { UnitList } from "./pages/Units/UnitList";
 import { MemberList } from "./pages/Members/MemberList";
 import { Statistics } from "./pages/Statistics/Statistics";
 import { ActivityList } from "./pages/Activities/ActivityList";
+import { MovementList } from "./pages/Movements/MovementList";
 import { LogList } from "./pages/Logs/LogList";
 import { KnowledgeBase } from "./pages/KnowledgeBase/KnowledgeBase";
 import { AIAssistant } from "./pages/AIAssistant/AIAssistant";
@@ -357,6 +358,7 @@ const AppContent = () => {
             <Route path="/members" element={<PageTransition key="members"><MemberList /></PageTransition>} />
             <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
             <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
+            <Route path="/movements" element={<PageTransition key="movements"><MovementList /></PageTransition>} />
             <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
             <Route path="/knowledge-base" element={<PageTransition key="knowledge"><KnowledgeBase /></PageTransition>} />
             <Route path="/ai-assistant" element={<PageTransition key="ai"><AIAssistant /></PageTransition>} />

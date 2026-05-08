@@ -16,7 +16,7 @@ export const UnitList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "" });
+  const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "", parentId: "" });
 
   const [toasts, setToasts] = useState<any[]>([]);
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -94,26 +94,32 @@ export const UnitList: React.FC = () => {
         loadUnits();
         setShowModal(false);
         setEditingId(null);
-        setNewUnit({ name: "", code: "", email: "", address: "" });
+        setNewUnit({ name: "", code: "", email: "", address: "", parentId: "" });
       });
     } else {
       dataService.addUnit(newUnit).then(() => {
         loadUnits();
         setShowModal(false);
-        setNewUnit({ name: "", code: "", email: "", address: "" });
+        setNewUnit({ name: "", code: "", email: "", address: "", parentId: "" });
       });
     }
   };
 
   const handleEdit = (unit: Unit) => {
     setEditingId(unit.id);
-    setNewUnit({ name: unit.name, code: unit.code, email: unit.email || "", address: unit.address || "" });
+    setNewUnit({ 
+      name: unit.name, 
+      code: unit.code, 
+      email: unit.email || "", 
+      address: unit.address || "",
+      parentId: unit.parentId || ""
+    });
     setShowModal(true);
   };
 
   const openAddModal = () => {
     setEditingId(null);
-    setNewUnit({ name: "", code: "", email: "", address: "" });
+    setNewUnit({ name: "", code: "", email: "", address: "", parentId: "" });
     setShowModal(true);
   };
 
@@ -188,7 +194,17 @@ export const UnitList: React.FC = () => {
                 {filteredUnits.map((unit) => (
                   <tr key={unit.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="py-6 px-4 font-mono text-sm text-white/40">{unit.code}</td>
-                    <td className="py-6 px-4 font-bold text-white text-lg">{unit.name}</td>
+                    <td className="py-6 px-4 font-bold text-white text-lg">
+                      {unit.name}
+                      {unit.parentId && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[10px] text-white/20 uppercase tracking-tighter">Trực thuộc:</span>
+                          <span className="text-[10px] text-accent uppercase font-bold tracking-tighter">
+                            {units.find(u => u.id === unit.parentId)?.name || "N/A"}
+                          </span>
+                        </div>
+                      )}
+                    </td>
                     <td className="py-6 px-4 text-white/60 text-sm">
                       <div className="flex flex-col">
                         <span>{unit.email || "Chưa có email"}</span>
@@ -293,6 +309,19 @@ export const UnitList: React.FC = () => {
                     onChange={(e) => setNewUnit({...newUnit, email: e.target.value})}
                     placeholder="VD: chidoan@example.com"
                   />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Đơn vị cấp trên</label>
+                  <select
+                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all appearance-none"
+                    value={newUnit.parentId}
+                    onChange={(e) => setNewUnit({...newUnit, parentId: e.target.value})}
+                  >
+                    <option value="" className="bg-[#1a1b26]">Không có (Cấp cao nhất)</option>
+                    {units.filter(u => u.id !== editingId).map(u => (
+                      <option key={u.id} value={u.id} className="bg-[#1a1b26]">{u.name}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Địa chỉ văn phòng</label>
