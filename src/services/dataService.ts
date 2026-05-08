@@ -187,6 +187,18 @@ class DataService {
     if (!response.ok) throw new Error("Failed to fetch movements");
     return response.json();
   }
+  
+  async updateMovement(id: string, movement: Partial<Movement>): Promise<void> {
+    const response = await fetch(`/api/movements/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(movement),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to update movement");
+    }
+  }
 
   async addMovementReport(report: Omit<MovementReport, "id" | "submittedAt">): Promise<MovementReport> {
     const response = await fetch("/api/movement-reports", {

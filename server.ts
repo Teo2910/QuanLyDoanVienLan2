@@ -647,6 +647,39 @@ async function startServer() {
     }
   });
 
+  apiRouter.put("/movements/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const m = req.body;
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, m.title)
+        .input("startDate", sql.NVarChar, m.startDate)
+        .input("endDate", sql.NVarChar, m.endDate)
+        .input("description", sql.NVarChar, m.description || null)
+        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
+        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
+        .query(`
+          UPDATE movements 
+          SET title = @title, 
+              startDate = @startDate, 
+              endDate = @endDate, 
+              description = @description, 
+              attachments = @attachments, 
+              participatingUnitIds = @participatingUnitIds
+          WHERE id = @id
+        `);
+      
+      await logActivity(req, "Cập nhật phong trào", "Movement", id, `Phong trào: ${m.title}`);
+      io.emit("movements:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
   // Movement Reports
   apiRouter.get("/movement-reports", async (req, res) => {
     try {

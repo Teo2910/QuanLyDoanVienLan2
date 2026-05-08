@@ -16,6 +16,7 @@ export const MovementList: React.FC = () => {
   
   // Modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isViewingReportModalOpen, setIsViewingReportModalOpen] = useState(false);
@@ -23,6 +24,7 @@ export const MovementList: React.FC = () => {
   // Selected items
   const [selectedMovement, setSelectedMovement] = useState<Movement | null>(null);
   const [viewingReport, setViewingReport] = useState<MovementReport | null>(null);
+  const [editingMovement, setEditingMovement] = useState<Partial<Movement> | null>(null);
   
   // Form States
   const [newMovement, setNewMovement] = useState<Partial<Movement>>({
@@ -109,6 +111,28 @@ export const MovementList: React.FC = () => {
     }
   };
 
+  const handleUpdateMovement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMovement?.id || !profile?.uid) return;
+    
+    try {
+      await dataService.updateMovement(editingMovement.id, {
+        ...editingMovement as any,
+        participatingUnitIds: editingMovement.participatingUnitIds?.length ? editingMovement.participatingUnitIds : units.map(u => u.id)
+      });
+      setIsEditModalOpen(false);
+      setEditingMovement(null);
+      if (selectedMovement?.id === editingMovement.id) {
+        // Update selected movement in detail modal if open
+        const updated = await dataService.getMovements();
+        const fresh = updated.find(m => m.id === editingMovement.id);
+        if (fresh) setSelectedMovement(fresh);
+      }
+    } catch (err: any) {
+      alert(`Lỗi khi cập nhật phong trào: ${err.message || "Lỗi không xác định"}`);
+    }
+  };
+
   const handleCreateReport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedMovement || !profile?.unitId) return;
@@ -190,6 +214,19 @@ export const MovementList: React.FC = () => {
                 )}>
                   {isAdmin ? `${unitReports.length}/${movement.participatingUnitIds.length} Báo cáo` : hasReported ? "Đã báo cáo" : "Chưa báo cáo"}
                 </div>
+                {isAdmin && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingMovement(movement);
+                      setIsEditModalOpen(true);
+                    }}
+                    className="p-2 bg-white/5 hover:bg-accent hover:text-white rounded-lg text-white/40 transition-all ml-2"
+                    title="Chỉnh sửa phong trào"
+                  >
+                    <Clock size={14} />
+                  </button>
+                )}
               </div>
 
               <h3 className="text-2xl font-bold text-white tracking-tight mb-4 group-hover:text-accent transition-colors">
@@ -265,6 +302,18 @@ export const MovementList: React.FC = () => {
                       <BarChart3 size={14} className="text-accent" />
                       {reports.filter(r => r.movementId === selectedMovement.id).length} báo cáo / {selectedMovement.participatingUnitIds.length} đơn vị
                     </span>
+                    {isAdmin && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingMovement(selectedMovement);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-accent hover:text-white transition-colors"
+                      >
+                        <Clock size={14} /> Chỉnh sửa
+                      </button>
+                    )}
                   </div>
                 </div>
                 <button onClick={() => setIsDetailModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
@@ -595,6 +644,100 @@ export const MovementList: React.FC = () => {
                     className="w-full py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
                   >
                     Công bố phong trào
+                  </button>
+                </div>
+              </form>
+           </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && editingMovement && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl">
+           <div className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <h3 className="text-2xl font-bold text-white tracking-tight">Chỉnh sửa phong trào</h3>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-white/20 hover:text-white transition-colors">
+                  <Plus size={24} className="rotate-45" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleUpdateMovement} className="p-10 space-y-6 overflow-y-auto custom-scrollbar">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tiêu đề phong trào</label>
+                  <input 
+                    required
+                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
+                    value={editingMovement.title}
+                    onChange={(e) => setEditingMovement({...editingMovement, title: e.target.value})}
+                    placeholder="VD: Phong trào Thanh niên tình nguyện mùa hè xanh 2024"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày bắt đầu</label>
+                    <input 
+                      type="date"
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      value={editingMovement.startDate}
+                      onChange={(e) => setEditingMovement({...editingMovement, startDate: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày kết thúc</label>
+                    <input 
+                      type="date"
+                      required
+                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      value={editingMovement.endDate}
+                      onChange={(e) => setEditingMovement({...editingMovement, endDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả nội dung</label>
+                  <textarea 
+                    rows={4}
+                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none"
+                    value={editingMovement.description}
+                    onChange={(e) => setEditingMovement({...editingMovement, description: e.target.value})}
+                    placeholder="Nêu rõ yêu cầu, nội dung và các mốc thời gian quan trọng..."
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Đơn vị tham gia</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-white/5 rounded-2xl border border-white/10 custom-scrollbar">
+                     {units.map(u => (
+                        <label key={u.id} className="flex items-center gap-3 cursor-pointer group">
+                           <input 
+                             type="checkbox"
+                             checked={editingMovement.participatingUnitIds?.includes(u.id)}
+                             onChange={(e) => {
+                               const ids = editingMovement.participatingUnitIds || [];
+                               if (e.target.checked) {
+                                 setEditingMovement({...editingMovement, participatingUnitIds: [...ids, u.id]});
+                               } else {
+                                 setEditingMovement({...editingMovement, participatingUnitIds: ids.filter(id => id !== u.id)});
+                               }
+                             }}
+                             className="w-4 h-4 rounded border-white/10 bg-transparent text-accent focus:ring-0"
+                           />
+                           <span className="text-xs text-white/60 group-hover:text-white transition-colors">{u.name}</span>
+                        </label>
+                     ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/5">
+                  <button 
+                    type="submit"
+                    className="w-full py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+                  >
+                    Lưu thay đổi
                   </button>
                 </div>
               </form>
