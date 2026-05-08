@@ -122,8 +122,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Danh sách đoàn viên", href: "/members", icon: Users },
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
     { name: "Hoạt động", href: "/activities", icon: Calendar },
-    { name: "Tài liệu nghiệp vụ", href: "/knowledge-base", icon: Database },
-    { name: "Nhật ký hệ thống", href: "/logs", icon: Activity },
+    ...(profile?.role === "admin" ? [
+      { name: "Tài liệu nghiệp vụ", href: "/knowledge-base", icon: Database },
+      { name: "Nhật ký hệ thống", href: "/logs", icon: Activity },
+    ] : []),
     { name: "Trợ lý AI", href: "/ai-assistant", icon: Bot },
   ];
 

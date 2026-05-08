@@ -1,5 +1,5 @@
 import React, { useEffect, useState, FormEvent } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { UnitList } from "./pages/Units/UnitList";
 import { MemberList } from "./pages/Members/MemberList";
@@ -333,7 +333,7 @@ const AuthScreen = () => {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const AppContent = () => {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -348,6 +348,8 @@ const AppContent = () => {
     return <AuthScreen />;
   }
 
+  const isAdmin = profile?.role === 'admin';
+
   return (
     <ErrorBoundary>
       <Layout>
@@ -359,9 +361,16 @@ const AppContent = () => {
             <Route path="/statistics" element={<PageTransition key="statistics"><Statistics /></PageTransition>} />
             <Route path="/activities" element={<PageTransition key="activities"><ActivityList /></PageTransition>} />
             <Route path="/movements" element={<PageTransition key="movements"><MovementList /></PageTransition>} />
-            <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
-            <Route path="/knowledge-base" element={<PageTransition key="knowledge"><KnowledgeBase /></PageTransition>} />
+            
+            {isAdmin && (
+              <>
+                <Route path="/logs" element={<PageTransition key="logs"><LogList /></PageTransition>} />
+                <Route path="/knowledge-base" element={<PageTransition key="knowledge"><KnowledgeBase /></PageTransition>} />
+              </>
+            )}
+            
             <Route path="/ai-assistant" element={<PageTransition key="ai"><AIAssistant /></PageTransition>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AnimatePresence>
       </Layout>
