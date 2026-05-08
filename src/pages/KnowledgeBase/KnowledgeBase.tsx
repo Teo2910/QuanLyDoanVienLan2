@@ -37,9 +37,9 @@ export const KnowledgeBase: React.FC = () => {
       setEditingItem(null);
       setNewItem({ title: "", content: "", category: "Nghiệp vụ Đoàn" });
       loadItems();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Lỗi khi lưu tài liệu");
+      alert(`Lỗi khi lưu tài liệu: ${err.message || "Lỗi không xác định"}`);
     }
   };
 

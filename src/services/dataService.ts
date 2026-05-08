@@ -19,7 +19,10 @@ class DataService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(item),
     });
-    if (!response.ok) throw new Error("Failed to add knowledge item");
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || "Failed to add knowledge item");
+    }
   }
 
   async updateKnowledgeItem(id: string, item: Partial<KnowledgeItem>): Promise<void> {
@@ -28,7 +31,10 @@ class DataService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(item),
     });
-    if (!response.ok) throw new Error("Failed to update knowledge item");
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || "Failed to update knowledge item");
+    }
   }
 
   async deleteKnowledgeItem(id: string): Promise<void> {

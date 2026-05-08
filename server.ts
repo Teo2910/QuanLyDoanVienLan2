@@ -236,8 +236,19 @@ async function startServer() {
             createdAt BIGINT
           )
         END
+
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
+        BEGIN
+          CREATE TABLE knowledge_base (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255) NOT NULL,
+            content NVARCHAR(MAX) NOT NULL,
+            category NVARCHAR(100),
+            updatedAt BIGINT
+          )
+        END
       `);
-      console.log("[Logs] activity_logs and activities tables checked/created.");
+      console.log("[Logs] activity_logs, activities, and knowledge_base tables checked/created.");
     } catch (e) {
       console.error("[Logs] Error setup activity_logs:", e);
     }
@@ -506,20 +517,6 @@ async function startServer() {
   app.get("/api/knowledge-base", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
-      
-      const tableCheck = await pool.request().query(`
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
-        BEGIN
-          CREATE TABLE knowledge_base (
-            id NVARCHAR(50) PRIMARY KEY,
-            title NVARCHAR(255) NOT NULL,
-            content NVARCHAR(MAX) NOT NULL,
-            category NVARCHAR(100),
-            updatedAt BIGINT
-          )
-        END
-      `);
-
       const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
       res.json(result.recordset);
     } catch (err) {
