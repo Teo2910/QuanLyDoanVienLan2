@@ -54,9 +54,12 @@ async function startServer() {
 
   // Diagnostic middleware
   apiRouter.use((req, res, next) => {
-    console.log(`[API Diagnostic] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
+    console.log(`[API Diagnostic] ${req.method} ${req.path} (Full: ${req.originalUrl})`);
     next();
   });
+
+  // Mount apiRouter early but after body parsers
+  app.use("/api", apiRouter);
 
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) {
@@ -119,6 +122,41 @@ async function startServer() {
   // --- API Routes START ---
 
   apiRouter.get("/ping", (req, res) => res.json({ pong: true }));
+
+  apiRouter.put("/movements/:id", async (req, res) => {
+    console.log(`[API] PUT /movements/${req.params.id} hit!`);
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const m = req.body;
+      console.log(`[API] Updating movement ${id} with:`, m);
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, m.title)
+        .input("startDate", sql.NVarChar, m.startDate)
+        .input("endDate", sql.NVarChar, m.endDate)
+        .input("description", sql.NVarChar, m.description || null)
+        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
+        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
+        .query(`
+          UPDATE movements 
+          SET title = @title, 
+              startDate = @startDate, 
+              endDate = @endDate, 
+              description = @description, 
+              attachments = @attachments, 
+              participatingUnitIds = @participatingUnitIds
+          WHERE id = @id
+        `);
+      
+      await logActivity(req, "Cập nhật phong trào", "Movement", id, `Phong trào: ${m.title}`);
+      io.emit("movements:changed");
+      res.json({ success: true });
+    } catch (err) {
+      console.error("[API] PUT /movements error:", err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
 
   // Knowledge Base explicit route handlers
   apiRouter.route("/knowledge-base")
@@ -644,40 +682,7 @@ async function startServer() {
     }
   });
 
-  apiRouter.put("/movements/:id", async (req, res) => {
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      const m = req.body;
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, m.title)
-        .input("startDate", sql.NVarChar, m.startDate)
-        .input("endDate", sql.NVarChar, m.endDate)
-        .input("description", sql.NVarChar, m.description || null)
-        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
-        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
-        .query(`
-          UPDATE movements 
-          SET title = @title, 
-              startDate = @startDate, 
-              endDate = @endDate, 
-              description = @description, 
-              attachments = @attachments, 
-              participatingUnitIds = @participatingUnitIds
-          WHERE id = @id
-        `);
-      
-      await logActivity(req, "Cập nhật phong trào", "Movement", id, `Phong trào: ${m.title}`);
-      io.emit("movements:changed");
-      res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
 
-  // Movement Reports
   apiRouter.get("/movement-reports", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
@@ -1391,9 +1396,6 @@ async function startServer() {
       res.status(500).json({ error: e.message });
     }
   });
-
-  // Mount apiRouter here
-  app.use("/api", apiRouter);
 
   // Mount the apiRouter catch-all (404) at the end of definitions
   apiRouter.use((req, res) => {

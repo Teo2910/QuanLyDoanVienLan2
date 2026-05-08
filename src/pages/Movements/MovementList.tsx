@@ -241,7 +241,8 @@ export const MovementList: React.FC = () => {
                 <div className="flex items-center gap-3 text-white/40">
                   <Clock size={14} className="text-accent/60" />
                   <span className="text-xs">Tạo lúc: {(() => {
-                    const d = new Date(isNaN(Number(movement.createdAt)) ? movement.createdAt : Number(movement.createdAt));
+                    const val = movement.createdAt;
+                    const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
                     return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
                   })()}</span>
                 </div>
@@ -368,7 +369,8 @@ export const MovementList: React.FC = () => {
                                  <CheckCircle2 size={20} />
                                  <span className="text-xs font-bold uppercase tracking-widest">
                                    Đã nộp báo cáo vào {(() => {
-                                     const d = new Date(isNaN(Number(rep.submittedAt)) ? rep.submittedAt : Number(rep.submittedAt));
+                                     const val = rep.submittedAt;
+                                     const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
                                      return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
                                    })()}
                                  </span>
@@ -486,8 +488,9 @@ export const MovementList: React.FC = () => {
                   <p className="text-[10px] text-white/40 uppercase font-medium mt-1">
                     Nộp ngày: {(() => {
                       if (!viewingReport.submittedAt) return "N/A";
-                      const d = new Date(isNaN(Number(viewingReport.submittedAt)) ? viewingReport.submittedAt : Number(viewingReport.submittedAt));
-                      return isNaN(d.getTime()) ? "INVALID DATE" : d.toLocaleString("vi-VN");
+                      const val = viewingReport.submittedAt;
+                      const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
+                      return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
                     })()}
                   </p>
                 </div>
