@@ -1,6 +1,43 @@
-import { Unit, Member, Activity, SystemLog } from "../types";
+import { Unit, Member, Activity, SystemLog, KnowledgeItem } from "../types";
 
 class DataService {
+  async getKnowledgeBase(): Promise<KnowledgeItem[]> {
+    try {
+      const response = await fetch("/api/knowledge-base");
+      if (!response.ok) throw new Error("Failed to fetch knowledge base");
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("KnowledgeBase Error:", error);
+      return [];
+    }
+  }
+
+  async addKnowledgeItem(item: Omit<KnowledgeItem, "id" | "updatedAt">): Promise<void> {
+    const response = await fetch("/api/knowledge-base", {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) throw new Error("Failed to add knowledge item");
+  }
+
+  async updateKnowledgeItem(id: string, item: Partial<KnowledgeItem>): Promise<void> {
+    const response = await fetch(`/api/knowledge-base/${id}`, {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) throw new Error("Failed to update knowledge item");
+  }
+
+  async deleteKnowledgeItem(id: string): Promise<void> {
+    const response = await fetch(`/api/knowledge-base/${id}`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to delete knowledge item");
+  }
   private getAuthHeaders() {
     let userName = "Hệ thống";
     let userId = "system";

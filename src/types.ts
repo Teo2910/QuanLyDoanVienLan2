@@ -63,6 +63,14 @@ export interface Activity {
   createdAt: number;
 }
 
+export interface KnowledgeItem {
+  id: string;
+  title: string;
+  content: string;
+  category?: string;
+  updatedAt: number;
+}
+
 export interface Member {
   id: string;
   fullName: string;

@@ -17,19 +17,22 @@ export const AIAssistant = () => {
     const fetchContext = async () => {
       try {
         setIsInitializing(true);
-        const [membersRes, unitsRes, activitiesRes] = await Promise.all([
+        const [membersRes, unitsRes, activitiesRes, knowledgeRes] = await Promise.all([
           fetch("/api/members"),
           fetch("/api/units"),
-          fetch("/api/activities")
+          fetch("/api/activities"),
+          fetch("/api/knowledge-base")
         ]);
         const members = await membersRes.json();
         const units = await unitsRes.json();
         const activities = await activitiesRes.json();
+        const knowledge = await knowledgeRes.json();
         
         setDbContext({
           units: units,
           members: members,
-          activities: activities
+          activities: activities,
+          knowledge: knowledge
         });
       } catch (err) {
         console.error("Failed to fetch context:", err);
@@ -72,14 +75,17 @@ export const AIAssistant = () => {
         model: "gemini-3-flash-preview",
         contents,
         config: {
-          systemInstruction: `Bạn là trợ lý AI hỗ trợ quản lý đoàn viên của trường Đại Học Đà Lạt.
-Chỉ trả lời dựa trên dữ liệu thật sau (từ hệ thống SQLServer):
-${JSON.stringify(dbContext)}
+          systemInstruction: `Bạn là trợ lý AI thông minh, chuyên gia về nghiệp vụ Đoàn - Đội tại trường Đại Học Đà Lạt.
+Dữ liệu của bạn bao gồm:
+1. Thông tin hệ thống (Đoàn viên, Chi đoàn, Hoạt động): ${JSON.stringify({ units: dbContext.units, members: dbContext.members, activities: dbContext.activities })}
+2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge)}
 
-Quy tắc:
-- Trả lời bằng tiếng Việt, thân thiện, rõ ràng, tự nhiên.
-- Dùng markdown để in đậm, tạo danh sách khi cần hiển thị danh sách rõ ràng.
-- Nếu được hỏi thông tin không có trong dữ liệu này, hãy nói rõ là dữ liệu hệ thống không có, không tự bịa ra thông tin.`
+Quy tắc ứng xử:
+- Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn, quy định.
+- Nếu hỏi về thông tin nhân sự/hoạt động, hãy lấy từ "Thông tin hệ thống".
+- Trả lời bằng tiếng Việt, phong cách chuyên nghiệp nhưng thân thiện.
+- Sử dụng markdown để trình bày rõ ràng (in đậm, danh sách).
+- Nếu dữ liệu không đủ để trả lời, tuyệt đối không bịa ra thông tin. Hãy lịch sự phản hồi rằng hệ thống chưa có dữ liệu này.`
         }
       });
       

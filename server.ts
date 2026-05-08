@@ -502,6 +502,92 @@ async function startServer() {
     }
   });
 
+  // Knowledge Base
+  app.get("/api/knowledge-base", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      
+      const tableCheck = await pool.request().query(`
+        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
+        BEGIN
+          CREATE TABLE knowledge_base (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255) NOT NULL,
+            content NVARCHAR(MAX) NOT NULL,
+            category NVARCHAR(100),
+            updatedAt BIGINT
+          )
+        END
+      `);
+
+      const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.post("/api/knowledge-base", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { title, content, category } = req.body;
+      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const updatedAt = Date.now();
+      
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("content", sql.NVarChar, content)
+        .input("category", sql.NVarChar, category || null)
+        .input("updatedAt", sql.BigInt, updatedAt)
+        .query("INSERT INTO knowledge_base (id, title, content, category, updatedAt) VALUES (@id, @title, @content, @category, @updatedAt)");
+      
+      await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+      res.json({ success: true, id });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.put("/api/knowledge-base/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      const { title, content, category } = req.body;
+      const updatedAt = Date.now();
+      
+      await pool.request()
+        .input("id", sql.NVarChar, id)
+        .input("title", sql.NVarChar, title)
+        .input("content", sql.NVarChar, content)
+        .input("category", sql.NVarChar, category || null)
+        .input("updatedAt", sql.BigInt, updatedAt)
+        .query("UPDATE knowledge_base SET title = @title, content = @content, category = @category, updatedAt = @updatedAt WHERE id = @id");
+      
+      await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
+  app.delete("/api/knowledge-base/:id", async (req, res) => {
+    try {
+      if (!pool || !pool.connected) throw new Error("Database not connected");
+      const { id } = req.params;
+      
+      await pool.request().input("id", sql.NVarChar, id).query("DELETE FROM knowledge_base WHERE id = @id");
+      await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+    }
+  });
+
   // Members
   app.get("/api/members", async (req, res) => {
     try {
