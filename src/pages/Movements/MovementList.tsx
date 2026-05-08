@@ -351,16 +351,20 @@ export const MovementList: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                <div className={cn("grid grid-cols-1 gap-12", isAdmin ? "lg:grid-cols-3" : "max-w-2xl mx-auto")}>
-                  <div className={cn("space-y-10", isAdmin ? "lg:col-span-2" : "")}>
-                    <section>
-                      <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Nội dung chi tiết</h4>
-                      <p className="text-white/70 leading-relaxed whitespace-pre-wrap">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
+                <div className={cn("grid grid-cols-1 gap-12", isAdmin ? "lg:grid-cols-10" : "max-w-2xl mx-auto")}>
+                  <div className={cn("space-y-10", isAdmin ? "lg:col-span-6" : "w-full")}>
+                    <section className="bg-white/[0.03] rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 group-hover:bg-accent/10 transition-all duration-700" />
+                      <h4 className="text-[10px] uppercase tracking-[0.25em] text-accent font-black mb-6 flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+                        Nội dung chi tiết
+                      </h4>
+                      <p className="text-white/80 leading-relaxed whitespace-pre-wrap text-sm lg:text-base font-medium">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
                     </section>
 
                     {selectedMovement.attachments.length > 0 && (
                       <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Tài liệu đính kèm</h4>
+                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold mb-4 ml-2">Tài liệu đính kèm</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {selectedMovement.attachments.map((file, idx) => (
                             <a 
@@ -385,50 +389,64 @@ export const MovementList: React.FC = () => {
                     )}
 
                     {!isAdmin && (
-                      <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Báo cáo của bạn</h4>
+                      <section className="pt-6 border-t border-white/5">
+                        <div className="flex items-center justify-between mb-6">
+                           <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-black">Báo cáo của bạn</h4>
+                           {reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).length > 0 && (
+                             <div className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-500/20">
+                               HOÀN THÀNH
+                             </div>
+                           )}
+                        </div>
                         {reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).length > 0 ? (
                            reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).map((rep) => (
-                             <div key={rep.id} className="bg-green-500/5 border border-green-500/20 p-6 rounded-3xl">
-                               <div className="flex items-center gap-3 mb-4 text-green-400">
-                                 <CheckCircle2 size={20} />
-                                 <span className="text-xs font-bold uppercase tracking-widest">
-                                   Đã nộp báo cáo vào {(() => {
-                                     const val = rep.submittedAt;
-                                     const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
-                                     return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
-                                   })()}
-                                 </span>
-                               </div>
-                               <p className="text-sm text-white/60 mb-6">{rep.description}</p>
-                               <div className="flex flex-wrap gap-3 mb-6">
-                                  {rep.attachments.map((att, i) => (
-                                    <div key={i} className="px-3 py-2 bg-white/5 rounded-lg text-[10px] text-white/40 border border-white/5 flex items-center gap-2">
-                                      <FileText size={12} /> {att.name}
-                                    </div>
-                                  ))}
-                               </div>
-                               <button 
-                                 onClick={() => {
-                                   setViewingReport(rep);
-                                   setIsViewingReportModalOpen(true);
-                                 }}
-                                 className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
-                               >
-                                 Đọc lại báo cáo
-                                 <ChevronRight size={12} />
-                               </button>
+                             <div key={rep.id} className="relative p-8 bg-green-500/[0.03] border border-green-500/10 rounded-[2.5rem] overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-[40px] -mr-12 -mt-12" />
+                                <div className="flex items-center gap-3 mb-4 text-green-400 text-xs font-bold uppercase tracking-widest">
+                                  <CheckCircle2 size={16} />
+                                  <span>
+                                    Đã nộp báo cáo vào {(() => {
+                                      const val = rep.submittedAt;
+                                      const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
+                                      return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
+                                    })()}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-white/60 mb-8 leading-relaxed">{rep.description}</p>
+                                <div className="flex flex-wrap gap-2 mb-8">
+                                   {rep.attachments.map((att, i) => (
+                                     <div key={i} className="px-3 py-2 bg-white/5 rounded-xl text-[9px] text-white/30 border border-white/5 flex items-center gap-2 hover:bg-white/10 transition-colors">
+                                       <FileText size={12} /> {att.name}
+                                     </div>
+                                   ))}
+                                </div>
+                                <button 
+                                  onClick={() => {
+                                    setViewingReport(rep);
+                                    setIsViewingReportModalOpen(true);
+                                  }}
+                                  className="flex items-center gap-2 px-6 py-2.5 bg-accent/20 text-accent rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                                >
+                                  Đọc lại báo cáo
+                                  <ChevronRight size={14} />
+                                </button>
                              </div>
                            ))
                         ) : (
-                          <div className="bg-white/[0.02] border border-dashed border-white/10 p-10 rounded-3xl text-center">
-                            <p className="text-white/40 text-sm mb-6">Bạn chưa nộp báo cáo cho phong trào này</p>
+                          <div className="bg-white/[0.02] border border-dashed border-white/10 p-12 rounded-[2.5rem] text-center flex flex-col items-center gap-6 group hover:border-accent/40 transition-all">
+                            <div className="w-16 h-16 rounded-3xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-all">
+                               <Calendar size={32} />
+                            </div>
+                            <div>
+                               <p className="text-white/80 font-bold mb-1">Bạn chưa nộp báo cáo</p>
+                               <p className="text-white/20 text-xs max-w-xs mx-auto">Hãy hoàn thành báo cáo sớm nhất để hoàn tất quy trình phối hợp.</p>
+                            </div>
                             <button 
                               onClick={() => {
                                 setIsDetailModalOpen(false);
                                 setIsReportModalOpen(true);
                               }}
-                              className="px-6 py-3 bg-accent text-accent-foreground rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-accent/20"
+                              className="px-8 py-3 bg-accent text-accent-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
                             >
                               Nộp báo cáo ngay
                             </button>
@@ -439,93 +457,94 @@ export const MovementList: React.FC = () => {
                   </div>
 
                   {isAdmin && (
-                    <div className="space-y-10">
-                      <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Thống kê báo cáo</h4>
-                        <div className="p-6 bg-white/5 rounded-3xl space-y-6 border border-white/5">
+                    <div className="space-y-10 lg:col-span-4 border-l border-white/5 lg:pl-10">
+                      <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+                        <h4 className="text-[10px] uppercase tracking-[0.25em] text-accent font-black mb-8 flex items-center justify-between">
+                          <span>Thống kê báo cáo</span>
+                          <BarChart3 size={14} className="opacity-30" />
+                        </h4>
+                        <div className="space-y-8">
                           <div className="flex justify-between items-center text-green-400">
-                             <div className="flex items-center gap-2">
-                               <CheckCircle2 size={14} />
-                               <span className="text-[10px] uppercase font-bold">Đã báo cáo</span>
+                             <div className="flex items-center gap-3">
+                               <CheckCircle2 size={16} />
+                               <span className="text-[10px] uppercase font-black tracking-widest">Đã báo cáo</span>
                              </div>
-                             <span className="text-sm font-bold">{reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị</span>
+                             <span className="text-xl font-black">{reports.filter(r => r.movementId === selectedMovement.id).length}</span>
                           </div>
                           <div className="flex justify-between items-center text-orange-400">
-                             <div className="flex items-center gap-2">
-                               <Clock size={14} />
-                               <span className="text-[10px] uppercase font-bold">Chưa báo cáo</span>
+                             <div className="flex items-center gap-3">
+                               <Clock size={16} />
+                               <span className="text-[10px] uppercase font-black tracking-widest">Chưa báo cáo</span>
                              </div>
-                             <span className="text-sm font-bold">
-                               {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị
+                             <span className="text-xl font-black">
+                               {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length}
                              </span>
                           </div>
-                          <div className="flex justify-between items-center pt-4 border-t border-white/5 text-white/60">
-                             <span className="text-[10px] uppercase font-bold">Tổng đơn vị phối hợp</span>
-                             <span className="text-sm font-bold">{selectedMovement.participatingUnitIds.length} đơn vị</span>
+                          <div className="flex justify-between items-center pt-6 border-t border-white/5 text-white/40">
+                             <span className="text-[10px] uppercase font-black tracking-widest">Tổng đơn vị</span>
+                             <span className="text-lg font-black">{selectedMovement.participatingUnitIds.length}</span>
                           </div>
                         </div>
                       </section>
 
                       <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Chi tiết các đơn vị</h4>
-                        <div className="space-y-8">
+                        <h4 className="text-[10px] uppercase tracking-[0.25em] text-white/30 font-black mb-6 ml-2">Chi tiết các đơn vị</h4>
+                        <div className="space-y-10">
                           {/* Đã báo cáo */}
                           <div>
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-2 mb-4 px-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                              <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Đã nộp ({reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                              <span className="text-[9px] uppercase tracking-widest text-white/40 font-black">HOÀN THÀNH ({reports.filter(r => r.movementId === selectedMovement.id).length})</span>
                             </div>
                             <div className="space-y-2">
                               {reports.filter(r => r.movementId === selectedMovement.id).map(r => {
                                 const unit = units.find(u => u.id === r.unitId);
                                 return (
-                                  <div 
+                                  <motion.div 
                                     key={r.id} 
+                                    whileHover={{ x: 4 }}
                                     onClick={() => {
                                       setViewingReport(r);
                                       setIsViewingReportModalOpen(true);
                                     }}
-                                    className="p-3 bg-white/5 border border-white/5 rounded-xl hover:border-accent/40 transition-all flex items-center justify-between cursor-pointer group"
+                                    className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center justify-between cursor-pointer group"
                                   >
-                                    <span className="text-xs font-bold text-white/80 group-hover:text-white transition-colors">{unit?.name}</span>
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-[9px] text-white/20 uppercase font-medium">
-                                        {(() => {
-                                          const d = new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt));
-                                          return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
-                                        })()}
+                                    <div className="flex flex-col gap-0.5">
+                                      <span className="text-xs font-bold text-white/90 group-hover:text-white transition-colors">{unit?.name}</span>
+                                      <span className="text-[8px] text-white/20 uppercase font-bold tracking-tighter">
+                                        Nộp ngày {new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt)).toLocaleDateString("vi-VN")}
                                       </span>
-                                      <ChevronRight size={12} className="text-white/20 group-hover:text-accent group-hover:translate-x-1 transition-all" />
                                     </div>
-                                  </div>
+                                    <ChevronRight size={14} className="text-white/20 group-hover:text-accent transition-all" />
+                                  </motion.div>
                                 );
                               })}
                               {reports.filter(r => r.movementId === selectedMovement.id).length === 0 && (
-                                <p className="text-[10px] text-white/20 py-2 italic">Chưa có đơn vị nào nộp báo cáo</p>
+                                <p className="text-[10px] text-white/10 px-4 py-4 italic text-center border border-dashed border-white/5 rounded-2xl">Chưa có dữ liệu</p>
                               )}
                             </div>
                           </div>
 
                           {/* Chưa báo cáo */}
                           <div>
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-2 mb-4 px-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-                              <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Chưa nộp ({selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                              <span className="text-[9px] uppercase tracking-widest text-white/40 font-black">CHỜ BÁO CÁO ({selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length})</span>
                             </div>
-                            <div className="grid grid-cols-1 gap-2">
+                            <div className="space-y-2">
                               {selectedMovement.participatingUnitIds
                                 .filter(uid => !reports.some(r => r.movementId === selectedMovement.id && r.unitId === uid))
                                 .map(uid => {
                                   const unit = units.find(u => u.id === uid);
                                   return (
-                                    <div key={uid} className="p-3 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between">
-                                      <span className="text-xs font-bold text-white/40">{unit?.name}</span>
-                                      <span className="text-[9px] text-white/10 uppercase font-bold">Pending</span>
+                                    <div key={uid} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between group grayscale hover:grayscale-0 transition-all">
+                                      <span className="text-xs font-bold text-white/30 group-hover:text-white/60 transition-colors">{unit?.name}</span>
+                                      <div className="w-1.5 h-1.5 rounded-full bg-orange-500/20 animate-pulse" />
                                     </div>
                                   );
                                 })}
                               {selectedMovement.participatingUnitIds.filter(uid => !reports.some(r => r.movementId === selectedMovement.id && r.unitId === uid)).length === 0 && (
-                                <p className="text-[10px] text-white/20 py-2 italic">Tất cả đơn vị đã hoàn thành báo cáo</p>
+                                <p className="text-[10px] text-green-500/30 px-4 py-4 italic text-center border border-dashed border-green-500/10 rounded-2xl font-black">100% HOÀN THÀNH</p>
                               )}
                             </div>
                           </div>
