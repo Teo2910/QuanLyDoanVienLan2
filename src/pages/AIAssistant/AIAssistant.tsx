@@ -153,7 +153,7 @@ Quy tắc ứng xử:
             // Follow up with tool response
             // Use the original model content to ensure all fields like 'id' match exactly
             const modelContent = response.candidates?.[0]?.content;
-            if (!modelContent) throw new Error("No model content found in response");
+            if (!modelContent) throw new Error("Không nhận được phản hồi từ AI");
 
             const toolResultContent = {
               role: "user",
@@ -162,14 +162,14 @@ Quy tắc ứng xử:
                   functionResponse: {
                     name: "create_activity",
                     response: { success: true, message: `Đã tạo thành công phong trào "${args.title}" vào ngày ${args.date}`, activityId: newActivity.id },
-                    id: call.id
+                    id: (call as any).id
                   }
                 }
               ]
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3-flash-preview",
+              model: "gemini-1.5-flash",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -180,7 +180,7 @@ Quy tắc ứng xử:
               isAction: true 
             }]);
           } catch (actionErr: any) {
-            console.error("Action error:", actionErr);
+            console.error("Activity Action error:", actionErr);
             const errorMsg = actionErr.message || "Lỗi không xác định";
             
             const modelContent = response.candidates?.[0]?.content;
@@ -192,14 +192,14 @@ Quy tắc ứng xử:
                     functionResponse: {
                       name: "create_activity",
                       response: { error: errorMsg },
-                      id: call.id
+                      id: (call as any).id
                     }
                   }
                 ]
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3-flash-preview",
+                model: "gemini-1.5-flash",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -213,20 +213,23 @@ Quy tắc ứng xử:
         else if (call.name === "create_member" && call.args) {
           const args = call.args as any;
           try {
+            console.log("Creating member with args:", args);
             const newMember = await dataService.addMember({
-              fullName: args.fullName,
-              memberId: args.memberId,
-              dob: args.dob,
-              gender: args.gender,
-              unitId: args.unitId,
-              status: args.status,
-              email: args.email,
-              phone: args.phone,
-              hometown: args.hometown
-            });
+              fullName: args.fullName || "Đoàn viên mới",
+              memberId: args.memberId || `SV${Math.floor(Math.random() * 1000000)}`,
+              dob: args.dob || "01/01/2000",
+              gender: args.gender || "Nam",
+              unitId: args.unitId || (dbContext.units?.[0]?.id || "default"),
+              status: args.status || "Đang sinh hoạt",
+              email: args.email || "",
+              phone: args.phone || "",
+              hometown: args.hometown || "",
+              achievementLevel: "Khá",
+              isOutstanding: false
+            } as any);
 
             const modelContent = response.candidates?.[0]?.content;
-            if (!modelContent) throw new Error("No model content found in response");
+            if (!modelContent) throw new Error("Không nhận được nội dung phản hồi từ AI");
 
             const toolResultContent = {
               role: "user",
@@ -235,14 +238,14 @@ Quy tắc ứng xử:
                   functionResponse: {
                     name: "create_member",
                     response: { success: true, message: `Đã thêm thành công đoàn viên "${args.fullName}" (MSSV: ${args.memberId})`, memberId: newMember.id },
-                    id: call.id
+                    id: (call as any).id
                   }
                 }
               ]
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3-flash-preview",
+              model: "gemini-1.5-flash", 
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -253,7 +256,7 @@ Quy tắc ứng xử:
               isAction: true 
             }]);
           } catch (actionErr: any) {
-            console.error("Action error:", actionErr);
+            console.error("Member Action error:", actionErr);
             const errorMsg = actionErr.message || "Lỗi không xác định";
             
             const modelContent = response.candidates?.[0]?.content;
@@ -265,14 +268,14 @@ Quy tắc ứng xử:
                     functionResponse: {
                       name: "create_member",
                       response: { error: errorMsg },
-                      id: call.id
+                      id: (call as any).id
                     }
                   }
                 ]
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3-flash-preview",
+                model: "gemini-1.5-flash",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -286,8 +289,14 @@ Quy tắc ứng xử:
         setChatHistory(prev => [...prev, { role: "model", text: response.text || "Tôi không thể xử lý yêu cầu này." }]);
       }
     } catch (err: any) {
-      console.error("Gemini API Error:", err);
-      setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn." }]);
+      console.error("Gemini API Error Detail:", err);
+      let errorMsg = "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn.";
+      if (err.message) {
+        if (err.message.includes("SAFETY")) errorMsg = "Yêu cầu đã bị từ chối do chính sách an toàn của AI.";
+        else if (err.message.includes("quota")) errorMsg = "Hệ thống AI đang quá tải (hết quota). Vui lòng thử lại sau.";
+        else errorMsg += ` (Chi tiết: ${err.message})`;
+      }
+      setChatHistory(prev => [...prev, { role: "model", text: errorMsg }]);
     } finally {
       setIsLoading(false);
     }
