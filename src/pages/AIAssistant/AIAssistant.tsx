@@ -122,8 +122,8 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
   };
 
   return (
-    <div className="p-8 pb-32 h-[calc(100vh-theme(spacing.16))] flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
+    <div id="ai-assistant-page" className="h-full flex flex-col gap-6 overflow-hidden p-8">
+      <div className="shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <Bot className="text-accent" size={32} />
@@ -136,7 +136,7 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
         </div>
       </div>
 
-      <div className="flex-1 bg-surface/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col backdrop-blur-sm shadow-xl">
+      <div className="flex-1 min-h-0 bg-surface/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col backdrop-blur-sm shadow-xl">
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {chatHistory.map((msg, i) => (
             <div key={i} className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
