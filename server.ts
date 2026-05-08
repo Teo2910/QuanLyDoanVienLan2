@@ -431,7 +431,7 @@ async function startServer() {
   });
 
   // User Profile Routes
-  app.get("/api/users/:uid", async (req, res) => {
+  apiRouter.get("/users/:uid", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
         return res.status(503).json({ error: "DB connecting" });
@@ -454,7 +454,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/users", async (req, res) => {
+  apiRouter.post("/users", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { uid, email, password, role, unitId } = req.body;
@@ -473,7 +473,7 @@ async function startServer() {
     }
   });
 
-  app.put("/api/users/:uid/profile", async (req, res) => {
+  apiRouter.put("/users/:uid/profile", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { fullName, avatarUrl, phone } = req.body;
@@ -501,7 +501,7 @@ async function startServer() {
     }
   });
 
-  app.put("/api/users/:uid/presets", async (req, res) => {
+  apiRouter.put("/users/:uid/presets", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { presets } = req.body;
@@ -517,7 +517,7 @@ async function startServer() {
   });
 
   // Units
-  app.get("/api/units", async (req, res) => {
+  apiRouter.get("/units", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const result = await pool.request().query("SELECT * FROM units");
@@ -528,7 +528,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/units", async (req, res) => {
+  apiRouter.post("/units", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id, name, code, address, phone, email, createdAt, parentId } = req.body;
@@ -553,7 +553,7 @@ async function startServer() {
   });
 
   // Movements
-  app.get("/api/movements", async (req, res) => {
+  apiRouter.get("/movements", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
       const result = await pool.request().query("SELECT * FROM movements ORDER BY createdAt DESC");
@@ -569,7 +569,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/movements", async (req, res) => {
+  apiRouter.post("/movements", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const m = req.body;
@@ -599,7 +599,7 @@ async function startServer() {
   });
 
   // Movement Reports
-  app.get("/api/movement-reports", async (req, res) => {
+  apiRouter.get("/movement-reports", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
       const { movementId } = req.query;
@@ -623,7 +623,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/movement-reports", async (req, res) => {
+  apiRouter.post("/movement-reports", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const r = req.body;
@@ -649,7 +649,7 @@ async function startServer() {
     }
   });
 
-  app.put("/api/units/:id", async (req, res) => {
+  apiRouter.put("/units/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -673,7 +673,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/units/:id", async (req, res) => {
+  apiRouter.delete("/units/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -698,7 +698,7 @@ async function startServer() {
 
 
   // Members
-  app.get("/api/members", async (req, res) => {
+  apiRouter.get("/members", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
         // Return empty array and warning instead of 500 to keep UI functional but alert user
@@ -719,7 +719,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/members", async (req, res) => {
+  apiRouter.post("/members", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const m = req.body;
@@ -760,7 +760,7 @@ async function startServer() {
     }
   });
 
-  app.put("/api/members/:id", async (req, res) => {
+  apiRouter.put("/members/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -809,7 +809,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/members/:id", async (req, res) => {
+  apiRouter.delete("/members/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       
@@ -827,7 +827,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/members/bulk-delete", async (req, res) => {
+  apiRouter.post("/members/bulk-delete", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { ids } = req.body;
@@ -846,7 +846,7 @@ async function startServer() {
     }
   });
 
-  app.patch("/api/members/:id/outstanding", async (req, res) => {
+  apiRouter.patch("/members/:id/outstanding", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -864,7 +864,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/debug-errors", (req, res) => {
+  apiRouter.get("/debug-errors", (req, res) => {
     res.json({
       globalErrors,
       pool: !!pool,
@@ -878,7 +878,7 @@ async function startServer() {
   });
 
   // Activities
-  app.get("/api/activities", async (req, res) => {
+  apiRouter.get("/activities", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
       // Check if table exists
@@ -918,7 +918,7 @@ async function startServer() {
     }
   };
 
-  app.get("/api/chat/threads", async (req, res) => {
+  apiRouter.get("/chat/threads", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
         // In-memory fallback
@@ -955,7 +955,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/chat/messages/:threadId", async (req, res) => {
+  apiRouter.get("/chat/messages/:threadId", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
         const msgs = chatMessagesInMemory.filter(m => m.threadId === req.params.threadId).sort((a,b) => a.createdAt - b.createdAt);
@@ -978,7 +978,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/chat/messages", async (req, res) => {
+  apiRouter.post("/chat/messages", async (req, res) => {
     try {
       const m = req.body;
       const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
@@ -1030,7 +1030,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/chat/read/:threadId", async (req, res) => {
+  apiRouter.post("/chat/read/:threadId", async (req, res) => {
     try {
       const { role } = req.body;
       let condition = "senderRole != 'Admin'";
@@ -1062,7 +1062,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/activities", async (req, res) => {
+  apiRouter.post("/activities", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const a = req.body;
@@ -1088,7 +1088,7 @@ async function startServer() {
     }
   });
 
-  app.put("/api/activities/:id", async (req, res) => {
+  apiRouter.put("/activities/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const a = req.body;
@@ -1115,7 +1115,7 @@ async function startServer() {
     }
   });
 
-  app.delete("/api/activities/:id", async (req, res) => {
+  apiRouter.delete("/activities/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       
@@ -1133,7 +1133,7 @@ async function startServer() {
   });
 
   // Activity Logs
-  app.get("/api/test-logs", async (req, res) => {
+  apiRouter.get("/test-logs", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
         console.log("No pool, attempting reconnect...");
@@ -1183,7 +1183,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/logs", async (req, res) => {
+  apiRouter.get("/logs", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json([]);
       const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs'");
@@ -1207,7 +1207,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/test-db", async (req, res) => {
+  apiRouter.get("/test-db", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json({ error: "no pool" });
       const result = await pool.request().query("SELECT TOP 5 id, status, len(id) as idLen FROM members WHERE LTRIM(RTRIM(status)) = N'Đang sinh hoạt'");
@@ -1217,7 +1217,7 @@ async function startServer() {
     }
   });
 
-  app.get("/api/trigger-cron", async (req, res) => {
+  apiRouter.get("/trigger-cron", async (req, res) => {
     try {
       if (!pool || !pool.connected) return res.json({ error: "No DB connection" });
       const result = await pool.request().query("SELECT * FROM members WHERE LTRIM(RTRIM(status)) = N'Đang sinh hoạt'");
@@ -1415,8 +1415,8 @@ async function startServer() {
     }
   }, 10 * 1000); // 10 seconds check
   
-  // 404 catch-all for API to prevent falling into SPA
-  app.use("/api", (req, res) => {
+  // API 404 catch-all
+  apiRouter.use((req, res) => {
     const diag = {
       method: req.method,
       url: req.url,
@@ -1426,9 +1426,9 @@ async function startServer() {
       params: req.params,
       query: req.query
     };
-    console.warn(`[API 404] Route not found! Diagnostics:`, diag);
+    console.warn(`[API 404] Route not found inside apiRouter! Diagnostics:`, diag);
     res.status(404).json({ 
-      error: `API route ${req.method} ${req.originalUrl} not found`,
+      error: `API route ${req.method} ${req.originalUrl} not found in consolidated router`,
       diagnostics: diag
     });
   });
