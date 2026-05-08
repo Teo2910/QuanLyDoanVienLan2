@@ -189,6 +189,7 @@ class DataService {
   }
   
   async updateMovement(id: string, movement: Partial<Movement>): Promise<void> {
+    console.log(`[Service] Calling PUT /api/movements/${id}`);
     const response = await fetch(`/api/movements/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
