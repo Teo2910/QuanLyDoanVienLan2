@@ -393,37 +393,6 @@ async function startServer() {
       io.emit("presence:update", Array.from(onlineUsers.values()));
     });
   });
-          const upRes = await pool.request()
-            .input("uid", sql.NVarChar, newUid)
-            .input("email", sql.NVarChar, email)
-            .query("UPDATE users SET uid = @uid WHERE email = @email");
-          user.uid = newUid;
-          console.log(`Auto-assigned UID ${newUid} to user ${email}`);
-        }
-
-        if (user.presets) user.presets = typeof user.presets === 'string' ? JSON.parse(user.presets) : user.presets;
-        const { password: _, ...userWithoutPassword } = user;
-        
-        // Register in system users for real-time visibility
-        const systemUserInfo = {
-          uid: user.uid,
-          email: user.email,
-          role: user.role,
-          fullName: user.fullName,
-          avatarUrl: user.avatarUrl,
-          unitId: user.unitId
-        };
-        systemUsers.set(user.uid, systemUserInfo);
-
-        res.json(userWithoutPassword);
-      } else {
-        res.status(401).json({ error: "Email hoặc mật khẩu không chính xác" });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Database error" });
-    }
-  });
 
   // User Profile Routes
   app.get("/api/users/:uid", async (req, res) => {
