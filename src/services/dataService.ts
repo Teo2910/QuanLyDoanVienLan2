@@ -47,27 +47,31 @@ class DataService {
   private getAuthHeaders() {
     let userName = "Hệ thống";
     let userId = "system";
+    let role = "N/A";
+    let email = "N/A";
+
     try {
-      const profileStr = localStorage.getItem("local_profile");
+      const profileStr = localStorage.getItem("user_profile") || localStorage.getItem("local_profile");
       const userStr = localStorage.getItem("local_user");
       
-      if (profileStr) {
-        const profile = JSON.parse(profileStr);
-        userName = profile.fullName || profile.email || "Hệ thống";
-        userId = profile.uid || "system";
-      } else if (userStr) {
-        const user = JSON.parse(userStr);
-        userName = user.fullName || user.email || "Hệ thống";
-        userId = user.uid || "system";
+      const target = profileStr ? JSON.parse(profileStr) : (userStr ? JSON.parse(userStr) : null);
+      
+      if (target) {
+        userName = target.fullName || target.email || "Hệ thống";
+        userId = target.uid || "system";
+        role = target.role || "N/A";
+        email = target.email || "N/A";
       }
     } catch (e) {
-      console.error("Failed to parse local profile/user", e);
+      console.error("Failed to parse profile/user", e);
     }
     
     return {
       "Content-Type": "application/json",
       "x-user-name": encodeURIComponent(userName),
-      "x-user-id": encodeURIComponent(userId)
+      "x-user-id": encodeURIComponent(userId),
+      "x-user-role": role,
+      "x-user-email": email
     };
   }
 
@@ -170,7 +174,10 @@ class DataService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(movement),
     });
-    if (!response.ok) throw new Error("Failed to add movement");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to add movement");
+    }
     const data = await response.json();
     return { ...movement, id: data.id, createdAt: Date.now() } as Movement;
   }
@@ -187,7 +194,10 @@ class DataService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(report),
     });
-    if (!response.ok) throw new Error("Failed to submit report");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to submit report");
+    }
     const data = await response.json();
     return { ...report, id: data.id, submittedAt: Date.now() } as MovementReport;
   }

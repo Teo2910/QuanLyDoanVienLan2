@@ -76,8 +76,8 @@ export const MovementList: React.FC = () => {
       });
       setIsCreateModalOpen(false);
       setNewMovement({ title: "", startDate: "", endDate: "", description: "", attachments: [], participatingUnitIds: [] });
-    } catch (err) {
-      alert("Lỗi khi tạo phong trào");
+    } catch (err: any) {
+      alert(`Lỗi khi tạo phong trào: ${err.message || "Lỗi không xác định"}`);
     }
   };
 
@@ -94,8 +94,8 @@ export const MovementList: React.FC = () => {
       });
       setIsReportModalOpen(false);
       setNewReport({ description: "", attachments: [] });
-    } catch (err) {
-      alert("Lỗi khi gửi báo cáo");
+    } catch (err: any) {
+      alert(`Lỗi khi gửi báo cáo: ${err.message || "Lỗi không xác định"}`);
     }
   };
 

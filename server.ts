@@ -314,89 +314,90 @@ async function startServer() {
       } catch(e) { console.error("[DB] Migration error:", e); }
       
       // Create tables if not exists
-      try {
-        await pool.request().query(`
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
-          BEGIN
-            CREATE TABLE activity_logs (
-              id NVARCHAR(50) PRIMARY KEY,
-              userId NVARCHAR(50),
-              userName NVARCHAR(255),
-              action NVARCHAR(255),
-              entityType NVARCHAR(50),
-              entityId NVARCHAR(50),
-              details NVARCHAR(MAX),
-              createdAt BIGINT
-            )
-          END
-          
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
-          BEGIN
-            CREATE TABLE activities (
-              id NVARCHAR(50) PRIMARY KEY,
-              title NVARCHAR(255),
-              date NVARCHAR(100),
-              location NVARCHAR(255),
-              description NVARCHAR(MAX),
-              type NVARCHAR(100),
-              createdAt BIGINT
-            )
-          END
-          
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
-          BEGIN
-            CREATE TABLE chat_messages (
-              id NVARCHAR(50) PRIMARY KEY,
-              threadId NVARCHAR(50),
-              senderId NVARCHAR(50),
-              senderName NVARCHAR(255),
-              senderRole NVARCHAR(50),
-              content NVARCHAR(MAX),
-              isRead BIT,
-              createdAt BIGINT
-            )
-          END
+      const tableQueries = [
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
+        BEGIN
+          CREATE TABLE activity_logs (
+            id NVARCHAR(50) PRIMARY KEY,
+            userId NVARCHAR(50),
+            userName NVARCHAR(255),
+            action NVARCHAR(255),
+            entityType NVARCHAR(50),
+            entityId NVARCHAR(50),
+            details NVARCHAR(MAX),
+            createdAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
+        BEGIN
+          CREATE TABLE activities (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255),
+            date NVARCHAR(100),
+            location NVARCHAR(255),
+            description NVARCHAR(MAX),
+            type NVARCHAR(100),
+            createdAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
+        BEGIN
+          CREATE TABLE chat_messages (
+            id NVARCHAR(50) PRIMARY KEY,
+            threadId NVARCHAR(50),
+            senderId NVARCHAR(50),
+            senderName NVARCHAR(255),
+            senderRole NVARCHAR(50),
+            content NVARCHAR(MAX),
+            isRead BIT,
+            createdAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
+        BEGIN
+          CREATE TABLE knowledge_base (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255) NOT NULL,
+            content NVARCHAR(MAX) NOT NULL,
+            category NVARCHAR(100),
+            updatedAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movements')
+        BEGIN
+          CREATE TABLE movements (
+            id NVARCHAR(50) PRIMARY KEY,
+            title NVARCHAR(255),
+            startDate NVARCHAR(100),
+            endDate NVARCHAR(100),
+            description NVARCHAR(MAX),
+            attachments NVARCHAR(MAX),
+            participatingUnitIds NVARCHAR(MAX),
+            creatorId NVARCHAR(50),
+            createdAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movement_reports')
+        BEGIN
+          CREATE TABLE movement_reports (
+            id NVARCHAR(50) PRIMARY KEY,
+            movementId NVARCHAR(50),
+            unitId NVARCHAR(50),
+            description NVARCHAR(MAX),
+            attachments NVARCHAR(MAX),
+            submittedAt BIGINT
+          )
+        END`
+      ];
 
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
-          BEGIN
-            CREATE TABLE knowledge_base (
-              id NVARCHAR(50) PRIMARY KEY,
-              title NVARCHAR(255) NOT NULL,
-              content NVARCHAR(MAX) NOT NULL,
-              category NVARCHAR(100),
-              updatedAt BIGINT
-            )
-          END
-
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movements')
-          BEGIN
-            CREATE TABLE movements (
-              id NVARCHAR(50) PRIMARY KEY,
-              title NVARCHAR(255),
-              startDate NVARCHAR(100),
-              endDate NVARCHAR(100),
-              description NVARCHAR(MAX),
-              attachments NVARCHAR(MAX),
-              participatingUnitIds NVARCHAR(MAX),
-              creatorId NVARCHAR(50),
-              createdAt BIGINT
-            )
-          END
-
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='movement_reports')
-          BEGIN
-            CREATE TABLE movement_reports (
-              id NVARCHAR(50) PRIMARY KEY,
-              movementId NVARCHAR(50),
-              unitId NVARCHAR(50),
-              description NVARCHAR(MAX),
-              attachments NVARCHAR(MAX),
-              submittedAt BIGINT
-            )
-          END
-        `);
-        console.log("[DB] Tables verified.");
-      } catch (e) { console.error("[DB] Setup tables error:", e); }
+      for (const q of tableQueries) {
+        try {
+          await pool.request().query(q);
+        } catch (e) {
+          console.error("[DB] Table query failed:", q.substring(0, 50), "Error:", e);
+        }
+      }
+      console.log("[DB] Tables verified.");
       
       // Sync users into memory
       try {
