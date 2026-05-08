@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bot, Send, User, ChevronRight, Loader2, Database } from "lucide-react";
-import { GoogleGenAI } from "@google/genai";
+import { Bot, Send, User, ChevronRight, Loader2, Database, Sparkles, CheckCircle2 } from "lucide-react";
+import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
+import { dataService } from "../../services/dataService";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
 export const AIAssistant = () => {
   const [query, setQuery] = useState("");
-  const [chatHistory, setChatHistory] = useState<{ role: "user" | "model", text: string }[]>([
-    { role: "model", text: "Xin chào! Tôi là Trợ lý AI. Tôi đã được kết nối với cơ sở dữ liệu của hệ thống. Bạn có thể hỏi tôi bất kỳ thông tin nào về đoàn viên, chi đoàn hoặc các hoạt động." }
+  const [chatHistory, setChatHistory] = useState<{ role: "user" | "model", text: string, isAction?: boolean }[]>([
+    { role: "model", text: "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp bạn tra cứu thông tin hoặc thực hiện hành động như tạo hoạt động mới bằng ngôn ngữ tự nhiên. Bạn muốn tôi giúp gì?" }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -17,22 +20,18 @@ export const AIAssistant = () => {
     const fetchContext = async () => {
       try {
         setIsInitializing(true);
-        const [membersRes, unitsRes, activitiesRes, knowledgeRes] = await Promise.all([
-          fetch("/api/members"),
-          fetch("/api/units"),
-          fetch("/api/activities"),
-          fetch("/api/knowledge-base")
+        const [members, units, activities, knowledge] = await Promise.all([
+          dataService.getMembers(),
+          dataService.getUnits(),
+          dataService.getActivities(),
+          dataService.getKnowledgeBase()
         ]);
-        const members = await membersRes.json();
-        const units = await unitsRes.json();
-        const activities = await activitiesRes.json();
-        const knowledge = await knowledgeRes.json();
         
         setDbContext({
-          units: units,
-          members: members,
-          activities: activities,
-          knowledge: knowledge
+          units,
+          members,
+          activities,
+          knowledge
         });
       } catch (err) {
         console.error("Failed to fetch context:", err);
@@ -54,68 +53,134 @@ export const AIAssistant = () => {
     const userText = query.trim();
     setQuery("");
     
-    const requestHistory = [...chatHistory];
-    
     setChatHistory(prev => [...prev, { role: "user", text: userText }]);
     setIsLoading(true);
 
     try {
-      // Always initialize with process.env.GEMINI_API_KEY as per skill
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
       
-      const contents = requestHistory
-        .filter(m => m.role && m.text)
-        .map(m => ({
-          role: m.role as "user" | "model",
-          parts: [{ text: m.text }]
-        }));
+      const createActivityTool: FunctionDeclaration = {
+        name: "create_activity",
+        description: "Tạo một hoạt động hoặc phong trào mới trong hệ thống.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING, description: "Tên hoạt động/phong trào" },
+            date: { type: Type.STRING, description: "Ngày diễn ra (định dạng DD/MM/YYYY)" },
+            location: { type: Type.STRING, description: "Địa điểm tổ chức" },
+            description: { type: Type.STRING, description: "Mô tả ngắn gọn về hoạt động" },
+            type: { type: Type.STRING, description: "Loại hoạt động (ví dụ: Tình nguyện, Thể thao, Văn hóa, Hội thảo)" }
+          },
+          required: ["title", "date", "type"]
+        }
+      };
+
+      const systemInstruction = `Bạn là trợ lý AI thông minh điều hành hệ thống Quản lý Đoàn viên tại trường Đại học Đà Lạt.
+Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
+
+HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
+1. Tạo hoạt động mới: Khi người dùng yêu cầu tạo, thêm hoặc lên lịch cho một phong trào, hoạt động, sự kiện. Bạn PHẢI sử dụng công cụ 'create_activity'.
+   - Nếu thiếu thông tin (tên, ngày, loại), hãy hỏi người dùng để bổ sung.
+   - Nếu thời gian mơ hồ (vd: "Chủ nhật tới"), hãy tính toán dựa trên ngày hôm nay để ra ngày cụ thể (DD/MM/YYYY).
+
+TRA CỨU THÔNG TIN:
+Dữ liệu của bạn bao gồm:
+1. Thông tin hệ thống: ${JSON.stringify({ units: dbContext.units?.length, members: dbContext.members?.length, activities: dbContext.activities?.length })}
+2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge?.length)}
+
+Quy tắc ứng xử:
+- Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn.
+- Trả lời bằng tiếng Việt chuyên nghiệp, thân thiện.
+- Sử dụng markdown để trình bày.
+- Sau khi thực hiện hành động thành công (qua công cụ), hãy thông báo rõ ràng cho người dùng.`;
+
+      const contents = chatHistory.map(m => ({
+        role: m.role as "user" | "model",
+        parts: [{ text: m.text }]
+      }));
       contents.push({ role: "user", parts: [{ text: userText }] });
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents,
         config: {
-          systemInstruction: `Bạn là trợ lý AI thông minh, chuyên gia về nghiệp vụ Đoàn - Đội tại trường Đại Học Đà Lạt.
-Dữ liệu của bạn bao gồm:
-1. Thông tin hệ thống (Đoàn viên, Chi đoàn, Hoạt động): ${JSON.stringify({ units: dbContext.units, members: dbContext.members, activities: dbContext.activities })}
-2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge)}
-
-Quy tắc ứng xử:
-- Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn, quy định.
-- Nếu hỏi về thông tin nhân sự/hoạt động, hãy lấy từ "Thông tin hệ thống".
-- Trả lời bằng tiếng Việt, phong cách chuyên nghiệp nhưng thân thiện.
-- Sử dụng markdown để trình bày rõ ràng (in đậm, danh sách).
-- Nếu dữ liệu không đủ để trả lời, tuyệt đối không bịa ra thông tin. Hãy lịch sự phản hồi rằng hệ thống chưa có dữ liệu này.`
+          systemInstruction,
+          tools: [{ functionDeclarations: [createActivityTool] }]
         }
       });
       
-      const responseText = response.text || "Tôi không có câu trả lời cho vấn đề này.";
-      setChatHistory(prev => [...prev, { role: "model", text: responseText }]);
+      const functionCalls = response.functionCalls;
+      
+      if (functionCalls && functionCalls.length > 0) {
+        const call = functionCalls[0];
+        if (call.name === "create_activity" && call.args) {
+          const args = call.args as any;
+          try {
+            // Execute the action
+            await dataService.addActivity({
+              title: args.title,
+              date: args.date,
+              location: args.location || "Chưa xác định",
+              description: args.description || `Được tạo tự động bởi AI trợ lý vào lúc ${format(new Date(), "HH:mm dd/MM/yyyy")}`,
+              type: args.type
+            });
+
+            // Follow up with tool response
+            const toolResponseContent = {
+              role: "model",
+              parts: [
+                {
+                  functionCall: {
+                    name: "create_activity",
+                    args: call.args,
+                    id: call.id
+                  }
+                }
+              ]
+            };
+
+            const toolResultContent = {
+              role: "user",
+              parts: [
+                {
+                  functionResponse: {
+                    name: "create_activity",
+                    response: { success: true, message: `Đã tạo thành công phong trào "${args.title}" vào ngày ${args.date}` },
+                    id: call.id
+                  }
+                }
+              ]
+            };
+
+            const finalResponse = await ai.models.generateContent({
+              model: "gemini-3-flash-preview",
+              contents: [...contents, toolResponseContent, toolResultContent],
+              config: { systemInstruction }
+            });
+            
+            setChatHistory(prev => [...prev, { 
+              role: "model", 
+              text: finalResponse.text || "Đã tạo hoạt động thành công.", 
+              isAction: true 
+            }]);
+          } catch (actionErr: any) {
+            const finalResponse = await ai.models.generateContent({
+              model: "gemini-3-flash-preview",
+              contents: [
+                ...contents, 
+                { role: "user", parts: [{ text: `Lỗi khi thực hiện hành động: ${actionErr.message}` }] }
+              ],
+              config: { systemInstruction }
+            });
+            setChatHistory(prev => [...prev, { role: "model", text: finalResponse.text || "Có lỗi xảy ra khi tạo hoạt động." }]);
+          }
+        }
+      } else {
+        setChatHistory(prev => [...prev, { role: "model", text: response.text || "Tôi không thể xử lý yêu cầu này." }]);
+      }
     } catch (err: any) {
       console.error("Gemini API Error:", err);
-      const errorMessage = err.message || String(err);
-      
-      if (
-        errorMessage.includes("API key not valid") || 
-        errorMessage.includes("API_KEY_INVALID") || 
-        errorMessage.includes("API key should be set") ||
-        errorMessage.toLowerCase().includes("gemini_api_key")
-      ) {
-        setChatHistory(prev => [...prev, { 
-          role: "model", 
-          text: `Lỗi kết nối AI: API Key chưa được xác thực hoặc không hợp lệ.
-
-Do "GEMINI_API_KEY" là khóa hệ thống, bạn vui lòng:
-1. Nhấn vào tab **Secrets** bên cột phải (hoặc trong phần Cài đặt).
-2. Tìm dòng **GEMINI_API_KEY**.
-3. Ở cột **Value**, hãy chắc chắn đã chọn **"AI Studio Free Tier"**.
-4. **QUAN TRỌNG:** Nhấn nút **"Apply changes"** màu xanh (ở dưới cùng bảng Secrets) để hệ thống ghi nhận.
-
-Nếu vẫn lỗi, hãy thử làm mới trang web.` 
-        }]);
-      } else {
-        setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi kết nối. Chi tiết lỗi: " + errorMessage }]);
-      }
+      setChatHistory(prev => [...prev, { role: "model", text: "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn." }]);
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +211,12 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
                 </div>
               )}
               
-              <div className={`max-w-[85%] rounded-2xl p-4 shadow-lg leading-relaxed ${msg.role === "user" ? "bg-accent rounded-tr-sm border border-accent/30 shadow-accent/10" : "bg-surface-light border border-white/10 text-white rounded-tl-sm"}`}>
+              <div className={`max-w-[85%] rounded-2xl p-4 shadow-lg leading-relaxed ${msg.role === "user" ? "bg-accent rounded-tr-sm border border-accent/30 shadow-accent/10" : "bg-surface-light border border-white/10 text-white rounded-tl-sm relative"}`}>
+                {msg.isAction && (
+                  <div className="absolute -top-3 -right-3 bg-green-500 text-white p-1 rounded-full border-2 border-surface shadow-lg animate-bounce">
+                    <CheckCircle2 size={16} />
+                  </div>
+                )}
                 <div className={`text-[16px] max-w-none whitespace-pre-wrap ${msg.role === "user" ? "text-[#1e1e2e] font-semibold" : "text-slate-100 prose prose-invert"}`}>
                   {msg.text}
                 </div>
