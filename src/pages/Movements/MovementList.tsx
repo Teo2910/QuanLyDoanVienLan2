@@ -232,6 +232,12 @@ export const MovementList: React.FC = () => {
               <h3 className="text-2xl font-bold text-white tracking-tight mb-4 group-hover:text-accent transition-colors">
                 {movement.title}
               </h3>
+
+              {movement.description && (
+                <p className="text-sm text-white/50 line-clamp-2 mb-6 leading-relaxed">
+                  {movement.description}
+                </p>
+              )}
               
               <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3 text-white/40">

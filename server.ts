@@ -123,6 +123,87 @@ async function startServer() {
 
   apiRouter.get("/ping", (req, res) => res.json({ pong: true }));
 
+  // Movements Core Routes
+  apiRouter.route("/movements")
+    .get(async (req, res) => {
+      try {
+        if (!pool || !pool.connected) return res.json([]);
+        const result = await pool.request().query("SELECT * FROM movements ORDER BY createdAt DESC");
+        const formatted = result.recordset.map(m => ({
+          ...m,
+          attachments: m.attachments ? JSON.parse(m.attachments) : [],
+          participatingUnitIds: m.participatingUnitIds ? JSON.parse(m.participatingUnitIds) : []
+        }));
+        res.json(formatted);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Database error" });
+      }
+    })
+    .post(async (req, res) => {
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const m = req.body;
+        const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("title", sql.NVarChar, m.title)
+          .input("startDate", sql.NVarChar, m.startDate)
+          .input("endDate", sql.NVarChar, m.endDate)
+          .input("description", sql.NVarChar, m.description || null)
+          .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
+          .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
+          .input("creatorId", sql.NVarChar, m.creatorId)
+          .input("createdAt", sql.BigInt, Date.now())
+          .query(`
+            INSERT INTO movements (id, title, startDate, endDate, description, attachments, participatingUnitIds, creatorId, createdAt)
+            VALUES (@id, @title, @startDate, @endDate, @description, @attachments, @participatingUnitIds, @creatorId, @createdAt)
+          `);
+        
+        await logActivity(req, "Tạo phong trào mới", "Movement", id, `Phong trào: ${m.title}`);
+        io.emit("movements:changed");
+        res.json({ success: true, id });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    });
+
+  apiRouter.route("/movements/:id")
+    .put(async (req, res) => {
+      try {
+        if (!pool || !pool.connected) throw new Error("Database not connected");
+        const { id } = req.params;
+        const m = req.body;
+        console.log(`[API] PUT /movements/${id} processing update`);
+        await pool.request()
+          .input("id", sql.NVarChar, id)
+          .input("title", sql.NVarChar, m.title)
+          .input("startDate", sql.NVarChar, m.startDate)
+          .input("endDate", sql.NVarChar, m.endDate)
+          .input("description", sql.NVarChar, m.description || null)
+          .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
+          .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
+          .query(`
+            UPDATE movements 
+            SET title = @title, 
+                startDate = @startDate, 
+                endDate = @endDate, 
+                description = @description, 
+                attachments = @attachments, 
+                participatingUnitIds = @participatingUnitIds
+            WHERE id = @id
+          `);
+        
+        await logActivity(req, "Cập nhật phong trào", "Movement", id, `Phong trào: ${m.title}`);
+        io.emit("movements:changed");
+        res.json({ success: true });
+      } catch (err) {
+        console.error("[API] PUT /movements error:", err);
+        res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
+      }
+    });
+
   // Knowledge Base explicit route handlers
   apiRouter.route("/knowledge-base")
     .get(async (req, res) => {
@@ -601,84 +682,6 @@ async function startServer() {
     }
   });
 
-  // Movements
-  apiRouter.get("/movements", async (req, res) => {
-    try {
-      if (!pool || !pool.connected) return res.json([]);
-      const result = await pool.request().query("SELECT * FROM movements ORDER BY createdAt DESC");
-      const formatted = result.recordset.map(m => ({
-        ...m,
-        attachments: m.attachments ? JSON.parse(m.attachments) : [],
-        participatingUnitIds: m.participatingUnitIds ? JSON.parse(m.participatingUnitIds) : []
-      }));
-      res.json(formatted);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Database error" });
-    }
-  });
-
-  apiRouter.post("/movements", async (req, res) => {
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const m = req.body;
-      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, m.title)
-        .input("startDate", sql.NVarChar, m.startDate)
-        .input("endDate", sql.NVarChar, m.endDate)
-        .input("description", sql.NVarChar, m.description || null)
-        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
-        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
-        .input("creatorId", sql.NVarChar, m.creatorId)
-        .input("createdAt", sql.BigInt, Date.now())
-        .query(`
-          INSERT INTO movements (id, title, startDate, endDate, description, attachments, participatingUnitIds, creatorId, createdAt)
-          VALUES (@id, @title, @startDate, @endDate, @description, @attachments, @participatingUnitIds, @creatorId, @createdAt)
-        `);
-      
-      await logActivity(req, "Tạo phong trào mới", "Movement", id, `Phong trào: ${m.title}`);
-      io.emit("movements:changed");
-      res.json({ success: true, id });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
-
-  apiRouter.put("/movements/:id", async (req, res) => {
-    try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
-      const { id } = req.params;
-      const m = req.body;
-      await pool.request()
-        .input("id", sql.NVarChar, id)
-        .input("title", sql.NVarChar, m.title)
-        .input("startDate", sql.NVarChar, m.startDate)
-        .input("endDate", sql.NVarChar, m.endDate)
-        .input("description", sql.NVarChar, m.description || null)
-        .input("attachments", sql.NVarChar, JSON.stringify(m.attachments || []))
-        .input("participatingUnitIds", sql.NVarChar, JSON.stringify(m.participatingUnitIds || []))
-        .query(`
-          UPDATE movements 
-          SET title = @title, 
-              startDate = @startDate, 
-              endDate = @endDate, 
-              description = @description, 
-              attachments = @attachments, 
-              participatingUnitIds = @participatingUnitIds
-          WHERE id = @id
-        `);
-      
-      await logActivity(req, "Cập nhật phong trào", "Movement", id, `Phong trào: ${m.title}`);
-      io.emit("movements:changed");
-      res.json({ success: true });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
-    }
-  });
 
 
   apiRouter.get("/movement-reports", async (req, res) => {
