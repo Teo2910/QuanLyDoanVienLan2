@@ -121,11 +121,11 @@ export const AIAssistant = () => {
 Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
 
 PHÂN BIỆT RÕ RÀNG:
-- PHONG TRÀO (Movement): Là các sự kiện lớn, có yêu cầu nộp báo cáo từ các đơn vị, có thời gian bắt đầu và kết thúc rõ ràng. Nếu người dùng nói "tạo phong trào", "phát động phong trào", "báo cáo", bạn PHẢI dùng 'create_movement'.
-- HOẠT ĐỘNG (Activity): Là các sự kiện thông thường, lịch trình sự kiện. Nếu người dùng nói "tạo hoạt động", "thêm sự kiện", "lên lịch", bạn PHẢI dùng 'create_activity'.
+- PHONG TRÀO (Movement): Là các sự kiện lớn, có yêu cầu nộp báo cáo từ các đơn vị. CHỈ QUẢN TRỊ VIÊN (Admin) mới có quyền tạo. Nếu người dùng KHÔNG PHẢI Admin (vd: là Bí thư/Secretary), bạn PHẢI từ chối và giải thích quyền hạn.
+- HOẠT ĐỘNG (Activity): Là các sự kiện thông thường. Cả Quản trị viên và Bí thư đều có thể tạo.
 
 HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
-1. Tạo phong trào mới: Sử dụng 'create_movement'.
+1. Tạo phong trào mới (Chỉ dành cho Admin): Sử dụng 'create_movement'.
 2. Tạo hoạt động mới: Sử dụng 'create_activity'.
 3. Thêm đoàn viên mới: Sử dụng công cụ 'create_member'.
    - Để lấy đúng 'unitId', hãy tra cứu trong danh sách 'Thông tin hệ thống -> units' bên dưới. Nếu người dùng nói tên chi đoàn (vd: "Chi đoàn CNTT"), hãy tìm ID tương ứng.
@@ -136,11 +136,13 @@ Dữ liệu của bạn bao gồm:
         units: dbContext.units?.map((u: any) => ({ id: u.id, name: u.name, code: u.code })), 
         membersCount: dbContext.members?.length, 
         activitiesCount: dbContext.activities?.length,
-        movementsCount: dbContext.movements?.length
+        movementsCount: dbContext.movements?.length,
+        userRole: profile?.role
       })}
 2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge?.length)}
 
 Quy tắc ứng xử:
+- Nếu người dùng yêu cầu tạo phong trào mà userRole KHÔNG PHẢI 'admin', hãy trả lời lịch sự rằng họ không có quyền thực hiện hành động này.
 - Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn.
 - Trả lời bằng tiếng Việt chuyên nghiệp, thân thiện.
 - Sử dụng markdown để trình bày.
@@ -168,6 +170,18 @@ Quy tắc ứng xử:
         // Handle create_movement
         if (call.name === "create_movement" && call.args) {
           const args = call.args as any;
+
+          // ROLE CHECK FOR MOVEMENTS
+          if (profile?.role !== "admin") {
+            setChatHistory(prev => [...prev, { 
+              role: "model", 
+              text: `Rất tiếc, tài khoản của bạn (${profile?.role === "secretary" ? "Bí thư" : profile?.role}) không có quyền phát động phong trào mới trong hệ thống. Quyền hạn này chỉ dành cho Quản trị viên (Admin). Tuy nhiên, tôi vẫn có thể giúp bạn tạo các hoạt động (Activity) thông thường hoặc trả lời thắc mắc khác.`, 
+              isAction: false 
+            }]);
+            setIsLoading(false);
+            return;
+          }
+
           try {
             const unitIds = args.participatingUnitIds && args.participatingUnitIds.length > 0
               ? args.participatingUnitIds
