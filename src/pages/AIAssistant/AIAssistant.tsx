@@ -117,7 +117,7 @@ Quy tắc ứng xử:
           const args = call.args as any;
           try {
             // Execute the action
-            await dataService.addActivity({
+            const newActivity = await dataService.addActivity({
               title: args.title,
               date: args.date,
               location: args.location || "Chưa xác định",
@@ -126,18 +126,9 @@ Quy tắc ứng xử:
             });
 
             // Follow up with tool response
-            const toolResponseContent = {
-              role: "model",
-              parts: [
-                {
-                  functionCall: {
-                    name: "create_activity",
-                    args: call.args,
-                    id: call.id
-                  }
-                }
-              ]
-            };
+            // Use the original model content to ensure all fields like 'id' match exactly
+            const modelContent = response.candidates?.[0]?.content;
+            if (!modelContent) throw new Error("No model content found in response");
 
             const toolResultContent = {
               role: "user",
@@ -145,7 +136,7 @@ Quy tắc ứng xử:
                 {
                   functionResponse: {
                     name: "create_activity",
-                    response: { success: true, message: `Đã tạo thành công phong trào "${args.title}" vào ngày ${args.date}` },
+                    response: { success: true, message: `Đã tạo thành công phong trào "${args.title}" vào ngày ${args.date}`, activityId: newActivity.id },
                     id: call.id
                   }
                 }
@@ -154,25 +145,43 @@ Quy tắc ứng xử:
 
             const finalResponse = await ai.models.generateContent({
               model: "gemini-3-flash-preview",
-              contents: [...contents, toolResponseContent, toolResultContent],
+              contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
             
             setChatHistory(prev => [...prev, { 
               role: "model", 
-              text: finalResponse.text || "Đã tạo hoạt động thành công.", 
+              text: finalResponse.text || `Đã tạo thành công phong trào "${args.title}" vào ngày ${args.date}.`, 
               isAction: true 
             }]);
           } catch (actionErr: any) {
-            const finalResponse = await ai.models.generateContent({
-              model: "gemini-3-flash-preview",
-              contents: [
-                ...contents, 
-                { role: "user", parts: [{ text: `Lỗi khi thực hiện hành động: ${actionErr.message}` }] }
-              ],
-              config: { systemInstruction }
-            });
-            setChatHistory(prev => [...prev, { role: "model", text: finalResponse.text || "Có lỗi xảy ra khi tạo hoạt động." }]);
+            console.error("Action error:", actionErr);
+            const errorMsg = actionErr.message || "Lỗi không xác định";
+            
+            const modelContent = response.candidates?.[0]?.content;
+            if (modelContent) {
+              const toolErrorContent = {
+                role: "user",
+                parts: [
+                  {
+                    functionResponse: {
+                      name: "create_activity",
+                      response: { error: errorMsg },
+                      id: call.id
+                    }
+                  }
+                ]
+              };
+
+              const finalResponse = await ai.models.generateContent({
+                model: "gemini-3-flash-preview",
+                contents: [...contents, modelContent, toolErrorContent],
+                config: { systemInstruction }
+              });
+              setChatHistory(prev => [...prev, { role: "model", text: finalResponse.text || `Có lỗi khi thực hiện: ${errorMsg}` }]);
+            } else {
+              setChatHistory(prev => [...prev, { role: "model", text: `Có lỗi hệ thống: ${errorMsg}` }]);
+            }
           }
         }
       } else {
