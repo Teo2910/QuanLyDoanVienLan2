@@ -226,520 +226,211 @@ export const Statistics: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
-      <div className="space-y-10 px-4 md:px-8 max-w-[1600px] mx-auto pb-20">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 pt-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight group cursor-default">
-            <motion.div
-              whileHover={{ rotate: 15, scale: 1.2 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <BarChart3 className="text-accent" size={36} />
-            </motion.div>
-            <span>Thống kê số liệu</span>
-          </h2>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 mt-2 font-bold ml-12">
-            Tổng hợp dữ liệu {selectedUnitName}
-          </p>
-        </motion.div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 w-full lg:w-auto">
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleExportExcel}
-            className="group flex items-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:bg-white"
+    <div className="w-full max-w-7xl mx-auto pb-32">
+      <div className="space-y-16">
+        {/* Header Section */}
+        <section className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 relative">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex-1"
           >
-            <Download size={20} className="text-slate-950 group-hover:translate-y-0.5 transition-transform" />
-            <span className="text-xs uppercase tracking-widest font-black text-slate-950">Xuất file Excel</span>
-          </motion.button>
-
-          {!isSecretary && (
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-               <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold whitespace-nowrap">Chọn đơn vị:</span>
-               <CustomSelect 
-                 value={selectedUnitId}
-                 onChange={setSelectedUnitId}
-                 options={unitOptions}
-                 className="w-full sm:w-80"
-               />
+            <div className="flex items-center gap-3 mb-10">
+              <span className="px-3 py-1 bg-accent/20 text-accent rounded-full text-[10px] uppercase tracking-[0.4em] font-black border border-accent/20">Analytics Engine</span>
+              <div className="h-px w-20 bg-white/10" />
+              <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Insight v4.0</span>
             </div>
-          )}
-        </div>
-      </div>
+            <h2 className="text-6xl md:text-8xl font-display font-bold text-white tracking-tighter leading-[0.85] mb-10">
+              Chỉ số <br />
+              <span className="font-serif italic text-accent text-gradient lowercase">Đoàn viên</span>
+            </h2>
+            <p className="text-white/40 max-w-lg text-sm leading-relaxed font-medium capitalize">
+              phân tích chuyên sâu về mật độ, trình độ chuyên môn và chất lượng hoạt động tại các đơn vị cơ sở trực thuộc.
+            </p>
+          </motion.div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Outstanding Members Highlight - New */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
+             {!isSecretary && (
+               <div className="bg-surface/50 border border-white/5 rounded-[2rem] p-3 pl-8 flex items-center gap-4 w-full sm:w-80 group hover:border-accent/40 transition-all duration-500 shadow-2xl backdrop-blur-3xl">
+                 <Building2 className="text-white/20 group-hover:text-accent transition-colors" size={20} />
+                 <CustomSelect 
+                   value={selectedUnitId}
+                   onChange={setSelectedUnitId}
+                   options={unitOptions}
+                   className="w-full bg-transparent border-none p-0 focus:ring-0 text-white font-bold"
+                 />
+               </div>
+             )}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleExportExcel}
+              className="w-full sm:w-auto px-10 py-5 bg-accent text-black rounded-[2rem] flex items-center justify-center gap-6 text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-accent/20 hover:shadow-accent/50 transition-all hover:bg-white border border-white/10"
+            >
+              <Download size={20} strokeWidth={3} />
+              Báo cáo Excel
+            </motion.button>
+          </div>
+        </section>
+
+        {/* Highlight Card */}
         <motion.div 
-          whileHover={{ scale: 1.01, translateY: -5 }}
-          className="lg:col-span-2 bg-gradient-to-br from-accent/20 to-surface/40 border border-accent/20 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group cursor-default transition-all duration-300 hover:shadow-accent/5"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bento-card bg-accent flex flex-col md:flex-row justify-between items-center gap-16 overflow-hidden group relative"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-[100px] -mr-32 -mt-32 rounded-full group-hover:bg-accent/30 transition-colors duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-          
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-10">
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-sm uppercase tracking-[0.3em] text-accent font-black mb-4 group-hover:tracking-[0.4em] transition-all duration-300">Danh hiệu danh dự</h3>
-              <h2 className="text-5xl font-serif text-white italic leading-tight">
-                Đoàn viên <br />
-                <span className="text-accent not-italic font-sans font-bold uppercase tracking-tight">Tiêu biểu</span>
-              </h2>
-              <p className="text-white/40 text-sm mt-6 max-w-md leading-relaxed">
-                Những cá nhân có thành tích xuất sắc, đóng góp tích cực trong các hoạt động Đoàn và phong trào thanh thiếu nhi tại đơn vị.
-              </p>
+          <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-125 transition-transform duration-[2s] pointer-events-none">
+            <Star size={300} className="text-black" />
+          </div>
+          <div className="relative z-10 flex-1 text-center md:text-left">
+             <h3 className="text-[11px] uppercase tracking-[0.5em] text-black/60 font-black mb-6">Trọng tâm hệ thống</h3>
+             <h4 className="text-5xl md:text-7xl font-serif italic text-black tracking-tight leading-[0.9] mb-8">
+               Đoàn viên <br />
+               <span className="not-italic font-display font-bold uppercase">Tiêu biểu</span>
+             </h4>
+             <p className="text-black/50 text-xs font-bold leading-relaxed max-w-sm">
+               Những cá nhân xuất sắc có đóng góp vượt trội trong phong trào, là hạt nhân tích cực tại các đơn vị cơ sở.
+             </p>
+          </div>
+          <div className="relative z-10 flex flex-wrap justify-center gap-10">
+            <div className="p-10 bg-black/10 rounded-[2.5rem] border border-white/5 text-center min-w-[180px] backdrop-blur-sm">
+               <span className="text-[10px] uppercase tracking-[0.3em] text-black/40 font-black block mb-4">Tổng danh hiệu</span>
+               <span className="text-6xl font-display font-bold text-black tabular-nums leading-none">
+                 {stats?.outstandingCount}
+               </span>
             </div>
-            
-            <div className="flex items-center gap-12">
-              <div className="text-center p-8 bg-white/5 backdrop-blur-md rounded-[2rem] border border-white/10 min-w-[160px] shadow-xl">
-                <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold block mb-2">Số lượng</span>
-                <span className="text-6xl font-serif italic text-white leading-none">
-                  {stats?.outstandingCount}
-                </span>
-                <span className="text-xs text-white/40 block mt-2 font-medium">Đoàn viên</span>
-              </div>
-              <div className="h-24 w-px bg-white/10 hidden md:block" />
-              <div className="text-center">
-                <span className="text-[10px] uppercase tracking-widest text-accent font-bold block mb-2">Tỷ lệ hệ thống</span>
-                <span className="text-4xl font-serif italic text-accent">
-                  {((stats?.outstandingCount || 0) / members.length * 100).toFixed(1)}%
-                </span>
-              </div>
+            <div className="p-10 bg-black/10 rounded-[2.5rem] border border-white/5 text-center min-w-[180px] backdrop-blur-sm">
+               <span className="text-[10px] uppercase tracking-[0.3em] text-black/40 font-black block mb-4">Tỷ trọng (%)</span>
+               <span className="text-6xl font-display font-bold text-black tabular-nums leading-none">
+                 {members.length > 0 ? ((stats?.outstandingCount || 0) / members.length * 100).toFixed(0) : 0}%
+               </span>
             </div>
           </div>
         </motion.div>
 
-        {/* Gender Breakdown */}
-        <motion.div 
-          whileHover={{ scale: 1.01, translateY: -5 }}
-          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
-        >
-          <div className="flex justify-between items-start mb-8">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-              <PieChartIcon className="text-accent" size={16} />
-              Cơ cấu giới tính
-            </h3>
-            <div className="text-right">
-              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Tổng cộng</span>
-              <p className="text-xl font-serif text-white italic">{members.length}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats?.genderData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {stats?.genderData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-4">
-              {stats?.genderData.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <span className="text-sm text-white/80">{item.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white">{item.value}</span>
-                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Status Breakdown */}
-        <motion.div 
-          whileHover={{ scale: 1.01, translateY: -5 }}
-          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
-        >
-          <div className="flex justify-between items-start mb-8">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-              <Activity className="text-accent" size={16} />
-              Tình trạng sinh hoạt
-            </h3>
-            <div className="text-right">
-              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Đã ghi nhận</span>
-              <p className="text-xl font-serif text-white italic">{members.length}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats?.statusData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                  <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip 
-                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {stats?.statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-4">
-              {stats?.statusData.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <span className="text-sm text-white/80">{item.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white">{item.value}</span>
-                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Achievement Breakdown */}
-        <motion.div 
-          whileHover={{ scale: 1.01, translateY: -5 }}
-          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
-        >
-          <div className="flex justify-between items-start mb-8">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-              <Star className="text-accent" size={16} />
-              Xếp loại đoàn viên
-            </h3>
-            <div className="text-right">
-              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Đã xếp loại</span>
-              <p className="text-xl font-serif text-white italic">{members.length}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats?.achievementData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {stats?.achievementData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="space-y-4">
-              {stats?.achievementData.map((item, index) => (
-                <div key={item.name} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <span className="text-sm text-white/80">{item.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-white">{item.value}</span>
-                    <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Top Ethnic Groups */}
-        <motion.div 
-          whileHover={{ scale: 1.01, translateY: -5 }}
-          className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm group transition-all duration-300 hover:shadow-accent/5 hover:border-white/10"
-        >
-          <div className="flex justify-between items-start mb-8">
-            <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-              <Users className="text-accent" size={16} />
-              Thống kê dân tộc
-            </h3>
-            <div className="text-right">
-              <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Số dân tộc</span>
-              <p className="text-xl font-serif text-white italic">{stats?.ethnicData.length}</p>
-            </div>
-          </div>
-          <div className="space-y-6 overflow-y-auto max-h-64 custom-scrollbar pr-4">
-            {stats?.ethnicData.map((item, index) => (
-              <div key={item.name} className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/40">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-white font-medium">{item.name}</span>
-                    <div className="text-right">
-                      <span className="text-white font-bold">{item.value} người</span>
-                      <span className="text-[10px] text-white/40 ml-2">({((item.value / members.length) * 100).toFixed(1)}%)</span>
-                    </div>
-                  </div>
-                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(item.value / members.length) * 100}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-accent bg-gradient-to-r from-accent to-accent-foreground/50" 
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Member distribution by Unit (Only for Admin when showing All) */}
-        {!isSecretary && selectedUnitId === "all" && (
-          <div className="lg:col-span-2 bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-            <div className="flex justify-between items-start mb-8">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-                <Building2 className="text-accent" size={16} />
-                Phân bổ theo Chi đoàn
-              </h3>
-              <div className="text-right">
-                <span className="text-[10px] text-white/30 uppercase font-bold tracking-tighter">Tổng số chi đoàn</span>
-                <p className="text-xl font-serif text-white italic">{units.length}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <div className="md:col-span-2 h-80">
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-8">
+           {/* Section 1: Gender & Ethnicity */}
+           <motion.div className="md:col-span-6 lg:col-span-4 bento-card p-12">
+             <h3 className="text-[11px] uppercase tracking-[0.4em] text-white/30 font-black mb-12">Cơ cấu giới tính</h3>
+             <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats?.unitData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                    <XAxis type="number" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} />
-                    <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.3)" fontSize={10} axisLine={false} tickLine={false} width={150} />
+                  <PieChart>
+                    <Pie
+                      data={stats?.genderData}
+                      innerRadius={70}
+                      outerRadius={95}
+                      paddingAngle={10}
+                      stroke="none"
+                      dataKey="value"
+                    >
+                      {stats?.genderData?.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                     <Tooltip 
-                      cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                      contentStyle={{ backgroundColor: '#1a1b26', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                      contentStyle={{ backgroundColor: '#161b22', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1.5rem', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
                       itemStyle={{ color: '#fff' }}
                     />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#7aa2f7" />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                  </PieChart>
+                </ResponsiveContainer>
+             </div>
+           </motion.div>
+
+           <motion.div className="md:col-span-6 lg:col-span-8 bento-card p-12 overflow-hidden relative">
+             <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                <BarChart3 size={150} />
+             </div>
+             <div className="flex justify-between items-center mb-12 relative z-10">
+               <h3 className="text-[11px] uppercase tracking-[0.4em] text-white/30 font-black">Xếp loại chất lượng</h3>
+               <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
+                  <Activity className="text-accent" size={16} />
+               </div>
+             </div>
+             <div className="h-72 relative z-10">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats?.achievementData}>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700 }} />
+                    <Tooltip 
+                       contentStyle={{ backgroundColor: '#161b22', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '1.5rem' }}
+                       cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                    />
+                    <Bar dataKey="value" radius={[15, 15, 0, 0]} barSize={40}>
+                      {stats?.achievementData?.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
-              <div className="space-y-3 overflow-y-auto max-h-80 custom-scrollbar pr-4">
-                {stats?.unitData.map((item, index) => (
-                  <div key={item.name} className="flex flex-col p-3 rounded-2xl bg-white/5 border border-white/5">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-white/80 font-medium truncate max-w-[150px]">{item.name}</span>
-                      <span className="text-xs font-bold text-white">{item.value} đ viên</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] text-white/30 uppercase tracking-tighter">
-                      <span>Tỷ trọng</span>
-                      <span>{((item.value / allMembers.length) * 100).toFixed(1)}%</span>
-                    </div>
+             </div>
+           </motion.div>
+
+           {/* Unit Distribution Table - Admin ONLY */}
+           {!isSecretary && (
+             <motion.div className="md:col-span-12 bento-card p-16 overflow-hidden">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-20">
+                  <div className="max-w-xl">
+                    <h3 className="text-[12px] uppercase tracking-[0.5em] text-white/30 font-black mb-6">Chi tiết đơn vị cơ sở</h3>
+                    <p className="text-3xl font-serif italic text-white leading-tight">So sánh mật độ đoàn viên và chất lượng hoạt động tại các chi đoàn.</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Unit-by-Unit Summary Table - Excel Style */}
-      <div className="bg-surface/40 border border-white/5 p-4 md:p-8 rounded-[2rem] shadow-xl backdrop-blur-sm mt-10 overflow-hidden w-full">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 px-2">
-          <div>
-            <h3 className="text-sm uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-              <Building2 className="text-accent" size={18} />
-              Bảng tổng hợp số liệu chi tiết theo đơn vị
-            </h3>
-            <p className="text-[10px] text-white/20 uppercase tracking-widest mt-2">Dữ liệu thời gian thực được tổng hợp từ danh sách đoàn viên</p>
-          </div>
-          <div className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl">
-            <span className="text-[10px] text-white/40 uppercase font-black tracking-widest mr-4">Tổng cộng</span>
-            <span className="text-lg font-serif italic text-white">{units.length}</span>
-          </div>
-        </div>
-
-        <div className="relative rounded-2xl border border-white/5 overflow-hidden bg-[#1a1b26]/30">
-          <div className="w-full overflow-x-auto custom-scrollbar max-h-[600px] overflow-y-auto">
-            <table className="w-full text-left border-separate border-spacing-0 min-w-[1150px]">
-              <thead>
-                <tr className="sticky top-0 z-50">
-                  <th className="py-4 px-3 text-xs uppercase tracking-widest text-white/80 font-black bg-[#2a2b3d] border-b border-r border-white/5 text-center">STT</th>
-                  <th className="py-4 px-5 text-xs uppercase tracking-widest text-white/80 font-black bg-[#2a2b3d] border-b border-white/5 sticky left-0 z-50 backdrop-blur-xl min-w-[200px]">Tên đơn vị</th>
-                  
-                  {/* Group Headers */}
-                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-accent font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">CƠ BẢN</th>
-                  <th colSpan={2} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-emerald-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">DÂN TỘC</th>
-                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-purple-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">TRẠNG THÁI</th>
-                  <th colSpan={3} className="py-2.5 px-3 text-[10px] uppercase tracking-[0.2em] text-blue-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">XẾP LOẠI</th>
-                  
-                  <th className="py-4 px-5 text-xs uppercase tracking-[0.2em] text-amber-400 font-black text-center bg-[#2a2b3d] border-b border-l border-white/5">Tiêu biểu</th>
-                </tr>
-                <tr className="sticky top-[41px] z-40">
-                  <th className="bg-[#24273a] border-b border-r border-white/5"></th>
-                  <th className="bg-[#24273a] border-b border-white/5 sticky left-0 z-40 shadow-[2px_0_10px_rgba(0,0,0,0.3)]"></th>
-                  
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-black text-center border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md">Tổng</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Nam</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Nữ</th>
-                  
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md">Kinh</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Khác</th>
-                  
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md">Đang SH</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Chuyển</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">T. Thành</th>
-                  
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md">X. Sắc</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">Khá</th>
-                  <th className="py-4 px-3 text-[10px] uppercase tracking-widest text-white/90 font-bold text-center border-b bg-[#24273a]/80 backdrop-blur-md">T. Bình</th>
-                  
-                  <th className="border-b border-l border-white/5 bg-[#24273a]/80 backdrop-blur-md"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {unitTableStats.map((item, index) => (
-                  <tr key={item.id} className="group hover:bg-white/[0.04] transition-all duration-300">
-                    <td className="py-4 px-3 text-sm text-white/50 font-mono border-b border-r border-white/5 text-center">{String(index + 1).padStart(2, '0')}</td>
-                    <td className="py-4 px-5 sticky left-0 z-20 bg-[#24273a] transition-colors border-b border-white/5 group-hover:bg-[#2d3045] shadow-[2px_0_10px_rgba(0,0,0,0.2)]">
-                      <div className="flex flex-col">
-                        <span 
-                          className="text-sm text-white font-bold tracking-tight group-hover:text-accent transition-colors truncate max-w-[180px]"
-                          title={item.name}
-                        >
-                          {item.name}
-                        </span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="h-0.5 flex-1 bg-white/5 rounded-full overflow-hidden flex">
-                            <div className="h-full bg-blue-500/40" style={{ width: `${(item.males / (item.total || 1)) * 100}%` }} />
-                            <div className="h-full bg-pink-500/40" style={{ width: `${(item.females / (item.total || 1)) * 100}%` }} />
-                          </div>
-                          <span className="text-[8px] text-white/40 uppercase font-black">Ratio</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-3 text-center bg-white/[0.01] border-b border-l border-white/5 text-base font-bold font-mono text-white">
-                      {item.total}
-                    </td>
-                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white border-b">{item.males}</td>
-                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white border-b">{item.females}</td>
-                    
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5 bg-emerald-400/[0.02] text-base text-white/80 font-bold font-mono">
-                      {item.ethnic.kinh}
-                    </td>
-                    <td className="py-4 px-3 text-center border-b bg-emerald-400/[0.02] text-base font-bold font-mono text-white/30">
-                      <span className={cn(item.ethnic.others > 0 && "text-emerald-400")}>
-                        {item.ethnic.others}
-                      </span>
-                    </td>
-                    
-                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/90 border-b border-l border-white/5">{item.status.active}</td>
-                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/80 border-b">{item.status.moved}</td>
-                    <td className="py-4 px-3 text-center text-base font-bold font-mono text-white/80 border-b">{item.status.left}</td>
-                    
-                    <td className="py-4 px-3 text-center border-b border-l border-white/5 text-base font-bold font-mono text-white/50">
-                      <span className={cn(item.achievements.excellent > 0 && "text-green-400")}>{item.achievements.excellent}</span>
-                    </td>
-                    <td className="py-4 px-3 text-center border-b text-base font-bold font-mono text-white/50">
-                      <span className={cn(item.achievements.good > 0 && "text-blue-400")}>{item.achievements.good}</span>
-                    </td>
-                    <td className="py-4 px-3 text-center border-b text-base font-bold font-mono text-white/50">
-                      {item.achievements.average}
-                    </td>
-                    
-                    <td className="py-4 px-5 text-center bg-amber-400/[0.02] border-b border-l border-white/5">
-                      <span className={cn("text-base font-bold font-mono", item.outstanding > 0 ? "text-amber-400" : "text-white/30")}>
-                        {item.outstanding}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                  <div className="px-8 py-4 bg-white/5 border border-white/10 rounded-[2rem] flex items-center gap-6">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-black border-r border-white/10 pr-6">Database</span>
+                    <span className="text-2xl font-display font-bold text-accent tabular-nums">{units.length} Unit</span>
+                  </div>
+                </div>
                 
-                {/* Grand Total Row - Enhanced Designer Look */}
-                <tr className="relative">
-                  <td colSpan={2} className="py-6 px-6 bg-gradient-to-r from-accent/20 to-transparent border-t border-accent/30">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 bg-accent rounded-xl shadow-lg shadow-accent/20">
-                        <Activity className="text-black" size={16} />
-                      </div>
-                      <div>
-                        <span className="text-[9px] uppercase tracking-[0.3em] text-accent font-black block leading-none">Tổng kết hệ thống</span>
-                        <span className="text-[7px] uppercase tracking-widest text-white/50 mt-1 block">Cập nhật thời gian thực</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-6 px-3 text-center bg-accent/10 border-t border-accent/20">
-                    <div className="relative inline-block text-base text-white font-bold font-mono">
-                      {allMembers.length}
-                    </div>
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.males, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.02] text-base text-white font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.females, 0)}
-                  </td>
-                  
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-emerald-400/[0.05] text-base text-white font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.kinh, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-emerald-400/[0.05] text-base text-emerald-400 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.ethnic.others, 0)}
-                  </td>
-                  
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.status.active, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.status.moved, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/90 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.status.left, 0)}
-                  </td>
-                  
-                  <td className="py-6 px-3 text-center border-t border-l border-white/10 bg-white/[0.01] text-base text-green-400 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.excellent, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-blue-400 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.good, 0)}
-                  </td>
-                  <td className="py-6 px-3 text-center border-t border-white/10 bg-white/[0.01] text-base text-white/70 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.achievements.average, 0)}
-                  </td>
-                  
-                  <td className="py-6 px-6 text-center bg-amber-400/10 border-t border-amber-400/20 text-base text-amber-400 font-bold font-mono">
-                    {unitTableStats.reduce((acc, curr) => acc + curr.outstanding, 0)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          </div>
+                <div className="overflow-x-auto fancy-scrollbar">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/5">
+                        <th className="pb-10 text-[10px] uppercase tracking-[0.4em] text-white/40 font-black">Tên đơn vị</th>
+                        <th className="pb-10 text-[10px] uppercase tracking-[0.4em] text-white/40 font-black text-center">Đoàn số</th>
+                        <th className="pb-10 text-[10px] uppercase tracking-[0.4em] text-white/40 font-black">Cơ cấu</th>
+                        <th className="pb-10 text-[10px] uppercase tracking-[0.4em] text-white/40 font-black text-center">Ưu tú</th>
+                        <th className="pb-10 text-[10px] uppercase tracking-[0.4em] text-white/40 font-black">Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03]">
+                      {unitTableStats.map((unit) => (
+                        <tr key={unit.id} className="group hover:bg-white/[0.01] transition-all duration-500">
+                          <td className="py-10 pr-6">
+                            <p className="text-base font-bold text-white group-hover:text-accent transition-all duration-300">{unit.name}</p>
+                            <p className="text-[9px] uppercase tracking-widest text-white/20 font-black mt-2">Đã đồng bộ Live Sync</p>
+                          </td>
+                          <td className="py-10 text-center">
+                             <span className="text-4xl font-display font-bold text-white tabular-nums leading-none">{unit.total}</span>
+                          </td>
+                          <td className="py-10">
+                             <div className="flex flex-col gap-3">
+                               <div className="flex items-center gap-4">
+                                  <div className="w-2 h-2 rounded-full bg-accent accent-glow" />
+                                  <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest leading-none">Nam: {unit.males}</span>
+                               </div>
+                               <div className="flex items-center gap-4">
+                                  <div className="w-2 h-2 rounded-full bg-purple-500" />
+                                  <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest leading-none">Nữ: {unit.females}</span>
+                               </div>
+                             </div>
+                          </td>
+                          <td className="py-10">
+                             <div className="w-16 h-16 rounded-[1.5rem] bg-accent/5 border border-accent/20 flex items-center justify-center text-accent text-2xl font-display font-bold tabular-nums mx-auto group-hover:bg-accent group-hover:text-black transition-all">
+                               {unit.outstanding}
+                             </div>
+                          </td>
+                          <td className="py-10">
+                            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-green-500/5 border border-green-500/10">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                              <span className="text-[9px] font-black text-green-500 uppercase tracking-[0.2em]">{unit.status.active} Active</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+             </motion.div>
+           )}
         </div>
       </div>
     </div>
