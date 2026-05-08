@@ -8,7 +8,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-console.log(">>> [SERVER] BOOTING - REVISION 3 <<<");
+console.log(">>> [SERVER] BOOTING - REVISION 4 (API Diagnostic Mode) <<<");
 
 dotenv.config();
 
@@ -111,15 +111,16 @@ async function startServer() {
   // --- API Routes START ---
   app.use((req, res, next) => {
     if (req.path.startsWith("/api")) {
-      console.log(`[API] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
+      console.log(`[API] ${req.method} Path: ${req.path} | URL: ${req.url} | Original: ${req.originalUrl}`);
     }
     next();
   });
 
   app.get("/api/ping", (req, res) => res.json({ pong: true, time: Date.now() }));
 
-  // Knowledge Base
+  // Knowledge Base - Moved here to ensure priority
   app.get("/api/knowledge-base", async (req, res) => {
+    console.log("[Knowledge] GET /api/knowledge-base hit");
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
@@ -131,6 +132,7 @@ async function startServer() {
   });
 
   app.post("/api/knowledge-base", async (req, res) => {
+    console.log("[Knowledge] POST /api/knowledge-base hit", req.body);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { title, content, category } = req.body;
@@ -154,6 +156,7 @@ async function startServer() {
   });
 
   app.put("/api/knowledge-base/:id", async (req, res) => {
+    console.log("[Knowledge] PUT /api/knowledge-base hit:", req.params.id);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -177,6 +180,7 @@ async function startServer() {
   });
 
   app.delete("/api/knowledge-base/:id", async (req, res) => {
+    console.log("[Knowledge] DELETE /api/knowledge-base hit:", req.params.id);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -1289,8 +1293,20 @@ async function startServer() {
   
   // 404 catch-all for API to prevent falling into SPA
   app.use("/api", (req, res) => {
-    console.warn(`[API] Route not found: ${req.method} ${req.originalUrl}`);
-    res.status(404).json({ error: `API route ${req.method} ${req.originalUrl} not found` });
+    const diag = {
+      method: req.method,
+      url: req.url,
+      path: req.path,
+      baseUrl: req.baseUrl,
+      originalUrl: req.originalUrl,
+      params: req.params,
+      query: req.query
+    };
+    console.warn(`[API 404] Route not found! Diagnostics:`, diag);
+    res.status(404).json({ 
+      error: `API route ${req.method} ${req.originalUrl} not found`,
+      diagnostics: diag
+    });
   });
 
   // Vite middleware
