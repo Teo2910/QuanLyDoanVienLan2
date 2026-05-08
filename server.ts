@@ -58,9 +58,6 @@ async function startServer() {
     next();
   });
 
-  // Mount apiRouter early
-  app.use("/api", apiRouter);
-
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) {
       console.log("logActivity skipped, no pool. pool:", !!pool, "connected:", pool ? pool.connected : false);
@@ -647,7 +644,9 @@ async function startServer() {
     }
   });
 
-  apiRouter.put("/movements/:id", async (req, res) => {
+  // Movements Update Fallback (Directly on app)
+  app.put("/api/movements/:id", async (req, res) => {
+    console.log(`[APP] HIT PUT /api/movements/${req.params.id}`);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -1394,6 +1393,9 @@ async function startServer() {
       res.status(500).json({ error: e.message });
     }
   });
+
+  // Mount apiRouter here
+  app.use("/api", apiRouter);
 
   // Mount the apiRouter catch-all (404) at the end of definitions
   apiRouter.use((req, res) => {

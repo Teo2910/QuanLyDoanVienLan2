@@ -240,7 +240,10 @@ export const MovementList: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 text-white/40">
                   <Clock size={14} className="text-accent/60" />
-                  <span className="text-xs">Tạo lúc: {new Date(movement.createdAt).toLocaleDateString("vi-VN")}</span>
+                  <span className="text-xs">Tạo lúc: {(() => {
+                    const d = new Date(isNaN(Number(movement.createdAt)) ? movement.createdAt : Number(movement.createdAt));
+                    return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
+                  })()}</span>
                 </div>
               </div>
 
@@ -363,7 +366,12 @@ export const MovementList: React.FC = () => {
                              <div key={rep.id} className="bg-green-500/5 border border-green-500/20 p-6 rounded-3xl">
                                <div className="flex items-center gap-3 mb-4 text-green-400">
                                  <CheckCircle2 size={20} />
-                                 <span className="text-xs font-bold uppercase tracking-widest">Đã nộp báo cáo vào {new Date(rep.submittedAt).toLocaleString("vi-VN")}</span>
+                                 <span className="text-xs font-bold uppercase tracking-widest">
+                                   Đã nộp báo cáo vào {(() => {
+                                     const d = new Date(isNaN(Number(rep.submittedAt)) ? rep.submittedAt : Number(rep.submittedAt));
+                                     return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
+                                   })()}
+                                 </span>
                                </div>
                                <p className="text-sm text-white/60 mb-6">{rep.description}</p>
                                <div className="flex flex-wrap gap-3">
@@ -434,7 +442,12 @@ export const MovementList: React.FC = () => {
                                   </div>
                                   <div className="flex-1 overflow-hidden">
                                      <p className="text-xs font-bold text-white truncate">{unit?.name}</p>
-                                     <p className="text-[9px] text-white/20 uppercase font-medium">{new Date(r.submittedAt).toLocaleDateString("vi-VN")}</p>
+                                     <p className="text-[9px] text-white/20 uppercase font-medium">
+                                       {(() => {
+                                         const d = new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt));
+                                         return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
+                                       })()}
+                                     </p>
                                   </div>
                                   <ChevronRight size={14} className="text-white/20 group-hover:text-accent group-hover:translate-x-1 transition-all" />
                                </div>
@@ -471,7 +484,11 @@ export const MovementList: React.FC = () => {
                     {units.find(u => u.id === viewingReport.unitId)?.name || "Đơn vị ẩn"}
                   </h3>
                   <p className="text-[10px] text-white/40 uppercase font-medium mt-1">
-                    Nộp ngày: {viewingReport.submittedAt ? new Date(Number(viewingReport.submittedAt)).toLocaleString("vi-VN") : "N/A"}
+                    Nộp ngày: {(() => {
+                      if (!viewingReport.submittedAt) return "N/A";
+                      const d = new Date(isNaN(Number(viewingReport.submittedAt)) ? viewingReport.submittedAt : Number(viewingReport.submittedAt));
+                      return isNaN(d.getTime()) ? "INVALID DATE" : d.toLocaleString("vi-VN");
+                    })()}
                   </p>
                 </div>
                 <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
