@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Plus, Award, Calendar, FileText, CheckCircle2, Clock, ChevronRight, BarChart3, Upload, Image as ImageIcon, Send, ExternalLink, Trash2 } from "lucide-react";
+import { Plus, Award, Calendar, FileText, CheckCircle2, Clock, ChevronRight, BarChart3, Upload, Image as ImageIcon, Send, ExternalLink, Trash2, Sparkles, Wand2, Loader2 } from "lucide-react";
 import { dataService } from "../../services/dataService";
 import { Movement, Unit, MovementReport, Attachment } from "../../types";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { useLiveSync } from "../../hooks/useLiveSync";
+import { GoogleGenAI, Type } from "@google/genai";
 
 export const MovementList: React.FC = () => {
   const { profile } = useAuth();
@@ -26,6 +27,9 @@ export const MovementList: React.FC = () => {
   const [viewingReport, setViewingReport] = useState<MovementReport | null>(null);
   const [editingMovement, setEditingMovement] = useState<Partial<Movement> | null>(null);
   const [editingReport, setEditingReport] = useState<MovementReport | null>(null);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
   
   // Form States
   const [newMovement, setNewMovement] = useState<Partial<Movement>>({
@@ -94,6 +98,55 @@ export const MovementList: React.FC = () => {
   useLiveSync("movement-reports:changed", loadData);
 
   const isAdmin = profile?.role === "admin";
+
+  const handleGenerateWithAI = async () => {
+    if (!aiPrompt.trim()) return;
+    setIsAiGenerating(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Hãy gợi ý một phong trào đoàn thanh niên hoặc sinh viên với chủ đề: ${aiPrompt}. 
+        Yêu cầu trả về kết quả bằng tiếng Việt, ngôn ngữ trang trọng, lôi cuốn.
+        Hãy bao gồm các đơn vị tham gia phù hợp (ví dụ: Liên chi đoàn Khoa CNTT, v.v.)`,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING, description: "Tiêu đề phong trào" },
+              description: { type: Type.STRING, description: "Mô tả chi tiết và mục đích phong trào" },
+              participatingUnits: { 
+                type: Type.ARRAY, 
+                items: { type: Type.STRING },
+                description: "Danh sách tên các đơn vị tham gia (nếu có)"
+              }
+            },
+            required: ["title", "description"]
+          }
+        }
+      });
+
+      const result = JSON.parse(response.text);
+      
+      setNewMovement({
+        ...newMovement,
+        title: result.title,
+        description: result.description,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      });
+      
+      setIsAIModalOpen(false);
+      setIsCreateModalOpen(true);
+      setAiPrompt("");
+    } catch (err: any) {
+      console.error(err);
+      alert(`Lỗi AI: ${err.message}`);
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
   
   const handleCreateMovement = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,15 +238,26 @@ export const MovementList: React.FC = () => {
           </p>
         </div>
         {isAdmin && (
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-3 px-6 py-4 bg-accent text-accent-foreground rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-accent/20"
-          >
-            <Plus size={16} />
-            Phổ biến phong trào
-          </motion.button>
+          <div className="flex gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsAIModalOpen(true)}
+              className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl hover:bg-white/10 transition-all"
+            >
+              <Sparkles size={16} className="text-accent" />
+              Tạo bằng AI
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-3 px-6 py-4 bg-accent text-accent-foreground rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-accent/20"
+            >
+              <Plus size={16} />
+              Phổ biến phong trào
+            </motion.button>
+          </div>
         )}
       </div>
 
@@ -1085,6 +1149,75 @@ export const MovementList: React.FC = () => {
            </div>
         </div>
       )}
+      {/* AI Prompt Modal */}
+      <AnimatePresence>
+        {isAIModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-10 border-b border-white/5 bg-white/[0.02]">
+                 <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center text-accent">
+                       <Sparkles size={24} />
+                    </div>
+                    <div>
+                       <h3 className="text-2xl font-bold text-white tracking-tight">Trợ lý AI</h3>
+                       <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Gợi ý phong trào thông minh</p>
+                    </div>
+                 </div>
+              </div>
+              
+              <div className="p-10 space-y-8">
+                 <div>
+                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Chủ đề hoặc ý tưởng phong trào</label>
+                    <textarea 
+                      rows={4}
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      placeholder="Ví dụ: Bảo vệ môi trường, cuộc thi lập trình cho sinh viên, ngày hội tiếng Anh..."
+                      className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none text-lg"
+                    />
+                 </div>
+
+                 <div className="flex gap-4">
+                    <button 
+                      onClick={() => setIsAIModalOpen(false)}
+                      className="flex-1 py-6 bg-white/5 text-white/40 border border-white/10 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                    >
+                       Hủy bỏ
+                    </button>
+                    <button 
+                      disabled={!aiPrompt.trim() || isAiGenerating}
+                      onClick={handleGenerateWithAI}
+                      className="flex-[2] py-6 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-[11px] hover:opacity-90 disabled:opacity-50 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
+                    >
+                       {isAiGenerating ? (
+                         <>
+                           <Loader2 size={18} className="animate-spin" />
+                           Đang sáng tạo...
+                         </>
+                       ) : (
+                         <>
+                           <Wand2 size={18} />
+                           Bắt đầu sáng tạo
+                         </>
+                       )}
+                    </button>
+                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
