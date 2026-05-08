@@ -644,9 +644,7 @@ async function startServer() {
     }
   });
 
-  // Movements Update Fallback (Directly on app)
-  app.put("/api/movements/:id", async (req, res) => {
-    console.log(`[APP] HIT PUT /api/movements/${req.params.id}`);
+  apiRouter.put("/movements/:id", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;

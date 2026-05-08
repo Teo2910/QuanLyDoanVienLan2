@@ -519,6 +519,13 @@ export const MovementList: React.FC = () => {
                                 referrerPolicy="no-referrer"
                               />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                                <button 
+                                  onClick={() => window.open(file.url, '_blank')}
+                                  className="p-3 bg-white/10 text-white rounded-xl backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2"
+                                >
+                                  <ExternalLink size={16} />
+                                  <span className="text-[10px] font-bold uppercase tracking-widest">Xem ảnh gốc</span>
+                                </button>
                                 <a 
                                   href={file.url} 
                                   download={file.name}
