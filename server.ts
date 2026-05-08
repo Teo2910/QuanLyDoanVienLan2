@@ -111,6 +111,9 @@ async function startServer() {
   // --- API Routes START ---
   const apiRouter = express.Router();
 
+  // Mount router immediately so routes are registered in order
+  app.use("/api", apiRouter);
+
   apiRouter.use((req, res, next) => {
     console.log(`[API Diagnostic] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
     next();
@@ -1459,10 +1462,7 @@ async function startServer() {
     }
   }, 10 * 1000); // 10 seconds check
   
-  // Actually mount the apiRouter now that all routes are defined
-  app.use("/api", apiRouter);
-
-  // API 404 catch-all
+  // Actually mount the apiRouter catch-all (404) at the very end
   apiRouter.use((req, res) => {
     const diag = {
       method: req.method,
