@@ -61,51 +61,54 @@ export const KnowledgeBase: React.FC = () => {
   );
 
   return (
-    <div className="p-8 pb-32">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+    <div className="h-full flex flex-col gap-6 overflow-hidden p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shrink-0 pt-2 pb-2">
         <div>
-          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
-            <Book className="text-accent" size={40} />
+          <h2 className="text-3xl font-bold text-white flex items-center gap-4 tracking-tight">
+            <Book className="text-accent" size={32} />
             Tài liệu Nghiệp vụ
           </h2>
-          <p className="text-sm text-white/50 uppercase tracking-[0.2em] mt-2">Dạy AI về kiến thức Đoàn - Đội chuyên sâu</p>
+          <p className="text-[10px] text-white/50 uppercase tracking-[0.2em] mt-1">Dạy AI về kiến thức Đoàn - Đội chuyên sâu</p>
         </div>
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+        <div className="flex items-center gap-4 w-full md:w-auto shrink-0">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
             <input
               type="text"
               placeholder="Tìm kiếm kiến thức..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:ring-1 focus:ring-accent/30 transition-all font-medium"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           {isAdmin && (
             <motion.button
-              whileHover={{ scale: 1.02, y: -2 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 setEditingItem(null);
                 setNewItem({ title: "", content: "", category: "Nghiệp vụ Đoàn" });
                 setShowModal(true);
               }}
-              className="bg-accent text-accent-foreground px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-accent/20"
+              className="bg-accent text-accent-foreground px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-accent/10 whitespace-nowrap text-xs"
             >
-              <Plus size={20} />
-              Thêm tài liệu
+              <Plus size={16} />
+              Thêm mới
             </motion.button>
           )}
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+        <div className="pb-20">
+          {loading ? (
+            <div className="flex items-center justify-center py-20 text-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mx-auto mb-4"></div>
+              <p className="text-white/40 text-xs uppercase tracking-widest">Đang tải kiến thức...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
             {filteredItems.map((item) => (
               <motion.div
@@ -159,7 +162,9 @@ export const KnowledgeBase: React.FC = () => {
             ))}
           </AnimatePresence>
         </div>
-      )}
+          )}
+        </div>
+      </div>
 
       {/* Modal Thêm/Sửa */}
       <AnimatePresence>

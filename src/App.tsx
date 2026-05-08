@@ -91,115 +91,115 @@ const Dashboard = () => {
   ];
 
   return (
-    <div id="dashboard-page">
-      <div className="mb-12">
-        <h2 className="text-5xl font-bold text-white tracking-tighter">
+    <div id="dashboard-page" className="h-full flex flex-col gap-4 p-6 overflow-hidden">
+      <div className="shrink-0">
+        <h2 className="text-2xl font-bold text-white tracking-tighter">
           Xin chào, {profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}
         </h2>
-        <p className="text-white/40 mt-2 text-xs uppercase tracking-widest leading-relaxed">Hệ thống quản lý dữ liệu và hồ sơ đoàn viên trực thuộc</p>
+        <p className="text-white/40 mt-1 text-[9px] uppercase tracking-widest leading-relaxed">Hệ thống quản lý dữ liệu và hồ sơ đoàn viên trực thuộc</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         {cards.map((card) => (
-          <div key={card.label} className="bg-surface/50 border border-white/5 p-8 rounded-3xl flex flex-col justify-between transition-all hover:bg-surface/80 group shadow-lg backdrop-blur-sm">
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", card.bg, card.color)}>
-              <card.icon size={24} />
+          <div key={card.label} className="bg-surface/50 border border-white/5 p-3 rounded-2xl flex items-center gap-3 transition-all hover:bg-surface/80 group shadow-lg backdrop-blur-sm">
+            <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", card.bg, card.color)}>
+              <card.icon size={18} />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">{card.label}</p>
-              <h3 className="text-4xl font-bold text-white tracking-tighter">{card.value}</h3>
+              <p className="text-[8px] uppercase tracking-widest text-white/40 font-bold">{card.label}</p>
+              <h3 className="text-xl font-bold text-white tracking-tighter leading-none mt-0.5">{card.value}</h3>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-                <Calendar className="text-accent" size={16} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+        <div className="bg-surface/40 border border-white/5 p-5 rounded-[1.5rem] shadow-xl backdrop-blur-sm flex flex-col min-h-0">
+            <div className="flex justify-between items-center mb-3 shrink-0">
+              <h3 className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-2">
+                <Calendar className="text-accent" size={14} />
                 Hoạt động sắp tới
               </h3>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {(profile?.role === 'admin' || profile?.role === 'secretary') && (
                   <Link 
                     to="/activities" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[8px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
                   >
-                    <Plus size={12} />
-                    Thêm mới
+                    <Plus size={10} />
+                    Thêm
                   </Link>
                 )}
-                <Link to="/activities" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+                <Link to="/activities" className="text-[9px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Tất cả</Link>
               </div>
             </div>
-           <div className="space-y-4">
+           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-2">
              {recentActivities.length > 0 ? (
                recentActivities.map((evt) => (
-                 <div key={evt.id} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/20 transition-all cursor-pointer group">
+                 <div key={evt.id} className="flex justify-between items-center p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:border-white/20 transition-all cursor-pointer group">
                     <div>
-                      <p className="font-bold text-white text-lg group-hover:text-accent transition-colors">{evt.title}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">{evt.type}</p>
+                      <p className="font-bold text-white text-sm group-hover:text-accent transition-colors">{evt.title}</p>
+                      <p className="text-[8px] uppercase tracking-widest text-white/30 mt-0.5">{evt.type}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-white/60 tabular-nums">{new Date(evt.date).toLocaleDateString("vi-VN")}</p>
+                      <p className="text-[10px] font-bold text-white/60 tabular-nums">{new Date(evt.date).toLocaleDateString("vi-VN")}</p>
                     </div>
                  </div>
                ))
              ) : (
-               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
-                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có hoạt động tiếp theo</p>
+               <div className="h-full flex items-center justify-center border border-dashed border-white/10 rounded-2xl">
+                 <p className="text-[9px] uppercase tracking-widest text-white/20 font-bold">Chưa có hoạt động</p>
                </div>
              )}
            </div>
         </div>
 
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
-                <Users className="text-accent" size={16} />
+        <div className="bg-surface/40 border border-white/5 p-5 rounded-[1.5rem] shadow-xl backdrop-blur-sm flex flex-col min-h-0">
+            <div className="flex justify-between items-center mb-3 shrink-0">
+              <h3 className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-2">
+                <Users className="text-accent" size={14} />
                 Gia nhập gần đây
               </h3>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {(profile?.role === 'admin' || profile?.role === 'secretary') && (
                   <Link 
                     to="/members" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[8px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
                   >
-                    <Plus size={12} />
-                    Thêm mới
+                    <Plus size={10} />
+                    Thêm
                   </Link>
                 )}
-                <Link to="/members" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+                <Link to="/members" className="text-[9px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Tất cả</Link>
               </div>
             </div>
-           <div className="space-y-6">
+           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
              {recentMembers.length > 0 ? (
                recentMembers.map((m) => {
                  const joinDate = m.createdAt ? new Date(m.createdAt).toLocaleDateString("vi-VN") : "N/A";
                  return (
-                   <div key={m.id} className="flex items-center gap-5 group cursor-pointer">
-                      <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-bold text-xl text-white group-hover:border-accent transition-all shadow-inner">
+                   <div key={m.id} className="flex items-center gap-4 group cursor-pointer">
+                      <div className="relative shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-bold text-sm text-white group-hover:border-accent transition-all shadow-inner">
                           {m.fullName.charAt(0)}
                         </div>
                         {m.isOutstanding && (
-                          <div className="absolute -top-1 -right-1 bg-yellow-400 text-black rounded-full p-1 border border-yellow-500 shadow-lg">
-                            <Star size={8} fill="currentColor" />
+                          <div className="absolute -top-1 -right-1 bg-yellow-400 text-black rounded-full p-0.5 border border-yellow-500 shadow-lg">
+                            <Star size={7} fill="currentColor" />
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-white group-hover:text-accent transition-colors">{m.fullName}</p>
-                        <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{m.unitName}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-white text-sm group-hover:text-accent transition-colors truncate">{m.fullName}</p>
+                        <p className="text-[8px] uppercase tracking-widest text-white/30 mt-0.5 truncate">{m.unitName}</p>
                       </div>
-                      <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">{joinDate}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-white/20 font-bold shrink-0">{joinDate}</p>
                    </div>
                  );
                })
              ) : (
-               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
-                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có đoàn viên mới</p>
+               <div className="h-full flex items-center justify-center border border-dashed border-white/10 rounded-2xl">
+                 <p className="text-[9px] uppercase tracking-widest text-white/20 font-bold">Chưa có đoàn viên mới</p>
                </div>
              )}
            </div>
