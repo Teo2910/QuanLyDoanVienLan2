@@ -107,9 +107,7 @@ async function startServer() {
       console.error("Failed to log activity:", err.message);
       globalErrors.push(`Log Error: ${err.message}`);
     }
-  }
-
-  // --- API Routes START ---
+   // --- API Routes START ---
   app.use((req, res, next) => {
     if (req.url.startsWith("/api")) {
       console.log(`[API DEBUG] ${req.method} ${req.url} - Content-Type: ${req.get('content-type')}`);
@@ -119,106 +117,19 @@ async function startServer() {
 
   app.get("/api/ping", (req, res) => res.json({ pong: true, time: Date.now() }));
 
-  // Auth Login
-  try {
-    console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
-    pool = await sql.connect(sqlConfig);
-    console.log("Connected to SQL Server successfully.");
-    
-    // Auto-migrate tables if needed
+  // Presence API
+  app.get("/api/presence-system", async (req, res) => {
     try {
-      const upRes = await pool.request().query(`
-        IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
-        BEGIN
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
-          BEGIN
-            ALTER TABLE members ADD statusHistory NVARCHAR(MAX);
-          END
-          
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='createdAt')
-          BEGIN
-            ALTER TABLE members ADD createdAt BIGINT;
-          END
-        END
-      `);
-      console.log("[Setup] Members table migration checked.");
-    } catch(e: any) {
-      console.error("[Setup] Migration error:", e);
-    }
-    
-    // Create activity_logs table if not exists
-    try {
-      const upRes = await pool.request().query(`
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
-        BEGIN
-          CREATE TABLE activity_logs (
-            id NVARCHAR(50) PRIMARY KEY,
-            userId NVARCHAR(50),
-            userName NVARCHAR(255),
-            action NVARCHAR(255),
-            entityType NVARCHAR(50),
-            entityId NVARCHAR(50),
-            details NVARCHAR(MAX),
-            createdAt BIGINT
-          )
-        END
-        ELSE
-        BEGIN
-          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='activity_logs' AND COLUMN_NAME='createdAt')
-          BEGIN
-            ALTER TABLE activity_logs ADD createdAt BIGINT;
-          END
-        END
-        
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
-        BEGIN
-          CREATE TABLE activities (
-            id NVARCHAR(50) PRIMARY KEY,
-            title NVARCHAR(255),
-            date NVARCHAR(100),
-            location NVARCHAR(255),
-            description NVARCHAR(MAX),
-            type NVARCHAR(100),
-            createdAt BIGINT
-          )
-        END
-        
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
-        BEGIN
-          CREATE TABLE chat_messages (
-            id NVARCHAR(50) PRIMARY KEY,
-            threadId NVARCHAR(50),
-            senderId NVARCHAR(50),
-            senderName NVARCHAR(255),
-            senderRole NVARCHAR(50),
-            content NVARCHAR(MAX),
-            isRead BIT,
-            createdAt BIGINT
-          )
-        END
-
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
-        BEGIN
-          CREATE TABLE knowledge_base (
-            id NVARCHAR(50) PRIMARY KEY,
-            title NVARCHAR(255) NOT NULL,
-            content NVARCHAR(MAX) NOT NULL,
-            category NVARCHAR(100),
-            updatedAt BIGINT
-          )
-        END
-      `);
-      console.log("[Logs] activity_logs, activities, and knowledge_base tables checked/created.");
-    } catch (e) {
-      console.error("[Logs] Error setup activity_logs:", e);
-    }
-    
-      // Sync users into memory on startup
-    try {
-      const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
-      result.recordset.forEach(u => {
+      let sqlUsers: any[] = [];
+      if (pool && pool.connected) {
+        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
+        sqlUsers = result.recordset;
+      }
+      
+      const allUsersMap = new Map();
+      sqlUsers.forEach(u => {
         const uid = u.uid || `db-${u.email}`;
-        systemUsers.set(uid, {
+        allUsersMap.set(uid, {
           uid,
           email: u.email,
           role: u.role,
@@ -227,35 +138,19 @@ async function startServer() {
           unitId: u.unitId
         });
       });
-      console.log(`[Presence] Initialized ${result.recordset.length} users from DB`);
-    } catch (e) {
-      console.error("[Presence] Failed to sync users from DB at startup:", e);
+
+      systemUsers.forEach((u, uid) => {
+        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
+      });
+
+      res.json(Array.from(allUsersMap.values()));
+    } catch (err) {
+      console.error("[Presence] Handler error:", err);
+      res.json(Array.from(systemUsers.values()));
     }
-  } catch (err) {
-    console.error("SQL Server Connection Failed: ", err);
-    // In preview environment, this will likely fail because localhost:1433 doesn't exist
-  }
-
-  io.on("connection", (socket) => {
-    socket.on("presence:online", (uid: string) => {
-      // Remove any existing entry for this UID from other sockets to avoid duplicates
-      for (const [sid, data] of onlineUsers.entries()) {
-        if (data.uid === uid) onlineUsers.delete(sid);
-      }
-      onlineUsers.set(socket.id, { uid, lastSeen: Date.now() });
-      io.emit("presence:update", Array.from(onlineUsers.values()));
-    });
-
-    socket.on("disconnect", () => {
-      const data = onlineUsers.get(socket.id);
-      if (data) {
-        onlineUsers.delete(socket.id);
-      }
-      io.emit("presence:update", Array.from(onlineUsers.values()));
-    });
   });
 
-  // Auth Login
+  // Knowledge Base
   app.get("/api/knowledge-base", async (req, res) => {
     console.log("[Knowledge] GET /api/knowledge-base");
     try {
@@ -273,7 +168,7 @@ async function startServer() {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { title, content, category } = req.body;
-      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+      const id = Date.now().toString(16) + Math.random().toString(16).substring(2, 5);
       const updatedAt = Date.now();
       
       await pool.request()
@@ -330,6 +225,134 @@ async function startServer() {
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
+
+  // DB Connection & Migration
+  // We run this AFTER registering routes so routes are available even if DB is slow
+  const initDb = async () => {
+    try {
+      console.log(`Attempting to connect to SQL Server at ${sqlConfig.server}:${sqlConfig.port}...`);
+      pool = await sql.connect(sqlConfig);
+      console.log("Connected to SQL Server successfully.");
+      
+      // Auto-migrate tables if needed
+      try {
+        await pool.request().query(`
+          IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
+          BEGIN
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
+            BEGIN
+              ALTER TABLE members ADD statusHistory NVARCHAR(MAX);
+            END
+            
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='createdAt')
+            BEGIN
+              ALTER TABLE members ADD createdAt BIGINT;
+            END
+          END
+        `);
+        console.log("[Setup] Members table migration checked.");
+      } catch(e: any) {
+        console.error("[Setup] Migration error:", e);
+      }
+      
+      // Create tables if not exists
+      try {
+        await pool.request().query(`
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
+          BEGIN
+            CREATE TABLE activity_logs (
+              id NVARCHAR(50) PRIMARY KEY,
+              userId NVARCHAR(50),
+              userName NVARCHAR(255),
+              action NVARCHAR(255),
+              entityType NVARCHAR(50),
+              entityId NVARCHAR(50),
+              details NVARCHAR(MAX),
+              createdAt BIGINT
+            )
+          END
+          
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
+          BEGIN
+            CREATE TABLE activities (
+              id NVARCHAR(50) PRIMARY KEY,
+              title NVARCHAR(255),
+              date NVARCHAR(100),
+              location NVARCHAR(255),
+              description NVARCHAR(MAX),
+              type NVARCHAR(100),
+              createdAt BIGINT
+            )
+          END
+          
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='chat_messages')
+          BEGIN
+            CREATE TABLE chat_messages (
+              id NVARCHAR(50) PRIMARY KEY,
+              threadId NVARCHAR(50),
+              senderId NVARCHAR(50),
+              senderName NVARCHAR(255),
+              senderRole NVARCHAR(50),
+              content NVARCHAR(MAX),
+              isRead BIT,
+              createdAt BIGINT
+            )
+          END
+
+          IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='knowledge_base')
+          BEGIN
+            CREATE TABLE knowledge_base (
+              id NVARCHAR(50) PRIMARY KEY,
+              title NVARCHAR(255) NOT NULL,
+              content NVARCHAR(MAX) NOT NULL,
+              category NVARCHAR(100),
+              updatedAt BIGINT
+            )
+          END
+        `);
+        console.log("[Setup] All tables checked/created.");
+      } catch (e) {
+        console.error("[Setup] Error setup tables:", e);
+      }
+      
+      // Sync users into memory
+      try {
+        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
+        result.recordset.forEach(u => {
+          const uid = u.uid || `db-${u.email}`;
+          systemUsers.set(uid, {
+            uid, email: u.email, role: u.role, fullName: u.fullName, avatarUrl: u.avatarUrl, unitId: u.unitId
+          });
+        });
+        console.log(`[Presence] Initialized ${result.recordset.length} users from DB`);
+      } catch (e) {
+        console.error("[Presence] Failed to sync users from DB at startup:", e);
+      }
+    } catch (err) {
+      console.error("SQL Server Connection Failed: ", err);
+    }
+  };
+  initDb(); // Non-blocking!
+
+  io.on("connection", (socket) => {
+    socket.on("presence:online", (uid: string) => {
+      // Remove any existing entry for this UID from other sockets to avoid duplicates
+      for (const [sid, data] of onlineUsers.entries()) {
+        if (data.uid === uid) onlineUsers.delete(sid);
+      }
+      onlineUsers.set(socket.id, { uid, lastSeen: Date.now() });
+      io.emit("presence:update", Array.from(onlineUsers.values()));
+    });
+
+    socket.on("disconnect", () => {
+      const data = onlineUsers.get(socket.id);
+      if (data) {
+        onlineUsers.delete(socket.id);
+      }
+      io.emit("presence:update", Array.from(onlineUsers.values()));
+    });
+  });
+
 
   app.post("/api/login", async (req, res) => {
     try {
