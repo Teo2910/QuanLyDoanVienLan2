@@ -325,10 +325,12 @@ export const MovementList: React.FC = () => {
                       <Calendar size={14} className="text-accent" />
                       {selectedMovement.startDate} — {selectedMovement.endDate}
                     </span>
-                    <span className="flex items-center gap-2 text-xs">
-                      <BarChart3 size={14} className="text-accent" />
-                      {reports.filter(r => r.movementId === selectedMovement.id).length} báo cáo / {selectedMovement.participatingUnitIds.length} đơn vị
-                    </span>
+                    {isAdmin && (
+                      <span className="flex items-center gap-2 text-xs">
+                        <BarChart3 size={14} className="text-accent" />
+                        {reports.filter(r => r.movementId === selectedMovement.id).length} báo cáo / {selectedMovement.participatingUnitIds.length} đơn vị
+                      </span>
+                    )}
                     {isAdmin && (
                       <button 
                         onClick={(e) => {
@@ -349,8 +351,8 @@ export const MovementList: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                  <div className="lg:col-span-2 space-y-10">
+                <div className={cn("grid grid-cols-1 gap-12", isAdmin ? "lg:grid-cols-3" : "max-w-2xl mx-auto")}>
+                  <div className={cn("space-y-10", isAdmin ? "lg:col-span-2" : "")}>
                     <section>
                       <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Nội dung chi tiết</h4>
                       <p className="text-white/70 leading-relaxed whitespace-pre-wrap">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
@@ -436,28 +438,28 @@ export const MovementList: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="space-y-10">
-                    <section>
-                      <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Thống kê báo cáo</h4>
-                      <div className="p-6 bg-white/5 rounded-3xl space-y-6 border border-white/5">
-                        <div className="flex justify-between items-center">
-                           <span className="text-[10px] text-white/40 uppercase font-bold">Đã báo cáo</span>
-                           <span className="text-sm font-bold text-green-400">{reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị</span>
+                  {isAdmin && (
+                    <div className="space-y-10">
+                      <section>
+                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Thống kê báo cáo</h4>
+                        <div className="p-6 bg-white/5 rounded-3xl space-y-6 border border-white/5">
+                          <div className="flex justify-between items-center">
+                             <span className="text-[10px] text-white/40 uppercase font-bold">Đã báo cáo</span>
+                             <span className="text-sm font-bold text-green-400">{reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                             <span className="text-[10px] text-white/40 uppercase font-bold">Chưa báo cáo</span>
+                             <span className="text-sm font-bold text-orange-400">
+                               {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị
+                             </span>
+                          </div>
+                          <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                             <span className="text-[10px] text-white/40 uppercase font-bold">Tổng đơn vị</span>
+                             <span className="text-sm font-bold text-white">{selectedMovement.participatingUnitIds.length} đơn vị</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                           <span className="text-[10px] text-white/40 uppercase font-bold">Chưa báo cáo</span>
-                           <span className="text-sm font-bold text-orange-400">
-                             {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị
-                           </span>
-                        </div>
-                        <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                           <span className="text-[10px] text-white/40 uppercase font-bold">Tổng đơn vị</span>
-                           <span className="text-sm font-bold text-white">{selectedMovement.participatingUnitIds.length} đơn vị</span>
-                        </div>
-                      </div>
-                    </section>
+                      </section>
 
-                    {isAdmin && (
                       <section>
                         <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Danh sách báo cáo</h4>
                         <div className="space-y-3">
@@ -493,8 +495,8 @@ export const MovementList: React.FC = () => {
                            )}
                         </div>
                       </section>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
