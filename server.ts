@@ -107,6 +107,7 @@ async function startServer() {
       console.error("Failed to log activity:", err.message);
       globalErrors.push(`Log Error: ${err.message}`);
     }
+  }
   // --- API Routes START ---
   app.use((req, res, next) => {
     if (req.path.startsWith("/api")) {
