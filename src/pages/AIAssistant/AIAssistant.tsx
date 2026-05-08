@@ -125,7 +125,7 @@ Quy tắc ứng xử:
       contents.push({ role: "user", parts: [{ text: userText }] });
 
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-3.1-flash-lite",
         contents,
         config: {
           systemInstruction,
@@ -167,7 +167,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3-flash-preview",
+              model: "gemini-3.1-flash-lite",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -197,7 +197,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3-flash-preview",
+                model: "gemini-3.1-flash-lite",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -243,7 +243,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3-flash-preview",
+              model: "gemini-3.1-flash-lite",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -273,7 +273,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3-flash-preview",
+                model: "gemini-3.1-flash-lite",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
