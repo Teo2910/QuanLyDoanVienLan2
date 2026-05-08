@@ -18,9 +18,11 @@ export const MovementList: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isViewingReportModalOpen, setIsViewingReportModalOpen] = useState(false);
   
   // Selected items
   const [selectedMovement, setSelectedMovement] = useState<Movement | null>(null);
+  const [viewingReport, setViewingReport] = useState<MovementReport | null>(null);
   
   // Form States
   const [newMovement, setNewMovement] = useState<Partial<Movement>>({
@@ -370,15 +372,22 @@ export const MovementList: React.FC = () => {
                            {reports.filter(r => r.movementId === selectedMovement.id).map(r => {
                              const unit = units.find(u => u.id === r.unitId);
                              return (
-                               <div key={r.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent text-[10px] font-bold">
+                               <div 
+                                 key={r.id} 
+                                 onClick={() => {
+                                   setViewingReport(r);
+                                   setIsViewingReportModalOpen(true);
+                                 }}
+                                 className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center gap-3 cursor-pointer group"
+                               >
+                                  <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent text-[10px] font-bold group-hover:bg-accent group-hover:text-white transition-all">
                                     {unit?.name.charAt(0)}
                                   </div>
                                   <div className="flex-1 overflow-hidden">
                                      <p className="text-xs font-bold text-white truncate">{unit?.name}</p>
                                      <p className="text-[9px] text-white/20 uppercase font-medium">{new Date(r.submittedAt).toLocaleDateString("vi-VN")}</p>
                                   </div>
-                                  <ChevronRight size={14} className="text-white/20" />
+                                  <ChevronRight size={14} className="text-white/20 group-hover:text-accent group-hover:translate-x-1 transition-all" />
                                </div>
                              );
                            })}
@@ -390,6 +399,77 @@ export const MovementList: React.FC = () => {
                     )}
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Report Detail Modal for Admin */}
+      <AnimatePresence>
+        {isViewingReportModalOpen && viewingReport && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-background/95 backdrop-blur-3xl">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+            >
+              <div className="p-10 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-2">Báo cáo chi tiết</h4>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    {units.find(u => u.id === viewingReport.unitId)?.name || "Đơn vị ẩn"}
+                  </h3>
+                  <p className="text-[10px] text-white/40 uppercase font-medium mt-1">
+                    Nộp ngày: {new Date(viewingReport.submittedAt).toLocaleString("vi-VN")}
+                  </p>
+                </div>
+                <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
+                  <Plus size={24} className="rotate-45" />
+                </button>
+              </div>
+              <div className="p-10 overflow-y-auto custom-scrollbar flex-1">
+                <div className="mb-10">
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Nội dung báo cáo</label>
+                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-white/70 leading-relaxed whitespace-pre-wrap text-sm">{viewingReport.description}</p>
+                  </div>
+                </div>
+
+                {viewingReport.attachments.length > 0 && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Minh chứng đính kèm</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {viewingReport.attachments.map((file, idx) => (
+                        <a 
+                          key={idx} 
+                          href={file.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/40 transition-all group"
+                        >
+                          <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                            {file.type === "Image" ? <ImageIcon size={20} /> : <FileText size={20} />}
+                          </div>
+                          <div className="flex-1 overflow-hidden">
+                            <p className="text-[11px] font-bold text-white truncate">{file.name}</p>
+                            <p className="text-[9px] text-white/20 uppercase font-medium">{file.type}</p>
+                          </div>
+                          <ExternalLink size={14} className="text-white/20 group-hover:text-accent" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="p-10 border-t border-white/5 flex justify-end">
+                <button 
+                  onClick={() => setIsViewingReportModalOpen(false)}
+                  className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-all"
+                >
+                  Đóng
+                </button>
               </div>
             </motion.div>
           </div>
