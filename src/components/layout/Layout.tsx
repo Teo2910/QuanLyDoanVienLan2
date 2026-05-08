@@ -117,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: "Tổng quan", href: "/", icon: LayoutGrid },
-    { name: "Phòng trào & Báo cáo", href: "/movements", icon: Award },
+    { name: profile?.role === "admin" ? "Phòng trào & Báo cáo" : "Báo cáo phong trào", href: "/movements", icon: Award },
     { name: "Quản lý đơn vị", href: "/units", icon: Building2 },
     { name: "Danh sách đoàn viên", href: "/members", icon: Users },
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
