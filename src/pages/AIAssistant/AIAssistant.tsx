@@ -141,7 +141,7 @@ Quy tắc ứng xử:
         if (call.name === "create_activity" && call.args) {
           const args = call.args as any;
           try {
-            // Execute the action
+            console.log("Creating activity with args:", args);
             const newActivity = await dataService.addActivity({
               title: args.title,
               date: args.date,
@@ -150,8 +150,6 @@ Quy tắc ứng xử:
               type: args.type
             });
 
-            // Follow up with tool response
-            // Use the original model content to ensure all fields like 'id' match exactly
             const modelContent = response.candidates?.[0]?.content;
             if (!modelContent) throw new Error("Không nhận được phản hồi từ AI");
 
@@ -169,7 +167,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-1.5-flash",
+              model: "gemini-3-flash-preview",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -199,7 +197,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-1.5-flash",
+                model: "gemini-3-flash-preview",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -245,7 +243,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-1.5-flash", 
+              model: "gemini-3-flash-preview",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -275,7 +273,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-1.5-flash",
+                model: "gemini-3-flash-preview",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
