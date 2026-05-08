@@ -270,19 +270,36 @@ export const MovementList: React.FC = () => {
                 </div>
               )}
 
-              {!isAdmin && !hasReported && (
+              {!isAdmin && (
                 <div className="mt-6 flex justify-end">
-                   <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedMovement(movement);
-                      setIsReportModalOpen(true);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
-                   >
-                    Báo cáo ngay
-                    <ChevronRight size={12} />
-                   </button>
+                   {!hasReported ? (
+                     <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedMovement(movement);
+                        setIsReportModalOpen(true);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                     >
+                      Báo cáo ngay
+                      <ChevronRight size={12} />
+                     </button>
+                   ) : (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const myReport = reports.find(r => r.movementId === movement.id && r.unitId === profile?.unitId);
+                        if (myReport) {
+                          setViewingReport(myReport);
+                          setIsViewingReportModalOpen(true);
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all shadow-lg"
+                    >
+                      Xem báo cáo đã nộp
+                      <ChevronRight size={12} />
+                    </button>
+                   )}
                 </div>
               )}
             </motion.div>
@@ -382,13 +399,23 @@ export const MovementList: React.FC = () => {
                                  </span>
                                </div>
                                <p className="text-sm text-white/60 mb-6">{rep.description}</p>
-                               <div className="flex flex-wrap gap-3">
+                               <div className="flex flex-wrap gap-3 mb-6">
                                   {rep.attachments.map((att, i) => (
                                     <div key={i} className="px-3 py-2 bg-white/5 rounded-lg text-[10px] text-white/40 border border-white/5 flex items-center gap-2">
                                       <FileText size={12} /> {att.name}
                                     </div>
                                   ))}
                                </div>
+                               <button 
+                                 onClick={() => {
+                                   setViewingReport(rep);
+                                   setIsViewingReportModalOpen(true);
+                                 }}
+                                 className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                               >
+                                 Đọc lại báo cáo
+                                 <ChevronRight size={12} />
+                               </button>
                              </div>
                            ))
                         ) : (
