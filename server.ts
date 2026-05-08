@@ -50,6 +50,17 @@ async function startServer() {
 
   const globalErrors: string[] = [];
 
+  const apiRouter = express.Router();
+
+  // Diagnostic middleware
+  apiRouter.use((req, res, next) => {
+    console.log(`[API Diagnostic] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
+    next();
+  });
+
+  // Mount apiRouter early
+  app.use("/api", apiRouter);
+
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
     if (!pool || !pool.connected) {
       console.log("logActivity skipped, no pool. pool:", !!pool, "connected:", pool ? pool.connected : false);
@@ -109,15 +120,6 @@ async function startServer() {
     }
   }
   // --- API Routes START ---
-  const apiRouter = express.Router();
-
-  // Mount router immediately so routes are registered in order
-  app.use("/api", apiRouter);
-
-  apiRouter.use((req, res, next) => {
-    console.log(`[API Diagnostic] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
-    next();
-  });
 
   apiRouter.get("/ping", (req, res) => res.json({ pong: true }));
 
@@ -911,6 +913,16 @@ async function startServer() {
     }
   });
 
+  apiRouter.get("/debug-routes", (req, res) => {
+    const routes = apiRouter.stack
+      .filter(r => r.route)
+      .map(r => ({
+        path: r.route.path,
+        methods: Object.keys(r.route.methods)
+      }));
+    res.json({ routes });
+  });
+
   apiRouter.get("/debug-errors", (req, res) => {
     res.json({
       globalErrors,
@@ -1360,6 +1372,24 @@ async function startServer() {
     }
   });
 
+  // Mount the apiRouter catch-all (404) at the end of definitions
+  apiRouter.use((req, res) => {
+    const diag = {
+      method: req.method,
+      url: req.url,
+      path: req.path,
+      baseUrl: req.baseUrl,
+      originalUrl: req.originalUrl,
+      params: req.params,
+      query: req.query
+    };
+    console.warn(`[API 404] Route not found inside apiRouter! Diagnostics:`, diag);
+    res.status(404).json({ 
+      error: `API 404: Route ${req.method} ${req.originalUrl} (Internal path: ${req.path}) not found in apiRouter stack.`,
+      diagnostics: diag
+    });
+  });
+
   // Start Background Job for Member Age Validation
   setInterval(async () => {
     if (!pool || !pool.connected) return;
@@ -1462,24 +1492,6 @@ async function startServer() {
     }
   }, 10 * 1000); // 10 seconds check
   
-  // Actually mount the apiRouter catch-all (404) at the very end
-  apiRouter.use((req, res) => {
-    const diag = {
-      method: req.method,
-      url: req.url,
-      path: req.path,
-      baseUrl: req.baseUrl,
-      originalUrl: req.originalUrl,
-      params: req.params,
-      query: req.query
-    };
-    console.warn(`[API 404] Route not found inside apiRouter! Diagnostics:`, diag);
-    res.status(404).json({ 
-      error: `API route ${req.method} ${req.originalUrl} not found in consolidated router`,
-      diagnostics: diag
-    });
-  });
-
   // Vite middleware
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
