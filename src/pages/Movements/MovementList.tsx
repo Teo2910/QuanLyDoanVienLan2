@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Plus, Award, Calendar, FileText, CheckCircle2, Clock, ChevronRight, BarChart3, Upload, Image as ImageIcon, Send, ExternalLink, Trash2 } from "lucide-react";
 import { dataService } from "../../services/dataService";
 import { Movement, Unit, MovementReport, Attachment } from "../../types";
@@ -36,6 +36,32 @@ export const MovementList: React.FC = () => {
     description: "",
     attachments: []
   });
+
+  const fileReportInputRef = useRef<HTMLInputElement>(null);
+
+  const handleReportFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File quá lớn. Vui lòng chọn file dưới 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setNewReport(prev => ({
+        ...prev,
+        attachments: [
+          ...(prev.attachments || []),
+          { name: file.name, url: base64, type: file.type.startsWith("image/") ? "Image" : "File" }
+        ]
+      }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = ""; 
+  };
 
   const loadData = React.useCallback(async () => {
     setIsLoading(true);
@@ -487,19 +513,37 @@ export const MovementList: React.FC = () => {
                  </div>
 
                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Hình ảnh & File minh chứng (Link)</label>
+                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Hình ảnh & File minh chứng</label>
                     <div className="space-y-4">
-                       <div className="flex gap-4">
+                       <div className="flex flex-col sm:flex-row gap-4">
                           <input 
-                            className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
-                            placeholder="Tên file/hình ảnh"
-                            id="att-name"
+                            type="file"
+                            hidden
+                            ref={fileReportInputRef}
+                            onChange={handleReportFileUpload}
+                            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
                           />
-                          <input 
-                            className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
-                            placeholder="URL đính kèm"
-                            id="att-url"
-                          />
+                          <button 
+                            type="button"
+                            onClick={() => fileReportInputRef.current?.click()}
+                            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all group"
+                          >
+                             <Upload size={18} className="text-accent group-hover:scale-110 transition-transform" />
+                             <span className="text-[10px] font-bold uppercase tracking-widest text-center">Tải lên từ thiết bị</span>
+                          </button>
+                          
+                          <div className="flex-[2] flex gap-2">
+                             <input 
+                               className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
+                               placeholder="Tên tệp (Link)"
+                               id="att-name"
+                             />
+                             <input 
+                               className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
+                               placeholder="URL đính kèm"
+                               id="att-url"
+                             />
+                          </div>
                           <button 
                             type="button"
                             onClick={() => {
@@ -523,12 +567,12 @@ export const MovementList: React.FC = () => {
                        <div className="flex flex-wrap gap-2">
                           {newReport.attachments?.map((att, i) => (
                             <div key={i} className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] text-white/60 flex items-center gap-2 group">
-                               <FileText size={12} className="text-accent" />
-                               {att.name}
+                               {att.type === "Image" ? <ImageIcon size={12} className="text-accent" /> : <FileText size={12} className="text-accent" />}
+                               <span className="truncate max-w-[100px]">{att.name}</span>
                                <button 
                                  type="button" 
                                  onClick={() => setNewReport({...newReport, attachments: newReport.attachments?.filter((_, idx) => idx !== i)})}
-                                 className="text-white/20 hover:text-red-400"
+                                 className="text-white/20 hover:text-red-400 ml-auto"
                                >
                                  <Plus size={12} className="rotate-45" />
                                </button>

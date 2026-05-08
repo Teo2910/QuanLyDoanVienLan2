@@ -913,16 +913,6 @@ async function startServer() {
     }
   });
 
-  apiRouter.get("/debug-routes", (req, res) => {
-    const routes = apiRouter.stack
-      .filter(r => r.route)
-      .map(r => ({
-        path: r.route.path,
-        methods: Object.keys(r.route.methods)
-      }));
-    res.json({ routes });
-  });
-
   apiRouter.get("/debug-errors", (req, res) => {
     res.json({
       globalErrors,
