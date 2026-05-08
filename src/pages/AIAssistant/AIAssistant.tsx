@@ -75,17 +75,41 @@ export const AIAssistant = () => {
         }
       };
 
+      const createMemberTool: FunctionDeclaration = {
+        name: "create_member",
+        description: "Thêm một đoàn viên mới vào hệ thống quản lý.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            fullName: { type: Type.STRING, description: "Họ và tên đầy đủ của đoàn viên" },
+            memberId: { type: Type.STRING, description: "Mã số sinh viên/đoàn viên" },
+            dob: { type: Type.STRING, description: "Ngày sinh (DD/MM/YYYY)" },
+            gender: { type: Type.STRING, enum: ["Nam", "Nữ", "Khác"], description: "Giới tính" },
+            unitId: { type: Type.STRING, description: "ID của chi đoàn (Đơn vị). Hãy tra cứu từ danh sách đơn vị được cung cấp." },
+            email: { type: Type.STRING, description: "Địa chỉ email" },
+            phone: { type: Type.STRING, description: "Số điện thoại liên lạc" },
+            hometown: { type: Type.STRING, description: "Quê quán" },
+            status: { type: Type.STRING, enum: ["Đang sinh hoạt", "Đã chuyển sinh hoạt", "Đã trưởng thành", "Bị kỷ luật"], description: "Trạng thái hiện tại" }
+          },
+          required: ["fullName", "memberId", "dob", "gender", "unitId", "status"]
+        }
+      };
+
       const systemInstruction = `Bạn là trợ lý AI thông minh điều hành hệ thống Quản lý Đoàn viên tại trường Đại học Đà Lạt.
 Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
 
 HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
 1. Tạo hoạt động mới: Khi người dùng yêu cầu tạo, thêm hoặc lên lịch cho một phong trào, hoạt động, sự kiện. Bạn PHẢI sử dụng công cụ 'create_activity'.
-   - Nếu thiếu thông tin (tên, ngày, loại), hãy hỏi người dùng để bổ sung.
-   - Nếu thời gian mơ hồ (vd: "Chủ nhật tới"), hãy tính toán dựa trên ngày hôm nay để ra ngày cụ thể (DD/MM/YYYY).
+2. Thêm đoàn viên mới: Khi người dùng yêu cầu tạo, thêm đoàn viên/sinh viên mới vào hệ thống. Bạn PHẢI sử dụng công cụ 'create_member'.
+   - Để lấy đúng 'unitId', hãy tra cứu trong danh sách 'Thông tin hệ thống -> units' bên dưới. Nếu người dùng nói tên chi đoàn (vd: "Chi đoàn CNTT"), hãy tìm ID tương ứng.
 
 TRA CỨU THÔNG TIN:
 Dữ liệu của bạn bao gồm:
-1. Thông tin hệ thống: ${JSON.stringify({ units: dbContext.units?.length, members: dbContext.members?.length, activities: dbContext.activities?.length })}
+1. Thông tin hệ thống: ${JSON.stringify({ 
+        units: dbContext.units?.map((u: any) => ({ id: u.id, name: u.name, code: u.code })), 
+        membersCount: dbContext.members?.length, 
+        activitiesCount: dbContext.activities?.length 
+      })}
 2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge?.length)}
 
 Quy tắc ứng xử:
@@ -105,7 +129,7 @@ Quy tắc ứng xử:
         contents,
         config: {
           systemInstruction,
-          tools: [{ functionDeclarations: [createActivityTool] }]
+          tools: [{ functionDeclarations: [createActivityTool, createMemberTool] }]
         }
       });
       
@@ -113,6 +137,7 @@ Quy tắc ứng xử:
       
       if (functionCalls && functionCalls.length > 0) {
         const call = functionCalls[0];
+        // Handle create_activity
         if (call.name === "create_activity" && call.args) {
           const args = call.args as any;
           try {
@@ -179,6 +204,79 @@ Quy tắc ứng xử:
                 config: { systemInstruction }
               });
               setChatHistory(prev => [...prev, { role: "model", text: finalResponse.text || `Có lỗi khi thực hiện: ${errorMsg}` }]);
+            } else {
+              setChatHistory(prev => [...prev, { role: "model", text: `Có lỗi hệ thống: ${errorMsg}` }]);
+            }
+          }
+        }
+        // Handle create_member
+        else if (call.name === "create_member" && call.args) {
+          const args = call.args as any;
+          try {
+            const newMember = await dataService.addMember({
+              fullName: args.fullName,
+              memberId: args.memberId,
+              dob: args.dob,
+              gender: args.gender,
+              unitId: args.unitId,
+              status: args.status,
+              email: args.email,
+              phone: args.phone,
+              hometown: args.hometown
+            });
+
+            const modelContent = response.candidates?.[0]?.content;
+            if (!modelContent) throw new Error("No model content found in response");
+
+            const toolResultContent = {
+              role: "user",
+              parts: [
+                {
+                  functionResponse: {
+                    name: "create_member",
+                    response: { success: true, message: `Đã thêm thành công đoàn viên "${args.fullName}" (MSSV: ${args.memberId})`, memberId: newMember.id },
+                    id: call.id
+                  }
+                }
+              ]
+            };
+
+            const finalResponse = await ai.models.generateContent({
+              model: "gemini-3-flash-preview",
+              contents: [...contents, modelContent, toolResultContent],
+              config: { systemInstruction }
+            });
+            
+            setChatHistory(prev => [...prev, { 
+              role: "model", 
+              text: finalResponse.text || `Đã thêm thành công đoàn viên "${args.fullName}".`, 
+              isAction: true 
+            }]);
+          } catch (actionErr: any) {
+            console.error("Action error:", actionErr);
+            const errorMsg = actionErr.message || "Lỗi không xác định";
+            
+            const modelContent = response.candidates?.[0]?.content;
+            if (modelContent) {
+              const toolErrorContent = {
+                role: "user",
+                parts: [
+                  {
+                    functionResponse: {
+                      name: "create_member",
+                      response: { error: errorMsg },
+                      id: call.id
+                    }
+                  }
+                ]
+              };
+
+              const finalResponse = await ai.models.generateContent({
+                model: "gemini-3-flash-preview",
+                contents: [...contents, modelContent, toolErrorContent],
+                config: { systemInstruction }
+              });
+              setChatHistory(prev => [...prev, { role: "model", text: finalResponse.text || `Có lỗi khi thực hiện thêm đoàn viên: ${errorMsg}` }]);
             } else {
               setChatHistory(prev => [...prev, { role: "model", text: `Có lỗi hệ thống: ${errorMsg}` }]);
             }
