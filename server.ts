@@ -193,10 +193,10 @@ async function startServer() {
       }
     });
 
-  // Attach Router
-  app.use("/api", apiRouter);
+  // Attach Router (Moved to end of definitions)
+  // --- API Routes END ---
 
-  // Presence API
+  // Health and error routes
   apiRouter.get("/presence-system", async (req, res) => {
     try {
       let sqlUsers: any[] = [];
@@ -287,34 +287,68 @@ async function startServer() {
       pool = await sql.connect(sqlConfig);
       console.log("[DB] Connected successfully.");
       
-      // Auto-migrate tables if needed
-      try {
-        await pool.request().query(`
-          IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='units')
-          BEGIN
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='units' AND COLUMN_NAME='parentId')
-            BEGIN
-              ALTER TABLE units ADD parentId NVARCHAR(50);
-            END
-          END
-
-          IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
-          BEGIN
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
-            BEGIN
-              ALTER TABLE members ADD statusHistory NVARCHAR(MAX);
-            END
-            
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='createdAt')
-            BEGIN
-              ALTER TABLE members ADD createdAt BIGINT;
-            END
-          END
-        `);
-      } catch(e) { console.error("[DB] Migration error:", e); }
-      
       // Create tables if not exists
       const tableQueries = [
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='users')
+        BEGIN
+          CREATE TABLE users (
+            uid NVARCHAR(50) PRIMARY KEY,
+            email NVARCHAR(255) UNIQUE,
+            password NVARCHAR(255),
+            role NVARCHAR(50),
+            fullName NVARCHAR(255),
+            avatarUrl NVARCHAR(MAX),
+            unitId NVARCHAR(50),
+            presets NVARCHAR(MAX),
+            phone NVARCHAR(50)
+          )
+          -- Default admin
+          IF NOT EXISTS (SELECT * FROM users WHERE email='admin@system.com')
+          BEGIN
+            INSERT INTO users (uid, email, password, role, fullName)
+            VALUES ('admin-01', 'admin@system.com', 'admin123', 'admin', 'Hệ thống Admin')
+          END
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='units')
+        BEGIN
+          CREATE TABLE units (
+            id NVARCHAR(50) PRIMARY KEY,
+            name NVARCHAR(255),
+            code NVARCHAR(50),
+            address NVARCHAR(MAX),
+            phone NVARCHAR(50),
+            email NVARCHAR(255),
+            parentId NVARCHAR(50),
+            createdAt BIGINT
+          )
+        END`,
+        `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
+        BEGIN
+          CREATE TABLE members (
+            id NVARCHAR(50) PRIMARY KEY,
+            fullName NVARCHAR(255),
+            memberId NVARCHAR(50),
+            dob NVARCHAR(50),
+            gender NVARCHAR(20),
+            ethnic NVARCHAR(50),
+            religion NVARCHAR(50),
+            placeOfBirth NVARCHAR(255),
+            hometown NVARCHAR(255),
+            permanentAddress NVARCHAR(MAX),
+            joinDate NVARCHAR(50),
+            unitId NVARCHAR(50),
+            email NVARCHAR(255),
+            phone NVARCHAR(50),
+            academicYear NVARCHAR(50),
+            professionalLevel NVARCHAR(100),
+            position NVARCHAR(255),
+            achievementLevel NVARCHAR(100),
+            status NVARCHAR(50),
+            statusHistory NVARCHAR(MAX),
+            isOutstanding BIT,
+            createdAt BIGINT
+          )
+        END`,
         `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activity_logs')
         BEGIN
           CREATE TABLE activity_logs (
@@ -328,6 +362,16 @@ async function startServer() {
             createdAt BIGINT
           )
         END`,
+        // Migration queries for existing tables
+        `IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='units')
+         AND NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='units' AND COLUMN_NAME='parentId')
+         BEGIN ALTER TABLE units ADD parentId NVARCHAR(50) END`,
+        `IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
+         AND NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='statusHistory')
+         BEGIN ALTER TABLE members ADD statusHistory NVARCHAR(MAX) END`,
+        `IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='members')
+         AND NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='members' AND COLUMN_NAME='createdAt')
+         BEGIN ALTER TABLE members ADD createdAt BIGINT END`,
         `IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities')
         BEGIN
           CREATE TABLE activities (
@@ -1415,6 +1459,9 @@ async function startServer() {
     }
   }, 10 * 1000); // 10 seconds check
   
+  // Actually mount the apiRouter now that all routes are defined
+  app.use("/api", apiRouter);
+
   // API 404 catch-all
   apiRouter.use((req, res) => {
     const diag = {
