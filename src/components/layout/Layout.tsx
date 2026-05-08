@@ -151,32 +151,56 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        <nav className="flex-1 px-6 space-y-1.5 w-72 overflow-y-auto fancy-scrollbar">
-          <p className="px-4 py-2 text-[9px] uppercase tracking-[0.4em] text-white/20 font-black mb-2">Menu chính</p>
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden",
-                  isActive
-                    ? "bg-white/5 text-white"
-                    : "text-white/30 hover:text-white hover:bg-white/[0.02]"
-                )}
-              >
-                {isActive && (
-                  <motion.div 
-                    layoutId="nav-active"
-                    className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-accent rounded-full"
-                  />
-                )}
-                <item.icon size={20} className={cn("transition-colors", isActive ? "text-accent" : "group-hover:text-white")} />
-                <span className="text-sm font-medium tracking-wide">{item.name}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-4 space-y-1 w-72 overflow-y-auto fancy-scrollbar">
+          <p className="px-4 py-6 text-[10px] uppercase tracking-[0.5em] text-white/10 font-black mb-2">Navigation</p>
+          <div className="space-y-1">
+            {navigation.map((item, index) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <motion.div
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Link
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-500 group relative overflow-hidden",
+                      isActive
+                        ? "bg-white/[0.05] text-white shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]"
+                        : "text-white/30 hover:text-white hover:bg-white/[0.02]"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div 
+                        layoutId="nav-glow"
+                        className="absolute inset-0 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none"
+                      />
+                    )}
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
+                      isActive ? "bg-accent/10 text-accent shadow-lg shadow-accent/20" : "bg-white/[0.03] text-white/20 group-hover:bg-white/10 group-hover:text-white"
+                    )}>
+                      <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                    </div>
+                    <span className={cn(
+                      "text-sm font-bold tracking-tight transition-all duration-500",
+                      isActive ? "translate-x-1" : "group-hover:translate-x-1"
+                    )}>
+                      {item.name}
+                    </span>
+                    {isActive && (
+                      <motion.div 
+                        layoutId="nav-active-dot"
+                        className="absolute right-4 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(255,51,102,0.8)]"
+                      />
+                    )}
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
         </nav>
 
         <div className="p-8 border-t border-white/5 w-72">
