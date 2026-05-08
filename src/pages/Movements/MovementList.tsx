@@ -168,7 +168,9 @@ export const MovementList: React.FC = () => {
     <div className="space-y-10">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-5xl font-bold text-white tracking-tighter">Phòng trào & Báo cáo</h2>
+          <h2 className="text-5xl font-bold text-white tracking-tighter">
+            {profile?.role === "admin" ? "Phòng trào & Báo cáo" : "Báo cáo phong trào"}
+          </h2>
           <p className="text-white/40 mt-3 text-xs uppercase tracking-widest font-bold">
             {isAdmin ? "Quản lý và thống kê phong trào đơn vị" : "Hệ thống báo cáo phong trào cơ sở"}
           </p>
