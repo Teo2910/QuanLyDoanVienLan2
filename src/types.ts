@@ -94,6 +94,5 @@ export interface Member {
   status: "Đang sinh hoạt" | "Đã chuyển sinh hoạt" | "Đã trưởng thành" | "Bị kỷ luật";
   statusHistory?: StatusChange[];
   isOutstanding?: boolean;
-  avatarUrl?: string;
   createdAt: number;
 }

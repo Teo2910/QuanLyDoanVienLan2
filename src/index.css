@@ -1,40 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --color-primary: #ffffff;
   --color-primary-foreground: #000000;
-  --color-secondary: #0f111a;
+  --color-secondary: #24273a;
   --color-secondary-foreground: #cad3f5;
-  --color-accent: #7aa2f7;
-  --color-accent-foreground: #1a1b26;
-  --color-background: #0d1117;
-  --color-surface: #161b22;
-  --color-surface-light: #21262d;
-  --color-border-subtle: rgba(255, 255, 255, 0.05);
+  --color-accent: #3b82f6;
+  --color-accent-foreground: #ffffff;
+  --color-background: #0f1016;
+  --color-surface: #1a1b23;
+  --color-surface-light: #242632;
+  --color-border-subtle: rgba(255, 255, 255, 0.03);
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-serif: "Playfair Display", serif;
-  --font-display: "Space Grotesk", sans-serif;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(122, 162, 247, 0.08), transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(187, 154, 247, 0.05), transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(122, 162, 247, 0.02), transparent 60%);
+  background-image: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.05), transparent 45%),
+                    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.03), transparent 45%);
   background-attachment: fixed;
   color: var(--color-secondary-foreground);
-  -webkit-font-smoothing: antialiased;
-}
-
-.font-serif {
-  font-family: var(--font-serif);
-}
-
-.font-display {
-  font-family: var(--font-display);
 }
 
 @layer base {
@@ -43,52 +30,67 @@ body {
   }
   
   input, select, textarea {
-    @apply bg-white/5 border-white/10 text-white placeholder:text-white/20 px-4 py-2 rounded-xl focus:ring-1 focus:ring-accent/40 outline-none transition-all;
+    @apply bg-white/5 border-white/10 text-white placeholder:text-white/20;
   }
 }
 
-.glass-card {
-  @apply bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 shadow-2xl;
+.dark-card {
+  @apply bg-white/[0.03] border border-white/10 rounded-2xl p-6;
 }
 
-.bento-card {
-  @apply bg-surface border border-white/5 rounded-[2.5rem] p-10 transition-all duration-500 hover:border-accent/30 hover:shadow-[0_0_40px_rgba(122,162,247,0.05)];
+.dark-table-container {
+  @apply bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden;
 }
 
-.fancy-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Custom Scrollbar Global */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-.fancy-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.fancy-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-.fancy-scrollbar::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
-/* Animations for "Nâng tầm" (Elevating) */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-.accent-glow {
-  @apply shadow-[0_0_20px_rgba(122,162,247,0.2)];
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  -webkit-overflow-scrolling: touch;
 }
 

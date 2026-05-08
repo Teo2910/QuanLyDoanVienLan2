@@ -123,7 +123,7 @@ export const ActivityList = () => {
     <div>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12">
         <div>
-          <h2 className="text-4xl font-serif text-white tracking-tight italic">Hoạt động sắp tới</h2>
+          <h2 className="text-4xl font-bold text-white tracking-tight">Hoạt động sắp tới</h2>
           <p className="text-white/40 mt-1 text-xs uppercase tracking-widest">Lịch trình và sự kiện Đoàn thanh niên cơ sở</p>
         </div>
         
@@ -182,7 +182,7 @@ export const ActivityList = () => {
                   </div>
                 )}
               </div>
-              <h3 className="text-2xl font-serif italic text-white mb-4 group-hover:text-accent transition-colors leading-tight">
+              <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-accent transition-colors leading-tight">
                 {activity.title}
               </h3>
               <p className="text-white/40 text-sm mb-6 line-clamp-2 leading-relaxed italic">
@@ -220,7 +220,7 @@ export const ActivityList = () => {
           >
             <div className="p-8 md:p-10 border-b border-white/5 flex justify-between items-center shrink-0 bg-white/[0.02]">
               <div>
-                <h3 className="text-3xl font-serif text-white italic mb-2">
+                <h3 className="text-3xl font-bold text-white mb-2">
                   {editingActivity ? "Chỉnh sửa hoạt động" : "Thêm hoạt động mới"}
                 </h3>
                 <p className="text-white/30 uppercase tracking-widest text-[10px] font-bold">Thông tin chi tiết sự kiện</p>

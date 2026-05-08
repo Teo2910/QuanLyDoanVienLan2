@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, Menu, X, Calendar, User, Camera, Check, BarChart3, Users, Building2, LayoutDashboard, Database, Activity, Bot, Star } from "lucide-react";
+import { LogOut, Menu, X, Calendar, User, Camera, Check, BarChart3, Users, Building2, LayoutGrid, Database, Activity, Bot } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../../contexts/AuthContext";
 import { dataService } from "../../services/dataService";
@@ -116,7 +116,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const navigation = [
-    { name: "Tổng quan", href: "/", icon: LayoutDashboard },
+    { name: "Tổng quan", href: "/", icon: LayoutGrid },
     { name: "Quản lý đơn vị", href: "/units", icon: Building2 },
     { name: "Danh sách đoàn viên", href: "/members", icon: Users },
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
@@ -130,168 +130,150 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const userRoleName = profile?.role === "admin" ? "Quản trị viên" : "Bí thư";
 
   return (
-    <div id="app-layout" className="min-h-screen bg-background flex text-secondary-foreground font-sans selection:bg-accent/30">
+    <div id="app-layout" className="min-h-screen bg-background flex text-secondary-foreground">
       {/* Sidebar */}
       <aside
         id="sidebar"
         className={cn(
-          "bg-surface/30 backdrop-blur-2xl border-r border-white/5 w-72 transition-all duration-500 ease-in-out z-50 flex flex-col shadow-2xl shrink-0 overflow-hidden",
+          "bg-[#0a0b10] border-r border-white/5 w-72 transition-all duration-300 ease-in-out z-50 flex flex-col shadow-2xl shrink-0 overflow-hidden",
           !isSidebarOpen && "w-0 opacity-0 -translate-x-full"
         )}
       >
         <div className="p-10 w-72">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
-              <Star className="text-black" size={24} fill="currentColor" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+              <span className="text-white font-black text-xs">QN</span>
             </div>
             <div>
-              <h1 className="text-xl font-display font-bold text-white tracking-tight leading-none">QLDV</h1>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-accent font-black mt-1">Hệ thống btc</p>
+              <h1 className="text-lg font-bold text-white tracking-tight">Quản lý Đoàn</h1>
+              <p className="text-[9px] uppercase tracking-[0.1em] text-white/30 font-bold">Hệ thống quản trị</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 w-72 overflow-y-auto fancy-scrollbar">
-          <p className="px-4 py-6 text-[10px] uppercase tracking-[0.5em] text-white/10 font-black mb-2">Navigation</p>
-          <div className="space-y-1">
-            {navigation.map((item, index) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      "flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-500 group relative overflow-hidden",
-                      isActive
-                        ? "bg-white/[0.05] text-white shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]"
-                        : "text-white/30 hover:text-white hover:bg-white/[0.02]"
-                    )}
-                  >
-                    {isActive && (
-                      <motion.div 
-                        layoutId="nav-glow"
-                        className="absolute inset-0 bg-gradient-to-r from-accent/10 to-transparent pointer-events-none"
-                      />
-                    )}
-                    <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500",
-                      isActive ? "bg-accent/10 text-accent shadow-lg shadow-accent/20" : "bg-white/[0.03] text-white/20 group-hover:bg-white/10 group-hover:text-white"
-                    )}>
-                      <item.icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                    </div>
-                    <span className={cn(
-                      "text-sm font-bold tracking-tight transition-all duration-500",
-                      isActive ? "translate-x-1" : "group-hover:translate-x-1"
-                    )}>
-                      {item.name}
-                    </span>
-                    {isActive && (
-                      <motion.div 
-                        layoutId="nav-active-dot"
-                        className="absolute right-4 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(255,51,102,0.8)]"
-                      />
-                    )}
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </div>
+        <nav className="flex-1 px-6 space-y-2 w-72 mt-2">
+          {navigation.map((item) => {
+            const isActive = location.pathname === item.href;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                  isActive
+                    ? "bg-[#242632]/80 shadow-xl border border-white/5 text-white"
+                    : "text-white/40 hover:text-white hover:bg-white/[0.02]"
+                )}
+              >
+                <div className={cn(
+                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 shrink-0",
+                  isActive 
+                    ? "bg-[#2a2d3d] shadow-[0_0_15px_rgba(59,130,246,0.15)] text-blue-400" 
+                    : "bg-[#1e1f28] text-white/40 group-hover:text-white"
+                )}>
+                  <Icon size={20} />
+                </div>
+                
+                <span className={cn(
+                  "text-[15px] font-medium tracking-tight transition-all duration-300",
+                  isActive ? "text-white" : "text-white/40"
+                )}>
+                  {item.name}
+                </span>
+
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-nav-indicator"
+                    className="absolute right-4 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="p-8 border-t border-white/5 w-72">
-          <motion.div 
-            whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+        <div className="p-6 border-t border-white/10 w-72">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setIsProfileModalOpen(true)}
-            className="p-4 rounded-[1.5rem] bg-white/[0.02] border border-white/5 flex items-center gap-4 cursor-pointer transition-all group"
+            className="bg-white/5 p-4 rounded-xl flex items-center space-x-3 border border-white/5 w-full hover:bg-white/10 transition-all text-left group"
           >
-            <div className="relative">
-              {profile?.avatarUrl ? (
-                <img src={profile.avatarUrl} alt="Avatar" className="w-11 h-11 rounded-2xl object-cover shadow-xl border border-white/10 group-hover:border-accent/50" />
-              ) : (
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-accent to-purple-600 flex items-center justify-center font-bold text-white shadow-xl text-xs">
-                  {userInitials}
-                </div>
-              )}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-surface animate-pulse" />
-            </div>
+            {profile?.avatarUrl ? (
+              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-lg border border-white/10 group-hover:border-accent/40" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-[10px]">
+                {userInitials}
+              </div>
+            )}
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-white truncate leading-tight">{profile?.fullName || (profile?.email?.split('@')[0])}</p>
-              <p className="text-[9px] text-white/30 uppercase tracking-[0.1em] font-black mt-1">Đang trực tuyến</p>
+              <p className="text-xs font-black text-white truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
+              <p className="text-[10px] text-white/40 uppercase tracking-tighter">{userRoleName}</p>
             </div>
-          </motion.div>
-          
-          <button 
+          </motion.button>
+          <motion.button 
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.95 }}
             onClick={logout}
-            className="mt-6 flex items-center justify-center gap-3 w-full py-3.5 text-[9px] font-black uppercase tracking-[0.3em] text-white/20 hover:text-red-400 hover:bg-red-500/5 transition-all rounded-2xl border border-transparent hover:border-red-500/10"
+            className="mt-6 flex items-center gap-3 px-4 py-2 w-full text-white/30 hover:text-red-400 transition-all text-[10px] font-black uppercase tracking-widest bg-white/5 border border-transparent hover:border-red-500/10 rounded-xl"
           >
-            <LogOut size={16} />
-            Đăng xuất
-          </button>
+            <LogOut size={14} />
+            <span>Đăng xuất</span>
+          </motion.button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden relative">
-        {/* Subtle Background Glows */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] -z-10 rounded-full" />
-        
+      <main className="flex-1 transition-all duration-300 h-screen flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-24 border-b border-white/5 bg-background/50 backdrop-blur-3xl sticky top-0 z-40 flex items-center justify-between px-12">
-          <div className="flex items-center gap-6">
+        <header className="h-20 border-b border-white/10 bg-background/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-10">
+          <div className="flex items-center gap-4">
             <button 
               id="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-3 hover:bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all border border-transparent hover:border-white/10"
+              className="p-2 hover:bg-white/5 rounded-lg text-white/60 transition-colors"
             >
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <div className="h-6 w-px bg-white/10" />
+            <div className="h-8 w-[1px] bg-white/10 mx-2" />
             <div>
-              <nav className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-black text-white/20 mb-1">
-                <span>Trang chủ</span>
-                <span className="text-white/10">/</span>
-                <span className="text-accent">{navigation.find(n => n.href === location.pathname)?.name || "Dashboard"}</span>
-              </nav>
-              <h2 className="font-display text-lg text-white font-bold tracking-tight">
-                {navigation.find(n => n.href === location.pathname)?.name || "Tổng quan hệ thống"}
-              </h2>
+              <h2 className="text-xl font-bold text-white tracking-tight">Quản lý Đoàn viên</h2>
+              <p className="text-[10px] text-white/30 uppercase tracking-widest leading-none mt-1">Cơ sở dữ liệu tập trung</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
-            <div className="hidden lg:flex flex-col items-end">
-              <span className="text-[9px] uppercase tracking-[0.3em] text-white/20 font-black">Cập nhật lần cuối</span>
-              <span className="text-[10px] text-white/40 tabular-nums">Vừa xong (Live Sync)</span>
-            </div>
-            
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              onClick={() => {
-                const newState = !isUserListOpen;
-                setIsUserListOpen(newState);
-                if (newState) fetchUsersData();
-              }}
-              className="relative cursor-pointer group"
-            >
-              <div className="flex items-center gap-4 p-2.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 rounded-2xl transition-all shadow-xl">
-                 <div className="text-right hidden sm:block">
-                   <p className="text-[9px] uppercase tracking-[0.2em] text-white font-black">{profile?.fullName || profile?.email}</p>
-                   <p className="text-[8px] text-accent font-bold uppercase tracking-widest leading-none mt-1">{userRoleName}</p>
-                 </div>
-                 {profile?.avatarUrl ? (
-                   <img src={profile.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-xl object-cover border border-white/10 group-hover:border-accent/40" />
-                 ) : (
-                   <div className="w-9 h-9 rounded-xl bg-accent/20 flex items-center justify-center font-bold text-accent text-[10px]">
-                     {userInitials}
-                   </div>
-                 )}
-              </div>
-              
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  const newState = !isUserListOpen;
+                  setIsUserListOpen(newState);
+                  if (newState) fetchUsersData();
+                }}
+                className="flex items-center gap-3 p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10"
+              >
+                <div className="text-right hidden lg:block">
+                  <p className="text-[10px] uppercase tracking-widest text-white font-black">{userRoleName}</p>
+                  <div className="flex items-center justify-end gap-1">
+                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                     <p className="text-[9px] text-white/40 uppercase tracking-tighter">Trực tuyến</p>
+                  </div>
+                </div>
+                {profile?.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-white/10 shadow-lg" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center font-bold text-accent shadow-lg text-[10px]">
+                    {userInitials}
+                  </div>
+                )}
+              </motion.button>
+
               <AnimatePresence>
                 {isUserListOpen && (
                   <>
@@ -299,81 +281,96 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      onClick={(e) => { e.stopPropagation(); setIsUserListOpen(false); }}
+                      onClick={() => setIsUserListOpen(false)}
                       className="fixed inset-0 z-40"
                     />
                     <motion.div 
-                      initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                      className="absolute right-0 mt-5 w-80 bg-[#161b22]/95 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.5)] z-50 overflow-hidden"
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-4 w-72 bg-surface/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden"
                     >
-                      <div className="p-6 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                           <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center">
-                              <Users className="text-accent" size={16} />
-                           </div>
-                           <div>
-                              <h4 className="text-[10px] uppercase tracking-[0.3em] text-white font-black">Người dùng</h4>
-                              <p className="text-[8px] text-white/30 uppercase font-bold mt-1">Trực tuyến: {onlineUids.length}</p>
-                           </div>
+                      <div className="p-4 border-b border-white/10 bg-white/5 flex justify-between items-center">
+                        <div>
+                          <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-bold mb-1">Người dùng hệ thống</h4>
+                          <p className="text-[9px] text-white/20 italic">Trạng thái thời gian thực ({users.length})</p>
                         </div>
                         <button 
                           onClick={(e) => { e.stopPropagation(); fetchUsersData(); }}
-                          className={cn("p-2 rounded-xl hover:bg-white/5 text-white/30 hover:text-white transition-all", isLoadingUsers && "animate-spin")}
+                          className={cn("p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-all", isLoadingUsers && "animate-spin")}
+                          title="Làm mới danh sách"
                         >
-                          <Activity size={14} />
+                          <Activity size={12} />
                         </button>
                       </div>
-                      <div className="max-h-96 overflow-y-auto p-4 space-y-2 fancy-scrollbar">
-                        {users.map((u) => {
-                          const isOnline = onlineUids.includes(u.uid);
-                          return (
-                            <motion.div 
-                              whileHover={{ x: 5, backgroundColor: "rgba(255,255,255,0.03)" }}
-                              key={u.uid || u.email} 
-                              className="flex items-center gap-4 p-3.5 rounded-2xl border border-transparent hover:border-white/5 transition-all group"
-                            >
-                              <div className="relative">
-                                {u.avatarUrl ? (
-                                  <img src={u.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-2xl object-cover border border-white/10" />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center font-serif italic text-lg text-white/20">
-                                    {u.fullName?.charAt(0) || u.email?.charAt(0).toUpperCase()}
+                      <div className="max-h-80 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                        {isLoadingUsers && users.length === 0 ? (
+                           <div className="py-8 text-center animate-pulse">
+                            <Activity size={24} className="mx-auto text-accent mb-2" />
+                            <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">Đang tải...</p>
+                          </div>
+                        ) : users.length === 0 ? (
+                          <div className="py-8 text-center">
+                            <Users size={24} className="mx-auto text-white/10 mb-2" />
+                            <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">Không tìm thấy người dùng</p>
+                          </div>
+                        ) : (
+                          users.map((u) => {
+                            const isOnline = onlineUids.includes(u.uid);
+                            const displayName = u.fullName || (u.email ? u.email.split('@')[0] : 'User');
+                            return (
+                              <div key={u.uid || u.email} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5 group">
+                                <div className="relative">
+                                  {u.avatarUrl ? (
+                                    <img src={u.avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover shadow-md border border-white/10" />
+                                  ) : (
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                                      <User size={14} className="text-white/20" />
+                                    </div>
+                                  )}
+                                  <div className={cn(
+                                    "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1a1b26] shadow-sm transition-all duration-500",
+                                    isOnline ? "bg-green-500 scale-110" : "bg-white/20 scale-90"
+                                  )} />
+                                </div>
+                                <div className="flex-1 overflow-hidden">
+                                  <div className="flex justify-between items-start">
+                                    <p className="text-[11px] font-bold text-white truncate">{displayName}</p>
+                                    <p className={cn(
+                                      "text-[8px] font-bold tracking-widest px-1.5 py-0.5 rounded-full",
+                                      isOnline ? "text-green-500 bg-green-500/10" : "text-white/20 bg-white/5"
+                                    )}>
+                                      {isOnline ? "TRỰC TUYẾN" : "NGOẠI TUYẾN"}
+                                    </p>
                                   </div>
-                                )}
-                                <div className={cn(
-                                  "absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#161b22] shadow-sm",
-                                  isOnline ? "bg-green-500" : "bg-white/10"
-                                )} />
+                                  <p className="text-[9px] text-white/30 uppercase tracking-tighter truncate mt-0.5">
+                                    {u.role === 'admin' ? 'Quản trị viên' : 'Bí thư chi đoàn'}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="flex-1 overflow-hidden">
-                                <p className="text-xs font-bold text-white truncate">{u.fullName || (u.email?.split('@')[0])}</p>
-                                <p className="text-[9px] text-white/30 uppercase tracking-widest font-bold mt-0.5">
-                                  {u.role === 'admin' ? 'Admin' : 'Bí thư'}
-                                </p>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                            );
+                          })
+                        )}
                       </div>
-                      <div className="p-6 border-t border-white/5 bg-white/[0.01]">
-                         <button 
-                          onClick={(e) => { e.stopPropagation(); setIsUserListOpen(false); setIsProfileModalOpen(true); }}
-                          className="w-full py-3 bg-white/5 hover:bg-accent text-[9px] text-white hover:text-black font-black uppercase tracking-[0.3em] rounded-xl transition-all border border-white/5"
+                      <div className="p-4 border-t border-white/10 flex justify-center bg-white/[0.02]">
+                         <motion.button 
+                          whileHover={{ scale: 1.1, color: "#fff" }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => { setIsUserListOpen(false); setIsProfileModalOpen(true); }}
+                          className="text-[9px] uppercase tracking-widest text-accent font-black hover:bg-accent/10 py-2 px-4 rounded-lg transition-all"
                         >
-                          Sửa hồ sơ
-                        </button>
+                          Chỉnh sửa hồ sơ
+                        </motion.button>
                       </div>
                     </motion.div>
                   </>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           </div>
         </header>
 
-        <div className="p-12 flex-1 overflow-x-hidden overflow-y-auto fancy-scrollbar">
+        <div className="p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </main>
@@ -417,7 +414,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       onChange={handleFileChange} 
                     />
                  </div>
-                 <h3 className="text-2xl font-serif text-white italic">Cập nhật hồ sơ</h3>
+                 <h3 className="text-2xl font-bold text-white">Cập nhật hồ sơ</h3>
                  <p className="text-white/30 uppercase tracking-widest text-[9px] mt-1 font-bold">Thay đổi thông tin cá nhân của bạn</p>
               </div>
               

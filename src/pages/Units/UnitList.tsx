@@ -130,7 +130,7 @@ export const UnitList: React.FC = () => {
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
+          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
             <Building2 className="text-accent" size={36} />
             Quản lý đơn vị
           </h2>
@@ -188,7 +188,7 @@ export const UnitList: React.FC = () => {
                 {filteredUnits.map((unit) => (
                   <tr key={unit.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="py-6 px-4 font-mono text-sm text-white/40">{unit.code}</td>
-                    <td className="py-6 px-4 font-serif italic text-white text-lg">{unit.name}</td>
+                    <td className="py-6 px-4 font-bold text-white text-lg">{unit.name}</td>
                     <td className="py-6 px-4 text-white/60 text-sm">
                       <div className="flex flex-col">
                         <span>{unit.email || "Chưa có email"}</span>
@@ -250,7 +250,7 @@ export const UnitList: React.FC = () => {
           >
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
               <div>
-                <h3 className="text-2xl font-serif text-white italic">
+                <h3 className="text-2xl font-bold text-white">
                   {editingId ? "Cập nhật đơn vị" : "Đăng ký đơn vị mới"}
                 </h3>
                 <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">Cung cấp thông tin chi tiết của cơ sở</p>

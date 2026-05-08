@@ -125,7 +125,7 @@ Nếu vẫn lỗi, hãy thử làm mới trang web.`
     <div className="p-8 pb-32 h-[calc(100vh-theme(spacing.16))] flex flex-col">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-serif italic text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <Bot className="text-accent" size={32} />
             Trợ lý AI Bằng Giọng Điệu Tự Nhiên
           </h1>

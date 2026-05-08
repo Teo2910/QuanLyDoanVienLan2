@@ -64,7 +64,7 @@ export const KnowledgeBase: React.FC = () => {
     <div className="p-8 pb-32">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-4xl font-serif text-white flex items-center gap-4 italic tracking-tight">
+          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
             <Book className="text-accent" size={40} />
             Tài liệu Nghiệp vụ
           </h2>
@@ -144,7 +144,7 @@ export const KnowledgeBase: React.FC = () => {
 
                 <div className="flex-1">
                   <span className="text-[10px] uppercase tracking-widest text-accent mb-2 block font-bold">{item.category}</span>
-                  <h3 className="text-xl text-white font-serif italic mb-3">{item.title}</h3>
+                  <h3 className="text-xl text-white font-bold mb-3">{item.title}</h3>
                   <p className="text-white/60 text-sm line-clamp-4 leading-relaxed">
                     {item.content}
                   </p>
@@ -180,7 +180,7 @@ export const KnowledgeBase: React.FC = () => {
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-serif text-white italic">
+                  <h3 className="text-2xl font-bold text-white">
                     {editingItem ? "Cập nhật tài liệu" : "Thêm tài liệu nghiệp vụ"}
                   </h3>
                   <button onClick={() => setShowModal(false)} className="text-white/30 hover:text-white">

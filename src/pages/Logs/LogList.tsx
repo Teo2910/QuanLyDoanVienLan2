@@ -36,7 +36,7 @@ export const LogList = () => {
     <div className="relative min-h-[calc(100vh-8rem)]">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12">
         <div>
-          <h2 className="text-4xl font-serif text-white tracking-tight italic">Nhật ký hoạt động</h2>
+          <h2 className="text-4xl font-bold text-white tracking-tight">Nhật ký hoạt động</h2>
           <p className="text-white/40 mt-1 text-xs uppercase tracking-widest">Ai đã làm gì?</p>
         </div>
       </div>
