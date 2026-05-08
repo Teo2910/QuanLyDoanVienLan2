@@ -10,13 +10,19 @@ import { ConfirmModal } from "../../components/ConfirmModal";
 import { ToastContainer, ToastType } from "../../components/Toast";
 
 export const UnitList: React.FC = () => {
-  const { isAdmin, isSecretary } = useAuth();
+  const { isAdmin, isSecretary, profile } = useAuth();
   const { searchTerm, setSearchTerm } = useSearch();
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newUnit, setNewUnit] = useState({ name: "", code: "", email: "", address: "", parentId: "" });
+
+  const canEditUnit = (unitId: string) => {
+    if (isAdmin) return true;
+    if (isSecretary && profile?.unitId === unitId) return true;
+    return false;
+  };
 
   const [toasts, setToasts] = useState<any[]>([]);
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -142,7 +148,7 @@ export const UnitList: React.FC = () => {
           </h2>
           <p className="text-white/40 text-xs uppercase tracking-widest mt-1">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
         </div>
-        {(isAdmin || isSecretary) && (
+        {isAdmin && (
           <motion.button 
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
@@ -213,7 +219,7 @@ export const UnitList: React.FC = () => {
                     </td>
                     <td className="py-6 px-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100 duration-300">
-                        {(isAdmin || isSecretary) ? (
+                        {canEditUnit(unit.id) ? (
                           <>
                             <motion.button 
                               whileHover={{ scale: 1.05, y: -2 }}

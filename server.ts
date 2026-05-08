@@ -661,6 +661,11 @@ async function startServer() {
   apiRouter.post("/units", async (req, res) => {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
+      const userRole = req.headers["x-user-role"];
+      if (userRole !== "admin") {
+        return res.status(403).json({ error: "Chỉ quản trị viên mới được phép tạo đơn vị mới." });
+      }
+
       const { id, name, code, address, phone, email, createdAt, parentId } = req.body;
       const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
@@ -738,6 +743,17 @@ async function startServer() {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
+      const userRole = req.headers["x-user-role"];
+      const userUnitId = req.headers["x-user-unit-id"];
+
+      if (userRole !== "admin") {
+        if (userRole === "secretary" && userUnitId !== id) {
+          return res.status(403).json({ error: "Bạn không có quyền chỉnh sửa đơn vị này." });
+        } else if (userRole !== "secretary") {
+          return res.status(403).json({ error: "Quyền hạn không hợp lệ." });
+        }
+      }
+
       const { name, code, address, phone, email, parentId } = req.body;
       await pool.request()
         .input("id", sql.NVarChar, id)
@@ -762,6 +778,16 @@ async function startServer() {
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
+      const userRole = req.headers["x-user-role"];
+      const userUnitId = req.headers["x-user-unit-id"];
+
+      if (userRole !== "admin") {
+        if (userRole === "secretary" && userUnitId !== id) {
+          return res.status(403).json({ error: "Bạn không có quyền xóa đơn vị này." });
+        } else if (userRole !== "secretary") {
+          return res.status(403).json({ error: "Quyền hạn không hợp lệ." });
+        }
+      }
       
       const checkRes = await pool.request()
         .input("id", sql.NVarChar, id)

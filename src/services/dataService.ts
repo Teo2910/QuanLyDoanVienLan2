@@ -49,6 +49,7 @@ class DataService {
     let userId = "system";
     let role = "N/A";
     let email = "N/A";
+    let unitId = "N/A";
 
     try {
       const profileStr = localStorage.getItem("user_profile") || localStorage.getItem("local_profile");
@@ -61,6 +62,7 @@ class DataService {
         userId = target.uid || "system";
         role = target.role || "N/A";
         email = target.email || "N/A";
+        unitId = target.unitId || "N/A";
       }
     } catch (e) {
       console.error("Failed to parse profile/user", e);
@@ -71,7 +73,8 @@ class DataService {
       "x-user-name": encodeURIComponent(userName),
       "x-user-id": encodeURIComponent(userId),
       "x-user-role": role,
-      "x-user-email": email
+      "x-user-email": email,
+      "x-user-unit-id": unitId
     };
   }
 
