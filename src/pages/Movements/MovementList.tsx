@@ -443,56 +443,92 @@ export const MovementList: React.FC = () => {
                       <section>
                         <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Thống kê báo cáo</h4>
                         <div className="p-6 bg-white/5 rounded-3xl space-y-6 border border-white/5">
-                          <div className="flex justify-between items-center">
-                             <span className="text-[10px] text-white/40 uppercase font-bold">Đã báo cáo</span>
-                             <span className="text-sm font-bold text-green-400">{reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị</span>
+                          <div className="flex justify-between items-center text-green-400">
+                             <div className="flex items-center gap-2">
+                               <CheckCircle2 size={14} />
+                               <span className="text-[10px] uppercase font-bold">Đã báo cáo</span>
+                             </div>
+                             <span className="text-sm font-bold">{reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                             <span className="text-[10px] text-white/40 uppercase font-bold">Chưa báo cáo</span>
-                             <span className="text-sm font-bold text-orange-400">
+                          <div className="flex justify-between items-center text-orange-400">
+                             <div className="flex items-center gap-2">
+                               <Clock size={14} />
+                               <span className="text-[10px] uppercase font-bold">Chưa báo cáo</span>
+                             </div>
+                             <span className="text-sm font-bold">
                                {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length} đơn vị
                              </span>
                           </div>
-                          <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                             <span className="text-[10px] text-white/40 uppercase font-bold">Tổng đơn vị</span>
-                             <span className="text-sm font-bold text-white">{selectedMovement.participatingUnitIds.length} đơn vị</span>
+                          <div className="flex justify-between items-center pt-4 border-t border-white/5 text-white/60">
+                             <span className="text-[10px] uppercase font-bold">Tổng đơn vị phối hợp</span>
+                             <span className="text-sm font-bold">{selectedMovement.participatingUnitIds.length} đơn vị</span>
                           </div>
                         </div>
                       </section>
 
                       <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Danh sách báo cáo</h4>
-                        <div className="space-y-3">
-                           {reports.filter(r => r.movementId === selectedMovement.id).map(r => {
-                             const unit = units.find(u => u.id === r.unitId);
-                             return (
-                               <div 
-                                 key={r.id} 
-                                 onClick={() => {
-                                   setViewingReport(r);
-                                   setIsViewingReportModalOpen(true);
-                                 }}
-                                 className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center gap-3 cursor-pointer group"
-                               >
-                                  <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent text-[10px] font-bold group-hover:bg-accent group-hover:text-white transition-all">
-                                    {unit?.name.charAt(0)}
+                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-4">Chi tiết các đơn vị</h4>
+                        <div className="space-y-8">
+                          {/* Đã báo cáo */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+                              <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Đã nộp ({reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                            </div>
+                            <div className="space-y-2">
+                              {reports.filter(r => r.movementId === selectedMovement.id).map(r => {
+                                const unit = units.find(u => u.id === r.unitId);
+                                return (
+                                  <div 
+                                    key={r.id} 
+                                    onClick={() => {
+                                      setViewingReport(r);
+                                      setIsViewingReportModalOpen(true);
+                                    }}
+                                    className="p-3 bg-white/5 border border-white/5 rounded-xl hover:border-accent/40 transition-all flex items-center justify-between cursor-pointer group"
+                                  >
+                                    <span className="text-xs font-bold text-white/80 group-hover:text-white transition-colors">{unit?.name}</span>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-[9px] text-white/20 uppercase font-medium">
+                                        {(() => {
+                                          const d = new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt));
+                                          return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
+                                        })()}
+                                      </span>
+                                      <ChevronRight size={12} className="text-white/20 group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                                    </div>
                                   </div>
-                                  <div className="flex-1 overflow-hidden">
-                                     <p className="text-xs font-bold text-white truncate">{unit?.name}</p>
-                                     <p className="text-[9px] text-white/20 uppercase font-medium">
-                                       {(() => {
-                                         const d = new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt));
-                                         return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
-                                       })()}
-                                     </p>
-                                  </div>
-                                  <ChevronRight size={14} className="text-white/20 group-hover:text-accent group-hover:translate-x-1 transition-all" />
-                               </div>
-                             );
-                           })}
-                           {reports.filter(r => r.movementId === selectedMovement.id).length === 0 && (
-                             <p className="text-[10px] text-center text-white/20 py-4 font-bold uppercase tracking-widest">Chưa có báo cáo nào</p>
-                           )}
+                                );
+                              })}
+                              {reports.filter(r => r.movementId === selectedMovement.id).length === 0 && (
+                                <p className="text-[10px] text-white/20 py-2 italic">Chưa có đơn vị nào nộp báo cáo</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Chưa báo cáo */}
+                          <div>
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+                              <span className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Chưa nộp ({selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                              {selectedMovement.participatingUnitIds
+                                .filter(uid => !reports.some(r => r.movementId === selectedMovement.id && r.unitId === uid))
+                                .map(uid => {
+                                  const unit = units.find(u => u.id === uid);
+                                  return (
+                                    <div key={uid} className="p-3 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between">
+                                      <span className="text-xs font-bold text-white/40">{unit?.name}</span>
+                                      <span className="text-[9px] text-white/10 uppercase font-bold">Pending</span>
+                                    </div>
+                                  );
+                                })}
+                              {selectedMovement.participatingUnitIds.filter(uid => !reports.some(r => r.movementId === selectedMovement.id && r.unitId === uid)).length === 0 && (
+                                <p className="text-[10px] text-white/20 py-2 italic">Tất cả đơn vị đã hoàn thành báo cáo</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </section>
                     </div>
