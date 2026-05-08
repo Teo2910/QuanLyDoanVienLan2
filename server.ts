@@ -111,61 +111,26 @@ async function startServer() {
   // --- API Routes START ---
   app.use((req, res, next) => {
     if (req.path.startsWith("/api")) {
-      console.log(`[API DEBUG] ${req.method} ${req.path} - Content-Type: ${req.get('content-type')}`);
+      console.log(`[API] ${req.method} ${req.path} (Original: ${req.originalUrl})`);
     }
     next();
   });
 
   app.get("/api/ping", (req, res) => res.json({ pong: true, time: Date.now() }));
 
-  // Presence API
-  app.get("/api/presence-system", async (req, res) => {
-    try {
-      let sqlUsers: any[] = [];
-      if (pool && pool.connected) {
-        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
-        sqlUsers = result.recordset;
-      }
-      
-      const allUsersMap = new Map();
-      sqlUsers.forEach(u => {
-        const uid = u.uid || `db-${u.email}`;
-        allUsersMap.set(uid, {
-          uid,
-          email: u.email,
-          role: u.role,
-          fullName: u.fullName,
-          avatarUrl: u.avatarUrl,
-          unitId: u.unitId
-        });
-      });
-
-      systemUsers.forEach((u, uid) => {
-        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
-      });
-
-      res.json(Array.from(allUsersMap.values()));
-    } catch (err) {
-      console.error("[Presence] Handler error:", err);
-      res.json(Array.from(systemUsers.values()));
-    }
-  });
-
   // Knowledge Base
   app.get("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] GET /api/knowledge-base");
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const result = await pool.request().query("SELECT * FROM knowledge_base ORDER BY updatedAt DESC");
       res.json(result.recordset);
     } catch (err) {
-      console.error(err);
+      console.error("[Knowledge] GET error:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.post("/api/knowledge-base", async (req, res) => {
-    console.log("[Knowledge] POST /api/knowledge-base", req.body);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { title, content, category } = req.body;
@@ -183,13 +148,12 @@ async function startServer() {
       await logActivity(req, "Thêm tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
       res.json({ success: true, id });
     } catch (err) {
-      console.error(err);
+      console.error("[Knowledge] POST error:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.put("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] PUT /api/knowledge-base/", req.params.id);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -207,13 +171,12 @@ async function startServer() {
       await logActivity(req, "Cập nhật tài liệu nghiệp vụ", "Knowledge", id, `Tiêu đề: ${title}`);
       res.json({ success: true });
     } catch (err) {
-      console.error(err);
+      console.error("[Knowledge] PUT error:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
 
   app.delete("/api/knowledge-base/:id", async (req, res) => {
-    console.log("[Knowledge] DELETE /api/knowledge-base/", req.params.id);
     try {
       if (!pool || !pool.connected) throw new Error("Database not connected");
       const { id } = req.params;
@@ -222,7 +185,7 @@ async function startServer() {
       await logActivity(req, "Xóa tài liệu nghiệp vụ", "Knowledge", id, `ID: ${id}`);
       res.json({ success: true });
     } catch (err) {
-      console.error(err);
+      console.error("[Knowledge] DELETE error:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Database error" });
     }
   });
@@ -354,6 +317,39 @@ async function startServer() {
     });
   });
 
+
+  // Presence API
+  app.get("/api/presence-system", async (req, res) => {
+    try {
+      let sqlUsers: any[] = [];
+      if (pool && pool.connected) {
+        const result = await pool.request().query("SELECT uid, email, role, fullName, avatarUrl, unitId FROM users");
+        sqlUsers = result.recordset;
+      }
+      
+      const allUsersMap = new Map();
+      sqlUsers.forEach(u => {
+        const uid = u.uid || `db-${u.email}`;
+        allUsersMap.set(uid, {
+          uid,
+          email: u.email,
+          role: u.role,
+          fullName: u.fullName,
+          avatarUrl: u.avatarUrl,
+          unitId: u.unitId
+        });
+      });
+
+      systemUsers.forEach((u, uid) => {
+        allUsersMap.set(uid, { ...(allUsersMap.get(uid) || {}), ...u });
+      });
+
+      res.json(Array.from(allUsersMap.values()));
+    } catch (err) {
+      console.error("[Presence] Handler error:", err);
+      res.json(Array.from(systemUsers.values()));
+    }
+  });
 
   app.post("/api/login", async (req, res) => {
     try {
