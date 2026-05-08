@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { Bot, Send, User, ChevronRight, Loader2, Database, Sparkles, CheckCircle2 } from "lucide-react";
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { dataService } from "../../services/dataService";
+import { useAuth } from "../../contexts/AuthContext";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
 export const AIAssistant = () => {
+  const { profile } = useAuth();
   const [query, setQuery] = useState("");
   const [chatHistory, setChatHistory] = useState<{ role: "user" | "model", text: string, isAction?: boolean }[]>([
     { role: "model", text: "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp bạn tra cứu thông tin hoặc thực hiện hành động như tạo hoạt động mới bằng ngôn ngữ tự nhiên. Bạn muốn tôi giúp gì?" }
@@ -95,12 +97,37 @@ export const AIAssistant = () => {
         }
       };
 
+      const createMovementTool: FunctionDeclaration = {
+        name: "create_movement",
+        description: "Tạo một PHONG TRÀO mới (có báo cáo, theo dõi đơn vị). Dùng khi người dùng nói 'phong trào', 'phát động', 'báo cáo phong trào'.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING, description: "Tiêu đề phong trào" },
+            startDate: { type: Type.STRING, description: "Ngày bắt đầu (YYYY-MM-DD)" },
+            endDate: { type: Type.STRING, description: "Ngày kết thúc (YYYY-MM-DD)" },
+            description: { type: Type.STRING, description: "Mô tả chi tiết" },
+            participatingUnitIds: { 
+              type: Type.ARRAY, 
+              items: { type: Type.STRING },
+              description: "Danh sách ID các đơn vị tham gia. Nếu không nói rõ, hãy mặc định lấy tất cả ID đơn vị từ danh sách hệ thống."
+            }
+          },
+          required: ["title", "startDate", "endDate", "description"]
+        }
+      };
+
       const systemInstruction = `Bạn là trợ lý AI thông minh điều hành hệ thống Quản lý Đoàn viên tại trường Đại học Đà Lạt.
 Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
 
+PHÂN BIỆT RÕ RÀNG:
+- PHONG TRÀO (Movement): Là các sự kiện lớn, có yêu cầu nộp báo cáo từ các đơn vị, có thời gian bắt đầu và kết thúc rõ ràng. Nếu người dùng nói "tạo phong trào", "phát động phong trào", "báo cáo", bạn PHẢI dùng 'create_movement'.
+- HOẠT ĐỘNG (Activity): Là các sự kiện thông thường, lịch trình sự kiện. Nếu người dùng nói "tạo hoạt động", "thêm sự kiện", "lên lịch", bạn PHẢI dùng 'create_activity'.
+
 HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
-1. Tạo hoạt động mới: Khi người dùng yêu cầu tạo, thêm hoặc lên lịch cho một phong trào, hoạt động, sự kiện. Bạn PHẢI sử dụng công cụ 'create_activity'.
-2. Thêm đoàn viên mới: Khi người dùng yêu cầu tạo, thêm đoàn viên/sinh viên mới vào hệ thống. Bạn PHẢI sử dụng công cụ 'create_member'.
+1. Tạo phong trào mới: Sử dụng 'create_movement'.
+2. Tạo hoạt động mới: Sử dụng 'create_activity'.
+3. Thêm đoàn viên mới: Sử dụng công cụ 'create_member'.
    - Để lấy đúng 'unitId', hãy tra cứu trong danh sách 'Thông tin hệ thống -> units' bên dưới. Nếu người dùng nói tên chi đoàn (vd: "Chi đoàn CNTT"), hãy tìm ID tương ứng.
 
 TRA CỨU THÔNG TIN:
@@ -108,7 +135,8 @@ Dữ liệu của bạn bao gồm:
 1. Thông tin hệ thống: ${JSON.stringify({ 
         units: dbContext.units?.map((u: any) => ({ id: u.id, name: u.name, code: u.code })), 
         membersCount: dbContext.members?.length, 
-        activitiesCount: dbContext.activities?.length 
+        activitiesCount: dbContext.activities?.length,
+        movementsCount: dbContext.movements?.length
       })}
 2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge?.length)}
 
@@ -116,7 +144,7 @@ Quy tắc ứng xử:
 - Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn.
 - Trả lời bằng tiếng Việt chuyên nghiệp, thân thiện.
 - Sử dụng markdown để trình bày.
-- Sau khi thực hiện hành động thành công (qua công cụ), hãy thông báo rõ ràng cho người dùng.`;
+- Sau khi thực hiện hành động thành công, hãy thông báo kèm theo các thông tin đã tạo.`;
 
       const contents = chatHistory.map(m => ({
         role: m.role as "user" | "model",
@@ -129,7 +157,7 @@ Quy tắc ứng xử:
         contents,
         config: {
           systemInstruction,
-          tools: [{ functionDeclarations: [createActivityTool, createMemberTool] }]
+          tools: [{ functionDeclarations: [createActivityTool, createMemberTool, createMovementTool] }]
         }
       });
       
@@ -137,8 +165,57 @@ Quy tắc ứng xử:
       
       if (functionCalls && functionCalls.length > 0) {
         const call = functionCalls[0];
+        // Handle create_movement
+        if (call.name === "create_movement" && call.args) {
+          const args = call.args as any;
+          try {
+            const unitIds = args.participatingUnitIds && args.participatingUnitIds.length > 0
+              ? args.participatingUnitIds
+              : dbContext.units?.map((u: any) => u.id) || [];
+
+            const newMovement = await dataService.addMovement({
+              title: args.title,
+              description: args.description,
+              startDate: args.startDate,
+              endDate: args.endDate,
+              participatingUnitIds: unitIds,
+              creatorId: profile?.uid || "ai-assistant",
+              attachments: []
+            });
+
+            const modelContent = response.candidates?.[0]?.content;
+            if (!modelContent) throw new Error("Không nhận được phản hồi từ AI");
+
+            const toolResultContent = {
+              role: "user",
+              parts: [
+                {
+                  functionResponse: {
+                    name: "create_movement",
+                    response: { success: true, message: `Đã phát động phong trào "${args.title}" thành công.`, id: newMovement.id },
+                    id: (call as any).id
+                  }
+                }
+              ]
+            };
+
+            const finalResponse = await ai.models.generateContent({
+              model: "gemini-3.1-flash-lite",
+              contents: [...contents, modelContent, toolResultContent],
+              config: { systemInstruction }
+            });
+            
+            setChatHistory(prev => [...prev, { 
+              role: "model", 
+              text: finalResponse.text || `Đã phát động phong trào "${args.title}" thành công.`, 
+              isAction: true 
+            }]);
+          } catch (actionErr: any) {
+            setChatHistory(prev => [...prev, { role: "model", text: `Lỗi khi tạo phong trào: ${actionErr.message}` }]);
+          }
+        }
         // Handle create_activity
-        if (call.name === "create_activity" && call.args) {
+        else if (call.name === "create_activity" && call.args) {
           const args = call.args as any;
           try {
             console.log("Creating activity with args:", args);

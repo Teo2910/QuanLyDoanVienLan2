@@ -4,13 +4,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSearch } from "../../contexts/SearchContext";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { Activity } from "../../types";
-import { Calendar, MapPin, Plus, Trash2, Edit2, X, Check, Search } from "lucide-react";
+import { Calendar, MapPin, Plus, Trash2, Edit2, X, Check, Search, Award } from "lucide-react";
 import { CustomSelect } from "../../components/CustomSelect";
 import { cn } from "../../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
 export const ActivityList = () => {
-  const { isAdmin, isSecretary } = useAuth();
+  const { isAdmin, isSecretary, profile } = useAuth();
   const { searchTerm, setSearchTerm } = useSearch();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,12 +192,53 @@ export const ActivityList = () => {
             <div className="space-y-3 pt-6 border-t border-white/5">
               <div className="flex items-center gap-3 text-white/60">
                 <Calendar size={14} className="text-accent/60" />
-                <span className="text-[11px] font-bold tracking-widest uppercase">{new Date(activity.date).toLocaleDateString("vi-VN")}</span>
+                <span className="text-[11px] font-bold tracking-widest uppercase">
+                  {(() => {
+                    const d = new Date(activity.date);
+                    return isNaN(d.getTime()) ? activity.date : d.toLocaleDateString("vi-VN");
+                  })()}
+                </span>
               </div>
               <div className="flex items-center gap-3 text-white/40">
                 <MapPin size={14} className="text-accent/40" />
                 <span className="text-[10px] uppercase tracking-widest font-medium truncate">{activity.location}</span>
               </div>
+              
+              {isAdmin && activity.type === "Phong trào" && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Bạn có muốn chuyển hoạt động "${activity.title}" này thành một Phong trào chính thức không?`)) {
+                      try {
+                        const startDate = isNaN(new Date(activity.date).getTime()) 
+                          ? new Date().toISOString().split('T')[0] 
+                          : new Date(activity.date).toISOString().split('T')[0];
+                        
+                        await dataService.addMovement({
+                          title: activity.title,
+                          description: activity.description || "",
+                          startDate: startDate,
+                          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                          participatingUnitIds: [], // Default to all
+                          creatorId: profile?.uid || "admin",
+                          attachments: []
+                        });
+                        await dataService.deleteActivity(activity.id);
+                        alert("Đã chuyển thành phong trào thành công!");
+                        loadActivities();
+                      } catch (err: any) {
+                        alert("Lỗi: " + err.message);
+                      }
+                    }
+                  }}
+                  className="w-full mt-4 py-3 bg-accent/10 border border-accent/20 rounded-xl text-accent text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <Award size={14} />
+                  Chuyển thành Phong trào
+                </motion.button>
+              )}
             </div>
           </div>
         ))}

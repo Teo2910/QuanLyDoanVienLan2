@@ -106,7 +106,8 @@ export const MovementList: React.FC = () => {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `Hãy gợi ý một phong trào đoàn thanh niên hoặc sinh viên với chủ đề: ${aiPrompt}. 
+        contents: `Hãy gợi ý một PHONG TRÀO đoàn thanh niên hoặc sinh viên với chủ đề: ${aiPrompt}. 
+        CHÚ Ý: Đây là PHONG TRÀO (Movement) chính thức, cần có kế hoạch nộp báo cáo từ các đơn vị cấp dưới, không phải chỉ là một hoạt động (Activity) thông thường.
         Yêu cầu trả về kết quả bằng tiếng Việt, ngôn ngữ trang trọng, lôi cuốn.
         Hãy bao gồm các đơn vị tham gia phù hợp (ví dụ: Liên chi đoàn Khoa CNTT, v.v.)`,
         config: {
