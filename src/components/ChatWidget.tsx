@@ -234,8 +234,9 @@ export const ChatWidget = () => {
                  <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
                        <img 
-                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
                          alt="VNPT Logo" 
+                         referrerPolicy="no-referrer"
                          className="w-full h-full object-contain"
                        />
                     </div>

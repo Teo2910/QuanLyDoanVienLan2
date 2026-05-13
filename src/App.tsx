@@ -288,8 +288,9 @@ const AuthScreen = () => {
        >
           <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-10 transition-transform hover:scale-110 duration-500">
             <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
               alt="VNPT Logo" 
+              referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
             />
           </div>

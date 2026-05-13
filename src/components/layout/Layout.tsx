@@ -160,8 +160,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
                 <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
                   alt="VNPT Logo" 
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-contain"
                 />
               </div>
