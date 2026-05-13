@@ -155,7 +155,7 @@ Quy tắc ứng xử:
       contents.push({ role: "user", parts: [{ text: userText }] });
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite",
+        model: "gemini-3-flash-preview",
         contents,
         config: {
           systemInstruction,
@@ -211,7 +211,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3.1-flash-lite",
+              model: "gemini-3-flash-preview",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -255,7 +255,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3.1-flash-lite",
+              model: "gemini-3-flash-preview",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -285,7 +285,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3.1-flash-lite",
+                model: "gemini-3-flash-preview",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -331,7 +331,7 @@ Quy tắc ứng xử:
             };
 
             const finalResponse = await ai.models.generateContent({
-              model: "gemini-3.1-flash-lite",
+              model: "gemini-3-flash-preview",
               contents: [...contents, modelContent, toolResultContent],
               config: { systemInstruction }
             });
@@ -361,7 +361,7 @@ Quy tắc ứng xử:
               };
 
               const finalResponse = await ai.models.generateContent({
-                model: "gemini-3.1-flash-lite",
+                model: "gemini-3-flash-preview",
                 contents: [...contents, modelContent, toolErrorContent],
                 config: { systemInstruction }
               });
@@ -377,11 +377,19 @@ Quy tắc ứng xử:
     } catch (err: any) {
       console.error("Gemini API Error Detail:", err);
       let errorMsg = "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn.";
-      if (err.message) {
-        if (err.message.includes("SAFETY")) errorMsg = "Yêu cầu đã bị từ chối do chính sách an toàn của AI.";
-        else if (err.message.includes("quota")) errorMsg = "Hệ thống AI đang quá tải (hết quota). Vui lòng thử lại sau.";
-        else errorMsg += ` (Chi tiết: ${err.message})`;
+      
+      const errorStr = err.message || String(err);
+      
+      if (errorStr.includes("SAFETY")) {
+        errorMsg = "Yêu cầu đã bị từ chối do chính sách an toàn của AI.";
+      } else if (errorStr.includes("quota") || errorStr.includes("RESOURCE_EXHAUSTED")) {
+        errorMsg = "Hệ thống AI đang quá tải (hết quota). Vui lòng thử lại sau hoặc nâng cấp gói API.";
+      } else if (errorStr.includes("high demand") || errorStr.includes("UNAVAILABLE") || errorStr.includes("503")) {
+        errorMsg = "Máy chủ AI đang quá tải do lượng truy cập cao. Vui lòng đợi một lát và thử lại.";
+      } else {
+        errorMsg += ` (Chi tiết: ${errorStr})`;
       }
+      
       setChatHistory(prev => [...prev, { role: "model", text: errorMsg }]);
     } finally {
       setIsLoading(false);
