@@ -147,22 +147,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Trợ lý AI", href: "/ai-assistant", icon: Bot },
   ];
 
-  const bottomNavItems = [
-    { name: "Tổng quan", href: "/", icon: LayoutGrid },
-    { name: "Phong trào", href: "/movements", icon: Award },
-    { name: "Trợ lý", href: "/ai-assistant", icon: Bot },
-    { name: "Đoàn viên", href: "/members", icon: Users },
-    { name: "Thống kê", href: "/statistics", icon: BarChart3 },
-  ];
-
-  const userInitials = profile?.fullName
-    ? profile.fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2)
-    : profile?.email?.substring(0, 2).toUpperCase() || "??";
-
-  const userRoleName = profile?.role === 'admin' ? "Quản trị viên hệ thống" : "Cán bộ đoàn cơ sở";
+  const userInitials = profile?.email?.substring(0, 2).toUpperCase() || "??";
+  const userRoleName = profile?.role === "admin" ? "Quản trị viên" : "Bí thư";
 
   return (
-    <div id="app-layout" className="min-h-[100dvh] bg-slate-50 flex text-slate-900 relative">
+    <div id="app-layout" className="min-h-screen bg-slate-50 flex text-slate-900 relative">
       {/* Mobile Backdrop */}
       <AnimatePresence>
         {isSidebarOpen && window.innerWidth < 1024 && (
@@ -423,86 +412,41 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <div className="p-4 lg:p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar bg-slate-50/50 pb-28 lg:pb-10">
+        <div className="p-4 lg:p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar bg-slate-50/50">
           {children}
-        </div>
-
-        {/* Bottom Navigation for Mobile */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-4 bg-white/80 backdrop-blur-3xl border-t border-slate-100 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-          <div className="bg-slate-900 rounded-[2rem] p-2 flex items-center justify-between shadow-2xl overflow-hidden">
-            {bottomNavItems.map((item) => {
-              const isActive = location.pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "relative flex flex-col items-center justify-center py-2 px-3 transition-all duration-300",
-                    isActive ? "text-accent" : "text-slate-400"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div 
-                      layoutId="mobile-active-bg"
-                      className="absolute inset-0 bg-white/5 rounded-2xl"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                  <div className={cn(
-                    "relative z-10 transition-transform duration-300",
-                    isActive ? "scale-110 -translate-y-1" : "scale-100"
-                  )}>
-                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                  </div>
-                  <span className={cn(
-                    "text-[8px] font-black uppercase tracking-widest mt-1 relative z-10 transition-all duration-300",
-                    isActive ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-2 h-0"
-                  )}>
-                    {item.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
         </div>
       </main>
 
       {/* Profile Modal */}
       {isProfileModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 lg:p-6 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white border-0 lg:border border-slate-200 lg:rounded-[3rem] w-full max-w-md h-full lg:h-auto lg:max-h-[90vh] relative shadow-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-md relative shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Background Decoration */}
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-accent/10 to-transparent -z-10" />
             
             <button 
               onClick={() => setIsProfileModalOpen(false)}
-              className="absolute top-6 lg:top-8 right-6 lg:right-8 text-slate-300 hover:text-slate-900 transition-colors z-10 p-2 lg:p-0 bg-white/50 lg:bg-transparent rounded-full backdrop-blur-sm lg:backdrop-blur-none shadow-sm lg:shadow-none"
+              className="absolute top-8 right-8 text-slate-300 hover:text-slate-900 transition-colors z-10"
             >
-              <X size={20} className="lg:hidden" />
-              <X size={24} className="hidden lg:block" />
+              <X size={24} />
             </button>
             
-            <div className="overflow-y-auto flex-1 p-8 lg:p-10 custom-scrollbar">
-              <div className="text-center mb-6 lg:mb-8 pt-4">
+            <div className="overflow-y-auto flex-1 p-10 custom-scrollbar">
+              <div className="text-center mb-8 pt-4">
                  <div className="relative inline-block group mb-6">
-                    <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl lg:rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center shadow-inner">
+                    <div className="w-24 h-24 rounded-3xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center shadow-inner">
                        {profileForm.avatarUrl ? (
                          <img src={profileForm.avatarUrl} alt="Preview" className="w-full h-full object-cover" />
                        ) : (
-                         <>
-                           <User size={32} className="lg:hidden text-slate-200" />
-                           <User size={40} className="hidden lg:block text-slate-200" />
-                         </>
+                         <User size={40} className="text-slate-200" />
                        )}
                     </div>
                     <button 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-1 -right-1 lg:-bottom-2 lg:-right-2 bg-accent text-white p-2 rounded-xl shadow-lg transition-transform hover:scale-110 cursor-pointer"
+                      className="absolute -bottom-2 -right-2 bg-accent text-white p-2 rounded-xl shadow-lg transition-transform hover:scale-110 cursor-pointer"
                     >
-                       <Camera size={12} className="lg:hidden" />
-                       <Camera size={14} className="hidden lg:block text-white" />
+                       <Camera size={14} />
                     </button>
                     <input 
                       type="file" 
@@ -512,50 +456,50 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                       onChange={handleFileChange} 
                     />
                  </div>
-                 <h3 className="text-xl lg:text-2xl font-bold text-slate-900">Cập nhật hồ sơ</h3>
-                 <p className="text-slate-400 uppercase tracking-widest text-[8px] lg:text-[9px] mt-1 font-black">Quản lý định danh cá nhân</p>
+                 <h3 className="text-2xl font-bold text-slate-900">Cập nhật hồ sơ</h3>
+                 <p className="text-slate-400 uppercase tracking-widest text-[9px] mt-1 font-bold">Quản lý định danh của bạn</p>
               </div>
               
-              <form onSubmit={handleUpdateProfile} className="space-y-5 lg:space-y-6">
+              <form onSubmit={handleUpdateProfile} className="space-y-6">
                 <div>
-                  <label className="text-[9px] lg:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Họ và tên</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Họ và tên</label>
                   <input
                     required
                     placeholder="Nhập họ tên đầy đủ"
-                    className="w-full px-5 lg:px-6 py-3.5 lg:py-4 bg-slate-50 border border-slate-200 rounded-xl lg:rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-medium text-sm lg:text-base"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
                     value={profileForm.fullName}
                     onChange={(e) => setProfileForm({...profileForm, fullName: e.target.value})}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[9px] lg:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Email liên hệ</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Email liên hệ</label>
                   <input
                     type="email"
                     required
                     placeholder="Địa chỉ email"
-                    className="w-full px-5 lg:px-6 py-3.5 lg:py-4 bg-slate-50 border border-slate-200 rounded-xl lg:rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-medium text-sm lg:text-base"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
                     value={profileForm.email}
                     onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[9px] lg:text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Số điện thoại</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Số điện thoại</label>
                   <input
                     placeholder="Số điện thoại liên hệ"
-                    className="w-full px-5 lg:px-6 py-3.5 lg:py-4 bg-slate-50 border border-slate-200 rounded-xl lg:rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-medium text-sm lg:text-base"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
                     value={profileForm.phone}
                     onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
                   />
                 </div>
 
-                <div className="pt-4 lg:pt-6">
+                <div className="pt-4">
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="w-full flex items-center justify-center gap-3 py-4 lg:py-5 bg-accent text-white rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] shadow-xl shadow-accent/20"
+                    className="w-full flex items-center justify-center gap-3 py-4 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-accent/20"
                   >
                     <Check size={16} />
                     Xác nhận cập nhật
