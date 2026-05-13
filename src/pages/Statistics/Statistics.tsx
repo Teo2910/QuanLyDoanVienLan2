@@ -451,19 +451,19 @@ export const Statistics: React.FC = () => {
                           />
                        </div>
                     </td>
-                    <td className="py-4 px-3 text-center font-bold text-slate-900 text-sm">{unit.total}</td>
-                    <td className="py-4 px-3 text-center font-bold text-blue-600 text-xs">{unit.males}</td>
-                    <td className="py-4 px-3 text-center font-bold text-rose-500 text-xs">{unit.females}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-slate-500 text-xs">{unit.ethnic.kinh}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-emerald-500 text-xs">{unit.ethnic.others}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-teal-600 text-xs">{unit.religion.religious}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-slate-300 text-xs">{unit.religion.noReligion}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-indigo-500 text-xs">{unit.status.active}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-slate-300 text-xs">{unit.status.moved}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-slate-300 text-xs">{unit.status.left}</td>
-                    <td className="py-4 px-3 text-center font-bold text-emerald-600 text-xs">{unit.achievements.excellent}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-blue-500 text-xs">{unit.achievements.good}</td>
-                    <td className="py-4 px-3 text-center font-semibold text-slate-400 text-xs">{unit.achievements.average}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-900 text-[13px] tabular-nums">{unit.total}</td>
+                    <td className="py-4 px-3 text-center font-bold text-blue-600 text-[13px] tabular-nums">{unit.males}</td>
+                    <td className="py-4 px-3 text-center font-bold text-rose-500 text-[13px] tabular-nums">{unit.females}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-500 text-[13px] tabular-nums">{unit.ethnic.kinh}</td>
+                    <td className="py-4 px-3 text-center font-bold text-emerald-500 text-[13px] tabular-nums">{unit.ethnic.others}</td>
+                    <td className="py-4 px-3 text-center font-bold text-teal-600 text-[13px] tabular-nums">{unit.religion.religious}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-300 text-[13px] tabular-nums">{unit.religion.noReligion}</td>
+                    <td className="py-4 px-3 text-center font-bold text-indigo-500 text-[13px] tabular-nums">{unit.status.active}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-300 text-[13px] tabular-nums">{unit.status.moved}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-300 text-[13px] tabular-nums">{unit.status.left}</td>
+                    <td className="py-4 px-3 text-center font-bold text-emerald-600 text-[13px] tabular-nums">{unit.achievements.excellent}</td>
+                    <td className="py-4 px-3 text-center font-bold text-blue-500 text-[13px] tabular-nums">{unit.achievements.good}</td>
+                    <td className="py-4 px-3 text-center font-bold text-slate-400 text-[13px] tabular-nums">{unit.achievements.average}</td>
                     <td className="py-4 px-4 text-center">
                        <span className={cn(
                         "inline-flex items-center justify-center min-w-[2rem] h-8 px-2 rounded-lg font-bold text-xs transition-all", 
@@ -494,21 +494,21 @@ export const Statistics: React.FC = () => {
                       <span className="text-sm font-black tracking-tight">TỔNG TOÀN ĐOÀN</span>
                     </div>
                   </td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-black text-white tabular-nums">{totalStats.total}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-blue-400 tabular-nums">{totalStats.males}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-rose-400 tabular-nums">{totalStats.females}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-slate-400 tabular-nums">{totalStats.kinh}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-emerald-400 tabular-nums">{totalStats.others}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-teal-400 tabular-nums">{totalStats.religious}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-slate-500 tabular-nums">{totalStats.noReligion}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-indigo-400 tabular-nums">{totalStats.active}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-slate-500 tabular-nums">{totalStats.moved}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-slate-500 tabular-nums">{totalStats.left}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-emerald-400 tabular-nums">{totalStats.excellent}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-blue-400 tabular-nums">{totalStats.good}</td>
-                  <td className="py-6 px-3 text-center border-r border-white/5 text-sm font-bold text-slate-400 tabular-nums">{totalStats.average}</td>
-                  <td className="py-6 px-4 text-center text-base font-black text-accent border-r border-white/5 bg-accent/5 tabular-nums">{totalStats.outstanding}</td>
-                  <td className="py-6 px-4 text-center text-base font-black text-blue-400 bg-blue-400/5 tabular-nums">{totalStats.graduate}</td>
+                   <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-black text-white tabular-nums">{totalStats.total}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-blue-400 tabular-nums">{totalStats.males}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-rose-400 tabular-nums">{totalStats.females}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-slate-400 tabular-nums">{totalStats.kinh}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-emerald-400 tabular-nums">{totalStats.others}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-teal-400 tabular-nums">{totalStats.religious}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-slate-500 tabular-nums">{totalStats.noReligion}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-indigo-400 tabular-nums">{totalStats.active}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-slate-500 tabular-nums">{totalStats.moved}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-slate-500 tabular-nums">{totalStats.left}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-emerald-400 tabular-nums">{totalStats.excellent}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-blue-400 tabular-nums">{totalStats.good}</td>
+                  <td className="py-6 px-3 text-center border-r border-white/5 text-[13px] font-bold text-slate-400 tabular-nums">{totalStats.average}</td>
+                  <td className="py-6 px-4 text-center text-sm font-black text-accent border-r border-white/5 bg-accent/5 tabular-nums">{totalStats.outstanding}</td>
+                  <td className="py-6 px-4 text-center text-sm font-black text-blue-400 bg-blue-400/5 tabular-nums">{totalStats.graduate}</td>
                 </tr>
               </tfoot>
             </table>
