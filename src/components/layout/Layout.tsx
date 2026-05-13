@@ -155,6 +155,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: "Thống kê", href: "/statistics", icon: BarChart3 },
   ];
 
+  const userInitials = profile?.fullName
+    ? profile.fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2)
+    : profile?.email?.substring(0, 2).toUpperCase() || "??";
+
+  const userRoleName = profile?.role === 'admin' ? "Quản trị viên hệ thống" : "Cán bộ đoàn cơ sở";
+
   return (
     <div id="app-layout" className="min-h-[100dvh] bg-slate-50 flex text-slate-900 relative">
       {/* Mobile Backdrop */}
