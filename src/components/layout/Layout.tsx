@@ -163,8 +163,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <VNPTLogo className="w-full h-full" />
               </div>
               <div>
-                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">VNPT DLU</h1>
-                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Smart Management</p>
+                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">VNPT</h1>
+                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">QUẢN LÝ ĐOÀN VIÊN</p>
               </div>
             </div>
             {/* Mobile Close Button */}
