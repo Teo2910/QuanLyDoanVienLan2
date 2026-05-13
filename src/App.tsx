@@ -290,7 +290,7 @@ const AuthScreen = () => {
           <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-10 transition-transform hover:scale-110 duration-500">
             <VNPTLogo className="w-full h-full" />
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-2 tracking-tighter leading-none">VNPT DLU</h1>
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-2 tracking-tighter leading-none">VNPT</h1>
           <p className="text-slate-400 mb-8 sm:mb-12 text-[9px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-black">
             {isRegister ? "Đăng ký thành viên mới" : "Cổng thông tin nội bộ"}
           </p>
