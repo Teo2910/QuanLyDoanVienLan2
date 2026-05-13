@@ -310,6 +310,81 @@ export const Statistics: React.FC = () => {
           </div>
         </motion.div>
 
+        <motion.div className="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
+          <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+            <Users className="text-accent" size={16} /> Cơ cấu dân tộc
+          </h3>
+          <div className="h-64 mb-8">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats?.ethnicData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                  {stats?.ethnicData.map((_, i) => <Cell key={i} fill={COLORS[(i + 2) % COLORS.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stats?.ethnicData.slice(0, 4).map((item, i) => (
+              <div key={item.name} className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[(i + 2) % COLORS.length]}} />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.name}: {item.value}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div className="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
+          <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+            <Star className="text-accent" size={16} /> Xếp loại đoàn viên
+          </h3>
+          <div className="h-64 mb-8">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats?.achievementData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                  {stats?.achievementData.map((_, i) => <Cell key={i} fill={COLORS[(i + 4) % COLORS.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stats?.achievementData.map((item, i) => (
+              <div key={item.name} className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[(i + 4) % COLORS.length]}} />
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.name}: {item.value}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {selectedUnitId === "all" && (
+          <motion.div className="lg:col-span-2 bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
+            <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+              <Building2 className="text-accent" size={16} /> Quy mô cơ sở (Thành viên/Đơn vị)
+            </h3>
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats?.unitData} layout="vertical" margin={{ left: 100 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} width={150} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
+                  <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={30}>
+                    {stats?.unitData.map((_, i) => <Cell key={i} fill={COLORS[0]} fillOpacity={1 - (i * 0.1)} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
+
         <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[3.5rem] shadow-2xl overflow-hidden mt-10">
           <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
             <div>
