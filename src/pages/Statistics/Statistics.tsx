@@ -201,69 +201,66 @@ export const Statistics: React.FC = () => {
 
   return (
     <div className="w-full pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 lg:mb-12 px-2 lg:px-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <div className="flex items-center gap-3 lg:gap-4 mb-2 lg:mb-0">
-            <div className="p-3 lg:p-4 bg-accent/10 rounded-xl lg:rounded-2xl text-accent">
-              <BarChart3 size={24} className="lg:hidden" />
-              <BarChart3 size={32} className="hidden lg:block" />
+          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight">
+            <div className="p-4 bg-accent/10 rounded-2xl text-accent">
+              <BarChart3 size={32} />
             </div>
-            <h2 className="text-2xl lg:text-4xl font-bold text-slate-900 tracking-tight">
-              Thống kê số liệu
-            </h2>
-          </div>
-          <p className="text-[8px] lg:text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-black lg:ml-20">
-            Dữ liệu {selectedUnitName}
+            Thống kê số liệu
+          </h2>
+          <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-black ml-20">
+            Tổng hợp dữ liệu {selectedUnitName}
           </p>
         </motion.div>
 
-        <div className="flex flex-col sm:flex-row items-stretch lg:items-center gap-4 lg:gap-6 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto">
           {!isSecretary && (
-            <div className="w-full lg:w-80">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
                <CustomSelect 
                  value={selectedUnitId}
                  onChange={setSelectedUnitId}
                  options={unitOptions}
-                 className="w-full"
+                 className="w-full sm:w-80"
                />
             </div>
           )}
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleExportExcel}
-            className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 bg-white border border-slate-200 rounded-xl lg:rounded-2xl transition-all shadow-md hover:shadow-xl hover:border-accent text-slate-700 font-bold text-[10px] lg:text-xs uppercase tracking-widest"
+            className="flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:border-accent text-slate-700 font-bold text-xs uppercase tracking-widest"
           >
-            <Download size={16} className="text-accent" />
+            <Download size={18} className="text-accent" />
             Xuất Excel
           </motion.button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <motion.div 
           whileHover={{ y: -5 }}
-          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-8 lg:p-12 rounded-3xl lg:rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
+          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
         >
-          <div className="absolute top-0 right-0 w-64 lg:w-96 h-64 lg:h-96 bg-white/10 blur-[60px] lg:blur-[100px] -mr-32 lg:-mr-48 -mt-32 lg:-mt-48 rounded-full" />
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-8 lg:gap-12 text-center md:text-left">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 blur-[100px] -mr-48 -mt-48 rounded-full" />
+          <div className="relative flex flex-col md:flex-row justify-between items-center gap-12">
             <div>
-              <div className="flex items-center justify-center md:justify-start gap-2 lg:gap-3 mb-4 lg:mb-6">
-                <Star size={20} className="text-yellow-300 fill-yellow-300" />
-                <span className="text-[10px] uppercase tracking-[0.2em] lg:tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
+              <div className="flex items-center gap-3 mb-6">
+                <Star size={24} className="text-yellow-300 fill-yellow-300" />
+                <span className="text-xs uppercase tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
               </div>
-              <h2 className="text-3xl lg:text-5xl font-black tracking-tight mb-4">Đoàn viên Tiêu biểu</h2>
-              <p className="text-white/70 max-w-lg leading-relaxed font-medium text-sm lg:text-base">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+              <h2 className="text-5xl font-black tracking-tight mb-4">Đoàn viên Tiêu biểu</h2>
+              <p className="text-white/70 max-w-lg leading-relaxed font-medium">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
             </div>
-            <div className="flex items-center gap-6 lg:gap-10 bg-white/10 backdrop-blur-xl p-6 lg:p-10 rounded-2xl lg:rounded-[2.5rem] border border-white/20 shadow-2xl w-full md:w-auto">
-              <div className="flex-1 text-center">
-                <span className="text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2 text-nowrap">Số lượng</span>
-                <span className="text-4xl lg:text-6xl font-black leading-none">{stats?.outstandingCount}</span>
+            <div className="flex items-center gap-10 bg-white/10 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/20 shadow-2xl">
+              <div className="text-center">
+                <span className="text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Số lượng</span>
+                <span className="text-6xl font-black leading-none">{stats?.outstandingCount}</span>
               </div>
-              <div className="w-px h-12 lg:h-16 bg-white/20" />
-              <div className="flex-1 text-center">
-                <span className="text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2 text-nowrap">Tỷ lệ</span>
-                <span className="text-2xl lg:text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
+              <div className="w-px h-16 bg-white/20" />
+              <div className="text-center">
+                <span className="text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Tỷ lệ</span>
+                <span className="text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
               </div>
             </div>
           </div>
