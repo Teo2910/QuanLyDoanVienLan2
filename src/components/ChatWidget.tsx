@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, ChevronDown, MessageCircle } from "lucide-react";
+import { MessageSquare, X, Send, ChevronDown, MessageCircle, Sparkles, User, ShieldCheck, Ghost } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../contexts/AuthContext";
 import { io, Socket } from "socket.io-client";
+import { cn } from "../lib/utils";
 
 interface ChatMessage {
   id: string;
@@ -19,7 +20,6 @@ interface ChatThread {
   threadId: string;
   lastMessageAt: number;
   unreadCount: number;
-  // We can fetch names if needed, but for simplicity we rely on thread messages or we can join user table
 }
 
 export const ChatWidget = () => {
@@ -41,31 +41,26 @@ export const ChatWidget = () => {
   useEffect(() => {
     if (!profile) return;
     
-    // Connect to websocket to listen for live chat
     const newSocket = io();
     setSocket(newSocket);
 
     newSocket.on("chat:new", (msg: ChatMessage) => {
-      // If Admin and new thread, refresh threads
       if (profile.role === 'admin') {
         loadThreads();
       }
 
       setMessages((prev) => {
-        // Prevent duplicate if we already optimistically added it
         if (prev.some(m => m.id === msg.id)) return prev;
 
         if (profile.role === 'admin') {
            if (msg.threadId === activeThreadIdRef.current) return [...prev, msg];
-           return prev; // don't add to list if not active thread, unread will update from loadThreads
+           return prev;
         } else {
-           // Standard user
            if (msg.threadId === profile.uid) return [...prev, msg];
            return prev;
         }
       });
 
-      // Show unread badge logic
       if (profile.role !== 'admin' && msg.senderRole === 'Admin') {
          setUnreadTotal(prev => prev + 1);
       }
@@ -78,7 +73,7 @@ export const ChatWidget = () => {
     return () => {
       newSocket.close();
     };
-  }, [profile]); // Removed activeThreadId and isOpen from deps to avoid reconnect loops
+  }, [profile]);
 
   useEffect(() => {
     if (profile?.role === 'admin') {
@@ -188,118 +183,184 @@ export const ChatWidget = () => {
 
   return (
     <>
-      {/* Floating Button */}
       <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => { setIsOpen(!isOpen); if (!isOpen && activeThreadId) markAsRead(activeThreadId); }}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center z-50 hover:bg-indigo-700 transition-all"
+        className={cn(
+          "fixed bottom-8 right-8 w-16 h-16 rounded-[2rem] shadow-2xl flex items-center justify-center z-50 transition-all duration-500",
+          isOpen ? "bg-slate-900 text-white" : "bg-accent text-white"
+        )}
       >
-        {isOpen ? <X size={24} /> : <MessageCircle size={28} />}
+        <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full scale-150 opacity-50 group-hover:opacity-100 transition-opacity" />
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+              <X size={28} strokeWidth={2.5} />
+            </motion.div>
+          ) : (
+            <motion.div key="chat" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}>
+              <MessageSquare size={28} strokeWidth={2.5} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
         {unreadTotal > 0 && !isOpen && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
+          <motion.span 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-xl font-black shadow-lg shadow-red-500/40 border-2 border-white"
+          >
             {unreadTotal}
-          </span>
+          </motion.span>
         )}
       </motion.button>
 
-      {/* Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 w-[350px] h-[500px] bg-surface/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+            initial={{ opacity: 0, y: 40, scale: 0.9, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 40, scale: 0.9, filter: "blur(10px)" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-28 right-8 w-[400px] h-[600px] bg-white/80 backdrop-blur-3xl border border-white/50 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] z-50 flex flex-col overflow-hidden"
           >
-            {/* Header */}
-            <div className="p-4 border-b border-white/5 bg-accent/10 flex items-center justify-between">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-accent/5 pointer-events-none" />
+            
+            <div className="p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10">
                <div>
-                 <h3 className="text-sm font-bold text-white tracking-widest uppercase">
-                   {profile.role === 'admin' ? (activeThreadId ? "Hỗ trợ Bí thư" : "Danh sách cần hỗ trợ") : "Hỗ trợ & Hỏi đáp"}
-                 </h3>
-                 <p className="text-[10px] text-white/50 uppercase tracking-widest mt-1">
-                   {profile.role === 'admin' ? 'Đoàn trường Đại học Đà Lạt' : 'Trực tiếp với Admin Đại học Đà Lạt'}
-                 </p>
+                 <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center text-accent shadow-xl shadow-slate-900/10">
+                       <Sparkles size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-slate-900 tracking-tight">
+                        {profile.role === 'admin' ? (activeThreadId ? "Xử lý hỗ trợ" : "Phiên hỗ trợ") : "Hỗ trợ đoàn viên"}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                         <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                           {profile.role === 'admin' ? 'Hệ thống tập trung' : 'Trực tiếp với Admin DLU'}
+                         </span>
+                      </div>
+                    </div>
+                 </div>
                </div>
                {profile.role === 'admin' && activeThreadId && (
-                 <button onClick={() => { setActiveThreadId(null); loadThreads(); }} className="p-1 hover:bg-white/10 rounded-md">
-                   <ChevronDown size={18} className="text-white/60 rotate-90" />
-                 </button>
+                 <motion.button 
+                   whileHover={{ scale: 1.1, x: -5 }}
+                   onClick={() => { setActiveThreadId(null); loadThreads(); }} 
+                   className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 transition-colors"
+                 >
+                   <ChevronDown size={18} className="text-slate-600 rotate-90" />
+                 </motion.button>
                )}
             </div>
 
-            {/* Admin Thread List View */}
             {profile.role === 'admin' && !activeThreadId && (
-               <div className="flex-1 overflow-y-auto px-2 py-4 space-y-2 custom-scrollbar">
+               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4 no-scrollbar relative z-10">
                  {threads.length === 0 ? (
-                    <div className="text-center text-white/40 text-xs mt-10 uppercase tracking-widest">
-                       Chưa có đoạn chat nào
+                    <div className="h-full flex flex-col items-center justify-center text-center gap-4 py-20">
+                       <div className="w-20 h-20 rounded-[2.5rem] bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-200">
+                          <Ghost size={40} />
+                       </div>
+                       <div>
+                         <p className="text-slate-900 font-black text-sm uppercase tracking-widest">Sảnh chờ trống</p>
+                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Chưa có yêu cầu hỗ trợ nào</p>
+                       </div>
                     </div>
                  ) : (
-                    threads.map((t) => (
-                      <div 
+                    threads.map((t, idx) => (
+                      <motion.div 
+                         initial={{ opacity: 0, x: -20 }}
+                         animate={{ opacity: 1, x: 0 }}
+                         transition={{ delay: idx * 0.05 }}
                          key={t.threadId}
                          onClick={() => { setActiveThreadId(t.threadId); loadMessages(t.threadId); }}
-                         className="p-3 rounded-xl hover:bg-white/5 cursor-pointer flex justify-between items-center transition-colors group"
+                         className="p-5 rounded-[2rem] bg-white hover:bg-slate-50 border border-slate-100 cursor-pointer flex justify-between items-center transition-all group hover:shadow-xl hover:shadow-slate-200/50"
                       >
-                         <div>
-                            <p className="text-xs text-white font-bold mb-1">
-                              UserID: {t.threadId.substring(0, 8)}...
-                            </p>
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest">
-                              Mới cập nhật
-                            </p>
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black text-sm">
+                               {t.threadId.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                               <p className="text-sm text-slate-900 font-black tracking-tight mb-0.5">
+                                 Hồ sơ #{t.threadId.substring(0, 6)}...
+                               </p>
+                               <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">
+                                 Hoạt động cách đây {Math.floor((Date.now() - t.lastMessageAt) / 60000)}p
+                               </p>
+                            </div>
                          </div>
                          {t.unreadCount > 0 && (
-                            <span className="w-6 h-6 bg-accent rounded-full flex items-center justify-center text-[10px] font-bold text-white">
+                            <span className="w-7 h-7 bg-indigo-600 rounded-xl flex items-center justify-center text-[10px] font-black text-white shadow-lg shadow-indigo-600/30">
                               {t.unreadCount}
                             </span>
                          )}
-                      </div>
+                      </motion.div>
                     ))
                  )}
                </div>
             )}
 
-            {/* Message Thread View */}
             {(!profile.role || profile.role !== 'admin' || activeThreadId) && (
                <>
-                 <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                   {messages.map((m) => {
+                 <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 no-scrollbar relative z-10 bg-slate-50/30">
+                   {messages.map((m, idx) => {
                      const isMe = m.senderId === profile.uid;
                      return (
-                       <div key={m.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                          <div className="text-[10px] text-white/30 uppercase tracking-widest mb-1 px-1">
-                             {isMe ? "Bạn" : m.senderName}
-                          </div>
-                          <div className={`
-                             max-w-[85%] px-4 py-2.5 rounded-2xl text-sm
-                             ${isMe ? 'bg-accent text-white rounded-br-sm' : 'bg-white/10 text-white rounded-bl-sm'}
-                          `}>
+                       <motion.div 
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ delay: idx * 0.05 }}
+                          key={m.id} 
+                          className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
+                       >
+                          {!isMe && (
+                            <div className="flex items-center gap-2 mb-2 px-1">
+                               <div className="w-5 h-5 rounded-lg bg-slate-900 flex items-center justify-center text-white">
+                                  {m.senderRole === 'Admin' ? <ShieldCheck size={10} /> : <User size={10} />}
+                               </div>
+                               <span className="text-[9px] text-slate-400 uppercase font-black tracking-widest">
+                                 {m.senderName}
+                               </span>
+                            </div>
+                          )}
+                          <div className={cn(
+                             "max-w-[85%] px-5 py-3.5 rounded-[1.8rem] text-[13px] leading-relaxed font-medium shadow-sm transition-all hover:shadow-md",
+                             isMe 
+                              ? 'bg-slate-900 text-white rounded-br-sm border border-slate-800' 
+                              : 'bg-white text-slate-600 rounded-bl-sm border border-slate-100'
+                          )}>
                              {m.content}
                           </div>
-                       </div>
+                       </motion.div>
                      )
                    })}
                    {messages.length === 0 && (
-                     <div className="text-center text-white/40 text-[10px] uppercase font-bold tracking-widest mt-10">
-                        Bắt đầu cuộc trò chuyện...
+                     <div className="h-full flex flex-col items-center justify-center text-center gap-6 py-20">
+                        <div className="w-20 h-20 rounded-[2.5rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                           <MessageCircle size={40} />
+                        </div>
+                        <div>
+                          <p className="text-slate-900 font-black text-sm uppercase tracking-widest">Sẵn sàng hỗ trợ</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2 leading-relaxed">
+                             Đừng ngần ngại đặt câu hỏi<br/>Về quy trình, hồ sơ hoặc kỹ thuật
+                          </p>
+                        </div>
                      </div>
                    )}
                    <div ref={messagesEndRef} />
                  </div>
 
-                 {/* Input form */}
-                 <div className="p-3 border-t border-white/5 bg-black/20">
-                   <div className="flex items-center gap-2">
+                 <div className="p-6 bg-white border-t border-slate-100 relative z-10">
+                   <div className="relative group">
                      <textarea
                        autoFocus
                        rows={1}
-                       placeholder="Nhập tin nhắn..."
+                       placeholder="Nhập thông tin cần hỗ trợ..."
                        value={inputText}
                        onChange={(e) => setInputText(e.target.value)}
                        onKeyDown={(e) => {
@@ -308,16 +369,19 @@ export const ChatWidget = () => {
                            handleSend();
                          }
                        }}
-                       className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 resize-none focus:outline-none focus:ring-1 focus:ring-accent/50"
+                       className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] pl-6 pr-16 py-5 text-sm text-slate-900 placeholder:text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white focus:border-accent transition-all custom-scrollbar min-h-[64px] max-h-[120px]"
                      />
-                     <button
+                     <motion.button
+                       whileHover={{ scale: 1.1, x: -2 }}
+                       whileTap={{ scale: 0.9 }}
                        onClick={handleSend}
                        disabled={!inputText.trim()}
-                       className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-accent disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/40 transition-colors"
+                       className="absolute right-3 top-3 w-12 h-12 bg-slate-900 text-accent rounded-2xl flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all shadow-xl shadow-slate-900/10"
                      >
-                       <Send size={18} className="translate-x-[-2px] translate-y-[2px]" />
-                     </button>
+                       <Send size={18} strokeWidth={2.5} className="translate-x-[-1px] translate-y-[1px]" />
+                     </motion.button>
                    </div>
+                   <p className="text-[9px] text-slate-300 text-center mt-4 font-bold uppercase tracking-[0.2em]">DLU Intelligent Core v2.5 • AI Shield Protected</p>
                  </div>
                </>
             )}
