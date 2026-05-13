@@ -118,6 +118,18 @@ export const AIAssistant = () => {
         }
       };
 
+      const searchMembersTool: FunctionDeclaration = {
+        name: "search_members",
+        description: "Tìm kiếm hoặc liệt kê danh sách đoàn viên theo tên, mã số sinh viên hoặc từ khóa liên quan.",
+        parameters: {
+          type: Type.OBJECT,
+          properties: {
+            searchTerm: { type: Type.STRING, description: "Tên hoặc mã số sinh viên cần tìm. Để trống nếu muốn liệt kê tất cả." }
+          },
+          required: ["searchTerm"]
+        }
+      };
+
       const systemInstruction = `Bạn là trợ lý AI thông minh điều hành hệ thống Quản lý Đoàn viên tại trường Đại học Đà Lạt.
 Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
 
@@ -129,6 +141,7 @@ HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
 1. Tạo phong trào mới (Sử dụng 'create_movement'): Bạn PHẢI tạo PHONG TRÀO nếu người dùng dùng từ 'phong trào', 'phát động', 'cuộc vận động', 'chiến dịch'. Tránh nhầm sang Activity nếu người dùng đã nói rõ là Phong trào.
 2. Tạo hoạt động mới: Sử dụng 'create_activity'.
 3. Thêm đoàn viên mới: Sử dụng công cụ 'create_member'.
+4. Tìm kiếm / Liệt kê đoàn viên: Sử dụng 'search_members'. Nếu người dùng hỏi "có bao nhiêu người tên Huy", "tìm bạn Nguyễn Văn A", "liệt kê danh sách", hãy dùng công cụ này.
    - Để lấy đúng 'unitId', hãy tra cứu trong danh sách 'Thông tin hệ thống -> units' bên dưới. Nếu người dùng nói tên chi đoàn (vd: "Chi đoàn CNTT"), hãy tìm ID tương ứng.
 
 TRA CỨU THÔNG TIN:
@@ -159,7 +172,7 @@ Quy tắc ứng xử:
         contents,
         config: {
           systemInstruction,
-          tools: [{ functionDeclarations: [createActivityTool, createMemberTool, createMovementTool] }]
+          tools: [{ functionDeclarations: [createActivityTool, createMemberTool, createMovementTool, searchMembersTool] }]
         }
       });
       
@@ -369,6 +382,63 @@ Quy tắc ứng xử:
             } else {
               setChatHistory(prev => [...prev, { role: "model", text: `Có lỗi hệ thống: ${errorMsg}` }]);
             }
+          }
+        }
+        // Handle search_members
+        else if (call.name === "search_members" && call.args) {
+          const args = call.args as any;
+          try {
+            console.log("Searching members with args:", args);
+            const query = args.searchTerm || "";
+            const members = await dataService.getMembers();
+            
+            const filtered = members.filter(m => 
+              m.fullName.toLowerCase().includes(query.toLowerCase()) || 
+              m.memberId.toLowerCase().includes(query.toLowerCase())
+            );
+
+            // Limit result size to avoid hitting context limits
+            const resultSummary = filtered.slice(0, 15).map(m => ({
+              fullName: m.fullName,
+              memberId: m.memberId,
+              unit: dbContext.units?.find((u: any) => u.id === m.unitId)?.name || "N/A",
+              status: m.status,
+              isOutstanding: m.isOutstanding
+            }));
+
+            const modelContent = response.candidates?.[0]?.content;
+            if (!modelContent) throw new Error("Không nhận được nội dung phản hồi từ AI");
+
+            const toolResultContent = {
+              role: "user",
+              parts: [
+                {
+                  functionResponse: {
+                    name: "search_members",
+                    response: { 
+                      totalFound: filtered.length,
+                      results: resultSummary,
+                      message: filtered.length > 0 ? `Tìm thấy ${filtered.length} kết quả.` : "Không tìm thấy đoàn viên nào phù hợp."
+                    },
+                    id: (call as any).id
+                  }
+                }
+              ]
+            };
+
+            const finalResponse = await ai.models.generateContent({
+              model: "gemini-3-flash-preview",
+              contents: [...contents, modelContent, toolResultContent],
+              config: { systemInstruction }
+            });
+            
+            setChatHistory(prev => [...prev, { 
+              role: "model", 
+              text: finalResponse.text || `Tìm thấy ${filtered.length} kết quả.`,
+              isAction: false
+            }]);
+          } catch (actionErr: any) {
+            setChatHistory(prev => [...prev, { role: "model", text: `Lỗi khi tìm kiếm: ${actionErr.message}` }]);
           }
         }
       } else {
