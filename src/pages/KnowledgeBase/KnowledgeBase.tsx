@@ -64,20 +64,20 @@ export const KnowledgeBase: React.FC = () => {
     <div className="p-8 pb-32">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div>
-          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight">
+          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight">
             <Book className="text-accent" size={40} />
             Tài liệu Nghiệp vụ
           </h2>
-          <p className="text-sm text-white/50 uppercase tracking-[0.2em] mt-2">Dạy AI về kiến thức Đoàn - Đội chuyên sâu</p>
+          <p className="text-xs text-slate-400 uppercase tracking-[0.2em] mt-2 font-black">Dạy AI về kiến thức Đoàn - Đội chuyên sâu</p>
         </div>
 
         <div className="flex items-center gap-4 w-full md:w-auto">
           <div className="relative flex-1 md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
             <input
               type="text"
               placeholder="Tìm kiếm kiến thức..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+              className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent transition-all font-medium"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -114,10 +114,10 @@ export const KnowledgeBase: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="group bg-surface/40 hover:bg-surface/60 border border-white/5 rounded-[2rem] p-6 transition-all duration-500 backdrop-blur-md relative overflow-hidden flex flex-col h-full"
+                className="group bg-white hover:bg-slate-50 border border-slate-200 hover:border-accent/30 rounded-[2rem] p-8 transition-all duration-500 shadow-lg hover:shadow-2xl hover:shadow-accent/5 relative overflow-hidden flex flex-col h-full"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-3 bg-accent/10 rounded-2xl text-accent">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="p-4 bg-accent/10 rounded-2xl text-accent">
                     <FileText size={24} />
                   </div>
                   {isAdmin && (
@@ -128,13 +128,13 @@ export const KnowledgeBase: React.FC = () => {
                           setNewItem({ title: item.title, content: item.content, category: item.category || "" });
                           setShowModal(true);
                         }}
-                        className="p-2 text-white/30 hover:text-white transition-colors"
+                        className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-accent hover:border-accent/30 transition-all"
                       >
                         <Edit3 size={18} />
                       </button>
                       <button 
                         onClick={() => handleDelete(item.id)}
-                        className="p-2 text-white/30 hover:text-red-400 transition-colors"
+                        className="p-2.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-400 hover:bg-rose-500 hover:text-white transition-all"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -143,15 +143,15 @@ export const KnowledgeBase: React.FC = () => {
                 </div>
 
                 <div className="flex-1">
-                  <span className="text-[10px] uppercase tracking-widest text-accent mb-2 block font-bold">{item.category}</span>
-                  <h3 className="text-xl text-white font-bold mb-3">{item.title}</h3>
-                  <p className="text-white/60 text-sm line-clamp-4 leading-relaxed">
+                  <span className="text-[10px] uppercase tracking-widest text-accent mb-3 block font-black">{item.category}</span>
+                  <h3 className="text-2xl text-slate-900 font-bold mb-4 leading-tight group-hover:text-accent transition-colors">{item.title}</h3>
+                  <p className="text-slate-600 text-sm line-clamp-6 leading-relaxed font-medium mb-6">
                     {item.content}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-[10px] text-white/20 uppercase tracking-tighter">
+                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                  <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">
                     Cập nhật: {new Date(item.updatedAt).toLocaleDateString("vi-VN")}
                   </span>
                 </div>
@@ -176,38 +176,41 @@ export const KnowledgeBase: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-surface border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+              className="relative w-full max-w-2xl bg-white border border-slate-200 rounded-[3.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
             >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-bold text-white">
+              <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+                <div>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">
                     {editingItem ? "Cập nhật tài liệu" : "Thêm tài liệu nghiệp vụ"}
                   </h3>
-                  <button onClick={() => setShowModal(false)} className="text-white/30 hover:text-white">
-                    <X size={24} />
-                  </button>
+                  <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-2">Cơ sở dữ liệu kiến thức AI</p>
                 </div>
+                <button onClick={() => setShowModal(false)} className="w-12 h-12 flex items-center justify-center bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all hover:rotate-90">
+                  <X size={24} />
+                </button>
+              </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="overflow-y-auto p-12">
+                <form onSubmit={handleSubmit} className="space-y-8">
                   <div>
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block mb-2 px-1">Tiêu đề tài liệu</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4 px-1">Tiêu đề tài liệu</label>
                     <input
                       type="text"
                       required
                       value={newItem.title}
                       onChange={(e) => setNewItem({...newItem, title: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white focus:outline-none focus:ring-2 focus:ring-accent/30"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-5 px-8 text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all placeholder:text-slate-300"
                       placeholder="VD: Điều lệ Đoàn TNCS Hồ Chí Minh"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                      <label className="text-xs font-bold text-white/40 uppercase tracking-widest block mb-2 px-1">Danh mục</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4 px-1">Danh mục</label>
                       <select
                         value={newItem.category}
                         onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white focus:outline-none focus:ring-2 focus:ring-accent/30"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-5 px-8 text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all appearance-none cursor-pointer"
                       >
                         <option value="Nghiệp vụ Đoàn">Nghiệp vụ Đoàn</option>
                         <option value="Nghiệp vụ Đội">Nghiệp vụ Đội</option>
@@ -218,30 +221,30 @@ export const KnowledgeBase: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block mb-2 px-1">Nội dung chi tiết</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4 px-1">Nội dung chi tiết</label>
                     <textarea
                       required
-                      rows={10}
+                      rows={8}
                       value={newItem.content}
                       onChange={(e) => setNewItem({...newItem, content: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white focus:outline-none focus:ring-2 focus:ring-accent/30 resize-none"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-[1.5rem] py-5 px-8 text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all resize-none placeholder:text-slate-300"
                       placeholder="Nhập nội dung tài liệu để AI học hỏi và tư vấn..."
                     />
-                    <p className="text-[10px] text-white/30 mt-2 italic">* Nên chia nhỏ tài liệu theo từng chủ đề để AI xử lý chính xác nhất.</p>
+                    <p className="text-[10px] text-slate-400 mt-4 italic font-medium">* Nên chia nhỏ tài liệu theo từng chủ đề để AI xử lý chính xác nhất.</p>
                   </div>
 
-                  <div className="flex gap-4 pt-4">
+                  <div className="flex gap-4 pt-6">
                     <button
                       type="submit"
-                      className="flex-1 bg-accent text-accent-foreground py-4 rounded-2xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20"
+                      className="flex-1 bg-accent text-white py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-accent/20"
                     >
                       <Save size={20} />
-                      {editingItem ? "Cập nhật tài liệu" : "Lưu tài liệu"}
+                      {editingItem ? "Cập nhật" : "Lưu tài liệu"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-8 bg-white/5 text-white py-4 rounded-2xl font-bold hover:bg-white/10 transition-all"
+                      className="px-10 bg-slate-100 text-slate-600 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-200 transition-all"
                     >
                       Hủy
                     </button>
