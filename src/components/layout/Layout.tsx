@@ -14,7 +14,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { profile, logout, updateProfile } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(window.innerWidth > 1024);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   const [isUserListOpen, setIsUserListOpen] = React.useState(false);
   const [users, setUsers] = React.useState<any[]>([]);
@@ -29,26 +29,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     phone: profile?.phone || ""
   });
   const location = useLocation();
-
-  // Close sidebar on navigation on mobile
-  React.useEffect(() => {
-    if (window.innerWidth <= 1024) {
-      setIsSidebarOpen(false);
-    }
-  }, [location.pathname]);
-
-  // Handle window resize
-  React.useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 1024) {
-        setIsSidebarOpen(true);
-      } else {
-        setIsSidebarOpen(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   React.useEffect(() => {
     // Socket.io for Real-time presence
@@ -153,16 +133,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const userRoleName = profile?.role === "admin" ? "Quản trị viên" : "Bí thư";
 
   return (
-    <div id="app-layout" className="min-h-screen bg-slate-50 flex text-slate-900 relative">
-      {/* Sidebar Mobile Overlay */}
+    <div id="app-layout" className="min-h-screen bg-slate-50 flex text-slate-900 overflow-x-hidden">
+      {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
-        {isSidebarOpen && window.innerWidth <= 1024 && (
-          <motion.div
+        {isSidebarOpen && (
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[45]"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -171,31 +151,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         id="sidebar"
         className={cn(
-          "bg-white/95 backdrop-blur-3xl border-r border-slate-200 w-72 transition-all duration-500 ease-in-out flex flex-col shadow-2xl shrink-0 overflow-hidden h-screen z-50",
-          "lg:sticky lg:top-0 fixed lg:left-0",
-          !isSidebarOpen && "-translate-x-full lg:w-0 lg:opacity-0 lg:border-none",
-          isSidebarOpen && "translate-x-0"
+          "fixed lg:sticky top-0 left-0 bg-white/90 backdrop-blur-3xl border-r border-slate-200 w-72 transition-all duration-500 ease-in-out z-[70] flex flex-col shadow-2xl shrink-0 overflow-hidden h-screen",
+          !isSidebarOpen ? "-translate-x-full lg:w-0 lg:opacity-0" : "translate-x-0 opacity-100"
         )}
       >
         <div className="p-8 lg:p-10 w-72">
-          <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-700 flex items-center justify-center shadow-xl shadow-accent/20 group-hover:rotate-12 transition-transform duration-500">
-              <span className="text-white font-black text-sm">QN</span>
+          <div className="flex items-center justify-between lg:justify-start gap-4 group cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-700 flex items-center justify-center shadow-xl shadow-accent/20 group-hover:rotate-12 transition-transform duration-500">
+                <span className="text-white font-black text-xs lg:text-sm">QN</span>
+              </div>
+              <div>
+                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">Quản lý Đoàn</h1>
+                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống thông minh</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none">Quản lý Đoàn</h1>
-              <p className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống thông minh</p>
-            </div>
+            {/* Mobile Close Button */}
             <button 
               onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-2 text-slate-400 hover:text-slate-900"
+              className="lg:hidden p-2 text-slate-400 hover:text-slate-900 transition-colors"
             >
               <X size={20} />
             </button>
           </div>
         </div>
 
-        <nav className="flex-1 px-6 space-y-1 w-72 mt-2 overflow-y-auto custom-scrollbar no-scrollbar">
+        <nav className="flex-1 px-4 lg:px-6 space-y-1 w-72 mt-2 overflow-y-auto no-scrollbar">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
@@ -203,24 +184,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
+                onClick={() => {
+                  if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                }}
                 className={cn(
-                  "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-500 group relative overflow-hidden",
+                  "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-500 group relative overflow-hidden",
                   isActive
                     ? "bg-accent/[0.03] text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.02)]"
                     : "text-slate-500 hover:text-accent hover:bg-slate-50/50"
                 )}
               >
                 <div className={cn(
-                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-500 shrink-0 relative z-10",
+                  "w-9 h-9 lg:w-10 lg:h-10 flex items-center justify-center rounded-xl transition-all duration-500 shrink-0 relative z-10",
                   isActive 
                     ? "bg-accent text-white shadow-xl shadow-accent/30 scale-110" 
                     : "bg-slate-100/50 text-slate-400 group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-6"
                 )}>
-                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 
                 <span className={cn(
-                  "text-[14px] font-black tracking-tight transition-all duration-500 relative z-10",
+                  "text-[13px] lg:text-[14px] font-black tracking-tight transition-all duration-500 relative z-10",
                   isActive ? "text-slate-900" : "text-slate-500 group-hover:translate-x-1"
                 )}>
                   {item.name}
@@ -247,60 +231,60 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           })}
         </nav>
 
-        <div className="p-8 border-t border-slate-100 bg-slate-50/30 w-72">
+        <div className="p-6 lg:p-8 border-t border-slate-100 bg-slate-50/30 w-72">
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsProfileModalOpen(true)}
-            className="bg-white p-4 rounded-3xl flex items-center space-x-3 border border-slate-200 w-full hover:shadow-xl hover:shadow-slate-200/50 transition-all text-left group"
+            className="bg-white p-3 lg:p-4 rounded-3xl flex items-center space-x-3 border border-slate-200 w-full hover:shadow-xl hover:shadow-slate-200/50 transition-all text-left group"
           >
             {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover shadow-lg border-2 border-white group-hover:border-accent group-hover:scale-105 transition-all" />
+              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl object-cover shadow-lg border-2 border-white group-hover:border-accent group-hover:scale-105 transition-all" />
             ) : (
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center font-black text-white shadow-lg text-xs">
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center font-black text-white shadow-lg text-[10px]">
                 {userInitials}
               </div>
             )}
             <div className="overflow-hidden">
-              <p className="text-[13px] font-black text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
-              <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
+              <p className="text-xs lg:text-[13px] font-black text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
+              <p className="text-[8px] lg:text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
             </div>
           </motion.button>
           <motion.button 
             whileHover={{ x: 5, color: "#ef4444" }}
             whileTap={{ scale: 0.95 }}
             onClick={logout}
-            className="mt-6 flex items-center gap-3 px-5 py-3 w-full text-slate-400 transition-all text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 rounded-2xl"
+            className="mt-4 lg:mt-6 flex items-center gap-3 px-4 lg:px-5 py-2.5 lg:py-3 w-full text-slate-400 transition-all text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 rounded-2xl"
           >
-            <LogOut size={16} strokeWidth={2.5} />
+            <LogOut size={14} lg:size={16} strokeWidth={2.5} />
             <span>Thoát hệ thống</span>
           </motion.button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden">
+      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden w-full">
         {/* Top Header */}
-        <header className="h-20 lg:h-24 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-4 lg:px-10 shadow-sm">
-          <div className="flex items-center gap-3 lg:gap-6">
+        <header className="h-20 lg:h-24 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-6 lg:px-10 shadow-sm">
+          <div className="flex items-center gap-4 lg:gap-6">
             <motion.button 
               whileHover={{ scale: 1.1, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               id="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-xl lg:rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
+              className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
             >
-              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              {isSidebarOpen ? <X size={18} lg:size={20} /> : <Menu size={18} lg:size={20} />}
             </motion.button>
-            <div className="flex flex-col">
-              <h2 className="text-lg lg:text-2xl font-black text-slate-900 tracking-tighter leading-tight">Bảng điều khiển</h2>
+            <div>
+              <h2 className="text-lg lg:text-2xl font-black text-slate-900 tracking-tighter">Bảng điều khiển</h2>
               <p className="text-[8px] lg:text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black flex items-center gap-2">
-                 <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> Phiên bản 2.5
+                 <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> <span className="hidden xs:inline">Phiên bản</span> 2.5
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 lg:gap-4">
+          <div className="flex items-center gap-3 lg:gap-4">
             <div className="relative">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
@@ -310,16 +294,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   setIsUserListOpen(newState);
                   if (newState) fetchUsersData();
                 }}
-                className="flex items-center gap-2 lg:gap-4 p-1.5 lg:p-3 bg-white border border-slate-200 rounded-full lg:rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all"
+                className="flex items-center gap-2 lg:gap-4 p-2 lg:p-3 bg-white border border-slate-200 rounded-2xl lg:rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all"
               >
-                <div className="text-right hidden sm:block px-2">
-                  <p className="text-[10px] uppercase font-black text-slate-900 tracking-widest">{profile?.fullName?.split(' ').pop()}</p>
-                  <p className="text-[7px] lg:text-[8px] text-emerald-500 font-black uppercase tracking-tighter">Trực tuyến</p>
+                <div className="text-right hidden md:block px-2">
+                  <p className="text-[10px] uppercase font-black text-slate-900 tracking-widest leading-none mb-1">{profile?.fullName}</p>
+                  <p className="text-[8px] text-emerald-500 font-black uppercase tracking-tighter">Bí thư trực tuyến</p>
                 </div>
                 {profile?.avatarUrl ? (
-                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 lg:w-10 lg:h-10 rounded-full lg:rounded-2xl object-cover border border-slate-100 shadow-inner" />
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl lg:rounded-2xl object-cover border border-slate-100 shadow-inner" />
                 ) : (
-                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full lg:rounded-2xl bg-accent text-white flex items-center justify-center font-black text-[10px] lg:text-xs shadow-lg">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl lg:rounded-2xl bg-accent text-white flex items-center justify-center font-black text-[10px] shadow-lg">
                     {userInitials}
                   </div>
                 )}
@@ -421,7 +405,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <div className="p-4 sm:p-6 lg:p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar bg-slate-50/50">
+        <div className="p-4 lg:p-10 flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar bg-slate-50/50">
           {children}
         </div>
       </main>

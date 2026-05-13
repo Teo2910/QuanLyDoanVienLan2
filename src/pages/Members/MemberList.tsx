@@ -773,7 +773,7 @@ export const MemberList: React.FC = () => {
         addToast("Có lỗi xảy ra khi nhập tệp Excel. Vui lòng kiểm tra lại định dạng tệp.", "error");
       } finally {
         setLoading(false);
-        if (e.target) e.target.value = "";
+        e.target.value = "";
       }
     };
 
@@ -792,51 +792,52 @@ export const MemberList: React.FC = () => {
         variant={confirmConfig.variant}
       />
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 mb-8 lg:mb-16">
-        <div className="flex-1 w-full lg:w-auto">
-          <div className="flex items-center gap-3 sm:gap-4 mb-4">
-            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg shadow-accent/5 shrink-0">
-              <Users className="w-6 h-6 sm:w-8 sm:h-8" />
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 sm:gap-8 mb-8 sm:mb-16">
+        <div className="flex-1 w-full">
+          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-3xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg shadow-accent/5 shrink-0">
+              <Users size={24} className="sm:hidden" />
+              <Users size={36} className="hidden sm:block" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-none mb-1">
                 Quản lý đoàn viên
               </h2>
-              <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black mt-1">Cơ sở dữ liệu nhân sự số hóa</p>
+              <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.4em] font-black">Cơ sở dữ liệu nhân sự số hóa 4.0</p>
             </div>
           </div>
-          <div className="relative w-full max-w-md group">
+          <div className="relative max-w-xl group w-full">
             <input 
               type="text" 
-              placeholder="Tìm kiếm nhanh..." 
-              className="w-full bg-white border border-slate-200 rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-10 sm:pl-12 pr-10 sm:pr-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400 shadow-sm"
+              placeholder="Tìm kiếm nhanh đoàn viên..." 
+              className="w-full bg-white border border-slate-200 rounded-xl sm:rounded-[2rem] py-3.5 sm:py-5 px-12 sm:px-16 text-sm sm:text-base text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400 shadow-sm group-hover:border-slate-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search size={16} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" />
+            <Search size={18} className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors sm:w-6 sm:h-6" />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
-                className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors"
+                className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors"
               >
-                <X size={14} />
+                <X size={16} className="sm:w-5 sm:h-5" />
               </button>
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-2 sm:gap-3 flex-1 lg:flex-none">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full xl:w-auto">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <motion.button 
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={exportToExcel}
-              className="flex-1 lg:flex-none group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl transition-all shadow-md hover:shadow-xl hover:text-emerald-600"
-              title="Xuất Excel"
+              className="group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-5 bg-white border border-slate-200 rounded-xl sm:rounded-[1.8rem] transition-all duration-300 shadow-md hover:shadow-xl hover:border-emerald-500/30 hover:text-emerald-600 outline-none"
+              title="Xuất danh sách ra tệp Excel"
             >
-              <Download size={18} className="text-slate-400 group-hover:text-emerald-500" />
-              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xuất</span>
+              <Download size={16} className="text-slate-400 group-hover:text-emerald-500 transition-colors sm:w-5 sm:h-5" />
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest whitespace-nowrap">Xuất CSV/Excel</span>
             </motion.button>
-            <div className="flex-1 lg:flex-none relative">
+            <div className="relative">
               <input 
                 type="file" 
                 accept=".xlsx, .xls" 
@@ -845,84 +846,84 @@ export const MemberList: React.FC = () => {
                 id="excel-import"
               />
               <motion.label 
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 htmlFor="excel-import"
-                className="cursor-pointer flex-1 lg:flex-none flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl text-slate-600 shadow-md hover:shadow-xl"
-                title="Nhập dữ liệu"
+                className="cursor-pointer group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-5 bg-white border border-slate-200 rounded-xl sm:rounded-[1.8rem] text-slate-600 hover:border-blue-500/30 hover:text-blue-600 transition-all duration-300 shadow-md hover:shadow-xl outline-none w-full"
+                title="Nhập danh sách từ tệp Excel"
               >
-                <Upload size={18} className="text-slate-400 group-hover:text-blue-500" />
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Nhập</span>
+                <Upload size={16} className="text-slate-400 group-hover:text-blue-500 transition-colors sm:w-5 sm:h-5" />
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest whitespace-nowrap">Nhập dữ liệu</span>
               </motion.label>
             </div>
           </div>
-          <div className="w-px h-8 bg-slate-200 hidden xl:block mx-1" />
+          <div className="hidden xl:block w-px h-12 bg-slate-200 mx-2" />
           <motion.button 
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={openAddModal}
-            className="flex-1 lg:flex-none group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-10 py-2.5 sm:py-4 bg-slate-900 text-white rounded-xl sm:rounded-2xl transition-all shadow-xl hover:bg-accent"
+            className="w-full xl:w-auto group flex items-center justify-center gap-3 sm:gap-4 px-6 sm:px-12 py-4 sm:py-5 bg-slate-900 text-white rounded-xl sm:rounded-[2rem] transition-all duration-300 shadow-xl shadow-slate-900/10 hover:bg-accent hover:shadow-accent/30 outline-none"
           >
-            <Plus size={18} className="group-hover:rotate-90 transition-transform" />
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Thêm mới</span>
+            <Plus size={20} className="group-hover:rotate-90 transition-transform sm:w-6 sm:h-6" />
+            <span className="text-[11px] sm:text-sm font-black uppercase tracking-[0.1em] sm:tracking-[0.2em] whitespace-nowrap">Thêm đoàn viên bộ đoàn</span>
           </motion.button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-4 sm:p-6 lg:p-10 mb-8 lg:mb-12 shadow-2xl shadow-slate-200/40">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[3rem] p-4 sm:p-10 mb-8 sm:mb-12 shadow-2xl shadow-slate-200/40">
         {/* Main Search Row */}
-        <div className="flex flex-col xl:flex-row gap-4 lg:gap-8 items-start lg:items-center justify-between mb-4 lg:mb-8">
+        <div className="flex flex-col xl:flex-row gap-4 sm:gap-8 items-start xl:items-center justify-between mb-6 sm:mb-8">
           <form 
             onSubmit={(e) => e.preventDefault()}
-            className="relative flex-1 group w-full"
+            className="relative flex-1 group w-full xl:max-w-3xl"
           >
-            <div className="absolute inset-y-0 left-4 sm:left-6 flex items-center pointer-events-none">
-              <Search className="text-slate-300 group-focus-within:text-accent transition-colors" size={20} />
+            <div className="absolute inset-y-0 left-5 sm:left-6 flex items-center pointer-events-none">
+              <Search className="text-slate-300 group-focus-within:text-accent transition-colors sm:w-6 sm:h-6" size={24} />
             </div>
             <input 
               type="text"
               placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán..."
-              className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-3.5 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all shadow-inner"
+              className="w-full pl-14 sm:pl-16 pr-6 py-4 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all outline-none font-medium shadow-inner text-sm sm:text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </form>
           
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full xl:w-auto">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full xl:w-auto justify-stretch sm:justify-start">
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
               className={cn(
-                "flex-1 xl:flex-none flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black transition-all border shadow-sm",
+                "flex-1 xl:flex-none flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black transition-all border shadow-sm outline-none",
                 isAdvancedSearchOpen 
-                  ? "bg-slate-900 text-white border-slate-900" 
-                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-slate-900/20" 
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               )}
             >
-              <Filter size={14} />
-              Lọc <span className="hidden sm:inline">nâng cao</span>
-              {isAdvancedSearchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              <Filter size={14} className="sm:w-[16px] sm:h-[16px]" />
+              {isAdvancedSearchOpen ? "Đóng bộ lọc" : "Lọc nâng cao"}
+              {isAdvancedSearchOpen ? <ChevronUp size={14} className="sm:w-[16px] sm:h-[16px]" /> : <ChevronDown size={14} className="sm:w-[16px] sm:h-[16px]" />}
             </motion.button>
 
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={resetFilters}
-              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-200 shadow-sm"
-              title="Xóa bộ lọc"
+              className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-200 hover:border-rose-200 shadow-sm outline-none shrink-0"
+              title="Xóa tất cả bộ lọc"
             >
-              <RotateCcw size={18} />
+              <RotateCcw size={18} className="sm:w-[22px] sm:h-[22px]" />
             </motion.button>
 
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowSavePreset(!showSavePreset)}
-              className="flex-1 xl:flex-none flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black bg-accent/5 text-accent border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-sm"
+              className="flex-1 xl:flex-none flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black bg-accent/5 text-accent border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-sm outline-none"
             >
-              <Bookmark size={14} />
-              Lưu <span className="hidden sm:inline">cấu hình</span>
+              <Bookmark size={14} className="sm:w-[16px] sm:h-[16px]" />
+              Lưu mẫu lọc
             </motion.button>
           </div>
         </div>
@@ -985,7 +986,7 @@ export const MemberList: React.FC = () => {
 
         {/* Advanced Filters Panel */}
         {isAdvancedSearchOpen && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
             <CustomSelect
               label="Chi đoàn"
               options={unitOptions}
@@ -1021,12 +1022,12 @@ export const MemberList: React.FC = () => {
               onChange={setSelectedGender}
             />
 
-            <div className="lg:col-span-2">
+            <div className="sm:col-span-2 xl:col-span-1">
               <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Quê quán (Lọc theo tỉnh/thành)</label>
               <input 
                 type="text"
                 placeholder="VD: Hà Nội, Nghệ An..."
-                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white transition-all outline-none text-sm"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-2xl text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all outline-none font-bold text-sm sm:text-base shadow-inner"
                 value={selectedHometown}
                 onChange={(e) => setSelectedHometown(e.target.value)}
               />
@@ -1035,61 +1036,63 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] flex flex-col min-h-[500px] sm:min-h-[600px] shadow-2xl mb-20 sm:mb-32 overflow-hidden border-t-4 sm:border-t-8 border-t-accent flex-1">
-        <div className="px-4 sm:px-6 lg:px-10 pt-6 sm:pt-10 pb-4 sm:pb-6 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shrink-0 gap-4">
+      <div className="bg-white border border-slate-100 rounded-[3rem] flex flex-col min-h-[600px] shadow-2xl mb-32 overflow-hidden border-t-8 border-t-accent flex-1">
+        <div className="px-10 pt-10 pb-6 border-b border-slate-50 flex justify-between items-center bg-white shrink-0">
           <div>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter">Danh sách hồ sơ</h3>
-            <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống quản lý tập trung</p>
+            <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Danh sách hồ sơ</h3>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Quản lý cơ sở dữ liệu tập trung</p>
           </div>
-          <div className="px-3 sm:px-5 py-1.5 sm:py-2.5 bg-slate-50 border border-slate-100 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest">{filteredMembers.length} Kết quả</div>
+          <div className="flex gap-2">
+            <div className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-black text-slate-500 uppercase tracking-widest">{filteredMembers.length} Kết quả</div>
+          </div>
         </div>
 
-        <div className="px-4 sm:px-10 pt-4 sm:pt-8 shrink-0">
+        <div className="px-10 pt-8 shrink-0">
           <AnimatePresence>
             {(isAdmin || isSecretary) && selectedIds.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.98, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -20 }}
-                className="mb-4 sm:mb-8 flex flex-col lg:flex-row items-center justify-between bg-white border-2 border-rose-500 p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] gap-4 sm:gap-8 shadow-2xl shadow-rose-200/40 relative overflow-hidden group"
+                className="mb-8 flex flex-col sm:flex-row items-center justify-between bg-white border-2 border-rose-500 p-8 rounded-[2.5rem] gap-8 shadow-2xl shadow-rose-200/40 relative overflow-hidden group"
               >
-                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity hidden sm:block">
+                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                   <Trash2 size={120} className="text-rose-600 rotate-12" />
                 </div>
-                <div className="flex items-center gap-4 sm:gap-8 relative z-10 w-full lg:w-auto">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/30 shrink-0">
-                    <Trash2 className="w-6 h-6 sm:w-8 sm:h-8" />
+                <div className="flex items-center gap-8 relative z-10">
+                  <div className="w-16 h-16 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/30">
+                    <Trash2 size={32} />
                   </div>
                   <div>
-                    <h4 className="text-rose-600 text-lg sm:text-2xl font-black tracking-tight">
-                      Đã chọn ({selectedIds.length})
+                    <h4 className="text-rose-600 text-2xl font-black tracking-tight">
+                      Lựa chọn đoàn viên ({selectedIds.length})
                     </h4>
                     <motion.button 
                       whileHover={{ x: 5 }}
                       onClick={() => setSelectedIds([])}
-                      className="text-slate-400 hover:text-slate-600 text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 sm:gap-2 mt-1 px-0"
+                      className="text-slate-400 hover:text-slate-600 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 mt-1"
                     >
-                      Bỏ chọn <X size={12} />
+                      Bỏ chọn tất cả <X size={12} />
                     </motion.button>
                   </div>
                 </div>
-                <div className="flex gap-2 sm:gap-4 w-full lg:w-auto relative z-10 flex-col sm:flex-row">
+                <div className="flex gap-4 w-full sm:w-auto relative z-10">
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.05, y: -4 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleBulkDelete}
-                    className="flex-1 sm:flex-none bg-rose-600 text-white rounded-xl sm:rounded-2xl px-6 sm:px-12 py-3.5 sm:py-5 transition-all shadow-xl hover:bg-slate-900"
+                    className="flex-1 sm:flex-none bg-rose-600 text-white rounded-2xl px-12 py-5 transition-all shadow-xl shadow-rose-600/30 hover:bg-slate-900 border border-transparent"
                   >
-                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xóa vĩnh viễn</span>
+                    <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa vĩnh viễn</span>
                   </motion.button>
                   {selectedIds.length === filteredMembers.length && filteredMembers.length > 1 && (
                     <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.05, y: -4 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={handleDeleteAllFiltered}
-                      className="flex-1 sm:flex-none bg-white border-2 border-rose-600 text-rose-600 rounded-xl sm:rounded-2xl px-6 sm:px-12 py-3.5 sm:py-5 transition-all shadow-xl hover:bg-rose-50"
+                      className="flex-1 sm:flex-none bg-white border-2 border-rose-600 text-rose-600 rounded-2xl px-12 py-5 transition-all shadow-xl hover:bg-rose-50"
                     >
-                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xóa mọi kết quả</span>
+                      <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa khớp lọc ({filteredMembers.length})</span>
                     </motion.button>
                   )}
                 </div>
@@ -1100,15 +1103,20 @@ export const MemberList: React.FC = () => {
 
         {/* Table Content */}
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-20 lg:py-32 gap-6">
-             <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-             <p className="text-slate-400 text-[10px] uppercase tracking-[0.3em] font-black animate-pulse">Đang đồng bộ dữ liệu...</p>
+          <div className="flex-1 flex flex-col items-center justify-center py-20 sm:py-32 gap-4 sm:gap-6">
+             <div className="w-8 h-8 sm:w-10 sm:h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+             <p className="text-slate-400 text-[8px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black animate-pulse">Đang đồng bộ dữ liệu...</p>
           </div>
         ) : filteredMembers.length > 0 ? (
-          <div className="flex-1 overflow-x-auto custom-scrollbar relative min-h-[400px]">
-            <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px]">
+          <div className="flex-1 overflow-x-auto no-scrollbar relative min-h-[400px] sm:min-h-[500px] group">
+             {/* Mobile Scroll Indicator */}
+             <div className="sm:hidden absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-slate-900/10 backdrop-blur-md px-4 py-2 rounded-full z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-ping" />
+                <p className="text-[8px] font-black uppercase tracking-widest text-slate-600">Vuốt ngang xem bảng</p>
+             </div>
+            <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px] lg:min-w-0">
               <thead>
-                <tr className="text-[10px] text-slate-400 uppercase tracking-[0.25em] font-black border-b border-slate-50 bg-white">
+                <tr className="text-[9px] sm:text-[10px] text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.25em] font-black border-b border-slate-50 bg-white">
                   <th className="py-6 sm:py-8 px-4 sm:px-8 font-black text-center w-12 shrink-0">
                     <div 
                       onClick={() => {
@@ -1134,24 +1142,24 @@ export const MemberList: React.FC = () => {
                       </motion.div>
                     </div>
                   </th>
-                  <th className="py-8 px-4 font-black text-center w-16">#</th>
+                  <th className="py-6 sm:py-8 px-2 sm:px-4 font-black text-center w-16 whitespace-nowrap">STT</th>
                   <th 
-                    className="py-8 px-6 font-black cursor-pointer hover:text-accent transition-colors group/header min-w-[280px]"
+                    className="py-6 sm:py-8 px-4 sm:px-6 font-black cursor-pointer hover:text-accent transition-colors group/header min-w-[240px] sm:min-w-[280px]"
                     onClick={() => handleSort("fullName")}
                   >
-                    <div className="flex items-center gap-3">
-                      Thông tin cơ bản
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      Họ tên & Thông tin
                       <span className={cn("transition-all", sortField === "fullName" ? "opacity-100 scale-100" : "opacity-0 scale-75 group-hover/header:opacity-40 group-hover/header:scale-100")}>
                         {sortField === "fullName" ? (sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                       </span>
                     </div>
                   </th>
                   <th 
-                    className="py-8 px-6 font-black cursor-pointer hover:text-accent transition-colors group/header"
+                    className="py-6 sm:py-8 px-4 sm:px-6 font-black cursor-pointer hover:text-accent transition-colors group/header"
                     onClick={() => handleSort("memberId")}
                   >
-                    <div className="flex items-center gap-3">
-                      Định danh
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      Mã định danh
                       <span className={cn("transition-all", sortField === "memberId" ? "opacity-100 scale-100" : "opacity-0 scale-75 group-hover/header:opacity-40 group-hover/header:scale-100")}>
                         {sortField === "memberId" ? (sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                       </span>
@@ -1187,7 +1195,7 @@ export const MemberList: React.FC = () => {
                       selectedIds.includes(member.id) ? "bg-accent/[0.03]" : "hover:bg-slate-50/50"
                     )}
                   >
-                    <td className="py-7 px-8 text-center relative z-10" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-5 sm:py-7 px-4 sm:px-8 text-center relative z-10" onClick={(e) => e.stopPropagation()}>
                       <div 
                         onClick={() => handleSelectMember(member.id)}
                         className={cn(
@@ -1206,53 +1214,53 @@ export const MemberList: React.FC = () => {
                         </motion.div>
                       </div>
                     </td>
-                    <td className="py-7 px-4 text-center">
-                      <span className="text-[11px] font-black text-slate-300 tabular-nums">
+                    <td className="py-5 sm:py-7 px-2 sm:px-4 text-center">
+                      <span className="text-[10px] sm:text-[11px] font-black text-slate-300 tabular-nums">
                         {String((currentPage - 1) * pageSize + index + 1).padStart(2, '0')}
                       </span>
                     </td>
-                    <td className="py-7 px-6">
-                      <div className="flex items-center gap-5">
+                    <td className="py-5 sm:py-7 px-4 sm:px-6">
+                      <div className="flex items-center gap-3 sm:gap-5">
                         <div className="relative shrink-0">
                           <div className={cn(
-                            "w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg transition-all duration-500 border-2",
+                            "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-base sm:text-lg transition-all duration-500 border-2",
                             member.gender === "Nam" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-rose-50 text-rose-600 border-rose-100",
                             "group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-md"
                           )}>
                             {member.fullName.charAt(0)}
                           </div>
                           {member.isOutstanding && (
-                            <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-amber-400 rounded-lg border-2 border-white flex items-center justify-center text-white shadow-xl shadow-amber-400/30 animate-bounce">
-                              <Star size={10} fill="currentColor" />
+                            <div className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-amber-400 rounded-lg border-2 border-white flex items-center justify-center text-white shadow-xl shadow-amber-400/30 animate-bounce">
+                              <Star size={8} fill="currentColor" className="sm:w-[10px] sm:h-[10px]" />
                             </div>
                           )}
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <h4 className="text-[15px] font-black text-slate-900 tracking-tight group-hover:text-accent transition-colors duration-300">
+                          <h4 className="text-sm sm:text-[15px] font-black text-slate-900 tracking-tight group-hover:text-accent transition-colors duration-300 whitespace-nowrap">
                             {member.fullName}
                           </h4>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
                              <span className={cn(
-                               "text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md",
+                               "text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-1.2 sm:px-1.5 py-0.5 rounded-md",
                                member.gender === "Nam" ? "text-blue-400 bg-blue-50/50" : "text-rose-400 bg-rose-50/50"
                              )}>
                                {member.gender}
                              </span>
                              <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.05em]">{member.academicYear}</span>
+                             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-[0.05em]">{member.academicYear}</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-7 px-6">
-                       <div className="flex flex-col gap-1">
-                          <span className="text-[13px] font-black text-slate-700 tracking-tight font-mono">{member.memberId}</span>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{member.professionalLevel || "Thanh niên"}</span>
+                    <td className="py-5 sm:py-7 px-4 sm:px-6">
+                       <div className="flex flex-col gap-0.5 sm:gap-1">
+                          <span className="text-xs sm:text-[13px] font-black text-slate-700 tracking-tight font-mono whitespace-nowrap">{member.memberId}</span>
+                          <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest">{member.professionalLevel || "Thanh niên"}</span>
                        </div>
                     </td>
-                    <td className="py-7 px-6 text-center">
+                    <td className="py-5 sm:py-7 px-4 sm:px-6 text-center">
                        <span className={cn(
-                        "inline-flex items-center px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all duration-300",
+                        "inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider border transition-all duration-300 whitespace-nowrap",
                         member.achievementLevel === "Xuất sắc" ? "bg-accent/5 text-accent border-accent/10 hover:bg-accent hover:text-white" :
                         member.achievementLevel === "Khá" ? "bg-slate-50 text-slate-600 border-slate-100" :
                         "bg-white text-slate-300 border-slate-100"
@@ -1260,37 +1268,37 @@ export const MemberList: React.FC = () => {
                          {member.achievementLevel || "Chưa xếp loại"}
                        </span>
                     </td>
-                    <td className="py-7 px-6">
-                       <span className="text-sm font-bold text-slate-600 tracking-tight line-clamp-1">{getUnitName(member.unitId)}</span>
+                    <td className="py-5 sm:py-7 px-4 sm:px-6">
+                       <span className="text-xs sm:text-sm font-bold text-slate-600 tracking-tight line-clamp-1 min-w-[120px]">{getUnitName(member.unitId)}</span>
                     </td>
-                    <td className="py-7 px-6">
-                       <div className="flex items-center gap-3">
-                          <CalendarIcon size={14} className="text-slate-300" />
-                          <span className="text-xs font-black text-slate-500 tabular-nums">{member.joinDate || "---"}</span>
+                    <td className="py-5 sm:py-7 px-4 sm:px-6">
+                       <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
+                          <CalendarIcon size={12} className="text-slate-300 sm:w-[14px] sm:h-[14px]" />
+                          <span className="text-[11px] sm:text-xs font-black text-slate-500 tabular-nums">{member.joinDate || "---"}</span>
                        </div>
                     </td>
-                    <td className="py-7 px-6 text-center">
+                    <td className="py-5 sm:py-7 px-4 sm:px-6 text-center">
                        <div className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all duration-300",
+                        "inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[1rem] sm:rounded-2xl border transition-all duration-300 whitespace-nowrap",
                         member.status === "Đang sinh hoạt" ? "bg-emerald-50 border-emerald-100 text-emerald-600 shadow-sm shadow-emerald-100/50" :
                         member.status === "Đã chuyển sinh hoạt" ? "bg-blue-50 border-blue-100 text-accent shadow-sm shadow-blue-100/50" :
                         "bg-slate-50 border-slate-100 text-slate-400"
                        )}>
-                         <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", 
+                         <div className={cn("w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full animate-pulse", 
                             member.status === "Đang sinh hoạt" ? "bg-emerald-500" : 
                             member.status === "Đã chuyển sinh hoạt" ? "bg-accent" : "bg-slate-300"
                          )} />
-                         <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">{member.status}</span>
+                         <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{member.status}</span>
                        </div>
                     </td>
-                    <td className="py-7 px-8 text-right relative z-10" onClick={(e) => e.stopPropagation()}>
-                       <div className="flex justify-end gap-2 transform transition-all duration-500 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0">
+                    <td className="py-5 sm:py-7 px-4 sm:px-8 text-right relative z-10" onClick={(e) => e.stopPropagation()}>
+                       <div className="flex justify-end gap-1.5 sm:gap-2 transform transition-all duration-500 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0">
                           <button 
                             onClick={() => handleViewDetails(member)}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-accent hover:border-accent hover:shadow-lg hover:shadow-accent/5 transition-all outline-none"
+                            className="p-2 sm:p-3 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-slate-400 hover:text-accent hover:border-accent hover:shadow-lg hover:shadow-accent/5 transition-all outline-none"
                             title="Xem chi tiết"
                           >
-                            <Eye size={16} />
+                            <Eye size={14} className="sm:w-[16px] sm:h-[16px]" />
                           </button>
                           <button 
                             onClick={() => handleViewHistory(member)}
@@ -1340,33 +1348,33 @@ export const MemberList: React.FC = () => {
           </div>
         )}
 
-        <div className="px-4 sm:px-10 py-6 sm:py-8 border-t border-slate-50 flex flex-col lg:flex-row justify-between items-center gap-6 bg-slate-50/30">
+        <div className="px-10 py-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/30">
           <div className="flex items-center gap-4">
-             <div className="flex -space-x-4 hidden sm:flex">
+             <div className="flex -space-x-4">
                 {[1,2,3].map(i => (
-                  <div key={i} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-4 border-white bg-slate-200 flex items-center justify-center text-slate-400">
+                  <div key={i} className="w-10 h-10 rounded-xl border-4 border-white bg-slate-200 flex items-center justify-center text-[10px] font-black text-slate-400">
                     <UserCircle size={16} />
                   </div>
                 ))}
              </div>
-             <span className="text-[9px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-widest italic text-center sm:text-left">
-               Trang {currentPage}/{totalPages} • {filteredMembers.length} hồ sơ
+             <span className="text-[11px] text-slate-400 font-black uppercase tracking-widest italic">
+               Trang {currentPage} trên {totalPages} • Hết {filteredMembers.length} hồ sơ liên quan
              </span>
           </div>
           
           {totalPages > 1 && (
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2">
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="p-2 sm:p-3 rounded-lg sm:rounded-2xl bg-white border border-slate-200 text-slate-400 disabled:opacity-20 shadow-sm"
+                className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none shadow-sm hover:shadow-md"
               >
-                <ChevronDown className="rotate-90" size={16} />
+                <ChevronDown className="rotate-90" size={18} />
               </motion.button>
               
-              <div className="flex items-center gap-1 group">
+              <div className="flex items-center gap-1.5 px-2">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
                   if (
                     page === 1 || 
@@ -1374,24 +1382,26 @@ export const MemberList: React.FC = () => {
                     (page >= currentPage - 1 && page <= currentPage + 1)
                   ) {
                     return (
-                      <button
+                      <motion.button
                         key={page}
+                        whileHover={{ scale: 1.1, y: -2 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setCurrentPage(page)}
                         className={cn(
-                          "min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 rounded-lg sm:rounded-2xl text-[10px] sm:text-xs font-black transition-all border",
+                          "min-w-[40px] h-10 rounded-2xl text-xs font-black transition-all outline-none border",
                           currentPage === page 
-                            ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" 
-                            : "bg-white text-slate-400 border-slate-200 hover:border-accent/40"
+                            ? "bg-accent text-white border-accent shadow-xl shadow-accent/20" 
+                            : "bg-white text-slate-400 hover:border-accent/40 border-slate-200"
                         )}
                       >
                         {page}
-                      </button>
+                      </motion.button>
                     );
                   } else if (
                     (page === currentPage - 2 && page > 1) || 
                     (page === currentPage + 2 && page < totalPages)
                   ) {
-                    return <span key={page} className="px-0.5 text-slate-300 font-black">.</span>;
+                    return <span key={page} className="px-1 text-slate-300 font-black">...</span>;
                   }
                   return null;
                 })}
@@ -1402,9 +1412,9 @@ export const MemberList: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 sm:p-3 rounded-lg sm:rounded-2xl bg-white border border-slate-200 text-slate-400 disabled:opacity-20 shadow-sm"
+                className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none shadow-sm hover:shadow-md"
               >
-                <ChevronDown className="-rotate-90" size={16} />
+                <ChevronDown className="-rotate-90" size={18} />
               </motion.button>
             </div>
           )}
