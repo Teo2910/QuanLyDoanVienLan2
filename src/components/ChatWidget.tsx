@@ -225,38 +225,43 @@ export const ChatWidget = () => {
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: 40, scale: 0.9, filter: "blur(10px)" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-28 right-8 w-[400px] h-[600px] bg-white/80 backdrop-blur-3xl border border-white/50 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-0 right-0 sm:bottom-28 sm:right-8 w-full sm:w-[400px] h-[100dvh] sm:h-[600px] bg-white/80 backdrop-blur-3xl border-t sm:border border-white/50 rounded-t-[2.5rem] sm:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] z-50 flex flex-col overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-accent/5 pointer-events-none" />
             
-            <div className="p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10">
+            <div className="p-6 sm:p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10 shrink-0">
                <div>
                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center text-accent shadow-xl shadow-slate-900/10">
                        <Sparkles size={18} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black text-slate-900 tracking-tight">
+                      <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
                         {profile.role === 'admin' ? (activeThreadId ? "Xử lý hỗ trợ" : "Phiên hỗ trợ") : "Hỗ trợ đoàn viên"}
                       </h3>
                       <div className="flex items-center gap-2 mt-0.5">
                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                         <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                         <span className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest">
                            {profile.role === 'admin' ? 'Hệ thống tập trung' : 'Trực tiếp với Admin DLU'}
                          </span>
                       </div>
                     </div>
                  </div>
                </div>
-               {profile.role === 'admin' && activeThreadId && (
-                 <motion.button 
-                   whileHover={{ scale: 1.1, x: -5 }}
-                   onClick={() => { setActiveThreadId(null); loadThreads(); }} 
-                   className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 transition-colors"
-                 >
-                   <ChevronDown size={18} className="text-slate-600 rotate-90" />
-                 </motion.button>
-               )}
+               <div className="flex items-center gap-2">
+                 {profile.role === 'admin' && activeThreadId && (
+                   <motion.button 
+                     whileHover={{ scale: 1.1, x: -5 }}
+                     onClick={() => { setActiveThreadId(null); loadThreads(); }} 
+                     className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200 transition-colors"
+                   >
+                     <ChevronDown size={18} className="text-slate-600 rotate-90" />
+                   </motion.button>
+                 )}
+                 <button onClick={() => setIsOpen(false)} className="sm:hidden p-3 bg-slate-100 rounded-2xl">
+                   <ChevronDown size={18} />
+                 </button>
+               </div>
             </div>
 
             {profile.role === 'admin' && !activeThreadId && (
@@ -307,7 +312,7 @@ export const ChatWidget = () => {
 
             {(!profile.role || profile.role !== 'admin' || activeThreadId) && (
                <>
-                 <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 no-scrollbar relative z-10 bg-slate-50/30">
+                 <div className="flex-1 overflow-y-auto px-6 sm:px-8 py-6 sm:py-8 space-y-6 no-scrollbar relative z-10 bg-slate-50/30">
                    {messages.map((m, idx) => {
                      const isMe = m.senderId === profile.uid;
                      return (
@@ -329,10 +334,10 @@ export const ChatWidget = () => {
                             </div>
                           )}
                           <div className={cn(
-                             "max-w-[85%] px-5 py-3.5 rounded-[1.8rem] text-[13px] leading-relaxed font-medium shadow-sm transition-all hover:shadow-md",
+                             "max-w-[90%] sm:max-w-[85%] px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl sm:rounded-[1.8rem] text-[12px] sm:text-[13px] leading-relaxed font-medium shadow-sm transition-all hover:shadow-md",
                              isMe 
-                              ? 'bg-slate-900 text-white rounded-br-sm border border-slate-800' 
-                              : 'bg-white text-slate-600 rounded-bl-sm border border-slate-100'
+                               ? 'bg-slate-900 text-white rounded-br-sm border border-slate-800' 
+                               : 'bg-white text-slate-600 rounded-bl-sm border border-slate-100'
                           )}>
                              {m.content}
                           </div>
@@ -340,7 +345,7 @@ export const ChatWidget = () => {
                      )
                    })}
                    {messages.length === 0 && (
-                     <div className="h-full flex flex-col items-center justify-center text-center gap-6 py-20">
+                     <div className="h-full flex flex-col items-center justify-center text-center gap-6 py-20 px-6">
                         <div className="w-20 h-20 rounded-[2.5rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
                            <MessageCircle size={40} />
                         </div>
@@ -355,34 +360,35 @@ export const ChatWidget = () => {
                    <div ref={messagesEndRef} />
                  </div>
 
-                 <div className="p-6 bg-white border-t border-slate-100 relative z-10">
-                   <div className="relative group">
-                     <textarea
-                       autoFocus
-                       rows={1}
-                       placeholder="Nhập thông tin cần hỗ trợ..."
-                       value={inputText}
-                       onChange={(e) => setInputText(e.target.value)}
-                       onKeyDown={(e) => {
-                         if (e.key === "Enter" && !e.shiftKey) {
-                           e.preventDefault();
-                           handleSend();
-                         }
-                       }}
-                       className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] pl-6 pr-16 py-5 text-sm text-slate-900 placeholder:text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white focus:border-accent transition-all custom-scrollbar min-h-[64px] max-h-[120px]"
-                     />
-                     <motion.button
-                       whileHover={{ scale: 1.1, x: -2 }}
-                       whileTap={{ scale: 0.9 }}
-                       onClick={handleSend}
-                       disabled={!inputText.trim()}
-                       className="absolute right-3 top-3 w-12 h-12 bg-slate-900 text-accent rounded-2xl flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all shadow-xl shadow-slate-900/10"
-                     >
-                       <Send size={18} strokeWidth={2.5} className="translate-x-[-1px] translate-y-[1px]" />
-                     </motion.button>
-                   </div>
-                   <p className="text-[9px] text-slate-300 text-center mt-4 font-bold uppercase tracking-[0.2em]">DLU Intelligent Core v2.5 • AI Shield Protected</p>
-                 </div>
+                 <div className="p-4 sm:p-6 bg-white border-t border-slate-100 relative z-10 shrink-0">
+                    <div className="relative group">
+                      <textarea
+                        autoFocus
+                        rows={1}
+                        placeholder="Câu hỏi của bạn..."
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                          }
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-[2rem] pl-4 sm:pl-6 pr-14 sm:pr-16 py-3 sm:py-5 text-sm text-slate-900 placeholder:text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white focus:border-accent transition-all custom-scrollbar min-h-[50px] sm:min-h-[64px] max-h-[120px]"
+                      />
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleSend}
+                        disabled={!inputText.trim()}
+                        className="absolute right-2 sm:right-3 top-2 sm:top-3 w-9 sm:w-12 h-9 sm:h-12 bg-slate-900 text-accent rounded-xl sm:rounded-2xl flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all shadow-xl shadow-slate-900/10"
+                      >
+                        <Send size={16} className="sm:hidden" />
+                        <Send size={18} strokeWidth={2.5} className="hidden sm:block translate-x-[-1px] translate-y-[1px]" />
+                      </motion.button>
+                    </div>
+                    <p className="text-[8px] sm:text-[9px] text-slate-300 text-center mt-3 sm:mt-4 font-bold uppercase tracking-[0.2em] opacity-60">DLU Support Assistant • Security Verified</p>
+                  </div>
                </>
             )}
           </motion.div>
