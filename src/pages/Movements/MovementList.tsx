@@ -679,7 +679,7 @@ export const MovementList: React.FC = () => {
                                     <div className="flex flex-col gap-0.5">
                                       <div className="flex items-center gap-2">
                                         <span className="text-xs font-bold text-white/90 group-hover:text-white transition-colors">{unit?.name}</span>
-                                        {r.submissionCount && r.submissionCount > 1 && (
+                                        {r.submissionCount && (
                                           <span className="px-1.5 py-0.5 bg-accent/20 text-accent text-[8px] font-black rounded-md">
                                             {r.submissionCount} lần báo
                                           </span>
@@ -758,7 +758,7 @@ export const MovementList: React.FC = () => {
                         return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
                       })()}
                     </p>
-                    {viewingReport.submissionCount && viewingReport.submissionCount > 1 && (
+                    {viewingReport.submissionCount && (
                       <span className="px-2 py-1 bg-accent/20 text-accent text-[8px] font-black rounded-lg uppercase tracking-tighter">
                          Số lần báo cáo: {viewingReport.submissionCount}
                       </span>
