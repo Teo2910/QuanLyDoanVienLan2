@@ -385,18 +385,18 @@ export const Statistics: React.FC = () => {
                     <span className="uppercase tracking-[0.3em] text-[10px] block text-accent mb-2 font-black">Tổng kết toàn hệ thống</span>
                     <span className="text-xl tracking-tight font-black">DỮ LIỆU THỰC TẾ</span>
                   </td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-3xl font-black">{totalStats.total}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-blue-300">{totalStats.males}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-rose-300">{totalStats.females}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl">{totalStats.kinh}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-teal-400">{totalStats.others}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl">{totalStats.active}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-slate-400">{totalStats.moved}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-slate-400">{totalStats.left}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-emerald-400">{totalStats.excellent}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-blue-400">{totalStats.good}</td>
-                  <td className="py-10 px-4 text-center border-r border-white/5 text-xl text-slate-400">{totalStats.average}</td>
-                  <td className="py-10 px-8 text-center text-5xl text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]">{totalStats.outstanding}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.total}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.males}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.females}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.kinh}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.others}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.active}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.moved}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.left}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.excellent}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.good}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.average}</td>
+                  <td className="py-10 px-8 text-center text-4xl font-black text-white bg-accent/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">{totalStats.outstanding}</td>
                 </tr>
               </tfoot>
             </table>
