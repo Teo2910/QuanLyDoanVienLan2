@@ -231,10 +231,10 @@ export const MovementList: React.FC = () => {
     <div className="space-y-10">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-5xl font-bold text-white tracking-tighter">
+          <h2 className="text-5xl font-bold text-slate-900 tracking-tighter">
             {profile?.role === "admin" ? "Phòng trào & Báo cáo" : "Báo cáo phong trào"}
           </h2>
-          <p className="text-white/40 mt-3 text-xs uppercase tracking-widest font-bold">
+          <p className="text-slate-400 mt-3 text-xs uppercase tracking-widest font-bold">
             {isAdmin ? "Quản lý và thống kê phong trào đơn vị" : "Hệ thống báo cáo phong trào cơ sở"}
           </p>
         </div>
@@ -244,7 +244,7 @@ export const MovementList: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsAIModalOpen(true)}
-              className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl hover:bg-white/10 transition-all"
+              className="flex items-center gap-3 px-6 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-sm hover:bg-slate-50 transition-all"
             >
               <Sparkles size={16} className="text-accent" />
               Tạo bằng AI
@@ -253,7 +253,7 @@ export const MovementList: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-3 px-6 py-4 bg-accent text-accent-foreground rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-accent/20"
+              className="flex items-center gap-3 px-6 py-4 bg-accent text-white rounded-2xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-accent/20"
             >
               <Plus size={16} />
               Phổ biến phong trào
@@ -263,32 +263,32 @@ export const MovementList: React.FC = () => {
       </div>
 
       {isAdmin && (
-        <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
-          <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+        <section className="bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+          <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center text-accent">
+                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
                    <BarChart3 size={20} />
                 </div>
-                <h3 className="text-xl font-bold text-white tracking-tight">Thống kê báo cáo phong trào</h3>
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight">Thống kê báo cáo phong trào</h3>
              </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-white/[0.02]">
-                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5">Phong trào</th>
-                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center">Đơn vị tham gia</th>
-                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center">Đã báo cáo</th>
-                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-center text-orange-400/60">Chưa báo cáo</th>
-                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-white/30 border-b border-white/5 text-right">Tỉ lệ (%)</th>
+                <tr className="bg-slate-50/30">
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-slate-100">Phong trào</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-slate-100 text-center">Đơn vị tham gia</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-slate-100 text-center">Đơn vị đã báo</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-slate-100 text-center">Tổng lượt nộp</th>
+                  <th className="px-8 py-5 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-slate-100 text-right">Tỉ lệ (%)</th>
                 </tr>
               </thead>
               <tbody>
                 {movements.map((movement) => {
                   const movementReports = reports.filter(r => r.movementId === movement.id);
                   const reportedCount = movementReports.length;
+                  const totalSubmissions = movementReports.reduce((sum, r) => sum + (r.submissionCount || 1), 0);
                   const totalUnits = movement.participatingUnitIds.length;
-                  const pendingCount = totalUnits - reportedCount;
                   const rate = totalUnits > 0 ? (reportedCount / totalUnits * 100).toFixed(1) : "0.0";
 
                   return (
@@ -298,27 +298,27 @@ export const MovementList: React.FC = () => {
                         setSelectedMovement(movement);
                         setIsDetailModalOpen(true);
                       }}
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      whileHover={{ backgroundColor: "rgba(0,0,0,0.01)" }}
                       className="cursor-pointer transition-colors group"
                     >
-                      <td className="px-8 py-6 border-b border-white/5">
-                        <span className="text-sm font-bold text-white group-hover:text-accent transition-colors">{movement.title}</span>
+                      <td className="px-8 py-6 border-b border-slate-50">
+                        <span className="text-sm font-bold text-slate-700 group-hover:text-accent transition-colors">{movement.title}</span>
                       </td>
-                      <td className="px-8 py-6 border-b border-white/5 text-center">
-                        <span className="text-sm font-bold text-white/60">{totalUnits}</span>
+                      <td className="px-8 py-6 border-b border-slate-50 text-center">
+                        <span className="text-sm font-bold text-slate-500">{totalUnits}</span>
                       </td>
-                      <td className="px-8 py-6 border-b border-white/5 text-center">
-                        <span className="text-sm font-bold text-green-400">{reportedCount}</span>
+                      <td className="px-8 py-6 border-b border-slate-50 text-center">
+                        <span className="text-sm font-black text-emerald-600">{reportedCount}</span>
                       </td>
-                      <td className="px-8 py-6 border-b border-white/5 text-center">
-                        <span className="text-sm font-bold text-orange-400">{pendingCount}</span>
+                      <td className="px-8 py-6 border-b border-slate-50 text-center">
+                        <span className="text-sm font-black text-accent">{totalSubmissions}</span>
                       </td>
-                      <td className="px-8 py-6 border-b border-white/5 text-right">
+                      <td className="px-8 py-6 border-b border-slate-50 text-right">
                          <div className="flex items-center justify-end gap-3">
-                            <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                <div className="h-full bg-accent transition-all duration-1000" style={{ width: `${rate}%` }} />
                             </div>
-                            <span className="text-xs font-black text-white/40 w-10">{rate}%</span>
+                            <span className="text-xs font-black text-slate-400 w-10">{rate}%</span>
                          </div>
                       </td>
                     </motion.tr>
@@ -346,15 +346,15 @@ export const MovementList: React.FC = () => {
                 setSelectedMovement(movement);
                 setIsDetailModalOpen(true);
               }}
-              className="bg-surface/50 border border-white/5 rounded-[2.5rem] p-8 hover:bg-surface/80 hover:border-white/10 transition-all group cursor-pointer relative overflow-hidden"
+              className="bg-white border border-slate-100 rounded-[2.5rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer relative overflow-hidden"
             >
               <div className="flex justify-between items-start mb-6">
-                <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all duration-500">
+                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-accent group-hover:text-white transition-all duration-500">
                   <Award size={28} />
                 </div>
                 <div className={cn(
                   "px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border",
-                  hasReported ? "bg-green-500/10 border-green-500/20 text-green-400" : "bg-orange-500/10 border-orange-500/20 text-orange-400"
+                  hasReported ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-orange-50 border-orange-100 text-orange-600"
                 )}>
                   {isAdmin ? `${unitReports.length}/${movement.participatingUnitIds.length} Báo cáo` : hasReported ? "Đã báo cáo" : "Chưa báo cáo"}
                 </div>
@@ -365,7 +365,7 @@ export const MovementList: React.FC = () => {
                       setEditingMovement(movement);
                       setIsEditModalOpen(true);
                     }}
-                    className="p-2 bg-white/5 hover:bg-accent hover:text-white rounded-lg text-white/40 transition-all ml-2"
+                    className="p-2 bg-slate-50 hover:bg-accent hover:text-white rounded-lg text-slate-300 transition-all ml-2"
                     title="Chỉnh sửa phong trào"
                   >
                     <Clock size={14} />
@@ -373,24 +373,32 @@ export const MovementList: React.FC = () => {
                 )}
               </div>
 
-              <h3 className="text-2xl font-bold text-white tracking-tight mb-4 group-hover:text-accent transition-colors">
+              {!isAdmin && hasReported && (
+                <div className="flex justify-end mb-4">
+                  <span className="px-2 py-1 bg-accent/10 text-accent text-[9px] font-black rounded-lg border border-accent/10 animate-in fade-in zoom-in duration-500">
+                    SỐ LẦN NỘP: {reports.find(r => r.movementId === movement.id && r.unitId === profile?.unitId)?.submissionCount || 1}
+                  </span>
+                </div>
+              )}
+
+              <h3 className="text-2xl font-bold text-slate-900 tracking-tight mb-4 group-hover:text-accent transition-colors">
                 {movement.title}
               </h3>
 
               {movement.description && (
-                <p className="text-sm text-white/50 line-clamp-2 mb-6 leading-relaxed">
+                <p className="text-sm text-slate-500 line-clamp-2 mb-6 leading-relaxed">
                   {movement.description}
                 </p>
               )}
               
               <div className="space-y-3 mb-8">
-                <div className="flex items-center gap-3 text-white/40">
-                  <Calendar size={14} className="text-accent/60" />
-                  <span className="text-xs">{movement.startDate} — {movement.endDate}</span>
+                <div className="flex items-center gap-3 text-slate-400">
+                  <Calendar size={14} className="text-accent" />
+                  <span className="text-xs font-semibold">{movement.startDate} — {movement.endDate}</span>
                 </div>
-                <div className="flex items-center gap-3 text-white/40">
-                  <Clock size={14} className="text-accent/60" />
-                  <span className="text-xs">Tạo lúc: {(() => {
+                <div className="flex items-center gap-3 text-slate-400">
+                  <Clock size={14} className="text-accent" />
+                  <span className="text-xs font-semibold">Tạo lúc: {(() => {
                     const val = movement.createdAt;
                     const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
                     return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString("vi-VN");
@@ -399,12 +407,12 @@ export const MovementList: React.FC = () => {
               </div>
 
               {isAdmin && (
-                <div className="pt-6 border-t border-white/5">
+                <div className="pt-6 border-t border-slate-50">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Tiến độ báo cáo</span>
-                    <span className="text-xs font-bold text-white">{Math.round(reportRate)}%</span>
+                    <span className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Tiến độ báo cáo</span>
+                    <span className="text-xs font-bold text-slate-900">{Math.round(reportRate)}%</span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${reportRate}%` }}
@@ -425,7 +433,7 @@ export const MovementList: React.FC = () => {
                         setNewReport({ description: "", attachments: [] });
                         setIsReportModalOpen(true);
                       }}
-                      className="flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                      className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md"
                      >
                       Báo cáo ngay
                       <ChevronRight size={12} />
@@ -446,9 +454,9 @@ export const MovementList: React.FC = () => {
                             setIsReportModalOpen(true);
                           }
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-sm"
                       >
-                        Chỉnh sửa báo cáo
+                        Chỉnh sửa
                         <Plus size={12} />
                       </button>
                       <button 
@@ -460,7 +468,7 @@ export const MovementList: React.FC = () => {
                             setIsViewingReportModalOpen(true);
                           }
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-500/10 text-green-400 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-white transition-all shadow-lg"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
                       >
                         Xem đã nộp
                         <ChevronRight size={12} />
@@ -477,23 +485,23 @@ export const MovementList: React.FC = () => {
       {/* Detail Modal */}
       <AnimatePresence>
         {isDetailModalOpen && selectedMovement && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-background/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
             >
-              <div className="p-10 border-b border-white/5 flex justify-between items-start bg-white/[0.02]">
+              <div className="p-10 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
                 <div>
-                  <h3 className="text-4xl font-bold text-white tracking-tighter mb-2">{selectedMovement.title}</h3>
-                  <div className="flex items-center gap-6 text-white/40">
-                    <span className="flex items-center gap-2 text-xs">
+                  <h3 className="text-4xl font-bold text-slate-900 tracking-tighter mb-2">{selectedMovement.title}</h3>
+                  <div className="flex items-center gap-6 text-slate-400">
+                    <span className="flex items-center gap-2 text-xs font-semibold">
                       <Calendar size={14} className="text-accent" />
                       {selectedMovement.startDate} — {selectedMovement.endDate}
                     </span>
                     {isAdmin && (
-                      <span className="flex items-center gap-2 text-xs">
+                      <span className="flex items-center gap-2 text-xs font-semibold">
                         <BarChart3 size={14} className="text-accent" />
                         {reports.filter(r => r.movementId === selectedMovement.id).length} báo cáo / {selectedMovement.participatingUnitIds.length} đơn vị
                       </span>
@@ -505,14 +513,14 @@ export const MovementList: React.FC = () => {
                           setEditingMovement(selectedMovement);
                           setIsEditModalOpen(true);
                         }}
-                        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-accent hover:text-white transition-colors"
+                        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-accent hover:text-blue-700 transition-colors"
                       >
                         <Clock size={14} /> Chỉnh sửa
                       </button>
                     )}
                   </div>
                 </div>
-                <button onClick={() => setIsDetailModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
+                <button onClick={() => setIsDetailModalOpen(false)} className="p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
                   <Plus size={24} className="rotate-45" />
                 </button>
               </div>
@@ -520,18 +528,18 @@ export const MovementList: React.FC = () => {
               <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
                 <div className={cn("grid grid-cols-1 gap-12", isAdmin ? "lg:grid-cols-10" : "max-w-2xl mx-auto")}>
                   <div className={cn("space-y-10", isAdmin ? "lg:col-span-6" : "w-full")}>
-                    <section className="bg-white/[0.03] rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden group">
+                    <section className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 group-hover:bg-accent/10 transition-all duration-700" />
                       <h4 className="text-[10px] uppercase tracking-[0.25em] text-accent font-black mb-6 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
                         Nội dung chi tiết
                       </h4>
-                      <p className="text-white/80 leading-relaxed whitespace-pre-wrap text-sm lg:text-base font-medium">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
+                      <p className="text-slate-600 leading-relaxed whitespace-pre-wrap text-sm lg:text-base font-medium">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
                     </section>
 
                     {selectedMovement.attachments.length > 0 && (
                       <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold mb-4 ml-2">Tài liệu đính kèm</h4>
+                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-4 ml-2">Tài liệu đính kèm</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {selectedMovement.attachments.map((file, idx) => (
                             <a 
@@ -539,16 +547,16 @@ export const MovementList: React.FC = () => {
                               href={file.url} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all group"
+                              className="flex items-center gap-4 p-4 bg-white border border-slate-100 rounded-2xl hover:border-accent hover:shadow-md transition-all group"
                             >
-                              <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center text-accent">
+                              <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all">
                                 <FileText size={20} />
                               </div>
                               <div className="flex-1 overflow-hidden">
-                                <p className="text-xs font-bold text-white truncate">{file.name}</p>
-                                <p className="text-[9px] text-white/20 uppercase font-medium">{file.type}</p>
+                                <p className="text-xs font-bold text-slate-700 truncate">{file.name}</p>
+                                <p className="text-[9px] text-slate-400 uppercase font-bold">{file.type}</p>
                               </div>
-                              <ExternalLink size={14} className="text-white/20 group-hover:text-accent" />
+                              <ExternalLink size={14} className="text-slate-300 group-hover:text-accent" />
                             </a>
                           ))}
                         </div>
@@ -556,20 +564,20 @@ export const MovementList: React.FC = () => {
                     )}
 
                     {!isAdmin && (
-                      <section className="pt-6 border-t border-white/5">
+                      <section className="pt-6 border-t border-slate-100">
                         <div className="flex items-center justify-between mb-6">
                            <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-black">Báo cáo của bạn</h4>
                            {reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).length > 0 && (
-                             <div className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-500/20">
+                             <div className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">
                                HOÀN THÀNH
                              </div>
                            )}
                         </div>
                         {reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).length > 0 ? (
                            reports.filter(r => r.movementId === selectedMovement.id && r.unitId === profile?.unitId).map((rep) => (
-                             <div key={rep.id} className="relative p-8 bg-green-500/[0.03] border border-green-500/10 rounded-[2.5rem] overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-[40px] -mr-12 -mt-12" />
-                                <div className="flex items-center gap-3 mb-4 text-green-400 text-xs font-bold uppercase tracking-widest">
+                             <div key={rep.id} className="relative p-8 bg-emerald-50/30 border border-emerald-100 rounded-[2.5rem] overflow-hidden group shadow-sm">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-[40px] -mr-12 -mt-12" />
+                                <div className="flex items-center gap-3 mb-4 text-emerald-600 text-xs font-bold uppercase tracking-widest">
                                   <CheckCircle2 size={16} />
                                   <span>
                                     Đã nộp báo cáo vào {(() => {
@@ -577,12 +585,17 @@ export const MovementList: React.FC = () => {
                                       const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
                                       return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
                                     })()}
+                                    {rep.submissionCount && (
+                                      <span className="ml-2 px-2 py-0.5 bg-accent/10 text-accent rounded-lg border border-accent/20 font-black">
+                                        (Đã nộp {rep.submissionCount} lần)
+                                      </span>
+                                    )}
                                   </span>
                                 </div>
-                                <p className="text-sm text-white/60 mb-8 leading-relaxed">{rep.description}</p>
+                                <p className="text-sm text-slate-600 mb-8 leading-relaxed font-medium">{rep.description}</p>
                                 <div className="flex flex-wrap gap-2 mb-8">
                                    {rep.attachments.map((att, i) => (
-                                     <div key={i} className="px-3 py-2 bg-white/5 rounded-xl text-[9px] text-white/30 border border-white/5 flex items-center gap-2 hover:bg-white/10 transition-colors">
+                                     <div key={i} className="px-3 py-2 bg-white rounded-xl text-[9px] text-slate-500 border border-slate-100 flex items-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
                                        <FileText size={12} /> {att.name}
                                      </div>
                                    ))}
@@ -592,7 +605,7 @@ export const MovementList: React.FC = () => {
                                     setViewingReport(rep);
                                     setIsViewingReportModalOpen(true);
                                   }}
-                                  className="flex items-center gap-2 px-6 py-2.5 bg-accent/20 text-accent rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-lg"
+                                  className="flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-accent/20"
                                 >
                                   Đọc lại báo cáo
                                   <ChevronRight size={14} />
@@ -600,20 +613,20 @@ export const MovementList: React.FC = () => {
                              </div>
                            ))
                         ) : (
-                          <div className="bg-white/[0.02] border border-dashed border-white/10 p-12 rounded-[2.5rem] text-center flex flex-col items-center gap-6 group hover:border-accent/40 transition-all">
+                          <div className="bg-slate-50 border-2 border-dashed border-slate-200 p-12 rounded-[2.5rem] text-center flex flex-col items-center gap-6 group hover:border-accent hover:bg-white transition-all">
                             <div className="w-16 h-16 rounded-3xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-all">
                                <Calendar size={32} />
                             </div>
                             <div>
-                               <p className="text-white/80 font-bold mb-1">Bạn chưa nộp báo cáo</p>
-                               <p className="text-white/20 text-xs max-w-xs mx-auto">Hãy hoàn thành báo cáo sớm nhất để hoàn tất quy trình phối hợp.</p>
+                               <p className="text-slate-700 font-bold mb-1">Bạn chưa nộp báo cáo</p>
+                               <p className="text-slate-400 text-xs max-w-xs mx-auto">Hãy hoàn thành báo cáo sớm nhất để hoàn tất quy trình phối hợp.</p>
                             </div>
                             <button 
                               onClick={() => {
                                 setIsDetailModalOpen(false);
                                 setIsReportModalOpen(true);
                               }}
-                              className="px-8 py-3 bg-accent text-accent-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
+                              className="px-8 py-3 bg-accent text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-105 active:scale-95 transition-all"
                             >
                               Nộp báo cáo ngay
                             </button>
@@ -624,21 +637,21 @@ export const MovementList: React.FC = () => {
                   </div>
 
                   {isAdmin && (
-                    <div className="space-y-10 lg:col-span-4 border-l border-white/5 lg:pl-10">
-                      <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+                    <div className="space-y-10 lg:col-span-4 border-l border-slate-100 lg:pl-10">
+                      <section className="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
                         <h4 className="text-[10px] uppercase tracking-[0.25em] text-accent font-black mb-8 flex items-center justify-between">
                           <span>Thống kê báo cáo</span>
                           <BarChart3 size={14} className="opacity-30" />
                         </h4>
                         <div className="space-y-8">
-                          <div className="flex justify-between items-center text-green-400">
+                          <div className="flex justify-between items-center text-emerald-600">
                              <div className="flex items-center gap-3">
                                <CheckCircle2 size={16} />
                                <span className="text-[10px] uppercase font-black tracking-widest">Đã báo cáo</span>
                              </div>
                              <span className="text-xl font-black">{reports.filter(r => r.movementId === selectedMovement.id).length}</span>
                           </div>
-                          <div className="flex justify-between items-center text-orange-400">
+                          <div className="flex justify-between items-center text-orange-600">
                              <div className="flex items-center gap-3">
                                <Clock size={16} />
                                <span className="text-[10px] uppercase font-black tracking-widest">Chưa báo cáo</span>
@@ -647,7 +660,7 @@ export const MovementList: React.FC = () => {
                                {selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length}
                              </span>
                           </div>
-                          <div className="flex justify-between items-center pt-6 border-t border-white/5 text-white/40">
+                          <div className="flex justify-between items-center pt-6 border-t border-slate-200 text-slate-400">
                              <span className="text-[10px] uppercase font-black tracking-widest">Tổng đơn vị</span>
                              <span className="text-lg font-black">{selectedMovement.participatingUnitIds.length}</span>
                           </div>
@@ -655,13 +668,13 @@ export const MovementList: React.FC = () => {
                       </section>
 
                       <section>
-                        <h4 className="text-[10px] uppercase tracking-[0.25em] text-white/30 font-black mb-6 ml-2">Chi tiết các đơn vị</h4>
+                        <h4 className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-black mb-6 ml-2">Chi tiết các đơn vị</h4>
                         <div className="space-y-10">
                           {/* Đã báo cáo */}
                           <div>
                             <div className="flex items-center gap-2 mb-4 px-2">
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                              <span className="text-[9px] uppercase tracking-widest text-white/40 font-black">HOÀN THÀNH ({reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                              <span className="text-[9px] uppercase tracking-widest text-slate-400 font-black">HOÀN THÀNH ({reports.filter(r => r.movementId === selectedMovement.id).length})</span>
                             </div>
                             <div className="space-y-2">
                               {reports.filter(r => r.movementId === selectedMovement.id).map(r => {
@@ -674,27 +687,25 @@ export const MovementList: React.FC = () => {
                                       setViewingReport(r);
                                       setIsViewingReportModalOpen(true);
                                     }}
-                                    className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-accent/40 transition-all flex items-center justify-between cursor-pointer group"
+                                    className="p-4 bg-white border border-slate-100 rounded-2xl hover:border-accent hover:shadow-sm transition-all flex items-center justify-between cursor-pointer group"
                                   >
                                     <div className="flex flex-col gap-0.5">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-xs font-bold text-white/90 group-hover:text-white transition-colors">{unit?.name}</span>
-                                        {r.submissionCount && (
-                                          <span className="px-1.5 py-0.5 bg-accent/20 text-accent text-[8px] font-black rounded-md">
-                                            {r.submissionCount} lần báo
-                                          </span>
-                                        )}
+                                        <span className="text-xs font-bold text-slate-700 group-hover:text-accent transition-colors">{unit?.name}</span>
+                                        <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black rounded-lg border border-accent/10 whitespace-nowrap">
+                                          {(r.submissionCount || 1)} lần nộp
+                                        </span>
                                       </div>
-                                      <span className="text-[8px] text-white/20 uppercase font-bold tracking-tighter">
+                                      <span className="text-[8px] text-slate-300 uppercase font-black tracking-tighter">
                                         Nộp ngày {new Date(isNaN(Number(r.submittedAt)) ? r.submittedAt : Number(r.submittedAt)).toLocaleDateString("vi-VN")}
                                       </span>
                                     </div>
-                                    <ChevronRight size={14} className="text-white/20 group-hover:text-accent transition-all" />
+                                    <ChevronRight size={14} className="text-slate-300 group-hover:text-accent transition-all" />
                                   </motion.div>
                                 );
                               })}
                               {reports.filter(r => r.movementId === selectedMovement.id).length === 0 && (
-                                <p className="text-[10px] text-white/10 px-4 py-4 italic text-center border border-dashed border-white/5 rounded-2xl">Chưa có dữ liệu</p>
+                                <p className="text-[10px] text-slate-300 px-4 py-6 italic text-center border-2 border-dashed border-slate-50 rounded-2xl">Chưa có dữ liệu</p>
                               )}
                             </div>
                           </div>
@@ -703,7 +714,7 @@ export const MovementList: React.FC = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-4 px-2">
                               <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-                              <span className="text-[9px] uppercase tracking-widest text-white/40 font-black">CHỜ BÁO CÁO ({selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length})</span>
+                              <span className="text-[9px] uppercase tracking-widest text-slate-400 font-black">CHỜ BÁO CÁO ({selectedMovement.participatingUnitIds.length - reports.filter(r => r.movementId === selectedMovement.id).length})</span>
                             </div>
                             <div className="space-y-2">
                               {selectedMovement.participatingUnitIds
@@ -711,14 +722,14 @@ export const MovementList: React.FC = () => {
                                 .map(uid => {
                                   const unit = units.find(u => u.id === uid);
                                   return (
-                                    <div key={uid} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-between group grayscale hover:grayscale-0 transition-all">
-                                      <span className="text-xs font-bold text-white/30 group-hover:text-white/60 transition-colors">{unit?.name}</span>
+                                    <div key={uid} className="p-4 bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center justify-between group transition-all">
+                                      <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors">{unit?.name}</span>
                                       <div className="w-1.5 h-1.5 rounded-full bg-orange-500/20 animate-pulse" />
                                     </div>
                                   );
                                 })}
                               {selectedMovement.participatingUnitIds.filter(uid => !reports.some(r => r.movementId === selectedMovement.id && r.unitId === uid)).length === 0 && (
-                                <p className="text-[10px] text-green-500/30 px-4 py-4 italic text-center border border-dashed border-green-500/10 rounded-2xl font-black">100% HOÀN THÀNH</p>
+                                <p className="text-[10px] text-emerald-500/50 px-4 py-8 italic text-center border-2 border-dashed border-emerald-50 rounded-2xl font-black">100% HOÀN THÀNH</p>
                               )}
                             </div>
                           </div>
@@ -736,21 +747,21 @@ export const MovementList: React.FC = () => {
       {/* Report Detail Modal for Admin */}
       <AnimatePresence>
         {isViewingReportModalOpen && viewingReport && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-background/95 backdrop-blur-3xl">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
             >
-              <div className="p-10 border-b border-white/5 bg-white/[0.02] flex justify-between items-center">
+              <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                 <div>
-                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-2">Báo cáo chi tiết</h4>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-black mb-2">Báo cáo chi tiết</h4>
+                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
                     {units.find(u => u.id === viewingReport.unitId)?.name || "Đơn vị ẩn"}
                   </h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <p className="text-[10px] text-white/40 uppercase font-medium">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold">
                       Nộp ngày: {(() => {
                         if (!viewingReport.submittedAt) return "N/A";
                         const val = viewingReport.submittedAt;
@@ -759,40 +770,40 @@ export const MovementList: React.FC = () => {
                       })()}
                     </p>
                     {viewingReport.submissionCount && (
-                      <span className="px-2 py-1 bg-accent/20 text-accent text-[8px] font-black rounded-lg uppercase tracking-tighter">
+                      <span className="px-2 py-1 bg-accent/10 text-accent text-[8px] font-black rounded-lg uppercase tracking-tighter">
                          Số lần báo cáo: {viewingReport.submissionCount}
                       </span>
                     )}
                   </div>
                 </div>
-                <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
+                <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
                   <Plus size={24} className="rotate-45" />
                 </button>
               </div>
               <div className="p-10 overflow-y-auto custom-scrollbar flex-1">
                 <div className="mb-10">
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Nội dung báo cáo</label>
-                  <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                    <p className="text-white/70 leading-relaxed whitespace-pre-wrap text-sm">{viewingReport.description}</p>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-4 block">Nội dung báo cáo</label>
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-slate-600 leading-relaxed whitespace-pre-wrap text-sm font-medium">{viewingReport.description}</p>
                   </div>
                 </div>
 
                 {viewingReport.attachments.length > 0 && (
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Minh chứng đính kèm</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-4 block">Minh chứng đính kèm</label>
                     <div className="space-y-6">
                       {/* Image Preview Gallery */}
                       {viewingReport.attachments.some(a => a.type === "Image") && (
                         <div className="grid grid-cols-1 gap-4">
                           {viewingReport.attachments.filter(a => a.type === "Image").map((file, idx) => (
-                            <div key={`img-${idx}`} className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+                            <div key={`img-${idx}`} className="group relative bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
                               <img 
                                 src={file.url} 
                                 alt={file.name} 
                                 className="w-full h-full object-contain"
                                 referrerPolicy="no-referrer"
                               />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                              <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                                 <button 
                                   onClick={() => window.open(file.url, '_blank')}
                                   className="p-3 bg-white/10 text-white rounded-xl backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2"
@@ -803,13 +814,13 @@ export const MovementList: React.FC = () => {
                                 <a 
                                   href={file.url} 
                                   download={file.name}
-                                  className="p-3 bg-accent text-accent-foreground rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
+                                  className="p-3 bg-accent text-white rounded-xl shadow-lg hover:scale-105 transition-transform flex items-center gap-2"
                                 >
                                   <Upload size={16} className="rotate-180" />
                                   <span className="text-[10px] font-bold uppercase tracking-widest">Tải về</span>
                                 </a>
                               </div>
-                              <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
+                              <div className="absolute top-4 left-4 px-3 py-1 bg-slate-900/60 backdrop-blur-md rounded-lg border border-white/10">
                                 <p className="text-[10px] font-bold text-white uppercase tracking-wider truncate max-w-[200px]">{file.name}</p>
                               </div>
                             </div>
@@ -825,16 +836,16 @@ export const MovementList: React.FC = () => {
                             href={file.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/40 transition-all group"
+                            className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-2xl hover:border-accent hover:shadow-md transition-all group"
                           >
-                            <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
+                            <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-white transition-all">
                               {file.type === "Image" ? <ImageIcon size={20} /> : <FileText size={20} />}
                             </div>
                             <div className="flex-1 overflow-hidden">
-                              <p className="text-[11px] font-bold text-white truncate">{file.name}</p>
-                              <p className="text-[9px] text-white/20 uppercase font-medium">{file.type}</p>
+                              <p className="text-[11px] font-bold text-slate-700 truncate">{file.name}</p>
+                              <p className="text-[9px] text-slate-400 uppercase font-bold">{file.type}</p>
                             </div>
-                            <ExternalLink size={14} className="text-white/20 group-hover:text-accent" />
+                            <ExternalLink size={14} className="text-slate-300 group-hover:text-accent" />
                           </a>
                         ))}
                       </div>
@@ -842,10 +853,10 @@ export const MovementList: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="p-10 border-t border-white/5 flex justify-end">
+              <div className="p-10 border-t border-slate-100 flex justify-end">
                 <button 
                   onClick={() => setIsViewingReportModalOpen(false)}
-                  className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-all"
+                  className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-all"
                 >
                   Đóng
                 </button>
@@ -857,21 +868,21 @@ export const MovementList: React.FC = () => {
 
       {/* Create Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl">
-           <div className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                <h3 className="text-2xl font-bold text-white tracking-tight">Thiết lập phong trào mới</h3>
-                <button onClick={() => setIsCreateModalOpen(false)} className="text-white/20 hover:text-white transition-colors">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
+           <div className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Thiết lập phong trào mới</h3>
+                <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-900 transition-colors">
                   <Plus size={24} className="rotate-45" />
                 </button>
               </div>
               
               <form onSubmit={handleCreateMovement} className="p-10 space-y-6 overflow-y-auto custom-scrollbar">
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tiêu đề phong trào</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Tiêu đề phong trào</label>
                   <input 
                     required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                     value={newMovement.title}
                     onChange={(e) => setNewMovement({...newMovement, title: e.target.value})}
                     placeholder="VD: Phong trào Thanh niên tình nguyện mùa hè xanh 2024"
@@ -880,21 +891,21 @@ export const MovementList: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày bắt đầu</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Ngày bắt đầu</label>
                     <input 
                       type="date"
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                       value={newMovement.startDate}
                       onChange={(e) => setNewMovement({...newMovement, startDate: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày kết thúc</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Ngày kết thúc</label>
                     <input 
                       type="date"
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                       value={newMovement.endDate}
                       onChange={(e) => setNewMovement({...newMovement, endDate: e.target.value})}
                     />
@@ -902,10 +913,10 @@ export const MovementList: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả nội dung</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Mô tả nội dung</label>
                   <textarea 
                     rows={4}
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none"
                     value={newMovement.description}
                     onChange={(e) => setNewMovement({...newMovement, description: e.target.value})}
                     placeholder="Nêu rõ yêu cầu, nội dung và các mốc thời gian quan trọng..."
@@ -913,8 +924,8 @@ export const MovementList: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Đơn vị tham gia (Mặc định chọn tất cả)</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-white/5 rounded-2xl border border-white/10 custom-scrollbar">
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Đơn vị tham gia (Mặc định chọn tất cả)</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 rounded-2xl border border-slate-100 custom-scrollbar">
                      {units.map(u => (
                         <label key={u.id} className="flex items-center gap-3 cursor-pointer group">
                            <input 
@@ -928,18 +939,18 @@ export const MovementList: React.FC = () => {
                                  setNewMovement({...newMovement, participatingUnitIds: ids.filter(id => id !== u.id)});
                                }
                              }}
-                             className="w-4 h-4 rounded border-white/10 bg-transparent text-accent focus:ring-0"
+                             className="w-4 h-4 rounded border-slate-200 bg-white text-accent focus:ring-accent/20"
                            />
-                           <span className="text-xs text-white/60 group-hover:text-white transition-colors">{u.name}</span>
+                           <span className="text-xs text-slate-600 group-hover:text-slate-900 transition-colors font-medium">{u.name}</span>
                         </label>
                      ))}
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/5">
+                <div className="pt-6 border-t border-slate-100">
                   <button 
                     type="submit"
-                    className="w-full py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+                    className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl shadow-accent/20"
                   >
                     Công bố phong trào
                   </button>
@@ -951,21 +962,21 @@ export const MovementList: React.FC = () => {
 
       {/* Edit Modal */}
       {isEditModalOpen && editingMovement && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl">
-           <div className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-              <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                <h3 className="text-2xl font-bold text-white tracking-tight">Chỉnh sửa phong trào</h3>
-                <button onClick={() => setIsEditModalOpen(false)} className="text-white/20 hover:text-white transition-colors">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
+           <div className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Chỉnh sửa phong trào</h3>
+                <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-900 transition-colors">
                   <Plus size={24} className="rotate-45" />
                 </button>
               </div>
               
               <form onSubmit={handleUpdateMovement} className="p-10 space-y-6 overflow-y-auto custom-scrollbar">
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tiêu đề phong trào</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Tiêu đề phong trào</label>
                   <input 
                     required
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                     value={editingMovement.title}
                     onChange={(e) => setEditingMovement({...editingMovement, title: e.target.value})}
                     placeholder="VD: Phong trào Thanh niên tình nguyện mùa hè xanh 2024"
@@ -974,21 +985,21 @@ export const MovementList: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày bắt đầu</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Ngày bắt đầu</label>
                     <input 
                       type="date"
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                       value={editingMovement.startDate}
                       onChange={(e) => setEditingMovement({...editingMovement, startDate: e.target.value})}
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày kết thúc</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Ngày kết thúc</label>
                     <input 
                       type="date"
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all [color-scheme:dark]"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
                       value={editingMovement.endDate}
                       onChange={(e) => setEditingMovement({...editingMovement, endDate: e.target.value})}
                     />
@@ -996,10 +1007,10 @@ export const MovementList: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả nội dung</label>
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Mô tả nội dung</label>
                   <textarea 
                     rows={4}
-                    className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none"
                     value={editingMovement.description}
                     onChange={(e) => setEditingMovement({...editingMovement, description: e.target.value})}
                     placeholder="Nêu rõ yêu cầu, nội dung và các mốc thời gian quan trọng..."
@@ -1007,8 +1018,8 @@ export const MovementList: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Đơn vị tham gia</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-white/5 rounded-2xl border border-white/10 custom-scrollbar">
+                  <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Đơn vị tham gia</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-4 bg-slate-50 rounded-2xl border border-slate-100 custom-scrollbar">
                      {units.map(u => (
                         <label key={u.id} className="flex items-center gap-3 cursor-pointer group">
                            <input 
@@ -1022,18 +1033,18 @@ export const MovementList: React.FC = () => {
                                  setEditingMovement({...editingMovement, participatingUnitIds: ids.filter(id => id !== u.id)});
                                }
                              }}
-                             className="w-4 h-4 rounded border-white/10 bg-transparent text-accent focus:ring-0"
+                             className="w-4 h-4 rounded border-slate-200 bg-white text-accent focus:ring-accent/20"
                            />
-                           <span className="text-xs text-white/60 group-hover:text-white transition-colors">{u.name}</span>
+                           <span className="text-xs text-slate-600 group-hover:text-slate-900 transition-colors font-medium">{u.name}</span>
                         </label>
                      ))}
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/5">
+                <div className="pt-6 border-t border-slate-100">
                   <button 
                     type="submit"
-                    className="w-full py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+                    className="w-full py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl shadow-accent/20"
                   >
                     Lưu thay đổi
                   </button>
@@ -1045,22 +1056,22 @@ export const MovementList: React.FC = () => {
 
       {/* Report Modal */}
       {isReportModalOpen && selectedMovement && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl">
-           <div className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
-              <div className="p-10 border-b border-white/5 bg-white/[0.02]">
-                 <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold mb-2">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
+           <div className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
+              <div className="p-10 border-b border-slate-100 bg-slate-50/50">
+                 <h4 className="text-[10px] uppercase tracking-[0.2em] text-accent font-black mb-2">
                    {editingReport ? "Cập nhật báo cáo phong trào" : "Báo cáo phong trào"}
                  </h4>
-                 <h3 className="text-2xl font-bold text-white tracking-tight">{selectedMovement.title}</h3>
+                 <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{selectedMovement.title}</h3>
               </div>
               
               <form onSubmit={handleCreateReport} className="p-10 space-y-8">
                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mô tả kết quả thực hiện</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Mô tả kết quả thực hiện</label>
                     <textarea 
                       required
                       rows={6}
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none"
                       value={newReport.description}
                       onChange={(e) => setNewReport({...newReport, description: e.target.value})}
                       placeholder="Nêu tóm tắt các kết quả đạt được, số lượng đoàn viên tham gia..."
@@ -1068,7 +1079,7 @@ export const MovementList: React.FC = () => {
                  </div>
 
                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Hình ảnh & File minh chứng</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Hình ảnh & File minh chứng</label>
                     <div className="space-y-4">
                        <div className="flex flex-col sm:flex-row gap-4">
                           <input 
@@ -1081,20 +1092,20 @@ export const MovementList: React.FC = () => {
                           <button 
                             type="button"
                             onClick={() => fileReportInputRef.current?.click()}
-                            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all group"
+                            className="flex-1 flex items-center justify-center gap-3 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-600 hover:bg-slate-100 transition-all group"
                           >
                              <Upload size={18} className="text-accent group-hover:scale-110 transition-transform" />
-                             <span className="text-[10px] font-bold uppercase tracking-widest text-center">Tải lên từ thiết bị</span>
+                             <span className="text-[10px] font-bold uppercase tracking-widest text-center">Tải lên</span>
                           </button>
                           
                           <div className="flex-[2] flex gap-2">
                              <input 
-                               className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
+                               className="flex-1 px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-accent/20"
                                placeholder="Tên tệp (Link)"
                                id="att-name"
                              />
                              <input 
-                               className="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white text-xs focus:outline-none"
+                               className="flex-1 px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-accent/20"
                                placeholder="URL đính kèm"
                                id="att-url"
                              />
@@ -1113,7 +1124,7 @@ export const MovementList: React.FC = () => {
                                 urlEl.value = "";
                               }
                             }}
-                            className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all"
+                            className="px-6 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl transition-all"
                           >
                             <Plus size={16} />
                           </button>
@@ -1121,13 +1132,13 @@ export const MovementList: React.FC = () => {
                        
                        <div className="flex flex-wrap gap-2">
                           {newReport.attachments?.map((att, i) => (
-                            <div key={i} className="px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] text-white/60 flex items-center gap-2 group">
+                            <div key={i} className="px-3 py-2 bg-white border border-slate-100 rounded-xl text-[10px] text-slate-500 flex items-center gap-2 group shadow-sm">
                                {att.type === "Image" ? <ImageIcon size={12} className="text-accent" /> : <FileText size={12} className="text-accent" />}
-                               <span className="truncate max-w-[100px]">{att.name}</span>
+                               <span className="truncate max-w-[100px] font-medium">{att.name}</span>
                                <button 
                                  type="button" 
                                  onClick={() => setNewReport({...newReport, attachments: newReport.attachments?.filter((_, idx) => idx !== i)})}
-                                 className="text-white/20 hover:text-red-400 ml-auto"
+                                 className="text-slate-300 hover:text-red-500 ml-auto"
                                >
                                  <Plus size={12} className="rotate-45" />
                                </button>
@@ -1141,16 +1152,16 @@ export const MovementList: React.FC = () => {
                     <button 
                       type="button"
                       onClick={() => setIsReportModalOpen(false)}
-                      className="flex-1 py-5 bg-white/5 text-white/40 border border-white/10 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                      className="flex-1 py-5 bg-slate-50 text-slate-400 border border-slate-100 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:text-slate-600 transition-all"
                     >
                        Hủy bỏ
                     </button>
                     <button 
                       type="submit"
-                      className="flex-[2] py-5 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] hover:opacity-90 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
+                      className="flex-[2] py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
                     >
                        <Send size={16} />
-                       {editingReport ? "Cập nhật báo cáo" : "Gửi báo cáo hệ thống"}
+                       {editingReport ? "Cập nhật báo cáo" : "Gửi báo cáo"}
                     </button>
                  </div>
               </form>
@@ -1164,49 +1175,49 @@ export const MovementList: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-background/95 backdrop-blur-xl"
+            className="fixed inset-0 z-[70] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm"
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden"
+              className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden"
             >
-              <div className="p-10 border-b border-white/5 bg-white/[0.02]">
+              <div className="p-10 border-b border-slate-100 bg-slate-50/50">
                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-accent/20 rounded-2xl flex items-center justify-center text-accent">
+                    <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent">
                        <Sparkles size={24} />
                     </div>
                     <div>
-                       <h3 className="text-2xl font-bold text-white tracking-tight">Trợ lý AI</h3>
-                       <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Gợi ý phong trào thông minh</p>
+                       <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Trợ lý AI</h3>
+                       <p className="text-slate-400 text-[10px] uppercase tracking-widest font-bold">Gợi ý phong trào thông minh</p>
                     </div>
                  </div>
               </div>
               
               <div className="p-10 space-y-8">
                  <div>
-                    <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 block">Chủ đề hoặc ý tưởng phong trào</label>
+                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-4 block">Chủ đề hoặc ý tưởng phong trào</label>
                     <textarea 
                       rows={4}
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                       placeholder="Ví dụ: Bảo vệ môi trường, cuộc thi lập trình cho sinh viên, ngày hội tiếng Anh..."
-                      className="w-full px-8 py-6 bg-white/5 border border-white/10 rounded-[2rem] text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all resize-none text-lg"
+                      className="w-full px-8 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-slate-700 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none text-lg font-medium"
                     />
                  </div>
 
                  <div className="flex gap-4">
                     <button 
                       onClick={() => setIsAIModalOpen(false)}
-                      className="flex-1 py-6 bg-white/5 text-white/40 border border-white/10 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                      className="flex-1 py-6 bg-slate-50 text-slate-400 border border-slate-100 rounded-2xl font-bold uppercase tracking-widest text-[10px] hover:text-slate-600 transition-all"
                     >
                        Hủy bỏ
                     </button>
                     <button 
                       disabled={!aiPrompt.trim() || isAiGenerating}
                       onClick={handleGenerateWithAI}
-                      className="flex-[2] py-6 bg-accent text-accent-foreground rounded-2xl font-black uppercase tracking-widest text-[11px] hover:opacity-90 disabled:opacity-50 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
+                      className="flex-[2] py-6 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-blue-700 disabled:opacity-50 transition-all shadow-xl shadow-accent/20 flex items-center justify-center gap-3"
                     >
                        {isAiGenerating ? (
                          <>

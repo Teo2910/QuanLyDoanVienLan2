@@ -85,39 +85,39 @@ const Dashboard = () => {
   useLiveSync("activities:changed", loadData);
 
   const cards = [
-    { label: "Tổng số chi đoàn", value: stats.units, icon: Building2, color: "text-blue-400", bg: "bg-blue-500/10" },
-    { label: "Tổng số đoàn viên", value: stats.members, icon: Users, color: "text-green-400", bg: "bg-green-500/10" },
-    { label: "Hoạt động sắp tới", value: recentActivities.length, icon: Calendar, color: "text-orange-400", bg: "bg-orange-500/10" },
-    { label: "Đoàn viên tiêu biểu", value: (stats as any).outstanding || 0, icon: Star, color: "text-purple-400", bg: "bg-purple-500/10" },
+    { label: "Tổng số chi đoàn", value: stats.units, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Tổng số đoàn viên", value: stats.members, icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Hoạt động sắp tới", value: recentActivities.length, icon: Calendar, color: "text-orange-600", bg: "bg-orange-50" },
+    { label: "Đoàn viên tiêu biểu", value: (stats as any).outstanding || 0, icon: Star, color: "text-amber-600", bg: "bg-amber-50" },
   ];
 
   return (
     <div id="dashboard-page">
       <div className="mb-12">
-        <h2 className="text-5xl font-bold text-white tracking-tighter">
+        <h2 className="text-5xl font-bold text-slate-900 tracking-tighter">
           Xin chào, {profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}
         </h2>
-        <p className="text-white/40 mt-2 text-xs uppercase tracking-widest leading-relaxed">Hệ thống quản lý dữ liệu và hồ sơ đoàn viên trực thuộc</p>
+        <p className="text-slate-400 mt-2 text-xs uppercase tracking-widest font-bold leading-relaxed">Chào mừng bạn trở lại hệ thống quản lý Đoàn TNCS Hồ Chí Minh</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {cards.map((card) => (
-          <div key={card.label} className="bg-surface/50 border border-white/5 p-8 rounded-3xl flex flex-col justify-between transition-all hover:bg-surface/80 group shadow-lg backdrop-blur-sm">
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110", card.bg, card.color)}>
-              <card.icon size={24} />
+          <div key={card.label} className="bg-white border border-slate-100 p-8 rounded-3xl flex flex-col justify-between transition-all hover:shadow-xl hover:-translate-y-1 group shadow-sm">
+            <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:rotate-3", card.bg, card.color)}>
+              <card.icon size={28} />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">{card.label}</p>
-              <h3 className="text-4xl font-bold text-white tracking-tighter">{card.value}</h3>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">{card.label}</p>
+              <h3 className="text-4xl font-bold text-slate-900 tracking-tighter">{card.value}</h3>
             </div>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <div className="bg-white border border-slate-100 p-10 rounded-[2.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold flex items-center gap-3">
                 <Calendar className="text-accent" size={16} />
                 Hoạt động sắp tới
               </h3>
@@ -125,39 +125,39 @@ const Dashboard = () => {
                 {(profile?.role === 'admin' || profile?.role === 'secretary') && (
                   <Link 
                     to="/activities" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-sm"
                   >
                     <Plus size={12} />
-                    Thêm mới
+                    Phát động
                   </Link>
                 )}
-                <Link to="/activities" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+                <Link to="/activities" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Tất cả</Link>
               </div>
             </div>
            <div className="space-y-4">
              {recentActivities.length > 0 ? (
                recentActivities.map((evt) => (
-                 <div key={evt.id} className="flex justify-between items-center p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-white/20 transition-all cursor-pointer group">
+                 <div key={evt.id} className="flex justify-between items-center p-6 bg-slate-50 border border-slate-100 rounded-2xl hover:border-accent hover:bg-white transition-all cursor-pointer group shadow-sm">
                     <div>
-                      <p className="font-bold text-white text-lg group-hover:text-accent transition-colors">{evt.title}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">{evt.type}</p>
+                      <p className="font-bold text-slate-900 text-lg group-hover:text-accent transition-colors">{evt.title}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-1 font-semibold">{evt.type}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-white/60 tabular-nums">{new Date(evt.date).toLocaleDateString("vi-VN")}</p>
+                      <p className="text-xs font-bold text-slate-500 tabular-nums">{new Date(evt.date).toLocaleDateString("vi-VN")}</p>
                     </div>
                  </div>
                ))
              ) : (
-               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
-                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có hoạt động tiếp theo</p>
+               <div className="py-12 text-center border-2 border-dashed border-slate-100 rounded-3xl">
+                 <p className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Chưa có hoạt động mới</p>
                </div>
              )}
            </div>
         </div>
 
-        <div className="bg-surface/40 border border-white/5 p-10 rounded-[2.5rem] shadow-xl backdrop-blur-sm">
+        <div className="bg-white border border-slate-100 p-10 rounded-[2.5rem] shadow-sm">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-xs uppercase tracking-[0.2em] text-white/60 font-bold flex items-center gap-3">
+              <h3 className="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold flex items-center gap-3">
                 <Users className="text-accent" size={16} />
                 Gia nhập gần đây
               </h3>
@@ -165,13 +165,13 @@ const Dashboard = () => {
                 {(profile?.role === 'admin' || profile?.role === 'secretary') && (
                   <Link 
                     to="/members" 
-                    className="flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent border border-accent/20 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-accent/30 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all shadow-sm"
                   >
                     <Plus size={12} />
-                    Thêm mới
+                    Kết nạp
                   </Link>
                 )}
-                <Link to="/members" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Xem tất cả</Link>
+                <Link to="/members" className="text-[10px] text-accent font-bold uppercase tracking-widest cursor-pointer hover:underline">Tất cả</Link>
               </div>
             </div>
            <div className="space-y-6">
@@ -179,28 +179,31 @@ const Dashboard = () => {
                recentMembers.map((m) => {
                  const joinDate = m.createdAt ? new Date(m.createdAt).toLocaleDateString("vi-VN") : "N/A";
                  return (
-                   <div key={m.id} className="flex items-center gap-5 group cursor-pointer">
+                   <div key={m.id} className="flex items-center gap-5 group cursor-pointer p-2 rounded-2xl hover:bg-slate-50 transition-all">
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-bold text-xl text-white group-hover:border-accent transition-all shadow-inner">
+                        <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center font-bold text-2xl text-slate-900 group-hover:border-accent group-hover:text-accent transition-all shadow-sm">
                           {m.fullName.charAt(0)}
                         </div>
                         {m.isOutstanding && (
-                          <div className="absolute -top-1 -right-1 bg-yellow-400 text-black rounded-full p-1 border border-yellow-500 shadow-lg">
-                            <Star size={8} fill="currentColor" />
+                          <div className="absolute -top-1 -right-1 bg-amber-400 text-white rounded-full p-1 border-2 border-white shadow-lg">
+                            <Star size={10} fill="currentColor" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-white group-hover:text-accent transition-colors">{m.fullName}</p>
-                        <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{m.unitName}</p>
+                        <p className="font-bold text-slate-900 group-hover:text-accent transition-colors">{m.fullName}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-0.5 font-semibold">{m.unitName}</p>
                       </div>
-                      <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">{joinDate}</p>
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Ngày vào</p>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{joinDate}</p>
+                      </div>
                    </div>
                  );
                })
              ) : (
-               <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl">
-                 <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Chưa có đoàn viên mới</p>
+               <div className="py-12 text-center border-2 border-dashed border-slate-100 rounded-3xl">
+                 <p className="text-[10px] uppercase tracking-widest text-slate-300 font-bold">Chưa có đoàn viên mới</p>
                </div>
              )}
            </div>
@@ -239,91 +242,103 @@ const AuthScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-       <div className="max-w-md w-full bg-white/[0.03] border border-white/10 p-10 rounded-[3rem] text-center shadow-2xl flex flex-col items-center">
-          <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-            <Star className="text-accent" size={32} />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-gradient-to-br from-white to-slate-100">
+       <div className="max-w-md w-full bg-white border border-slate-200 p-12 rounded-[4rem] text-center shadow-2xl flex flex-col items-center">
+          <div className="w-20 h-20 bg-accent flex items-center justify-center mb-8 rounded-[2rem] shadow-xl shadow-accent/20">
+            <Star className="text-white" size={40} fill="currentColor" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Quản Lý Đoàn Viên</h1>
-          <p className="text-white/40 mb-8 text-sm uppercase tracking-widest font-medium">
-            {isRegister ? "Đăng ký tài khoản mới" : "Cổng thông tin nội bộ"}
+          <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Quản Lý Đoàn</h1>
+          <p className="text-slate-400 mb-10 text-xs uppercase tracking-[0.2em] font-bold">
+            {isRegister ? "Đăng ký thành viên mới" : "Cổng thông tin nội bộ"}
           </p>
 
           {error && (
-            <div className="w-full p-4 mb-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold uppercase tracking-widest">
+            <div className="w-full p-4 mb-6 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[10px] font-bold uppercase tracking-widest shadow-sm">
               {error}
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="w-full space-y-4">
-            <input 
-              type="email"
-              placeholder="Email của bạn"
-              required
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <form onSubmit={handleSubmit} className="w-full space-y-5 text-left">
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Email / Tài khoản</label>
+              <input 
+                type="email"
+                placeholder="Nhập email của bạn"
+                required
+                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-            <input 
-              type="password"
-              placeholder="Mật khẩu"
-              required
-              minLength={6}
-              className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all font-medium"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Mật khẩu</label>
+              <input 
+                type="password"
+                placeholder="••••••••"
+                required
+                minLength={6}
+                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
             
             {isRegister && (
               <>
-                <div className="flex gap-2">
-                  <button 
-                    type="button"
-                    onClick={() => setRole('secretary')}
-                    className={cn(
-                      "flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold border transition-all",
-                      role === 'secretary' ? "bg-accent/20 border-accent text-accent" : "bg-white/5 border-white/5 text-white/40"
-                    )}
-                  >
-                    Bí thư
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => setRole('admin')}
-                    className={cn(
-                      "flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest font-bold border transition-all",
-                      role === 'admin' ? "bg-accent/20 border-accent text-accent" : "bg-white/5 border-white/5 text-white/40"
-                    )}
-                  >
-                    Quản trị viên
-                  </button>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Vai trò trong hệ thống</label>
+                  <div className="flex gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setRole('secretary')}
+                      className={cn(
+                        "flex-1 py-3 rounded-2xl text-[10px] uppercase tracking-widest font-black border-2 transition-all",
+                        role === 'secretary' ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"
+                      )}
+                    >
+                      Bí thư
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setRole('admin')}
+                      className={cn(
+                        "flex-1 py-3 rounded-2xl text-[10px] uppercase tracking-widest font-black border-2 transition-all",
+                        role === 'admin' ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"
+                      )}
+                    >
+                      Quản trị
+                    </button>
+                  </div>
                 </div>
 
                 {role === 'secretary' && (
-                  <CustomSelect
-                    options={units.map(u => ({ value: u.id, label: u.name }))}
-                    value={unitId}
-                    onChange={setUnitId}
-                    placeholder="Chọn chi đoàn..."
-                  />
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Trực thuộc Chi đoàn</label>
+                    <CustomSelect
+                      options={units.map(u => ({ value: u.id, label: u.name }))}
+                      value={unitId}
+                      onChange={setUnitId}
+                      placeholder="Chọn chi đoàn..."
+                    />
+                  </div>
                 )}
               </>
             )}
 
             <button 
               type="submit"
-              className="w-full flex items-center justify-center gap-4 py-4 bg-accent text-accent-foreground rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all shadow-xl shadow-accent/20"
+              className="w-full py-5 bg-accent text-white rounded-full font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl shadow-accent/20 mt-4 active:scale-95"
             >
-              {isRegister ? "Đăng ký ngay" : "Tiếp tục truy cập"}
+              {isRegister ? "Khởi tạo tài khoản" : "Truy cập hệ thống"}
             </button>
           </form>
 
           <button 
             onClick={() => { setIsRegister(!isRegister); setError(null); }}
-            className="mt-6 text-[10px] text-white/50 uppercase tracking-widest hover:text-white transition-colors"
+            className="mt-8 text-[10px] text-slate-400 uppercase tracking-widest font-black hover:text-accent transition-colors"
           >
-            {isRegister ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký tại đây"}
+            {isRegister ? "Đã có tài khoản? Đăng nhập" : "Yêu cầu cấp tài khoản mới?"}
           </button>
        </div>
     </div>

@@ -794,7 +794,7 @@ export const MemberList: React.FC = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
         <div className="flex-1">
-          <h2 className="text-4xl font-bold text-white flex items-center gap-4 tracking-tight mb-4">
+          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight mb-4">
             <Users className="text-accent" size={36} />
             Quản lý đoàn viên
           </h2>
@@ -802,21 +802,21 @@ export const MemberList: React.FC = () => {
             <input 
               type="text" 
               placeholder="Tìm kiếm nhanh đoàn viên..." 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-12 text-sm text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all placeholder:text-white/20"
+              className="w-full bg-white border border-slate-200 rounded-2xl py-3 px-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <X size={16} />
               </button>
             )}
           </div>
-          <p className="text-white/40 text-xs uppercase tracking-widest mt-3">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
+          <p className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black mt-3">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 mr-2">
@@ -824,11 +824,11 @@ export const MemberList: React.FC = () => {
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={exportToExcel}
-              className="group flex items-center gap-3 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/30 hover:shadow-accent/50 hover:bg-white"
+              className="group flex items-center gap-3 px-8 py-4 bg-accent border border-accent/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/20 hover:shadow-accent/40"
               title="Xuất danh sách ra tệp Excel"
             >
-              <Download size={20} className="text-slate-950 group-hover:translate-y-0.5 transition-transform" />
-              <span className="text-xs font-black uppercase tracking-widest text-slate-950">Xuất Excel</span>
+              <Download size={20} className="text-white group-hover:translate-y-0.5 transition-transform" />
+              <span className="text-xs font-black uppercase tracking-widest text-white">Xuất Excel</span>
             </motion.button>
             <div className="relative">
               <input 
@@ -842,11 +842,11 @@ export const MemberList: React.FC = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 htmlFor="excel-import"
-                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 rounded-2xl text-white hover:border-accent hover:bg-accent transition-all duration-300 shadow-lg hover:shadow-accent/20"
+                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:border-accent hover:text-accent transition-all duration-300 shadow-md hover:shadow-accent/10"
                 title="Nhập danh sách từ tệp Excel"
               >
-                <Upload size={20} className="text-white group-hover:text-slate-950 group-hover:translate-y-0.5 transition-all" />
-                <span className="text-xs font-black uppercase tracking-widest text-white group-hover:text-slate-950 transition-colors">Nhập Excel</span>
+                <Upload size={20} className="text-slate-400 group-hover:text-accent group-hover:translate-y-0.5 transition-all" />
+                <span className="text-xs font-black uppercase tracking-widest transition-colors">Nhập Excel</span>
               </motion.label>
             </div>
           </div>
@@ -854,26 +854,26 @@ export const MemberList: React.FC = () => {
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={openAddModal}
-            className="group flex items-center gap-3 px-8 py-4 bg-white border-2 border-white rounded-2xl transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-accent/40 hover:bg-accent hover:border-accent"
+            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 border border-slate-900 rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/10 hover:shadow-accent/30 hover:bg-accent hover:border-accent"
           >
-            <Plus size={20} className="text-black group-hover:rotate-90 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest text-black">Thêm đoàn viên mới</span>
+            <Plus size={20} className="text-white group-hover:rotate-90 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-widest text-white">Thêm đoàn viên mới</span>
           </motion.button>
         </div>
       </div>
 
-      <div className="bg-surface/40 border border-white/5 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl backdrop-blur-sm">
+      <div className="bg-white border border-slate-200 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl">
         {/* Main Search Row */}
         <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
           <form 
             onSubmit={(e) => e.preventDefault()}
             className="relative flex-1 group w-full md:max-w-2xl"
           >
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent transition-colors" size={20} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={20} />
             <input 
               type="text"
               placeholder="Tìm kiếm theo tên, MSSV, quê quán..."
-              className="w-full pl-16 pr-6 py-4 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/20 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white/[0.08] transition-all outline-none text-sm"
+              className="w-full pl-16 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white transition-all outline-none text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -885,8 +885,8 @@ export const MemberList: React.FC = () => {
               className={cn(
                 "flex items-center gap-2 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all border",
                 isAdvancedSearchOpen 
-                  ? "bg-accent text-accent-foreground border-accent" 
-                  : "bg-white/5 text-white/60 border-white/10 hover:border-white/20"
+                  ? "bg-accent text-white border-accent" 
+                  : "bg-slate-50 text-slate-500 border-slate-200 hover:border-accent/40"
               )}
             >
               <Filter size={14} />
@@ -896,7 +896,7 @@ export const MemberList: React.FC = () => {
 
             <button 
               onClick={resetFilters}
-              className="p-3 rounded-full bg-white/5 text-white/40 hover:text-white/80 hover:bg-white/10 transition-all border border-white/10"
+              className="p-3 rounded-full bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all border border-slate-200"
               title="Đặt lại bộ lọc"
             >
               <RotateCcw size={16} />
@@ -904,7 +904,7 @@ export const MemberList: React.FC = () => {
 
             <button 
               onClick={() => setShowSavePreset(!showSavePreset)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold bg-white/5 text-white/60 border border-white/10 hover:border-accent/40 hover:text-accent transition-all"
+              className="flex items-center gap-2 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:border-accent/40 hover:text-accent transition-all"
             >
               <Bookmark size={14} />
               Lưu mẫu
@@ -914,19 +914,19 @@ export const MemberList: React.FC = () => {
 
         {/* Saved Presets */}
         {profile?.presets && profile.presets.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6 animate-in fade-in slide-in-from-top-2">
-            <span className="text-[10px] uppercase tracking-widest text-white/20 font-bold self-center mr-2">Mẫu đã lưu:</span>
+          <div className="flex flex-wrap gap-2 mb-6 animate-in fade-in slide-in-from-top-2 border-t border-slate-100 pt-6">
+            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold self-center mr-2">Mẫu đã lưu:</span>
             {profile.presets.map((preset) => (
-              <div key={preset.id} className="group flex items-center bg-white/5 border border-white/10 rounded-full pl-4 pr-1 py-1 transition-all hover:border-accent/30">
+              <div key={preset.id} className="group flex items-center bg-slate-50 border border-slate-200 rounded-full pl-4 pr-1 py-1 transition-all hover:border-accent/30">
                 <button 
                   onClick={() => applyPreset(preset)}
-                  className="text-[10px] font-bold text-white/60 hover:text-accent tracking-tight mr-2"
+                  className="text-[10px] font-bold text-slate-600 hover:text-accent tracking-tight mr-2"
                 >
                   {preset.name}
                 </button>
                 <button 
                   onClick={() => deletePreset(preset.id)}
-                  className="p-1.5 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                  className="p-1.5 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   <X size={10} />
                 </button>
@@ -940,11 +940,11 @@ export const MemberList: React.FC = () => {
           <div className="mb-6 p-6 bg-accent/5 border border-accent/20 rounded-2xl animate-in zoom-in-95 duration-200">
             <div className="flex flex-col sm:flex-row gap-4 items-end">
               <div className="flex-1">
-                <label className="text-[10px] uppercase tracking-widest text-accent/60 font-bold mb-2 block">Tên mẫu tìm kiếm mới</label>
+                <label className="text-[10px] uppercase tracking-widest text-accent/60 font-black mb-2 block">Tên mẫu tìm kiếm mới</label>
                 <input 
                   type="text"
                   placeholder="VD: Đoàn viên K2020 Xuất sắc"
-                  className="w-full px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white outline-none focus:border-accent/40 lg:text-sm"
+                  className="w-full px-5 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none focus:border-accent lg:text-sm"
                   value={presetName}
                   onChange={(e) => setPresetName(e.target.value)}
                 />
@@ -952,13 +952,13 @@ export const MemberList: React.FC = () => {
               <div className="flex gap-2">
                 <button 
                   onClick={() => setShowSavePreset(false)}
-                  className="px-6 py-3 rounded-xl text-[10px] uppercase font-bold text-white/40 hover:bg-white/5 transition-all outline-none"
+                  className="px-6 py-3 rounded-xl text-[10px] uppercase font-bold text-slate-400 hover:bg-slate-100 transition-all outline-none"
                 >
                   Hủy
                 </button>
                 <button 
                   onClick={handleSavePreset}
-                  className="px-8 py-3 bg-accent text-accent-foreground rounded-xl text-[10px] uppercase font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-accent/20 outline-none"
+                  className="px-8 py-3 bg-accent text-white rounded-xl text-[10px] uppercase font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-accent/20 outline-none"
                 >
                   <Save size={14} />
                   Lưu mẫu
@@ -970,7 +970,7 @@ export const MemberList: React.FC = () => {
 
         {/* Advanced Filters Panel */}
         {isAdvancedSearchOpen && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-white/10 animate-in slide-in-from-top-4 duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-slate-100 animate-in slide-in-from-top-4 duration-300">
             <CustomSelect
               label="Chi đoàn"
               options={unitOptions}
@@ -1007,11 +1007,11 @@ export const MemberList: React.FC = () => {
             />
 
             <div className="lg:col-span-2">
-              <label className="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-3 block">Quê quán (Lọc theo tỉnh/thành)</label>
+              <label className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3 block">Quê quán (Lọc theo tỉnh/thành)</label>
               <input 
                 type="text"
                 placeholder="VD: Hà Nội, Nghệ An..."
-                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/10 focus:outline-none focus:ring-1 focus:ring-accent/50 transition-all outline-none text-sm"
+                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white transition-all outline-none text-sm"
                 value={selectedHometown}
                 onChange={(e) => setSelectedHometown(e.target.value)}
               />
@@ -1020,7 +1020,7 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-surface/60 border border-white/5 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl backdrop-blur-md mb-32">
+      <div className="bg-white border border-slate-200 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl mb-32 overflow-hidden">
         <div className="px-8 pt-8">
           <AnimatePresence>
             {(isAdmin || isSecretary) && selectedIds.length > 0 && (
@@ -1083,8 +1083,8 @@ export const MemberList: React.FC = () => {
           <div className="flex-1 overflow-x-auto px-4">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[11px] text-white/30 uppercase tracking-tighter border-b border-white/5">
-                  <th className="py-6 px-4 font-normal text-center w-12">
+                <tr className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-black border-b border-slate-100">
+                  <th className="py-6 px-4 font-black text-center w-12">
                     <div 
                       onClick={() => {
                         if (selectedIds.length > 0 && selectedIds.length === filteredMembers.length) {
@@ -1096,8 +1096,8 @@ export const MemberList: React.FC = () => {
                       className={cn(
                         "w-5 h-5 rounded-md border-2 mx-auto cursor-pointer flex items-center justify-center transition-all duration-300",
                         selectedIds.length > 0 && selectedIds.length === filteredMembers.length
-                          ? "bg-accent border-accent shadow-[0_0_15px_rgba(255,51,102,0.4)]" 
-                          : "border-white/10 hover:border-white/30 bg-white/5"
+                          ? "bg-accent border-accent shadow-lg shadow-accent/20" 
+                          : "border-slate-200 hover:border-accent bg-slate-50"
                       )}
                     >
                       <motion.div
@@ -1109,9 +1109,9 @@ export const MemberList: React.FC = () => {
                       </motion.div>
                     </div>
                   </th>
-                  <th className="py-6 px-4 font-normal text-center w-12">STT</th>
+                  <th className="py-6 px-4 font-black text-center w-12">STT</th>
                   <th 
-                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    className="py-6 px-4 font-black cursor-pointer hover:text-accent transition-colors group/header"
                     onClick={() => handleSort("fullName")}
                   >
                     <div className="flex items-center gap-2">
@@ -1122,20 +1122,20 @@ export const MemberList: React.FC = () => {
                     </div>
                   </th>
                   <th 
-                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    className="py-6 px-4 font-black cursor-pointer hover:text-accent transition-colors group/header"
                     onClick={() => handleSort("memberId")}
                   >
                     <div className="flex items-center gap-2">
-                      Mã số sinh viên
+                      MSSV
                       <span className={cn("transition-opacity", sortField === "memberId" ? "opacity-100" : "opacity-0 group-hover/header:opacity-40")}>
                         {sortField === "memberId" ? (sortDirection === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} />}
                       </span>
                     </div>
                   </th>
-                  <th className="py-6 px-4 font-normal text-center">Niên khóa / Xếp loại</th>
-                  <th className="py-6 px-4 font-normal">Chi đoàn trực thuộc</th>
+                  <th className="py-6 px-4 font-black text-center">Xếp loại</th>
+                  <th className="py-6 px-4 font-black">Chi đoàn</th>
                   <th 
-                    className="py-6 px-4 font-normal cursor-pointer hover:text-white transition-colors group/header"
+                    className="py-6 px-4 font-black cursor-pointer hover:text-accent transition-colors group/header"
                     onClick={() => handleSort("joinDate")}
                   >
                     <div className="flex items-center gap-2">
@@ -1145,18 +1145,18 @@ export const MemberList: React.FC = () => {
                       </span>
                     </div>
                   </th>
-                  <th className="py-6 px-4 font-normal">Trạng thái</th>
-                  <th className="py-6 px-4 font-normal text-right">Thao tác</th>
+                  <th className="py-6 px-4 font-black">Trạng thái</th>
+                  <th className="py-6 px-4 font-black text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-slate-50">
                 {paginatedMembers.map((member, index) => (
                   <tr 
                     key={member.id} 
                     onClick={() => handleViewDetails(member)}
                     className={cn(
-                      "hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer",
-                      selectedIds.includes(member.id) ? "bg-accent/[0.06] backdrop-blur-sm" : ""
+                      "hover:bg-slate-50 transition-all duration-300 group cursor-pointer border-l-4 border-transparent",
+                      selectedIds.includes(member.id) ? "bg-accent/5 border-accent" : ""
                     )}
                   >
                     <td className="py-6 px-4 text-center" onClick={(e) => e.stopPropagation()}>
@@ -1165,8 +1165,8 @@ export const MemberList: React.FC = () => {
                         className={cn(
                           "w-5 h-5 rounded-md border-2 mx-auto cursor-pointer flex items-center justify-center transition-all duration-300",
                           selectedIds.includes(member.id) 
-                            ? "bg-accent border-accent shadow-[0_0_15px_rgba(255,51,102,0.4)]" 
-                            : "border-white/10 group-hover:border-white/30 bg-white/5"
+                            ? "bg-accent border-accent shadow-lg shadow-accent/20" 
+                            : "border-slate-200 group-hover:border-accent bg-white"
                         )}
                       >
                         <motion.div
@@ -1178,24 +1178,24 @@ export const MemberList: React.FC = () => {
                         </motion.div>
                       </div>
                     </td>
-                    <td className="py-6 px-4 text-center font-mono text-xs text-white/60 tabular-nums">
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-white/5 border border-white/5">
+                    <td className="py-6 px-4 text-center font-mono text-xs text-slate-400 tabular-nums">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 font-black text-[10px]">
                         {(currentPage - 1) * pageSize + index + 1}
                       </span>
                     </td>
                     <td className="py-6 px-4">
       <div className="flex items-center gap-4">
         <div className="relative group/avatar">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 flex items-center justify-center font-bold text-xl text-white group-hover:border-accent transition-all overflow-hidden">
+          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-lg text-slate-600 group-hover:border-accent group-hover:text-accent transition-all overflow-hidden shadow-inner">
             {member.fullName.charAt(0)}
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); handleToggleOutstanding(member); }}
             className={cn(
-              "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110",
+              "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110 shadow-lg",
               member.isOutstanding 
-                ? "bg-yellow-400 border-yellow-500 text-black shadow-[0_0_15px_rgba(250,204,21,0.4)]" 
-                : "bg-surface/60 border-white/10 text-white/20 hover:text-white/60"
+                ? "bg-yellow-400 border-yellow-500 text-white shadow-yellow-400/30" 
+                : "bg-white border-slate-200 text-slate-300 hover:text-yellow-500"
             )}
             title={member.isOutstanding ? "Bỏ đánh dấu tiêu biểu" : "Đánh dấu đoàn viên tiêu biểu"}
           >
@@ -1204,38 +1204,35 @@ export const MemberList: React.FC = () => {
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-bold text-white text-lg group-hover:text-accent transition-colors">{member.fullName}</p>
+            <p className="font-bold text-slate-900 group-hover:text-accent transition-colors">{member.fullName}</p>
             {member.isOutstanding && (
-              <span className="bg-yellow-400/10 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded-sm uppercase font-bold tracking-widest border border-yellow-500/20">Tiêu biểu</span>
+              <span className="bg-yellow-400/10 text-yellow-600 text-[8px] px-1.5 py-0.5 rounded-sm uppercase font-black tracking-widest border border-yellow-400/20">Tiêu biểu</span>
             )}
           </div>
-          <p className="text-[10px] uppercase tracking-widest text-white/30 mt-0.5">{member.gender === "Nam" ? "Nam" : "Nữ"}</p>
+          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-0.5">{member.gender === "Nam" ? "Nam" : "Nữ"}</p>
         </div>
       </div>
     </td>
-                    <td className="py-6 px-4 font-mono text-xs text-white/40 tabular-nums">{member.memberId}</td>
-                    <td className="py-6 px-4">
-                      <div className="flex flex-col items-center">
-                        <span className="text-white/60 text-xs font-medium uppercase tracking-wider">{member.academicYear || "---"}</span>
+                    <td className="py-6 px-4 font-mono text-xs text-slate-500 tabular-nums font-bold tracking-tighter">{member.memberId}</td>
+                    <td className="py-6 px-4 text-center">
                         <span className={cn(
-                          "text-[9px] uppercase font-bold mt-1 px-2 py-0.5 rounded border",
+                          "text-[9px] uppercase font-black px-2.5 py-1 rounded-full border shadow-sm",
                           member.achievementLevel === "Xuất sắc" ? "text-accent border-accent/20 bg-accent/5" :
-                          member.achievementLevel === "Khá" ? "text-white/80 border-white/10" :
-                          "text-white/20 border-white/5"
+                          member.achievementLevel === "Khá" ? "text-slate-600 border-slate-200 bg-slate-50" :
+                          "text-slate-400 border-slate-100 bg-slate-50/50"
                         )}>
-                          {member.achievementLevel || "Chưa xếp loại"}
+                          {member.achievementLevel || "N/A"}
                         </span>
-                      </div>
                     </td>
-                    <td className="py-6 px-4 text-white/60 text-sm italic">{getUnitName(member.unitId)}</td>
-                    <td className="py-6 px-4 font-mono text-[10px] text-white/40 tabular-nums">{member.joinDate || "---"}</td>
+                    <td className="py-6 px-4 text-slate-600 text-[13px] font-medium">{getUnitName(member.unitId)}</td>
+                    <td className="py-6 px-4 font-mono text-[11px] text-slate-400 tabular-nums">{member.joinDate || "---"}</td>
                     <td className="py-6 px-4">
                       <span className={cn(
-                        "px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] uppercase tracking-normal font-bold whitespace-nowrap",
-                        member.status === "Đang sinh hoạt" ? "text-green-400 border-green-500/20" :
-                        member.status === "Đã chuyển sinh hoạt" ? "text-blue-400 border-blue-500/20" :
-                        member.status === "Đã trưởng thành" ? "text-gray-400 border-white/10" :
-                        "text-red-400 border-red-500/20"
+                        "px-3 py-1 bg-slate-50 border rounded-full text-[10px] uppercase font-black tracking-tight whitespace-nowrap shadow-sm",
+                        member.status === "Đang sinh hoạt" ? "text-emerald-600 border-emerald-100 bg-emerald-50" :
+                        member.status === "Đã chuyển sinh hoạt" ? "text-accent border-blue-100 bg-blue-50" :
+                        member.status === "Đã trưởng thành" ? "text-slate-400 border-slate-200" :
+                        "text-rose-500 border-rose-100 bg-rose-50"
                       )}>
                         {member.status}
                       </span>
@@ -1246,38 +1243,38 @@ export const MemberList: React.FC = () => {
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleViewDetails(member)}
-                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/60 bg-white/5 hover:bg-white/10 hover:text-white rounded-xl border border-white/5 hover:border-white/20 transition-all flex items-center gap-2"
+                          className="p-2.5 text-slate-400 hover:text-accent bg-slate-50 hover:bg-accent/10 rounded-xl border border-slate-200 hover:border-accent/30 transition-all"
+                          title="Chi tiết"
                         >
-                          <Eye size={12} />
-                          Chi tiết
+                          <Eye size={16} />
                         </motion.button>
                         <motion.button 
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleViewHistory(member)}
-                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-accent bg-accent/5 hover:bg-accent hover:text-white rounded-xl border border-accent/10 hover:border-accent/40 transition-all flex items-center gap-2"
+                          className="p-2.5 text-slate-400 hover:text-accent bg-slate-50 hover:bg-accent/10 rounded-xl border border-slate-200 hover:border-accent/30 transition-all"
+                          title="Lịch sử"
                         >
-                          <History size={12} />
-                          Lịch sử
+                          <History size={16} />
                         </motion.button>
                         <motion.button 
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleEdit(member)}
-                          className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-400/5 hover:bg-blue-400 hover:text-white rounded-xl border border-blue-400/10 hover:border-blue-400/40 transition-all flex items-center gap-2"
+                          className="p-2.5 text-slate-400 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded-xl border border-slate-200 hover:border-blue-200 transition-all"
+                          title="Chỉnh sửa"
                         >
-                          <Edit3 size={12} />
-                          Hồ sơ
+                          <Edit3 size={16} />
                         </motion.button>
                         {(isAdmin || isSecretary) && (
                           <motion.button 
                             whileHover={{ scale: 1.05, y: -2 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleDelete(member.id)}
-                            className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-400 bg-red-400/5 hover:bg-red-500 hover:text-white rounded-xl border border-red-400/10 hover:border-red-500/40 transition-all flex items-center gap-2"
+                            className="p-2.5 text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 rounded-xl border border-slate-200 hover:border-red-200 transition-all"
+                            title="Xóa"
                           >
-                            <Trash2 size={12} />
-                            Xóa
+                            <Trash2 size={16} />
                           </motion.button>
                         )}
                       </div>
@@ -1360,22 +1357,22 @@ export const MemberList: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-surface border border-white/10 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]"
+            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
           >
-            <div className="p-8 border-b border-white/5 flex justify-between items-center shrink-0 bg-white/[0.01]">
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50/50">
               <div>
-                <h3 className="text-2xl font-bold text-white">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
                   {editingId ? "Cập nhật hồ sơ đoàn viên" : "Đăng ký đoàn viên mới"}
                 </h3>
-                <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">Thông tin chi tiết về đoàn viên thanh niên</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Thông tin chi tiết về đoàn viên thanh niên</p>
               </div>
               <button 
                 onClick={() => setShowModal(false)}
-                className="w-10 h-10 flex items-center justify-center hover:bg-white/5 rounded-full text-white/40 transition-colors"
+                className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -1385,95 +1382,95 @@ export const MemberList: React.FC = () => {
               <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-6 md:space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div className="md:col-span-2">
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Họ và tên đầy đủ</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Họ và tên đầy đủ</label>
                     <input
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 italic"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300 font-bold"
                       value={newMember.fullName}
                       onChange={(e) => setNewMember({...newMember, fullName: e.target.value})}
                       placeholder="VD: Nguyễn Hoàng Nam"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Email</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Email</label>
                     <input
                       type="email"
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.email}
                       onChange={(e) => setNewMember({...newMember, email: e.target.value})}
                       placeholder="VD: name@domain.com"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Số điện thoại</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Số điện thoại</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10 tabular-nums"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300 tabular-nums"
                       value={newMember.phone}
                       onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
                       placeholder="VD: 090xxxxxxx"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Nơi sinh</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Nơi sinh</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.placeOfBirth}
                       onChange={(e) => setNewMember({...newMember, placeOfBirth: e.target.value})}
                       placeholder="VD: Hải Phòng..."
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Quê quán</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Quê quán</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.hometown}
                       onChange={(e) => setNewMember({...newMember, hometown: e.target.value})}
                       placeholder="Nhập quê quán (Tỉnh/Thành phố)..."
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Địa chỉ thường trú</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Địa chỉ thường trú</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.permanentAddress}
                       onChange={(e) => setNewMember({...newMember, permanentAddress: e.target.value})}
                       placeholder="Nhập đầy đủ địa chỉ thường trú..."
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Dân tộc</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Dân tộc</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.ethnic}
                       onChange={(e) => setNewMember({...newMember, ethnic: e.target.value})}
                       placeholder="VD: Kinh..."
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Tôn giáo</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Tôn giáo</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.religion}
                       onChange={(e) => setNewMember({...newMember, religion: e.target.value})}
                       placeholder="VD: Không, Phật giáo..."
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Mã số sinh viên (MSSV)</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">MSSV</label>
                     <input
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all tabular-nums"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all tabular-nums font-bold"
                       value={newMember.memberId}
                       onChange={(e) => setNewMember({...newMember, memberId: e.target.value})}
                       placeholder="VD: 2024001"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày tháng năm sinh</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Ngày sinh</label>
                     <input
                       type="date"
                       required
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all"
                       value={newMember.dob}
                       onChange={(e) => setNewMember({...newMember, dob: e.target.value})}
                     />
@@ -1491,25 +1488,25 @@ export const MemberList: React.FC = () => {
                     onChange={(val) => setNewMember({...newMember, professionalLevel: val})}
                   />
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Niên khóa / Năm học</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Niên khóa</label>
                     <input
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all placeholder:text-white/10"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all placeholder:text-slate-300"
                       value={newMember.academicYear}
                       onChange={(e) => setNewMember({...newMember, academicYear: e.target.value})}
                       placeholder="VD: K2020-2024"
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-3 block">Ngày vào Đoàn</label>
+                    <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black mb-3 block">Ngày vào Đoàn</label>
                     <input
                       type="date"
-                      className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white outline-none transition-all"
                       value={newMember.joinDate}
                       onChange={(e) => setNewMember({...newMember, joinDate: e.target.value})}
                     />
                   </div>
                   <CustomSelect
-                    label="Phân loại thành tích"
+                    label="Thành tích"
                     options={achievementOptionsModal}
                     value={newMember.achievementLevel}
                     onChange={(val) => setNewMember({...newMember, achievementLevel: val as any})}
@@ -1522,12 +1519,12 @@ export const MemberList: React.FC = () => {
                   />
                   <div className="md:col-span-2">
                     <div className="flex justify-between items-center mb-3">
-                      <label className="text-[11px] uppercase tracking-widest text-white/40 font-bold block">Chi đoàn trực thuộc</label>
+                      <label className="text-[11px] uppercase tracking-widest text-slate-400 font-black block">Chi đoàn trực thuộc</label>
                       {isAdmin && (
                         <button 
                           type="button"
                           onClick={() => setShowUnitModal(true)}
-                          className="text-[10px] text-accent font-bold uppercase tracking-widest hover:underline flex items-center gap-1"
+                          className="text-[10px] text-accent font-black uppercase tracking-widest hover:underline flex items-center gap-1"
                         >
                           <Plus size={12} />
                           Tạo đơn vị mới
@@ -1541,7 +1538,7 @@ export const MemberList: React.FC = () => {
                       onChange={(val) => setNewMember({...newMember, unitId: val})}
                       placeholder="Chọn chi đoàn..."
                     />
-                    {isSecretary && <p className="text-[9px] text-white/20 mt-2 italic">Bạn chỉ có quyền quản lý đoàn viên trong chi đoàn được phân công.</p>}
+                    {isSecretary && <p className="text-[9px] text-slate-400 mt-2 italic font-bold">Bạn chỉ có quyền quản lý đoàn viên trong chi đoàn được phân công.</p>}
                   </div>
                   <div className="md:col-span-2">
                     <CustomSelect
@@ -1551,15 +1548,15 @@ export const MemberList: React.FC = () => {
                       value={newMember.status}
                       onChange={(val) => setNewMember({...newMember, status: val as any})}
                     />
-                    {!editingId && <p className="text-[10px] text-accent mt-2 italic font-bold">Mặc định cho đoàn viên mới đăng ký</p>}
+                    {!editingId && <p className="text-[11px] text-accent mt-2 italic font-black uppercase tracking-widest">Mặc định cho hồ sơ mới</p>}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="flex items-center gap-3 cursor-pointer group p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/30 transition-all">
+                    <label className="flex items-center gap-3 cursor-pointer group p-5 bg-slate-50 border border-slate-200 rounded-2xl hover:border-accent/30 transition-all">
                       <div className={cn(
                         "w-6 h-6 rounded-md border flex items-center justify-center transition-all",
                         newMember.isOutstanding 
-                          ? "bg-yellow-400 border-yellow-500 text-black" 
-                          : "bg-white/5 border-white/10 text-transparent"
+                          ? "bg-yellow-400 border-yellow-500 text-white" 
+                          : "bg-white border-slate-200 text-transparent"
                       )}>
                         <Star size={14} fill={newMember.isOutstanding ? "currentColor" : "none"} />
                       </div>
@@ -1570,17 +1567,17 @@ export const MemberList: React.FC = () => {
                         onChange={(e) => setNewMember({...newMember, isOutstanding: e.target.checked})}
                       />
                       <div>
-                        <p className="text-sm font-bold text-white group-hover:text-accent transition-colors">Đoàn viên tiêu biểu</p>
-                        <p className="text-[10px] text-white/30 uppercase tracking-widest">Đánh dấu gương mặt xuất sắc của đơn vị</p>
+                        <p className="text-sm font-black text-slate-900 group-hover:text-accent transition-colors uppercase tracking-tight">Đoàn viên tiêu biểu</p>
+                        <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Đánh dấu gương mặt xuất sắc của đơn vị</p>
                       </div>
                     </label>
                   </div>
                   {editingId && members.find(m => m.id === editingId)?.status !== newMember.status && (
                     <div className="md:col-span-2 animate-in fade-in slide-in-from-top-2">
-                      <label className="text-[11px] uppercase tracking-widest text-accent font-bold mb-3 block italic">Lý do thay đổi trạng thái*</label>
+                      <label className="text-[11px] uppercase tracking-widest text-accent font-black mb-3 block italic">Lý do thay đổi trạng thái*</label>
                       <input
                         required
-                        className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-white focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic"
+                        className="w-full px-6 py-4 bg-accent/5 border border-accent/20 rounded-2xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-accent/50 outline-none transition-all italic font-bold"
                         value={statusReason}
                         onChange={(e) => setStatusReason(e.target.value)}
                         placeholder="Nhập lý do thay đổi (VD: Chuyển trường, Hết tuổi Đoàn...)"
@@ -1594,7 +1591,7 @@ export const MemberList: React.FC = () => {
                     whileTap={{ scale: 0.98 }}
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 px-8 py-4 border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest text-white/40 hover:bg-white/5 transition-all"
+                    className="flex-1 px-8 py-4 border border-slate-200 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all font-black"
                   >
                     Hủy bỏ
                   </motion.button>
@@ -1602,9 +1599,9 @@ export const MemberList: React.FC = () => {
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="flex-1 px-8 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white"
+                    className="flex-1 px-8 py-4 bg-accent border border-accent/10 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:shadow-accent/40"
                   >
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-950">Lưu hồ sơ đoàn viên</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Lưu hồ sơ đoàn viên</span>
                   </motion.button>
                 </div>
               </form>
@@ -1615,28 +1612,28 @@ export const MemberList: React.FC = () => {
 
       {/* Detailed Member View Modal */}
       {showDetailsModal && detailsMember && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-background/90 backdrop-blur-xl transition-all">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-surface border border-white/10 rounded-[3rem] w-full max-w-3xl shadow-[0_0_100px_-20px_rgba(0,0,0,1)] overflow-hidden flex flex-col max-h-[90vh]"
+            className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Header with Avatar and Name */}
-            <div className="relative p-10 bg-gradient-to-br from-white/[0.03] to-transparent shrink-0">
+            <div className="relative p-10 bg-slate-50/50 shrink-0 border-b border-slate-100">
               <button 
                 onClick={() => setShowDetailsModal(false)}
-                className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-10"
+                className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center bg-white hover:bg-slate-100 border border-slate-200 rounded-full text-slate-400 hover:text-slate-900 transition-all z-10"
               >
                 <X size={20} />
               </button>
 
               <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
                 <div className="relative">
-                  <div className="w-28 h-28 rounded-[2rem] bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-5xl font-bold text-white shadow-2xl overflow-hidden">
+                  <div className="w-28 h-28 rounded-[2rem] bg-accent/10 border border-accent/20 flex items-center justify-center text-4xl font-black text-accent shadow-lg overflow-hidden">
                     {detailsMember.fullName.charAt(0)}
                   </div>
                   {detailsMember.isOutstanding && (
-                    <div className="absolute -top-3 -right-3 bg-yellow-400 text-black p-2.5 rounded-2xl border-4 border-[#0a0a0a] shadow-xl">
+                    <div className="absolute -top-3 -right-3 bg-yellow-400 text-white p-2.5 rounded-2xl border-4 border-white shadow-xl">
                       <Star size={16} fill="currentColor" />
                     </div>
                   )}
@@ -1644,29 +1641,29 @@ export const MemberList: React.FC = () => {
                 
                 <div className="text-center md:text-left pt-2">
                   <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
-                    <h2 className="text-4xl font-bold text-white leading-tight">{detailsMember.fullName}</h2>
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">{detailsMember.fullName}</h2>
                     <span className={cn(
-                      "px-4 py-1.5 rounded-full text-[10px] uppercase tracking-normal font-bold border whitespace-nowrap",
-                      detailsMember.status === "Đang sinh hoạt" ? "text-green-400 bg-green-500/10 border-green-500/20 shadow-[0_0_20px_rgba(74,222,128,0.1)]" :
-                      detailsMember.status === "Đã chuyển sinh hoạt" ? "text-blue-400 bg-blue-500/10 border-blue-500/20" :
-                      detailsMember.status === "Đã trưởng thành" ? "text-gray-400 bg-white/5 border-white/10" :
-                      "text-red-400 bg-red-500/10 border-red-500/20"
+                      "px-4 py-1.5 rounded-full text-[10px] uppercase tracking-widest font-black border whitespace-nowrap",
+                      detailsMember.status === "Đang sinh hoạt" ? "text-emerald-600 bg-emerald-50 border-emerald-100" :
+                      detailsMember.status === "Đã chuyển sinh hoạt" ? "text-blue-600 bg-blue-50 border-blue-100" :
+                      detailsMember.status === "Đã trưởng thành" ? "text-slate-500 bg-slate-50 border-slate-200" :
+                      "text-rose-600 bg-rose-50 border-rose-100"
                     )}>
                       {detailsMember.status}
                     </span>
                   </div>
-                  <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-white/40">
+                  <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm font-bold">
+                    <div className="flex items-center gap-2 text-slate-400">
                       <Hash size={14} className="text-accent" />
-                      <span className="font-mono text-xs">{detailsMember.memberId}</span>
+                      <span className="font-mono text-xs text-slate-600">{detailsMember.memberId}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-white/40">
+                    <div className="flex items-center gap-2 text-slate-400">
                       <UserCircle size={14} className="text-accent" />
-                      <span>{detailsMember.gender}</span>
+                      <span className="text-slate-600">{detailsMember.gender}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-white/40">
+                    <div className="flex items-center gap-2 text-slate-400">
                       <MapPin size={14} className="text-accent" />
-                      <span>{detailsMember.hometown || "Chưa cập nhật"}</span>
+                      <span className="text-slate-600 truncate max-w-[200px]">{detailsMember.hometown || "Chưa cập nhật"}</span>
                     </div>
                   </div>
                 </div>
@@ -1917,37 +1914,37 @@ export const MemberList: React.FC = () => {
       )}
       {/* Quick Unit Modal */}
       {showUnitModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-surface border border-white/10 rounded-[2rem] w-full max-w-md shadow-2xl p-1"
+            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden"
           >
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-              <h4 className="text-white font-bold text-lg">Tạo đơn vị nhanh</h4>
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h4 className="text-slate-900 font-black text-lg tracking-tight">Tạo đơn vị nhanh</h4>
               <button 
                 onClick={() => setShowUnitModal(false)}
-                className="text-white/20 hover:text-white"
+                className="text-slate-400 hover:text-slate-600"
               >
                 <X size={18} />
               </button>
             </div>
             <form onSubmit={handleUnitSubmit} className="p-8 space-y-6">
               <div>
-                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Tên đơn vị</label>
+                <label className="text-[10px] uppercase text-slate-400 font-black block mb-2 tracking-widest">Tên đơn vị</label>
                 <input 
                   required
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white"
                   value={newUnit.name}
                   onChange={e => setNewUnit({...newUnit, name: e.target.value})}
                   placeholder="VD: Chi đoàn K44"
                 />
               </div>
               <div>
-                <label className="text-[10px] uppercase text-white/40 font-bold block mb-2">Mã đơn vị</label>
+                <label className="text-[10px] uppercase text-slate-400 font-black block mb-2 tracking-widest">Mã đơn vị</label>
                 <input 
                   required
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white"
                   value={newUnit.code}
                   onChange={e => setNewUnit({...newUnit, code: e.target.value})}
                   placeholder="VD: CD44"
@@ -1959,7 +1956,7 @@ export const MemberList: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setShowUnitModal(false)}
-                  className="flex-1 py-4 text-xs uppercase font-black text-white/40 hover:bg-white/5 border border-white/5 rounded-2xl transition-all"
+                  className="flex-1 py-4 text-[10px] uppercase font-black text-slate-400 hover:bg-slate-50 border border-slate-200 rounded-2xl transition-all"
                 >
                   Hủy
                 </motion.button>
@@ -1967,9 +1964,9 @@ export const MemberList: React.FC = () => {
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="flex-1 py-4 bg-accent border border-white/20 rounded-2xl shadow-xl shadow-accent/20 hover:bg-white transition-all"
+                  className="flex-1 py-4 bg-accent border border-accent/20 rounded-2xl shadow-xl shadow-accent/20 hover:shadow-accent/40 transition-all font-black"
                 >
-                  <span className="text-xs font-black uppercase tracking-widest text-slate-950">Lưu đơn vị</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white">Lưu đơn vị</span>
                 </motion.button>
               </div>
             </form>

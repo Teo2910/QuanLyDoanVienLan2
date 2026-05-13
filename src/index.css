@@ -2,44 +2,44 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #ffffff;
-  --color-primary-foreground: #000000;
-  --color-secondary: #24273a;
-  --color-secondary-foreground: #cad3f5;
-  --color-accent: #3b82f6;
+  --color-primary: #0056b3;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #334155;
+  --color-accent: #0066cc;
   --color-accent-foreground: #ffffff;
-  --color-background: #0f1016;
-  --color-surface: #1a1b23;
-  --color-surface-light: #242632;
-  --color-border-subtle: rgba(255, 255, 255, 0.03);
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-light: #fefefe;
+  --color-border-subtle: rgba(0, 0, 0, 0.05);
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
-  background-image: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.05), transparent 45%),
-                    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.03), transparent 45%);
+  background-image: radial-gradient(circle at 0% 0%, rgba(0, 86, 179, 0.03), transparent 45%),
+                    radial-gradient(circle at 100% 100%, rgba(0, 86, 179, 0.02), transparent 45%);
   background-attachment: fixed;
   color: var(--color-secondary-foreground);
 }
 
 @layer base {
   * {
-    @apply border-white/5 text-[#a9b1d6];
+    @apply border-slate-200 text-slate-600;
   }
   
   input, select, textarea {
-    @apply bg-white/5 border-white/10 text-white placeholder:text-white/20;
+    @apply bg-white border-slate-200 text-slate-900 placeholder:text-slate-400;
   }
 }
 
 .dark-card {
-  @apply bg-white/[0.03] border border-white/10 rounded-2xl p-6;
+  @apply bg-white border border-slate-100 rounded-2xl p-6 shadow-sm;
 }
 
 .dark-table-container {
-  @apply bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden;
+  @apply bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm;
 }
 
 /* Custom Scrollbar Global */
@@ -49,23 +49,23 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 86, 179, 0.1);
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(0, 86, 179, 0.2);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba(0, 86, 179, 0.1) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

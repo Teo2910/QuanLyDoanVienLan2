@@ -63,7 +63,7 @@ export const AIAssistant = () => {
       
       const createActivityTool: FunctionDeclaration = {
         name: "create_activity",
-        description: "Tạo một hoạt động hoặc phong trào mới trong hệ thống.",
+        description: "Tạo một hoạt động thông thường (ví dụ: giao lưu, thể thao, văn nghệ). Không dùng cho các phong trào lớn yêu cầu báo cáo.",
         parameters: {
           type: Type.OBJECT,
           properties: {
@@ -99,7 +99,7 @@ export const AIAssistant = () => {
 
       const createMovementTool: FunctionDeclaration = {
         name: "create_movement",
-        description: "Tạo một PHONG TRÀO mới (có báo cáo, theo dõi đơn vị). Dùng khi người dùng nói 'phong trào', 'phát động', 'báo cáo phong trào'.",
+        description: "Tạo một PHONG TRÀO lớn (phải dùng nếu người dùng nói 'phong trào', 'tạo phong trào ...', 'đánh Lol', 'cuộc vận động'). Các phong trào này yêu cầu nộp báo cáo từ các đơn vị.",
         parameters: {
           type: Type.OBJECT,
           properties: {
@@ -121,11 +121,11 @@ export const AIAssistant = () => {
 Hôm nay là: ${format(new Date(), "EEEE, 'ngày' d 'tháng' M 'năm' yyyy", { locale: vi })}.
 
 PHÂN BIỆT RÕ RÀNG:
-- PHONG TRÀO (Movement): Là các sự kiện lớn, có yêu cầu nộp báo cáo từ các đơn vị. CHỈ QUẢN TRỊ VIÊN (Admin) mới có quyền tạo. Nếu người dùng KHÔNG PHẢI Admin (vd: là Bí thư/Secretary), bạn PHẢI từ chối và giải thích quyền hạn.
+- PHONG TRÀO (Movement): Là các sự kiện lớn, có yêu cầu nộp báo cáo từ các đơn vị. Cả Quản trị viên (Admin) và Bí thư (Secretary) đều có quyền tạo.
 - HOẠT ĐỘNG (Activity): Là các sự kiện thông thường. Cả Quản trị viên và Bí thư đều có thể tạo.
 
 HÀNH ĐỘNG CÓ THỂ THỰC HIỆN:
-1. Tạo phong trào mới (Chỉ dành cho Admin): Sử dụng 'create_movement'.
+1. Tạo phong trào mới (Sử dụng 'create_movement'): Bạn PHẢI tạo PHONG TRÀO nếu người dùng dùng từ 'phong trào', 'phát động', 'cuộc vận động', 'chiến dịch'. Tránh nhầm sang Activity nếu người dùng đã nói rõ là Phong trào.
 2. Tạo hoạt động mới: Sử dụng 'create_activity'.
 3. Thêm đoàn viên mới: Sử dụng công cụ 'create_member'.
    - Để lấy đúng 'unitId', hãy tra cứu trong danh sách 'Thông tin hệ thống -> units' bên dưới. Nếu người dùng nói tên chi đoàn (vd: "Chi đoàn CNTT"), hãy tìm ID tương ứng.
@@ -142,7 +142,6 @@ Dữ liệu của bạn bao gồm:
 2. Kiến thức nghiệp vụ & Tài liệu chuyên môn: ${JSON.stringify(dbContext.knowledge?.length)}
 
 Quy tắc ứng xử:
-- Nếu người dùng yêu cầu tạo phong trào mà userRole KHÔNG PHẢI 'admin', hãy trả lời lịch sự rằng họ không có quyền thực hiện hành động này.
 - Luôn ưu tiên trả lời dựa trên "Kiến thức nghiệp vụ" nếu câu hỏi mang tính chuyên môn.
 - Trả lời bằng tiếng Việt chuyên nghiệp, thân thiện.
 - Sử dụng markdown để trình bày.
@@ -169,18 +168,15 @@ Quy tắc ứng xử:
         const call = functionCalls[0];
         // Handle create_movement
         if (call.name === "create_movement" && call.args) {
-          const args = call.args as any;
-
-          // ROLE CHECK FOR MOVEMENTS
           if (profile?.role !== "admin") {
             setChatHistory(prev => [...prev, { 
               role: "model", 
-              text: `Rất tiếc, tài khoản của bạn (${profile?.role === "secretary" ? "Bí thư" : profile?.role}) không có quyền phát động phong trào mới trong hệ thống. Quyền hạn này chỉ dành cho Quản trị viên (Admin). Tuy nhiên, tôi vẫn có thể giúp bạn tạo các hoạt động (Activity) thông thường hoặc trả lời thắc mắc khác.`, 
-              isAction: false 
+              text: "Rất tiếc, tôi không thể thực hiện yêu cầu này. Chỉ có tài khoản Quản trị viên (Tỉnh đoàn) mới có quyền phát động **Phong trào** mới. Với tài khoản Bí thư, bạn có thể sử dụng tính năng tạo **Hoạt động** thay thế." 
             }]);
             setIsLoading(false);
             return;
           }
+          const args = call.args as any;
 
           try {
             const unitIds = args.participatingUnitIds && args.participatingUnitIds.length > 0
@@ -395,41 +391,41 @@ Quy tắc ứng xử:
     <div className="p-8 pb-32 h-[calc(100vh-theme(spacing.16))] flex flex-col">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3 tracking-tight">
             <Bot className="text-accent" size={32} />
-            Trợ lý AI Bằng Giọng Điệu Tự Nhiên
+            Trợ lý AI Thông minh
           </h1>
-          <p className="text-xs text-white/50 uppercase tracking-widest mt-2 flex items-center gap-2">
+          <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] mt-2 flex items-center gap-2 font-black">
             <Database size={12} />
             {isInitializing ? "Đang kết nối CSDL..." : "Đã đồng bộ dữ liệu hệ thống"}
           </p>
         </div>
       </div>
 
-      <div className="flex-1 bg-surface/50 border border-white/5 rounded-3xl overflow-hidden flex flex-col backdrop-blur-sm shadow-xl">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className="flex-1 bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden flex flex-col shadow-xl">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
           {chatHistory.map((msg, i) => (
             <div key={i} className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "model" && (
-                <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 border border-accent/20">
-                  <Bot size={20} className="text-accent" />
+                <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shrink-0 shadow-lg shadow-accent/20">
+                  <Bot size={20} className="text-white" />
                 </div>
               )}
               
-              <div className={`max-w-[85%] rounded-2xl p-4 shadow-lg leading-relaxed ${msg.role === "user" ? "bg-accent rounded-tr-sm border border-accent/30 shadow-accent/10" : "bg-surface-light border border-white/10 text-white rounded-tl-sm relative"}`}>
+              <div className={`max-w-[85%] rounded-[1.5rem] p-5 shadow-sm leading-relaxed ${msg.role === "user" ? "bg-accent text-white rounded-tr-sm shadow-accent/10 border border-accent/20" : "bg-white border border-slate-100 text-slate-900 rounded-tl-sm relative"}`}>
                 {msg.isAction && (
-                  <div className="absolute -top-3 -right-3 bg-green-500 text-white p-1 rounded-full border-2 border-surface shadow-lg animate-bounce">
+                  <div className="absolute -top-3 -right-3 bg-green-500 text-white p-1 rounded-full border-2 border-white shadow-lg animate-bounce">
                     <CheckCircle2 size={16} />
                   </div>
                 )}
-                <div className={`text-[16px] max-w-none whitespace-pre-wrap ${msg.role === "user" ? "text-[#1e1e2e] font-semibold" : "text-slate-100 prose prose-invert"}`}>
+                <div className={`text-[15px] max-w-none whitespace-pre-wrap ${msg.role === "user" ? "text-white font-medium" : "text-slate-700 font-medium"}`}>
                   {msg.text}
                 </div>
               </div>
 
               {msg.role === "user" && (
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-                  <User size={20} className="text-white/70" />
+                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
+                  <User size={20} className="text-slate-400" />
                 </div>
               )}
             </div>
@@ -437,12 +433,12 @@ Quy tắc ứng xử:
           
           {isLoading && (
             <div className="flex gap-4 justify-start">
-              <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center shrink-0 border border-accent/20">
+              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
                 <Bot size={20} className="text-accent" />
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm p-4 flex items-center gap-2">
+              <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 flex items-center gap-3 shadow-sm">
                 <Loader2 size={16} className="text-accent animate-spin" />
-                <span className="text-white/50 text-sm">AI đang suy nghĩ xử lý dữ liệu...</span>
+                <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">AI đang suy nghĩ...</span>
               </div>
             </div>
           )}
@@ -450,24 +446,35 @@ Quy tắc ứng xử:
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 bg-surface border-t border-white/5">
+        <div className="p-6 bg-white border-t border-slate-100">
           <form onSubmit={handleSend} className="relative flex items-center">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Đang đồng bộ dữ liệu hệ thống..." : "Hỏi AI về đoàn viên, hoạt động... (VD: Ai là chi đoàn trưởng khoa Công Nghệ Thông Tin?)"}
+              placeholder={isInitializing ? "Đang đồng bộ dữ liệu hệ thống..." : "Nhập yêu cầu của bạn (VD: Tạo phong trào rèn luyện thân thể...)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-surface-light border border-white/10 rounded-2xl px-6 py-5 pr-16 text-white focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:opacity-50 transition-all shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-5 pr-16 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-50 transition-all shadow-inner font-medium"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-2 p-3 bg-accent text-accent-foreground rounded-lg disabled:opacity-50 hover:opacity-90 transition-all flex items-center justify-center"
+              className="absolute right-3 p-3 bg-accent text-white rounded-xl disabled:opacity-50 hover:bg-slate-900 transition-all flex items-center justify-center shadow-lg shadow-accent/20"
             >
               <Send size={18} />
             </button>
           </form>
+          <div className="mt-4 flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+            {["Tra cứu đoàn viên", "Tạo phong trào TN", "Báo cáo thống kê", "Tạo hoạt động mới"].map((hint) => (
+              <button 
+                key={hint}
+                onClick={() => setQuery(hint)}
+                className="whitespace-nowrap px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-accent hover:border-accent/40 transition-all"
+              >
+                {hint}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
