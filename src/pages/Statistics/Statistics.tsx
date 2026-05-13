@@ -109,7 +109,7 @@ export const Statistics: React.FC = () => {
       const males = unitMembers.filter(m => m.gender === "Nam").length;
       const females = unitMembers.filter(m => m.gender === "Nữ").length;
       const kinh = unitMembers.filter(m => m.ethnic?.toLowerCase() === 'kinh').length;
-      const others = unitMembers.filter(m => m.ethnic?.toLowerCase() !== 'kinh' && m.ethnic).length;
+      const others = unitMembers.filter(m => m.ethnic && m.ethnic.toLowerCase() !== 'kinh').length;
       const outstanding = unitMembers.filter(m => m.isOutstanding).length;
       const active = unitMembers.filter(m => m.status === "Đang sinh hoạt").length;
       const moved = unitMembers.filter(m => m.status === "Đã chuyển sinh hoạt").length;
@@ -131,6 +131,29 @@ export const Statistics: React.FC = () => {
       };
     }).sort((a, b) => b.total - a.total);
   }, [allMembers, units]);
+
+  const totalStats = useMemo(() => {
+    return unitTableStats.reduce((acc, unit) => {
+      acc.total += unit.total;
+      acc.males += unit.males;
+      acc.females += unit.females;
+      acc.kinh += unit.ethnic.kinh;
+      acc.others += unit.ethnic.others;
+      acc.active += unit.status.active;
+      acc.moved += unit.status.moved;
+      acc.left += unit.status.left;
+      acc.excellent += unit.achievements.excellent;
+      acc.good += unit.achievements.good;
+      acc.average += unit.achievements.average;
+      acc.outstanding += unit.outstanding;
+      return acc;
+    }, {
+      total: 0, males: 0, females: 0, kinh: 0, others: 0,
+      active: 0, moved: 0, left: 0,
+      excellent: 0, good: 0, average: 0,
+      outstanding: 0
+    });
+  }, [unitTableStats]);
 
   useLiveSync("members:changed", loadData);
   useLiveSync("units:changed", loadData);
@@ -296,50 +319,83 @@ export const Statistics: React.FC = () => {
             <div className="px-6 py-3 bg-white border border-slate-200 rounded-2xl font-black text-accent text-sm shadow-sm">{units.length} Đơn vị</div>
           </div>
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse border-spacing-0">
               <thead>
                 <tr className="text-[10px] uppercase tracking-widest text-slate-400 font-black bg-slate-50/80 border-b border-slate-100">
-                  <th className="py-6 px-8">STT</th>
-                  <th className="py-6 px-8">Tên đơn vị</th>
-                  <th className="py-6 px-8 text-center">Tổng số</th>
-                  <th className="py-6 px-8 text-center">Nam/Nữ Ratio</th>
-                  <th className="py-6 px-8 text-center">Tiêu biểu</th>
-                  <th className="py-6 px-8 text-center">Xếp loại X.Sắc</th>
+                  <th className="py-6 px-8 border-r border-slate-100" rowSpan={2}>STT</th>
+                  <th className="py-6 px-8 border-r border-slate-100" rowSpan={2}>Tên đơn vị</th>
+                  <th className="py-4 px-4 text-center border-r border-slate-100 bg-blue-50/30" colSpan={3}>Cơ bản</th>
+                  <th className="py-4 px-4 text-center border-r border-slate-100 bg-emerald-50/30" colSpan={2}>Dân tộc</th>
+                  <th className="py-4 px-4 text-center border-r border-slate-100 bg-purple-50/30" colSpan={3}>Trạng thái</th>
+                  <th className="py-4 px-4 text-center border-r border-slate-100 bg-amber-50/30" colSpan={3}>Xếp loại</th>
+                  <th className="py-6 px-8 text-center" rowSpan={2}>Tiêu biểu</th>
+                </tr>
+                <tr className="text-[9px] uppercase tracking-widest text-slate-400 font-bold bg-slate-50/50 border-b border-slate-100">
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Tổng</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Nam</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Nữ</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Kinh</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Khác</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Đang SH</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Chuyển</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">T. Thành</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">X. Sắc</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">Khá</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-100">T. Bình</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {unitTableStats.map((unit, index) => (
                   <tr key={unit.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="py-6 px-8 text-slate-300 font-bold text-sm tracking-widest">{String(index + 1).padStart(2, '0')}</td>
-                    <td className="py-6 px-8">
-                       <span className="text-slate-900 font-black text-lg group-hover:text-accent transition-colors">{unit.name}</span>
-                    </td>
-                    <td className="py-6 px-8 text-center">
-                       <span className="px-5 py-2 bg-slate-100 rounded-xl font-black text-slate-700">{unit.total}</span>
-                    </td>
-                    <td className="py-6 px-8 text-center">
-                       <div className="flex items-center justify-center gap-2">
-                          <span className="text-blue-500 font-bold">{unit.males}</span>
-                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
-                             <div className="h-full bg-blue-500" style={{width: `${(unit.males/(unit.total||1))*100}%`}} />
-                             <div className="h-full bg-rose-500" style={{width: `${(unit.females/(unit.total||1))*100}%`}} />
-                          </div>
-                          <span className="text-rose-500 font-bold">{unit.females}</span>
+                    <td className="py-6 px-8 text-slate-300 font-bold text-sm tracking-widest border-r border-slate-50">{String(index + 1).padStart(2, '0')}</td>
+                    <td className="py-6 px-8 border-r border-slate-50">
+                       <span className="text-slate-900 font-black text-sm group-hover:text-accent transition-colors block leading-tight">{unit.name}</span>
+                       <div className="w-24 h-1 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                          <div className="h-full bg-accent" style={{width: `${(unit.total / (totalStats.total || 1)) * 100}%`}} />
                        </div>
                     </td>
+                    <td className="py-6 px-4 text-center font-black text-slate-700 border-r border-slate-50">{unit.total}</td>
+                    <td className="py-6 px-4 text-center font-bold text-blue-500 border-r border-slate-50">{unit.males}</td>
+                    <td className="py-6 px-4 text-center font-bold text-rose-500 border-r border-slate-50">{unit.females}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-600 border-r border-slate-50">{unit.ethnic.kinh}</td>
+                    <td className="py-6 px-4 text-center font-bold text-teal-500 border-r border-slate-50">{unit.ethnic.others}</td>
+                    <td className="py-6 px-4 text-center font-bold text-indigo-500 border-r border-slate-50">{unit.status.active}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-400 border-r border-slate-50">{unit.status.moved}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-400 border-r border-slate-50">{unit.status.left}</td>
+                    <td className="py-6 px-4 text-center font-black text-emerald-600 border-r border-slate-50">{unit.achievements.excellent}</td>
+                    <td className="py-6 px-4 text-center font-bold text-blue-500 border-r border-slate-50">{unit.achievements.good}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-500 border-r border-slate-50">{unit.achievements.average}</td>
                     <td className="py-6 px-8 text-center">
-                       <span className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs", unit.outstanding > 0 ? "bg-amber-50 text-amber-600 border border-amber-100" : "text-slate-300")}>
-                         <Star size={12} fill={unit.outstanding > 0 ? "currentColor" : "none"} /> {unit.outstanding}
-                       </span>
-                    </td>
-                    <td className="py-6 px-8 text-center">
-                       <span className={cn("px-4 py-2 rounded-xl font-black text-xs", unit.achievements.excellent > 0 ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "text-slate-300")}>
-                         {unit.achievements.excellent}
+                       <span className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm", unit.outstanding > 0 ? "bg-amber-50 text-amber-600 border border-amber-100" : "text-slate-200")}>
+                         {unit.outstanding}
                        </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="bg-slate-900 text-white font-black">
+                  <td className="py-8 px-8 border-r border-white/5">
+                    <Activity size={24} className="text-accent" />
+                  </td>
+                  <td className="py-8 px-8 border-r border-white/5">
+                    <span className="uppercase tracking-widest text-[11px] block text-white/50 mb-1">Tổng kết hệ thống</span>
+                    <span className="text-lg">CẬP NHẬT THỜI GIAN THỰC</span>
+                  </td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-2xl">{totalStats.total}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.males}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.females}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.kinh}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl text-teal-400">{totalStats.others}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.active}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.moved}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl">{totalStats.left}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl text-emerald-400">{totalStats.excellent}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl text-blue-400">{totalStats.good}</td>
+                  <td className="py-8 px-4 text-center border-r border-white/5 text-xl text-slate-400">{totalStats.average}</td>
+                  <td className="py-8 px-8 text-center text-3xl text-amber-400">{totalStats.outstanding}</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
