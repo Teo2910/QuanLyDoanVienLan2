@@ -534,7 +534,9 @@ Quy tắc ứng xử:
           </div>
         )}
         
-        <div className="flex-1 overflow-y-auto p-10 space-y-12 scroll-smooth custom-scrollbar relative z-10">
+        <div 
+          className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth custom-scrollbar relative z-10"
+        >
           <AnimatePresence initial={false}>
             {chatHistory.map((msg, i) => (
               <motion.div 
@@ -558,10 +560,10 @@ Quy tắc ứng xử:
                 
                 <div className={`max-w-[75%] space-y-3 ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col`}>
                   <div className={`
-                    relative p-8 text-[16px] leading-[1.65] font-medium transition-all shadow-2xl
+                    relative p-5 text-[15px] leading-relaxed font-medium transition-all shadow-xl
                     ${msg.role === "user" 
-                      ? "bg-slate-900 text-slate-100 rounded-[2.5rem] rounded-tr-none shadow-slate-900/10" 
-                      : "bg-white/80 backdrop-blur-xl border border-white text-slate-800 rounded-[2.5rem] rounded-tl-none shadow-slate-200/40"}
+                      ? "bg-slate-900 text-slate-100 rounded-3xl rounded-tr-none shadow-slate-900/10" 
+                      : "bg-white/80 backdrop-blur-xl border border-white text-slate-800 rounded-3xl rounded-tl-none shadow-slate-200/40"}
                   `}>
                     {msg.isAction && (
                       <motion.div 
@@ -613,47 +615,34 @@ Quy tắc ứng xử:
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-10 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
+        <div className="p-6 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
           <form onSubmit={handleSend} className="relative flex items-center group max-w-5xl mx-auto">
-            <div className="absolute left-8 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
-              <Sparkles size={28} strokeWidth={2.5} />
+            <div className="absolute left-6 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
+              <Sparkles size={22} strokeWidth={2.5} />
             </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Vui lòng đợi Core khởi động..." : "Điều lệnh hoặc câu hỏi của bạn? (VD: Tìm đoàn viên, Tạo sự kiện...)"}
+              placeholder={isInitializing ? "Vui lòng đợi Core khởi động..." : "Điều lệnh hoặc câu hỏi của bạn? (VD: Tìm đoàn viên...)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-white border border-slate-200 rounded-[3rem] pl-20 pr-24 py-8 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-bold text-lg shadow-2xl shadow-slate-200/10 group-hover:border-slate-300 leading-relaxed"
+              className="w-full bg-white border border-slate-200 rounded-2xl pl-14 pr-16 py-4 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-semibold text-base shadow-xl shadow-slate-200/5 group-hover:border-slate-300 leading-relaxed"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-4 w-16 h-16 bg-slate-900 text-white rounded-full disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-2xl shadow-slate-900/30 hover:shadow-accent/50 group/btn"
+              className="absolute right-2 px-6 h-10 bg-slate-900 text-white rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg shadow-slate-900/30 hover:shadow-accent/50 group/btn"
             >
-              <Send size={28} strokeWidth={2.5} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+              <Send size={18} strokeWidth={2.5} className="group-hover/btn:translate-x-1 transition-transform mr-2" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Gửi</span>
             </button>
           </form>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3 max-w-4xl mx-auto overflow-hidden">
-            <span className="w-full text-center text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4 opacity-50">Lệnh gợi ý thông minh</span>
-            {["Tìm đoàn viên", "Tạo phong trào mùa hè", "Lấy tài liệu thi đua", "Check list báo cáo"].map((hint) => (
-              <motion.button 
-                key={hint}
-                whileHover={{ scale: 1.05, y: -4, backgroundColor: "rgb(37, 99, 235)", color: "white", borderColor: "transparent" }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setQuery(hint)}
-                className="whitespace-nowrap px-8 py-3.5 rounded-[1.5rem] bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all shadow-md hover:shadow-2xl hover:shadow-accent/20"
-              >
-                {hint}
-              </motion.button>
-            ))}
-          </div>
-          
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
-             <div className="w-1 h-1 bg-slate-200 rounded-full" />
-             <p className="text-[9px] text-slate-300 font-black uppercase tracking-[0.4em]">Powered by Intelligent Core Technology</p>
-             <div className="w-1 h-1 bg-slate-200 rounded-full" />
+
+          <div className="mt-8 flex items-center justify-center gap-3">
+             <div className="w-1.5 h-1.5 bg-slate-100 rounded-full" />
+             <p className="text-[9px] text-slate-300 font-black uppercase tracking-[0.4em] opacity-50">Powered by Intelligent Core Technology</p>
+             <div className="w-1.5 h-1.5 bg-slate-100 rounded-full" />
           </div>
         </div>
       </div>
