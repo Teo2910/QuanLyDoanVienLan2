@@ -749,14 +749,21 @@ export const MovementList: React.FC = () => {
                   <h3 className="text-2xl font-bold text-white tracking-tight">
                     {units.find(u => u.id === viewingReport.unitId)?.name || "Đơn vị ẩn"}
                   </h3>
-                  <p className="text-[10px] text-white/40 uppercase font-medium mt-1">
-                    Nộp ngày: {(() => {
-                      if (!viewingReport.submittedAt) return "N/A";
-                      const val = viewingReport.submittedAt;
-                      const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
-                      return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
-                    })()}
-                  </p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <p className="text-[10px] text-white/40 uppercase font-medium">
+                      Nộp ngày: {(() => {
+                        if (!viewingReport.submittedAt) return "N/A";
+                        const val = viewingReport.submittedAt;
+                        const d = new Date(typeof val === "number" || (!isNaN(Number(val)) && typeof val === "string") ? Number(val) : val);
+                        return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN");
+                      })()}
+                    </p>
+                    {viewingReport.submissionCount && viewingReport.submissionCount > 1 && (
+                      <span className="px-2 py-1 bg-accent/20 text-accent text-[8px] font-black rounded-lg uppercase tracking-tighter">
+                         Số lần báo cáo: {viewingReport.submissionCount}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button onClick={() => setIsViewingReportModalOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-white/30 hover:text-white transition-all">
                   <Plus size={24} className="rotate-45" />
