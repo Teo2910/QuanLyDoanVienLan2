@@ -201,18 +201,18 @@ export const Statistics: React.FC = () => {
 
   return (
     <div className="w-full pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 lg:mb-12 px-2 lg:px-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6 mb-8 lg:mb-12 px-2 lg:px-0">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <div className="flex items-center gap-3 lg:gap-4 mb-2 lg:mb-0">
             <div className="p-3 lg:p-4 bg-accent/10 rounded-xl lg:rounded-2xl text-accent">
-              <BarChart3 size={24} className="lg:hidden" />
+              <BarChart3 size={20} className="lg:hidden" />
               <BarChart3 size={32} className="hidden lg:block" />
             </div>
-            <h2 className="text-2xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl lg:text-4xl font-bold text-slate-900 tracking-tight">
               Thống kê số liệu
             </h2>
           </div>
-          <p className="text-[8px] lg:text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-black lg:ml-20">
+          <p className="text-[8px] lg:text-[10px] uppercase tracking-widest text-slate-400 mt-1 lg:mt-2 font-black lg:ml-20">
             Dữ liệu {selectedUnitName}
           </p>
         </motion.div>
@@ -243,53 +243,54 @@ export const Statistics: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
         <motion.div 
           whileHover={{ y: -5 }}
-          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-8 lg:p-12 rounded-3xl lg:rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
+          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-6 lg:p-12 rounded-2xl lg:rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
         >
           <div className="absolute top-0 right-0 w-64 lg:w-96 h-64 lg:h-96 bg-white/10 blur-[60px] lg:blur-[100px] -mr-32 lg:-mr-48 -mt-32 lg:-mt-48 rounded-full" />
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-8 lg:gap-12 text-center md:text-left">
+          <div className="relative flex flex-col md:flex-row justify-between items-center gap-6 lg:gap-12 text-center md:text-left">
             <div>
-              <div className="flex items-center justify-center md:justify-start gap-2 lg:gap-3 mb-4 lg:mb-6">
-                <Star size={20} className="text-yellow-300 fill-yellow-300" />
-                <span className="text-[10px] uppercase tracking-[0.2em] lg:tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
+              <div className="flex items-center justify-center md:justify-start gap-2 lg:gap-3 mb-3 lg:mb-6">
+                <Star size={18} className="text-yellow-300 fill-yellow-300 lg:hidden" />
+                <Star size={20} className="text-yellow-300 fill-yellow-300 hidden lg:block" />
+                <span className="text-[8px] lg:text-[10px] uppercase tracking-[0.2em] lg:tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
               </div>
-              <h2 className="text-3xl lg:text-5xl font-black tracking-tight mb-4">Đoàn viên Tiêu biểu</h2>
-              <p className="text-white/70 max-w-lg leading-relaxed font-medium text-sm lg:text-base">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+              <h2 className="text-2xl lg:text-5xl font-black tracking-tight mb-2 lg:mb-4">Đoàn viên Tiêu biểu</h2>
+              <p className="text-white/70 max-w-lg leading-relaxed font-medium text-xs lg:text-base px-4 md:px-0">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
             </div>
-            <div className="flex items-center gap-6 lg:gap-10 bg-white/10 backdrop-blur-xl p-6 lg:p-10 rounded-2xl lg:rounded-[2.5rem] border border-white/20 shadow-2xl w-full md:w-auto">
+            <div className="flex items-center gap-4 lg:gap-10 bg-white/10 backdrop-blur-xl p-5 lg:p-10 rounded-2xl lg:rounded-[2.5rem] border border-white/20 shadow-2xl w-full md:w-auto">
               <div className="flex-1 text-center">
-                <span className="text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2 text-nowrap">Số lượng</span>
-                <span className="text-4xl lg:text-6xl font-black leading-none">{stats?.outstandingCount}</span>
+                <span className="text-[7px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 text-nowrap">Số lượng</span>
+                <span className="text-3xl lg:text-6xl font-black leading-none">{stats?.outstandingCount}</span>
               </div>
-              <div className="w-px h-12 lg:h-16 bg-white/20" />
+              <div className="w-px h-10 lg:h-16 bg-white/20" />
               <div className="flex-1 text-center">
-                <span className="text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2 text-nowrap">Tỷ lệ</span>
-                <span className="text-2xl lg:text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
+                <span className="text-[7px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 text-nowrap">Tỷ lệ</span>
+                <span className="text-xl lg:text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
               </div>
             </div>
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+        <motion.div className="bg-white border border-slate-100 p-6 lg:p-10 rounded-2xl lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
+          <h3 className="text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-6 lg:mb-8 flex items-center gap-3">
             <PieChartIcon className="text-accent" size={16} /> Cơ cấu giới tính
           </h3>
-          <div className="h-64 mb-8">
+          <div className="h-48 lg:h-64 mb-6 lg:mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={window.innerWidth < 640 ? 40 : 60} outerRadius={window.innerWidth < 640 ? 60 : 80} paddingAngle={5}>
                   {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
             {stats?.genderData.map((item, i) => (
-              <div key={item.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="text-sm font-bold text-slate-600 flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} /> {item.name}
+              <div key={item.name} className="flex items-center justify-between p-3 lg:p-4 bg-slate-50 rounded-xl lg:rounded-2xl border border-slate-100">
+                <span className="text-xs lg:text-sm font-bold text-slate-600 flex items-center gap-2 lg:gap-3">
+                  <div className="w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} /> {item.name}
                 </span>
-                <span className="text-lg font-black text-slate-900">{item.value}</span>
+                <span className="text-base lg:text-lg font-black text-slate-900">{item.value}</span>
               </div>
             ))}
           </div>

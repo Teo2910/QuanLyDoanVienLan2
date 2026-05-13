@@ -472,116 +472,121 @@ Quy tắc ứng xử:
       <div className="absolute top-[10%] left-[5%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px] -z-10 animate-pulse" />
       <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-blue-400/5 rounded-full blur-[100px] -z-10" />
 
-      <div className="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 px-4">
-        <div className="flex items-center gap-5">
+      <div className="mb-4 lg:mb-8 flex flex-col md:flex-row items-center md:items-center justify-between gap-4 lg:gap-6 px-2 lg:px-4 shrink-0">
+        <div className="flex items-center gap-4 lg:gap-5 w-full md:w-auto">
           <motion.div 
             initial={{ rotate: -10, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
-            className="w-16 h-16 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-2xl shadow-slate-900/20 relative group overflow-hidden"
+            className="w-12 h-12 lg:w-16 lg:h-16 rounded-2xl lg:rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-xl shadow-slate-900/20 relative group overflow-hidden shrink-0"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Bot size={36} className="relative z-10" />
+            <Bot size={24} className="lg:hidden relative z-10" />
+            <Bot size={36} className="hidden lg:block relative z-10" />
             <motion.div 
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 1, 0.5]
               }}
               transition={{ repeat: Infinity, duration: 3 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white shadow-lg" 
+              className="absolute -top-1 -right-1 w-3 h-3 lg:w-5 lg:h-5 bg-emerald-500 rounded-full border-2 lg:border-4 border-white shadow-lg" 
             />
           </motion.div>
-          <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none">
-              Hệ thống Tri thức <span className="text-accent underline decoration-accent/20 underline-offset-8">AI</span>
+          <div className="overflow-hidden">
+            <h1 className="text-xl sm:text-2xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight lg:leading-none truncate">
+              Hệ thống Tri thức <span className="text-accent underline decoration-accent/20 underline-offset-4 lg:underline-offset-8">AI</span>
             </h1>
-            <div className="flex items-center gap-3 mt-3">
-              <div className="px-3 py-1 bg-accent/10 border border-accent/20 rounded-lg">
-                <p className="text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-2">
-                  <Sparkles size={12} className="animate-pulse" />
+            <div className="flex items-center gap-2 lg:gap-3 mt-1 lg:mt-3">
+              <div className="px-2 lg:px-3 py-0.5 lg:py-1 bg-accent/10 border border-accent/20 rounded-md lg:rounded-lg">
+                <p className="text-[8px] lg:text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-1.5 lg:gap-2">
+                  <Sparkles size={10} className="lg:hidden animate-pulse" />
+                  <Sparkles size={12} className="hidden lg:block animate-pulse" />
                   DLU Intelligent Core v3.0
                 </p>
               </div>
-              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Đã đồng bộ hóa 100% dữ liệu chi đoàn</p>
+              <p className="text-[7px] lg:text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Đã đồng bộ hóa 100% dữ liệu chi đoàn</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 self-end md:self-auto">
           <div className="flex flex-col items-end">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50/50 border border-emerald-100 rounded-xl">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Core Active</span>
+            <span className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
+            <div className="flex items-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-emerald-50/50 border border-emerald-100 rounded-lg lg:rounded-xl">
+              <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-emerald-600">Core Active</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 bg-white/40 backdrop-blur-3xl border border-white border-t-slate-200/50 rounded-[4rem] overflow-hidden flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative">
+      <div className="flex-1 bg-white/40 lg:backdrop-blur-3xl border border-white border-t-slate-200/50 rounded-3xl lg:rounded-[4rem] overflow-hidden flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative">
         {/* Subtle decorative grid */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.02] pointer-events-none" />
         
         {isInitializing && (
-          <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center gap-6">
+          <div className="absolute inset-0 z-50 bg-white/90 backdrop-blur-2xl flex flex-col items-center justify-center gap-4 lg:gap-6">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-slate-100 rounded-[2rem] animate-pulse" />
-              <div className="absolute inset-0 w-20 h-20 border-t-4 border-accent rounded-[2rem] animate-spin" />
+              <div className="w-16 h-16 lg:w-20 lg:h-20 border-4 border-slate-100 rounded-2xl lg:rounded-[2rem] animate-pulse" />
+              <div className="absolute inset-0 w-16 h-16 lg:w-20 lg:h-20 border-t-4 border-accent rounded-2xl lg:rounded-[2rem] animate-spin" />
             </div>
             <div className="text-center">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-900 mb-2">Đang nạp tri thức</p>
-              <p className="text-[10px] font-bold text-slate-400 italic">Vui lòng đợi trong giây lát...</p>
+              <p className="text-[10px] lg:text-xs font-black uppercase tracking-[0.3em] text-slate-900 mb-2">Đang nạp tri thức</p>
+              <p className="text-[8px] lg:text-[10px] font-bold text-slate-400 italic">Vui lòng đợi...</p>
             </div>
           </div>
         )}
         
-        <div className="flex-1 overflow-y-auto p-10 space-y-12 scroll-smooth custom-scrollbar relative z-10">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-6 lg:space-y-12 scroll-smooth custom-scrollbar relative z-10">
           <AnimatePresence initial={false}>
             {chatHistory.map((msg, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                className={`flex gap-6 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                className={`flex gap-3 lg:gap-6 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
               >
                 <div className="shrink-0 pt-1">
                   {msg.role === "model" ? (
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center shadow-2xl shadow-slate-900/20 border border-slate-800 transition-all hover:rotate-6">
-                      <Bot size={26} className="text-white" />
+                    <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center shadow-2xl shadow-slate-900/20 border border-slate-800 transition-all hover:rotate-6">
+                      <Bot size={20} className="text-white lg:hidden" />
+                      <Bot size={26} className="text-white hidden lg:block" />
                     </div>
                   ) : (
-                    <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-xl shadow-slate-200/40 group overflow-hidden relative">
+                    <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-xl shadow-slate-200/40 group overflow-hidden relative">
                       <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <User size={26} className="text-slate-400 relative z-10" />
+                      <User size={20} className="text-slate-400 relative z-10 lg:hidden" />
+                      <User size={26} className="text-slate-400 relative z-10 hidden lg:block" />
                     </div>
                   )}
                 </div>
                 
-                <div className={`max-w-[75%] space-y-3 ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col`}>
+                <div className={`max-w-[85%] lg:max-w-[75%] space-y-2 lg:space-y-3 ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col`}>
                   <div className={`
-                    relative p-8 text-[16px] leading-[1.65] font-medium transition-all shadow-2xl
+                    relative p-5 lg:p-8 lg:text-[16px] text-sm leading-[1.65] font-medium transition-all shadow-xl lg:shadow-2xl
                     ${msg.role === "user" 
-                      ? "bg-slate-900 text-slate-100 rounded-[2.5rem] rounded-tr-none shadow-slate-900/10" 
-                      : "bg-white/80 backdrop-blur-xl border border-white text-slate-800 rounded-[2.5rem] rounded-tl-none shadow-slate-200/40"}
+                      ? "bg-slate-900 text-slate-100 rounded-3xl rounded-tr-none shadow-slate-900/10" 
+                      : "bg-white/80 backdrop-blur-xl border border-white text-slate-800 rounded-3xl rounded-tl-none shadow-slate-200/40"}
                   `}>
                     {msg.isAction && (
                       <motion.div 
                         initial={{ scale: 0, rotate: -45 }}
                         animate={{ scale: 1, rotate: 0 }}
-                        className="absolute -top-4 -right-4 bg-emerald-500 text-white p-3 rounded-2xl border-4 border-white shadow-2xl z-20"
+                        className="absolute -top-3 -right-3 lg:-top-4 lg:-right-4 bg-emerald-500 text-white p-2 lg:p-3 rounded-xl lg:rounded-2xl border-2 lg:border-4 border-white shadow-2xl z-20"
                       >
-                        <CheckCircle2 size={24} strokeWidth={3} />
+                        <CheckCircle2 size={16} strokeWidth={3} className="lg:hidden" />
+                        <CheckCircle2 size={24} strokeWidth={3} className="hidden lg:block" />
                       </motion.div>
                     )}
-                    <div className="prose prose-slate max-w-none prose-sm font-medium">
+                    <div className="prose prose-slate max-w-none text-xs lg:text-sm font-medium">
                       {msg.text}
                     </div>
                   </div>
-                  <div className={`flex items-center gap-3 px-2 ${msg.role === "user" ? "flex-row-reverse text-right" : "flex-row text-left"}`}>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">
+                  <div className={`flex items-center gap-2 lg:gap-3 px-2 ${msg.role === "user" ? "flex-row-reverse text-right" : "flex-row text-left"}`}>
+                    <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-slate-300">
                       {msg.role === "user" ? profile?.fullName || "Chủ thể điều hành" : "Hệ thống DLU Core"}
                     </p>
                     <div className="w-1 h-1 bg-slate-200 rounded-full" />
-                    <p className="text-[9px] font-bold text-slate-300 tabular-nums">
+                    <p className="text-[8px] lg:text-[9px] font-bold text-slate-300 tabular-nums">
                       {format(new Date(), "HH:mm")}
                     </p>
                   </div>
@@ -594,18 +599,19 @@ Quy tắc ứng xử:
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex gap-6"
+              className="flex gap-3 lg:gap-6"
             >
-              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20 animate-pulse transition-all">
-                <Bot size={26} className="text-accent" />
+              <div className="w-10 h-10 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20 animate-pulse transition-all">
+                <Bot size={20} className="text-accent lg:hidden" />
+                <Bot size={26} className="text-accent hidden lg:block" />
               </div>
-              <div className="bg-white/60 backdrop-blur-xl border border-white rounded-[2rem] rounded-tl-none p-8 flex items-center gap-6 shadow-2xl shadow-slate-200/20">
-                <div className="flex gap-2">
-                  <motion.div animate={{ height: [8, 16, 8] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-1.5 rounded-full bg-accent" />
-                  <motion.div animate={{ height: [8, 16, 8] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.5 rounded-full bg-accent/60" />
-                  <motion.div animate={{ height: [8, 16, 8] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.5 rounded-full bg-accent/30" />
+              <div className="bg-white/60 backdrop-blur-xl border border-white rounded-2xl lg:rounded-[2rem] rounded-tl-none p-5 lg:p-8 flex items-center gap-4 lg:gap-6 shadow-xl lg:shadow-2xl shadow-slate-200/20">
+                <div className="flex gap-1.5 lg:gap-2">
+                  <motion.div animate={{ height: [6, 12, 6] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-1 lg:w-1.5 rounded-full bg-accent" />
+                  <motion.div animate={{ height: [6, 12, 6] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1 lg:w-1.5 rounded-full bg-accent/60" />
+                  <motion.div animate={{ height: [6, 12, 6] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1 lg:w-1.5 rounded-full bg-accent/30" />
                 </div>
-                <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Đang truy xuất lõi tri thức...</span>
+                <span className="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-slate-400">Đang truy xuất...</span>
               </div>
             </motion.div>
           )}
@@ -613,37 +619,39 @@ Quy tắc ứng xử:
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-10 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
+        <div className="p-4 lg:p-10 bg-white/50 lg:backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)] shrink-0">
           <form onSubmit={handleSend} className="relative flex items-center group max-w-5xl mx-auto">
-            <div className="absolute left-8 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
-              <Sparkles size={28} strokeWidth={2.5} />
+            <div className="absolute left-4 lg:left-8 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
+              <Sparkles size={20} strokeWidth={2.5} className="lg:hidden" />
+              <Sparkles size={28} strokeWidth={2.5} className="hidden lg:block" />
             </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Vui lòng đợi Core khởi động..." : "Điều lệnh hoặc câu hỏi của bạn? (VD: Tìm đoàn viên, Tạo sự kiện...)"}
+              placeholder={isInitializing ? "Vui lòng đợi..." : "Bạn muốn gì?"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-white border border-slate-200 rounded-[3rem] pl-20 pr-24 py-8 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-bold text-lg shadow-2xl shadow-slate-200/10 group-hover:border-slate-300 leading-relaxed"
+              className="w-full bg-white border border-slate-200 rounded-2xl lg:rounded-[3rem] pl-12 lg:pl-20 pr-16 lg:pr-24 py-4 lg:py-8 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 lg:focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-bold text-sm lg:text-lg shadow-xl shadow-slate-200/10 group-hover:border-slate-300 leading-relaxed"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-4 w-16 h-16 bg-slate-900 text-white rounded-full disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-2xl shadow-slate-900/30 hover:shadow-accent/50 group/btn"
+              className="absolute right-2 lg:right-4 w-12 h-12 lg:w-16 lg:h-16 bg-slate-900 text-white rounded-full disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-2xl shadow-slate-900/30 hover:shadow-accent/50 group/btn"
             >
-              <Send size={28} strokeWidth={2.5} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+              <Send size={20} strokeWidth={2.5} className="lg:hidden" />
+              <Send size={28} strokeWidth={2.5} className="hidden lg:block group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
             </button>
           </form>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3 max-w-4xl mx-auto overflow-hidden">
-            <span className="w-full text-center text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 mb-4 opacity-50">Lệnh gợi ý thông minh</span>
-            {["Tìm đoàn viên", "Tạo phong trào mùa hè", "Lấy tài liệu thi đua", "Check list báo cáo"].map((hint) => (
+          <div className="mt-4 lg:mt-8 flex flex-wrap justify-center gap-2 lg:gap-3 max-w-4xl mx-auto overflow-hidden">
+            <span className="w-full text-center text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em] lg:tracking-[0.3em] text-slate-300 mb-2 lg:mb-4 opacity-50">Lệnh gợi ý</span>
+            {["Tìm đoàn viên", "Tạo phong trào", "Báo cáo"].map((hint) => (
               <motion.button 
                 key={hint}
                 whileHover={{ scale: 1.05, y: -4, backgroundColor: "rgb(37, 99, 235)", color: "white", borderColor: "transparent" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setQuery(hint)}
-                className="whitespace-nowrap px-8 py-3.5 rounded-[1.5rem] bg-white border border-slate-200 text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all shadow-md hover:shadow-2xl hover:shadow-accent/20"
+                className="whitespace-nowrap px-4 lg:px-8 py-2.5 lg:py-3.5 rounded-xl lg:rounded-[1.5rem] bg-white border border-slate-200 text-[9px] lg:text-[11px] font-black uppercase tracking-widest text-slate-500 transition-all shadow-md"
               >
                 {hint}
               </motion.button>

@@ -140,15 +140,16 @@ export const UnitList: React.FC = () => {
         onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
         variant={confirmConfig.variant}
       />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 lg:mb-12 px-2 lg:px-0">
         <div>
-          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight">
-            <div className="w-16 h-16 bg-accent/10 rounded-[2rem] flex items-center justify-center text-accent">
-              <Building2 size={36} />
+          <h2 className="text-2xl lg:text-4xl font-bold text-slate-900 flex items-center gap-3 lg:gap-4 tracking-tight">
+            <div className="w-12 h-12 lg:w-16 lg:h-16 bg-accent/10 rounded-2xl lg:rounded-[2rem] flex items-center justify-center text-accent shrink-0">
+              <Building2 size={24} className="lg:hidden" />
+              <Building2 size={36} className="hidden lg:block" />
             </div>
             Quản lý đơn vị
           </h2>
-          <p className="text-slate-400 text-[10px] uppercase tracking-widest mt-3 font-bold ml-20">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
+          <p className="text-[10px] uppercase font-black tracking-widest text-slate-400 mt-2 lg:ml-20">Danh mục các chi đoàn và đơn vị cơ sở trực thuộc</p>
         </div>
         {isAdmin && (
           <motion.button 
