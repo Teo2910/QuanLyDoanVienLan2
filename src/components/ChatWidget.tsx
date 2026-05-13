@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, ChevronDown, MessageCircle, Sparkles, User, ShieldCheck, Ghost } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { VNPTLogo } from "./ui/VNPTLogo";
 import { useAuth } from "../contexts/AuthContext";
 import { io, Socket } from "socket.io-client";
 import { cn } from "../lib/utils";
@@ -233,12 +234,7 @@ export const ChatWidget = () => {
                <div className="flex-1 min-w-0">
                  <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
-                       <img 
-                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
-                         alt="VNPT Logo" 
-                         referrerPolicy="no-referrer"
-                         className="w-full h-full object-contain"
-                       />
+                       <VNPTLogo className="w-full h-full" />
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-xs sm:text-base font-black text-slate-900 tracking-tight truncate">

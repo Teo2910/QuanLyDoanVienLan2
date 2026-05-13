@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { dataService } from "../../services/dataService";
 import { io, Socket } from "socket.io-client";
 
+import { VNPTLogo } from "../ui/VNPTLogo";
 import { motion, AnimatePresence } from "motion/react";
 
 interface LayoutProps {
@@ -159,12 +160,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center justify-between lg:justify-start gap-4 group cursor-pointer">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
-                  alt="VNPT Logo" 
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-contain"
-                />
+                <VNPTLogo className="w-full h-full" />
               </div>
               <div>
                 <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">VNPT DLU</h1>

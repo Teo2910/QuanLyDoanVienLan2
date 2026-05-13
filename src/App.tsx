@@ -20,6 +20,7 @@ import { CustomSelect } from "./components/CustomSelect";
 import { useLiveSync } from "./hooks/useLiveSync";
 
 import { ChatWidget } from "./components/ChatWidget";
+import { VNPTLogo } from "./components/ui/VNPTLogo";
 
 const PageTransition = ({ children }: { children: React.ReactNode; key?: string }) => (
   <motion.div
@@ -287,12 +288,7 @@ const AuthScreen = () => {
          className="max-w-md w-full bg-white border border-slate-200 p-8 sm:p-12 rounded-3xl sm:rounded-[4rem] text-center shadow-2xl flex flex-col items-center"
        >
           <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-10 transition-transform hover:scale-110 duration-500">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1024px-VNPT_Logo.svg.png" 
-              alt="VNPT Logo" 
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-contain"
-            />
+            <VNPTLogo className="w-full h-full" />
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-2 tracking-tighter leading-none">VNPT DLU</h1>
           <p className="text-slate-400 mb-8 sm:mb-12 text-[9px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-black">
