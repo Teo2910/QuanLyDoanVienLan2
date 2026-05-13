@@ -1077,7 +1077,7 @@ export const MemberList: React.FC = () => {
         {loading ? (
           <div className="p-24 text-center items-center flex flex-col gap-4">
              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-             <p className="text-white/40 text-xs uppercase tracking-widest">Đang kết nối cơ sở dữ liệu</p>
+             <p className="text-slate-400 text-xs uppercase tracking-widest font-bold">Đang kết nối cơ sở dữ liệu</p>
           </div>
         ) : filteredMembers.length > 0 ? (
           <div className="flex-1 overflow-x-auto px-4">
@@ -1285,14 +1285,16 @@ export const MemberList: React.FC = () => {
             </table>
           </div>
         ) : (
-          <div className="p-24 text-center items-center flex flex-col gap-2">
-            <Users size={48} className="text-white/10 mb-2" />
-            <p className="text-white/30 italic text-sm">Không tìm thấy đoàn viên nào theo tiêu chí lọc</p>
+          <div className="p-24 text-center items-center flex flex-col gap-4">
+            <div className="p-6 bg-slate-50 rounded-full border border-slate-100 text-slate-200">
+              <Users size={48} />
+            </div>
+            <p className="text-slate-400 italic text-sm font-medium">Không tìm thấy đoàn viên nào theo tiêu chí lọc</p>
           </div>
         )}
 
-        <div className="px-8 py-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
-          <span className="text-[10px] text-white/30 uppercase tracking-widest font-semibold italic">
+        <div className="px-8 py-6 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 mt-auto bg-slate-50/30">
+          <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold italic">
             Hiển thị {Math.min(filteredMembers.length, (currentPage - 1) * pageSize + 1)}-{Math.min(filteredMembers.length, currentPage * pageSize)} trong tổng số {filteredMembers.length} hồ sơ
           </span>
           
@@ -1303,7 +1305,7 @@ export const MemberList: React.FC = () => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none border border-white/5"
+                className="p-2 rounded-lg bg-white text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none border border-slate-200 shadow-sm"
               >
                 <ChevronDown className="rotate-90" size={16} />
               </motion.button>
@@ -1326,7 +1328,7 @@ export const MemberList: React.FC = () => {
                           "w-8 h-8 rounded-lg text-[10px] font-black transition-all outline-none border",
                           currentPage === page 
                             ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" 
-                            : "bg-white/5 text-white/40 hover:bg-white/10 border-white/5"
+                            : "bg-white text-slate-400 hover:border-accent/40 border-slate-200"
                         )}
                       >
                         {page}
@@ -1336,7 +1338,7 @@ export const MemberList: React.FC = () => {
                     (page === currentPage - 2 && page > 1) || 
                     (page === currentPage + 2 && page < totalPages)
                   ) {
-                    return <span key={page} className="px-1 text-white/20">...</span>;
+                    return <span key={page} className="px-1 text-slate-300">...</span>;
                   }
                   return null;
                 })}
@@ -1347,7 +1349,7 @@ export const MemberList: React.FC = () => {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 disabled:opacity-20 disabled:hover:bg-white/5 transition-all outline-none border border-white/5"
+                className="p-2 rounded-lg bg-white text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none border border-slate-200 shadow-sm"
               >
                 <ChevronDown className="-rotate-90" size={16} />
               </motion.button>

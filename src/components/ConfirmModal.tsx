@@ -39,31 +39,31 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-surface border border-white/10 rounded-[2.5rem] p-10 max-w-lg w-full shadow-2xl overflow-hidden"
+            className="relative bg-white border border-slate-200 rounded-[3rem] p-12 max-w-lg w-full shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden"
           >
             {/* Background Accent */}
             <div className={cn(
-              "absolute top-0 left-0 w-full h-1",
+              "absolute top-0 left-0 w-full h-1.5",
               variant === 'danger' ? "bg-red-500" : "bg-accent"
             )} />
 
             <div className="flex flex-col items-center text-center">
               <div className={cn(
-                "p-4 rounded-full mb-6",
-                variant === 'danger' ? "bg-red-500/10 text-red-500" : "bg-accent/10 text-accent"
+                "p-5 rounded-3xl mb-8",
+                variant === 'danger' ? "bg-red-50 text-red-500" : "bg-accent/10 text-accent"
               )}>
-                <AlertTriangle size={32} />
+                <AlertTriangle size={40} />
               </div>
               
-              <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
-              <p className="text-white/60 mb-10 leading-relaxed">{message}</p>
+              <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight leading-tight">{title}</h3>
+              <p className="text-slate-500 mb-10 leading-relaxed font-medium">{message}</p>
               
               <div className="flex gap-4 w-full">
                 <motion.button
                   whileHover={{ scale: 1.02, x: -5 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={onCancel}
-                  className="flex-1 px-8 py-4 rounded-2xl bg-white/5 text-white/40 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all border border-white/5"
+                  className="flex-1 px-8 py-5 rounded-[1.5rem] bg-slate-50 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all border border-slate-100"
                 >
                   {cancelLabel}
                 </motion.button>
@@ -75,10 +75,10 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                     onCancel(); 
                   }}
                   className={cn(
-                    "flex-1 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl border border-white/10",
+                    "flex-1 px-8 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] transition-all shadow-xl",
                     variant === 'danger' 
-                      ? "bg-red-500 text-white hover:bg-white hover:text-red-600 shadow-red-500/20 group" 
-                      : "bg-accent text-slate-950 hover:bg-white shadow-accent/20"
+                      ? "bg-red-500 text-white hover:bg-red-600 shadow-red-500/20" 
+                      : "bg-accent text-white hover:bg-blue-700 shadow-accent/20"
                   )}
                 >
                   {confirmLabel}
@@ -88,7 +88,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             
             <button 
               onClick={onCancel}
-              className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors"
+              className="absolute top-10 right-10 text-slate-300 hover:text-slate-900 transition-all hover:rotate-90"
             >
               <X size={24} />
             </button>
