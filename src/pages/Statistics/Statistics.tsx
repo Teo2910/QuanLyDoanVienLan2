@@ -201,15 +201,15 @@ export const Statistics: React.FC = () => {
 
   return (
     <div className="w-full pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 lg:mb-12">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight">
-            <div className="p-4 bg-accent/10 rounded-2xl text-accent">
-              <BarChart3 size={32} />
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 flex items-center gap-3 lg:gap-4 tracking-tight">
+            <div className="p-3 lg:p-4 bg-accent/10 rounded-xl lg:rounded-2xl text-accent">
+              <BarChart3 className="w-6 h-6 lg:w-8 lg:h-8" />
             </div>
             Thống kê số liệu
           </h2>
-          <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-black ml-20">
+          <p className="text-[9px] lg:text-[10px] uppercase tracking-widest text-slate-400 mt-2 font-black ml-12 lg:ml-20">
             Tổng hợp dữ liệu {selectedUnitName}
           </p>
         </motion.div>
@@ -240,67 +240,67 @@ export const Statistics: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <motion.div 
           whileHover={{ y: -5 }}
-          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
+          className="lg:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-8 sm:p-10 lg:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
         >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 blur-[100px] -mr-48 -mt-48 rounded-full" />
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-12">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <Star size={24} className="text-yellow-300 fill-yellow-300" />
-                <span className="text-xs uppercase tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
+          <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/10 blur-[60px] sm:blur-[100px] -mr-32 -mt-32 sm:-mr-48 sm:-mt-48 rounded-full" />
+          <div className="relative flex flex-col xl:flex-row justify-between items-center gap-8 lg:gap-12 text-center xl:text-left">
+            <div className="flex flex-col items-center xl:items-start">
+              <div className="flex items-center gap-3 mb-4 lg:mb-6">
+                <Star size={20} className="text-yellow-300 fill-yellow-300" />
+                <span className="text-[10px] lg:text-xs uppercase tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
               </div>
-              <h2 className="text-5xl font-black tracking-tight mb-4">Đoàn viên Tiêu biểu</h2>
-              <p className="text-white/70 max-w-lg leading-relaxed font-medium">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight mb-4">Đoàn viên Tiêu biểu</h2>
+              <p className="text-white/70 max-w-lg leading-relaxed font-medium text-sm sm:text-base">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
             </div>
-            <div className="flex items-center gap-10 bg-white/10 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/20 shadow-2xl">
+            <div className="flex items-center gap-6 sm:gap-10 bg-white/10 backdrop-blur-xl p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border border-white/20 shadow-2xl w-full sm:w-auto justify-center">
               <div className="text-center">
-                <span className="text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Số lượng</span>
-                <span className="text-6xl font-black leading-none">{stats?.outstandingCount}</span>
+                <span className="text-[9px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Số lượng</span>
+                <span className="text-4xl sm:text-6xl font-black leading-none">{stats?.outstandingCount}</span>
               </div>
-              <div className="w-px h-16 bg-white/20" />
+              <div className="w-px h-12 sm:h-16 bg-white/20" />
               <div className="text-center">
-                <span className="text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Tỷ lệ</span>
-                <span className="text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
+                <span className="text-[9px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-2">Tỷ lệ</span>
+                <span className="text-2xl sm:text-4xl font-bold">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
               </div>
             </div>
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+        <motion.div className="bg-white border border-slate-100 p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-xl shadow-slate-200/50">
+          <h3 className="text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-6 lg:mb-8 flex items-center gap-3">
             <PieChartIcon className="text-accent" size={16} /> Cơ cấu giới tính
           </h3>
-          <div className="h-64 mb-8">
+          <div className="h-64 mb-6 lg:mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={Math.min(window.innerWidth * 0.15, 60)} outerRadius={Math.min(window.innerWidth * 0.2, 80)} paddingAngle={5}>
                   {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
             {stats?.genderData.map((item, i) => (
-              <div key={item.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="text-sm font-bold text-slate-600 flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} /> {item.name}
+              <div key={item.name} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100">
+                <span className="text-xs sm:text-sm font-bold text-slate-600 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} /> {item.name}
                 </span>
-                <span className="text-lg font-black text-slate-900">{item.value}</span>
+                <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-10 rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-8 flex items-center gap-3">
+        <motion.div className="bg-white border border-slate-100 p-6 sm:p-8 lg:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-xl shadow-slate-200/50">
+          <h3 className="text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-6 lg:mb-8 flex items-center gap-3">
             <Activity className="text-accent" size={16} /> Tình trạng sinh hoạt
           </h3>
-          <div className="h-64 mb-8">
+          <div className="h-64 mb-6 lg:mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.statusData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <XAxis dataKey="name" axisLine={false} hide={window.innerWidth < 640} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
                 <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
                 <Bar dataKey="value" radius={[10, 10, 0, 0]}>
@@ -309,11 +309,11 @@ export const Statistics: React.FC = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {stats?.statusData.slice(0, 2).map((item, i) => (
-              <div key={item.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="text-sm font-bold text-slate-600">{item.name}</span>
-                <span className="text-lg font-black text-slate-900">{item.value}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
+            {stats?.statusData.slice(0, 4).map((item, i) => (
+              <div key={item.name} className="flex items-center justify-between p-3 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100">
+                <span className="text-xs sm:text-sm font-bold text-slate-600 truncate mr-2">{item.name}</span>
+                <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>
@@ -394,21 +394,21 @@ export const Statistics: React.FC = () => {
           </motion.div>
         )}
 
-        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[3.5rem] shadow-2xl overflow-hidden mt-10">
-          <div className="p-10 border-b border-slate-100 bg-white flex justify-between items-center relative z-10">
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3.5rem] shadow-2xl overflow-hidden mt-6 lg:mt-10">
+          <div className="p-6 sm:p-8 lg:p-10 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
             <div>
-              <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Chi tiết cơ sở</h3>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Dữ liệu hợp nhất toàn hệ thống</p>
+              <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tighter leading-tight">Chi tiết cơ sở</h3>
+              <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Dữ liệu hợp nhất toàn hệ thống</p>
             </div>
-            <div className="flex items-center gap-4">
-               <div className="px-6 py-3 bg-slate-50 border border-slate-200 rounded-2xl font-black text-slate-900 text-sm shadow-sm flex items-center gap-3">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+               <div className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl sm:rounded-2xl font-black text-slate-900 text-xs sm:text-sm shadow-sm flex items-center justify-center sm:justify-start gap-3">
                   <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                   {units.length} Chi đoàn
                </div>
             </div>
           </div>
           <div className="overflow-x-auto no-scrollbar relative">
-            <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px]">
+            <table className="w-full text-left border-collapse border-spacing-0 min-w-[1200px]">
               <thead>
                 <tr className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-black bg-white border-b border-slate-100">
                   <th className="py-5 px-6" rowSpan={2}>#</th>

@@ -773,7 +773,7 @@ export const MemberList: React.FC = () => {
         addToast("Có lỗi xảy ra khi nhập tệp Excel. Vui lòng kiểm tra lại định dạng tệp.", "error");
       } finally {
         setLoading(false);
-        e.target.value = "";
+        if (e.target) e.target.value = "";
       }
     };
 
@@ -792,51 +792,51 @@ export const MemberList: React.FC = () => {
         variant={confirmConfig.variant}
       />
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
-        <div className="flex-1">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg shadow-accent/5">
-              <Users size={32} />
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 mb-8 lg:mb-16">
+        <div className="flex-1 w-full lg:w-auto">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4">
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg shadow-accent/5 shrink-0">
+              <Users className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h2 className="text-4xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl lg:text-4xl font-black text-slate-900 tracking-tight">
                 Quản lý đoàn viên
               </h2>
-              <p className="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black mt-1">Cơ sở dữ liệu nhân sự số hóa 4.0</p>
+              <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black mt-1">Cơ sở dữ liệu nhân sự số hóa</p>
             </div>
           </div>
-          <div className="relative max-w-md group">
+          <div className="relative w-full max-w-md group">
             <input 
               type="text" 
-              placeholder="Tìm kiếm nhanh đoàn viên..." 
-              className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400 shadow-sm group-hover:border-slate-300"
+              placeholder="Tìm kiếm nhanh..." 
+              className="w-full bg-white border border-slate-200 rounded-xl sm:rounded-2xl py-2.5 sm:py-3.5 pl-10 sm:pl-12 pr-10 sm:pr-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400 shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" />
+            <Search size={16} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors"
+                className="absolute right-3.5 sm:right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors"
               >
-                <X size={16} />
+                <X size={14} />
               </button>
             )}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full lg:w-auto">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 lg:flex-none">
             <motion.button 
-              whileHover={{ scale: 1.02, y: -2 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={exportToExcel}
-              className="group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl transition-all duration-300 shadow-md hover:shadow-xl hover:border-emerald-500/30 hover:text-emerald-600"
-              title="Xuất danh sách ra tệp Excel"
+              className="flex-1 lg:flex-none group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl transition-all shadow-md hover:shadow-xl hover:text-emerald-600"
+              title="Xuất Excel"
             >
-              <Download size={20} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
-              <span className="text-xs font-black uppercase tracking-widest">Xuất Excel</span>
+              <Download size={18} className="text-slate-400 group-hover:text-emerald-500" />
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xuất</span>
             </motion.button>
-            <div className="relative">
+            <div className="flex-1 lg:flex-none relative">
               <input 
                 type="file" 
                 accept=".xlsx, .xls" 
@@ -845,84 +845,84 @@ export const MemberList: React.FC = () => {
                 id="excel-import"
               />
               <motion.label 
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 htmlFor="excel-import"
-                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:border-blue-500/30 hover:text-blue-600 transition-all duration-300 shadow-md hover:shadow-xl"
-                title="Nhập danh sách từ tệp Excel"
+                className="cursor-pointer flex-1 lg:flex-none flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-4 bg-white border border-slate-200 rounded-xl sm:rounded-2xl text-slate-600 shadow-md hover:shadow-xl"
+                title="Nhập dữ liệu"
               >
-                <Upload size={20} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
-                <span className="text-xs font-black uppercase tracking-widest">Nhập dữ liệu</span>
+                <Upload size={18} className="text-slate-400 group-hover:text-blue-500" />
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Nhập</span>
               </motion.label>
             </div>
           </div>
-          <div className="w-px h-10 bg-slate-200 hidden lg:block mx-2" />
+          <div className="w-px h-8 bg-slate-200 hidden xl:block mx-1" />
           <motion.button 
-            whileHover={{ scale: 1.02, y: -2 }}
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={openAddModal}
-            className="group flex items-center gap-3 px-10 py-4 bg-slate-900 text-white rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/10 hover:bg-accent hover:shadow-accent/30"
+            className="flex-1 lg:flex-none group flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-10 py-2.5 sm:py-4 bg-slate-900 text-white rounded-xl sm:rounded-2xl transition-all shadow-xl hover:bg-accent"
           >
-            <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest">Thêm đoàn viên</span>
+            <Plus size={18} className="group-hover:rotate-90 transition-transform" />
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Thêm mới</span>
           </motion.button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-[3rem] p-10 mb-12 shadow-2xl shadow-slate-200/40">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-4 sm:p-6 lg:p-10 mb-8 lg:mb-12 shadow-2xl shadow-slate-200/40">
         {/* Main Search Row */}
-        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between mb-8">
+        <div className="flex flex-col xl:flex-row gap-4 lg:gap-8 items-start lg:items-center justify-between mb-4 lg:mb-8">
           <form 
             onSubmit={(e) => e.preventDefault()}
-            className="relative flex-1 group w-full md:max-w-2xl"
+            className="relative flex-1 group w-full"
           >
-            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-              <Search className="text-slate-300 group-focus-within:text-accent transition-colors" size={24} />
+            <div className="absolute inset-y-0 left-4 sm:left-6 flex items-center pointer-events-none">
+              <Search className="text-slate-300 group-focus-within:text-accent transition-colors" size={20} />
             </div>
             <input 
               type="text"
-              placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..."
-              className="w-full pl-16 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all outline-none font-medium shadow-inner"
+              placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán..."
+              className="w-full pl-12 sm:pl-16 pr-4 sm:pr-6 py-3.5 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </form>
           
-          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full xl:w-auto">
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
               className={cn(
-                "flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] uppercase tracking-[0.1em] font-black transition-all border shadow-sm",
+                "flex-1 xl:flex-none flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black transition-all border shadow-sm",
                 isAdvancedSearchOpen 
-                  ? "bg-slate-900 text-white border-slate-900 shadow-slate-900/20" 
-                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white border-slate-900" 
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
               )}
             >
-              <Filter size={16} />
-              Lọc nâng cao
-              {isAdvancedSearchOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              <Filter size={14} />
+              Lọc <span className="hidden sm:inline">nâng cao</span>
+              {isAdvancedSearchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </motion.button>
 
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={resetFilters}
-              className="p-4 rounded-2xl bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-200 hover:border-rose-200 shadow-sm"
-              title="Xóa tất cả bộ lọc"
+              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-200 shadow-sm"
+              title="Xóa bộ lọc"
             >
-              <RotateCcw size={20} />
+              <RotateCcw size={18} />
             </motion.button>
 
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowSavePreset(!showSavePreset)}
-              className="flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] uppercase tracking-[0.1em] font-black bg-accent/5 text-accent border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-sm"
+              className="flex-1 xl:flex-none flex items-center justify-center gap-2 px-4 sm:px-8 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] uppercase tracking-[0.1em] font-black bg-accent/5 text-accent border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-sm"
             >
-              <Bookmark size={16} />
-              Lưu cấu hình
+              <Bookmark size={14} />
+              Lưu <span className="hidden sm:inline">cấu hình</span>
             </motion.button>
           </div>
         </div>
@@ -1035,63 +1035,61 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white border border-slate-100 rounded-[3rem] flex flex-col min-h-[600px] shadow-2xl mb-32 overflow-hidden border-t-8 border-t-accent flex-1">
-        <div className="px-10 pt-10 pb-6 border-b border-slate-50 flex justify-between items-center bg-white shrink-0">
+      <div className="bg-white border border-slate-100 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3rem] flex flex-col min-h-[500px] sm:min-h-[600px] shadow-2xl mb-20 sm:mb-32 overflow-hidden border-t-4 sm:border-t-8 border-t-accent flex-1">
+        <div className="px-4 sm:px-6 lg:px-10 pt-6 sm:pt-10 pb-4 sm:pb-6 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shrink-0 gap-4">
           <div>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tighter">Danh sách hồ sơ</h3>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Quản lý cơ sở dữ liệu tập trung</p>
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter">Danh sách hồ sơ</h3>
+            <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống quản lý tập trung</p>
           </div>
-          <div className="flex gap-2">
-            <div className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-black text-slate-500 uppercase tracking-widest">{filteredMembers.length} Kết quả</div>
-          </div>
+          <div className="px-3 sm:px-5 py-1.5 sm:py-2.5 bg-slate-50 border border-slate-100 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black text-slate-500 uppercase tracking-widest">{filteredMembers.length} Kết quả</div>
         </div>
 
-        <div className="px-10 pt-8 shrink-0">
+        <div className="px-4 sm:px-10 pt-4 sm:pt-8 shrink-0">
           <AnimatePresence>
             {(isAdmin || isSecretary) && selectedIds.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, scale: 0.98, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: -20 }}
-                className="mb-8 flex flex-col sm:flex-row items-center justify-between bg-white border-2 border-rose-500 p-8 rounded-[2.5rem] gap-8 shadow-2xl shadow-rose-200/40 relative overflow-hidden group"
+                className="mb-4 sm:mb-8 flex flex-col lg:flex-row items-center justify-between bg-white border-2 border-rose-500 p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] gap-4 sm:gap-8 shadow-2xl shadow-rose-200/40 relative overflow-hidden group"
               >
-                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity hidden sm:block">
                   <Trash2 size={120} className="text-rose-600 rotate-12" />
                 </div>
-                <div className="flex items-center gap-8 relative z-10">
-                  <div className="w-16 h-16 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/30">
-                    <Trash2 size={32} />
+                <div className="flex items-center gap-4 sm:gap-8 relative z-10 w-full lg:w-auto">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/30 shrink-0">
+                    <Trash2 className="w-6 h-6 sm:w-8 sm:h-8" />
                   </div>
                   <div>
-                    <h4 className="text-rose-600 text-2xl font-black tracking-tight">
-                      Lựa chọn đoàn viên ({selectedIds.length})
+                    <h4 className="text-rose-600 text-lg sm:text-2xl font-black tracking-tight">
+                      Đã chọn ({selectedIds.length})
                     </h4>
                     <motion.button 
                       whileHover={{ x: 5 }}
                       onClick={() => setSelectedIds([])}
-                      className="text-slate-400 hover:text-slate-600 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 mt-1"
+                      className="text-slate-400 hover:text-slate-600 text-[9px] sm:text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-1 sm:gap-2 mt-1 px-0"
                     >
-                      Bỏ chọn tất cả <X size={12} />
+                      Bỏ chọn <X size={12} />
                     </motion.button>
                   </div>
                 </div>
-                <div className="flex gap-4 w-full sm:w-auto relative z-10">
+                <div className="flex gap-2 sm:gap-4 w-full lg:w-auto relative z-10 flex-col sm:flex-row">
                   <motion.button 
-                    whileHover={{ scale: 1.05, y: -4 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleBulkDelete}
-                    className="flex-1 sm:flex-none bg-rose-600 text-white rounded-2xl px-12 py-5 transition-all shadow-xl shadow-rose-600/30 hover:bg-slate-900 border border-transparent"
+                    className="flex-1 sm:flex-none bg-rose-600 text-white rounded-xl sm:rounded-2xl px-6 sm:px-12 py-3.5 sm:py-5 transition-all shadow-xl hover:bg-slate-900"
                   >
-                    <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa vĩnh viễn</span>
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xóa vĩnh viễn</span>
                   </motion.button>
                   {selectedIds.length === filteredMembers.length && filteredMembers.length > 1 && (
                     <motion.button 
-                      whileHover={{ scale: 1.05, y: -4 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={handleDeleteAllFiltered}
-                      className="flex-1 sm:flex-none bg-white border-2 border-rose-600 text-rose-600 rounded-2xl px-12 py-5 transition-all shadow-xl hover:bg-rose-50"
+                      className="flex-1 sm:flex-none bg-white border-2 border-rose-600 text-rose-600 rounded-xl sm:rounded-2xl px-6 sm:px-12 py-3.5 sm:py-5 transition-all shadow-xl hover:bg-rose-50"
                     >
-                      <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa khớp lọc ({filteredMembers.length})</span>
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Xóa mọi kết quả</span>
                     </motion.button>
                   )}
                 </div>
@@ -1102,16 +1100,16 @@ export const MemberList: React.FC = () => {
 
         {/* Table Content */}
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-32 gap-6">
+          <div className="flex-1 flex flex-col items-center justify-center py-20 lg:py-32 gap-6">
              <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin" />
              <p className="text-slate-400 text-[10px] uppercase tracking-[0.3em] font-black animate-pulse">Đang đồng bộ dữ liệu...</p>
           </div>
         ) : filteredMembers.length > 0 ? (
-          <div className="flex-1 overflow-x-auto no-scrollbar relative min-h-[500px]">
-            <table className="w-full text-left border-collapse border-spacing-0">
+          <div className="flex-1 overflow-x-auto custom-scrollbar relative min-h-[400px]">
+            <table className="w-full text-left border-collapse border-spacing-0 min-w-[1000px]">
               <thead>
                 <tr className="text-[10px] text-slate-400 uppercase tracking-[0.25em] font-black border-b border-slate-50 bg-white">
-                  <th className="py-8 px-8 font-black text-center w-12 shrink-0">
+                  <th className="py-6 sm:py-8 px-4 sm:px-8 font-black text-center w-12 shrink-0">
                     <div 
                       onClick={() => {
                         if (selectedIds.length > 0 && selectedIds.length === filteredMembers.length) {
@@ -1342,33 +1340,33 @@ export const MemberList: React.FC = () => {
           </div>
         )}
 
-        <div className="px-10 py-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/30">
+        <div className="px-4 sm:px-10 py-6 sm:py-8 border-t border-slate-50 flex flex-col lg:flex-row justify-between items-center gap-6 bg-slate-50/30">
           <div className="flex items-center gap-4">
-             <div className="flex -space-x-4">
+             <div className="flex -space-x-4 hidden sm:flex">
                 {[1,2,3].map(i => (
-                  <div key={i} className="w-10 h-10 rounded-xl border-4 border-white bg-slate-200 flex items-center justify-center text-[10px] font-black text-slate-400">
+                  <div key={i} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl border-4 border-white bg-slate-200 flex items-center justify-center text-slate-400">
                     <UserCircle size={16} />
                   </div>
                 ))}
              </div>
-             <span className="text-[11px] text-slate-400 font-black uppercase tracking-widest italic">
-               Trang {currentPage} trên {totalPages} • Hết {filteredMembers.length} hồ sơ liên quan
+             <span className="text-[9px] sm:text-[11px] text-slate-400 font-bold uppercase tracking-widest italic text-center sm:text-left">
+               Trang {currentPage}/{totalPages} • {filteredMembers.length} hồ sơ
              </span>
           </div>
           
           {totalPages > 1 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <motion.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none shadow-sm hover:shadow-md"
+                className="p-2 sm:p-3 rounded-lg sm:rounded-2xl bg-white border border-slate-200 text-slate-400 disabled:opacity-20 shadow-sm"
               >
-                <ChevronDown className="rotate-90" size={18} />
+                <ChevronDown className="rotate-90" size={16} />
               </motion.button>
               
-              <div className="flex items-center gap-1.5 px-2">
+              <div className="flex items-center gap-1 group">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
                   if (
                     page === 1 || 
@@ -1376,26 +1374,24 @@ export const MemberList: React.FC = () => {
                     (page >= currentPage - 1 && page <= currentPage + 1)
                   ) {
                     return (
-                      <motion.button
+                      <button
                         key={page}
-                        whileHover={{ scale: 1.1, y: -2 }}
-                        whileTap={{ scale: 0.9 }}
                         onClick={() => setCurrentPage(page)}
                         className={cn(
-                          "min-w-[40px] h-10 rounded-2xl text-xs font-black transition-all outline-none border",
+                          "min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 rounded-lg sm:rounded-2xl text-[10px] sm:text-xs font-black transition-all border",
                           currentPage === page 
-                            ? "bg-accent text-white border-accent shadow-xl shadow-accent/20" 
-                            : "bg-white text-slate-400 hover:border-accent/40 border-slate-200"
+                            ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" 
+                            : "bg-white text-slate-400 border-slate-200 hover:border-accent/40"
                         )}
                       >
                         {page}
-                      </motion.button>
+                      </button>
                     );
                   } else if (
                     (page === currentPage - 2 && page > 1) || 
                     (page === currentPage + 2 && page < totalPages)
                   ) {
-                    return <span key={page} className="px-1 text-slate-300 font-black">...</span>;
+                    return <span key={page} className="px-0.5 text-slate-300 font-black">.</span>;
                   }
                   return null;
                 })}
@@ -1406,9 +1402,9 @@ export const MemberList: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="p-3 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-accent disabled:opacity-20 transition-all outline-none shadow-sm hover:shadow-md"
+                className="p-2 sm:p-3 rounded-lg sm:rounded-2xl bg-white border border-slate-200 text-slate-400 disabled:opacity-20 shadow-sm"
               >
-                <ChevronDown className="-rotate-90" size={18} />
+                <ChevronDown className="-rotate-90" size={16} />
               </motion.button>
             </div>
           )}

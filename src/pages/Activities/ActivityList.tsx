@@ -126,20 +126,20 @@ export const ActivityList = () => {
   }
 
   return (
-    <div className="space-y-12 pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 px-2 md:px-0">
+    <div className="space-y-8 sm:space-y-12 pb-20 px-4 sm:px-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h2 className="text-4xl font-bold text-slate-900 tracking-tight">Hoạt động sắp tới</h2>
-          <p className="text-slate-400 mt-2 text-[10px] uppercase tracking-widest font-black">Lịch trình và sự kiện Đoàn thanh niên cơ sở</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Hoạt động sắp tới</h2>
+          <p className="text-slate-400 mt-2 text-[8px] sm:text-[10px] uppercase tracking-widest font-black leading-relaxed">Lịch trình và sự kiện Đoàn thanh niên cơ sở</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-stretch sm:items-center">
-          <div className="relative flex-1 sm:w-80 group">
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-stretch">
+          <div className="relative flex-1 sm:w-64 lg:w-80 group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={18} />
             <input 
               type="text"
-              placeholder="Tìm kiếm hoạt động..."
-              className="w-full bg-white border border-slate-200 rounded-full py-4 pl-14 pr-6 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent transition-all font-medium py-4"
+              placeholder="Tìm kiếm..."
+              className="w-full bg-white border border-slate-200 rounded-full py-4 pl-14 pr-6 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent transition-all font-medium"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -147,33 +147,33 @@ export const ActivityList = () => {
 
           {(isAdmin || isSecretary) && (
             <motion.button 
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => { setEditingActivity(null); setIsModalOpen(true); }}
               className="group flex items-center justify-center gap-3 px-8 py-4 bg-accent border border-blue-400/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-blue-700 shrink-0"
             >
-              <Plus size={18} className="text-white group-hover:rotate-90 transition-transform" />
+              <Plus size={18} className="text-white" />
               <span className="font-black uppercase tracking-widest text-[10px] text-white">Thêm hoạt động</span>
             </motion.button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
         {filteredActivities.map((activity, index) => (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             key={activity.id} 
-            className="bg-white border border-slate-200 rounded-[3rem] p-10 hover:border-accent transition-all group flex flex-col justify-between shadow-sm hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden"
+            className="bg-white border border-slate-200 rounded-3xl sm:rounded-[3rem] p-6 sm:p-10 hover:border-accent transition-all group flex flex-col justify-between shadow-sm hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-accent/10 transition-all duration-500" />
             
             <div className="relative z-10">
-              <div className="flex justify-between items-start mb-8">
+              <div className="flex justify-between items-start mb-6 sm:mb-8">
                 <span className={cn(
-                  "px-4 py-1.5 rounded-xl text-[10px] uppercase tracking-widest font-black border transition-all",
+                  "px-3 sm:px-4 py-1 sm:py-1.5 rounded-xl text-[9px] sm:text-[10px] uppercase tracking-widest font-black border transition-all",
                   activity.type === "Hội họp" ? "bg-blue-50 text-blue-600 border-blue-100" :
                   activity.type === "Phong trào" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
                   activity.type === "Giáo dục" ? "bg-purple-50 text-purple-600 border-purple-100" :
@@ -187,29 +187,29 @@ export const ActivityList = () => {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleEdit(activity)} 
-                      className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/30 transition-all shadow-sm"
+                      className="p-2 sm:p-3 bg-white border border-slate-200 rounded-xl sm:rounded-2xl text-slate-400 hover:text-accent hover:border-accent/30 transition-all shadow-sm"
                     >
-                      <Edit2 size={14} strokeWidth={2.5} />
+                      <Edit2 size={12} strokeWidth={2.5} />
                     </motion.button>
                   </div>
                 )}
               </div>
-              <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-accent transition-colors leading-tight tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-4 group-hover:text-accent transition-colors leading-tight tracking-tight">
                 {activity.title}
               </h3>
-              <p className="text-slate-500 text-sm mb-8 line-clamp-3 leading-relaxed font-medium">
+              <p className="text-slate-500 text-xs sm:text-sm mb-6 sm:mb-8 line-clamp-3 leading-relaxed font-medium">
                 {activity.description || "Không có nội dung mô tả chi tiết cho hoạt động này."}
               </p>
             </div>
 
-            <div className="relative z-10 space-y-4 pt-8 border-t border-slate-100/60">
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-accent shadow-inner">
-                    <Calendar size={18} strokeWidth={2.5} />
+            <div className="relative z-10 space-y-3 sm:space-y-4 pt-6 sm:pt-8 border-t border-slate-100/60">
+              <div className="flex items-center gap-3 sm:gap-4">
+                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-50 flex items-center justify-center text-accent shadow-inner">
+                    <Calendar size={16} strokeWidth={2.5} />
                  </div>
                  <div>
-                    <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Thời gian</p>
-                    <p className="text-sm font-black text-slate-900 tabular-nums">
+                    <p className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Thời gian</p>
+                    <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">
                       {(() => {
                         const d = new Date(activity.date);
                         return isNaN(d.getTime()) ? activity.date : d.toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -218,13 +218,13 @@ export const ActivityList = () => {
                  </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-rose-500 shadow-inner">
-                    <MapPin size={18} strokeWidth={2.5} />
+              <div className="flex items-center gap-3 sm:gap-4">
+                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-50 flex items-center justify-center text-rose-500 shadow-inner">
+                    <MapPin size={16} strokeWidth={2.5} />
                  </div>
                  <div className="min-w-0">
-                    <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Địa điểm</p>
-                    <p className="text-sm font-black text-slate-900 truncate">{activity.location}</p>
+                    <p className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Địa điểm</p>
+                    <p className="text-xs sm:text-sm font-black text-slate-900 truncate">{activity.location}</p>
                  </div>
               </div>
               
@@ -281,35 +281,35 @@ export const ActivityList = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white border border-slate-200 rounded-[3.5rem] w-full max-w-xl relative shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+            className="bg-white border border-slate-200 rounded-3xl sm:rounded-[3.5rem] w-full max-w-xl relative shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
           >
-            <div className="p-10 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50/50">
+            <div className="p-6 sm:p-10 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50/50">
               <div>
-                <h3 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                  {editingActivity ? "Cập nhật hoạt động" : "Thêm hoạt động mới"}
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                  {editingActivity ? "Cập nhật" : "Thêm mới"}
                 </h3>
-                <p className="text-slate-400 uppercase tracking-widest text-[10px] font-bold mt-2 flex items-center gap-2">
+                <p className="text-slate-400 uppercase tracking-widest text-[9px] sm:text-[10px] font-bold mt-1 sm:mt-2 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
-                  Thông tin chi tiết sự kiện
+                  Thông tin sự kiện
                 </p>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="w-12 h-12 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all transform hover:rotate-90"
+                className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-xl sm:rounded-2xl text-slate-400 hover:text-slate-900 transition-all transform"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
             
             <div className="overflow-y-auto flex-1 custom-scrollbar">
-              <form onSubmit={handleSubmit} className="p-12 space-y-10">
+              <form onSubmit={handleSubmit} className="p-6 sm:p-12 space-y-6 sm:space-y-10">
                 {submitting && (
                   <div className="mb-0 space-y-3">
-                    <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.2em] font-black text-accent">
-                      <span>Đang xử lý dữ liệu...</span>
+                    <div className="flex justify-between items-center text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-black text-accent">
+                      <span>Đang xử lý...</span>
                       <span>{progress}%</span>
                     </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+                    <div className="h-1.5 sm:h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
@@ -319,33 +319,33 @@ export const ActivityList = () => {
                   </div>
                 )}
 
-                <div className={cn("space-y-10 transition-all", submitting && "opacity-40 pointer-events-none")}>
+                <div className={cn("space-y-6 sm:space-y-10 transition-all", submitting && "opacity-40 pointer-events-none")}>
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-4 block">Tên gọi hoạt động</label>
+                    <label className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-3 sm:mb-4 block">Tên gọi hoạt động</label>
                     <input
                       required
                       disabled={submitting}
-                      placeholder="VD: Ngày hội thanh niên khỏe..."
-                      className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all placeholder:text-slate-300"
+                      placeholder="VD: Ngày hội thanh niên..."
+                      className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all placeholder:text-slate-300 text-sm sm:text-base"
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                     <div>
-                      <label className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-4 block">Ngày tổ chức</label>
+                      <label className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-3 sm:mb-4 block">Ngày tổ chức</label>
                       <input
                         required
                         disabled={submitting}
                         type="date"
-                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all"
+                        className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all text-sm sm:text-base"
                         value={formData.date}
                         onChange={(e) => setFormData({...formData, date: e.target.value})}
                       />
                     </div>
                     <div>
-                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-4 block">Phân loại</label>
+                    <label className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-3 sm:mb-4 block">Phân loại</label>
                     <CustomSelect
                       options={activityTypeOptions}
                       value={formData.type}
@@ -356,42 +356,42 @@ export const ActivityList = () => {
                   </div>
 
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-4 block">Địa điểm tổ chức</label>
+                    <label className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-3 sm:mb-4 block">Địa điểm</label>
                     <input
                       required
                       disabled={submitting}
                       placeholder="VD: Sân vận động trường..."
-                      className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all placeholder:text-slate-300"
+                      className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all placeholder:text-slate-300 text-sm sm:text-base"
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-4 block">Mô tả chi tiết nội dung</label>
+                    <label className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-3 sm:mb-4 block">Mô tả chi tiết</label>
                     <textarea
                       rows={4}
                       disabled={submitting}
-                      placeholder="Nêu ngắn gọn mục đích, ý nghĩa và nội dung sẽ diễn ra..."
-                      className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all resize-none placeholder:text-slate-300"
+                      placeholder="Nêu ngắn gọn mục đích..."
+                      className="w-full px-6 sm:px-8 py-4 sm:py-5 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-[1.5rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent font-bold transition-all resize-none placeholder:text-slate-300 text-sm sm:text-base"
                       value={formData.description}
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
                     />
                   </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="pt-4 sm:pt-6">
                   <motion.button 
-                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={submitting}
                     className={cn(
-                      "w-full flex items-center justify-center gap-4 py-6 bg-accent text-white border border-blue-400/20 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all shadow-2xl shadow-accent/20 hover:bg-blue-700",
+                      "w-full flex items-center justify-center gap-4 py-5 sm:py-6 bg-accent text-white border border-blue-400/20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all shadow-2xl shadow-accent/20 hover:bg-blue-700",
                       submitting && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    {submitting ? "Hệ thống đang lưu..." : (editingActivity ? "Cập nhật hoạt động" : "Lưu hoạt động")}
+                    {submitting ? "Hệ thống đang lưu..." : (editingActivity ? "Cập nhật" : "Lưu hoạt động")}
                   </motion.button>
                 </div>
               </form>

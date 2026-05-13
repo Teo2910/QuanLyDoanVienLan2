@@ -467,57 +467,57 @@ Quy tắc ứng xử:
   };
 
   return (
-    <div className="p-4 lg:p-8 h-[calc(100vh-theme(spacing.24))] flex flex-col max-w-[1400px] mx-auto relative">
+    <div className="p-2 sm:p-4 lg:p-8 h-[calc(100vh-theme(spacing.20))] lg:h-[calc(100vh-theme(spacing.24))] flex flex-col max-w-[1400px] mx-auto relative overflow-hidden">
       {/* Decorative Background Elements */}
-      <div className="absolute top-[10%] left-[5%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px] -z-10 animate-pulse" />
-      <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-blue-400/5 rounded-full blur-[100px] -z-10" />
+      <div className="absolute top-[10%] left-[5%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[80px] lg:blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-blue-400/5 rounded-full blur-[60px] lg:blur-[100px] -z-10" />
 
-      <div className="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 px-4">
-        <div className="flex items-center gap-5">
+      <div className="mb-4 sm:mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 px-2 sm:px-4">
+        <div className="flex items-center gap-3 sm:gap-5">
           <motion.div 
             initial={{ rotate: -10, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
-            className="w-16 h-16 rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-2xl shadow-slate-900/20 relative group overflow-hidden"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-2xl shadow-slate-900/20 relative group overflow-hidden shrink-0"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Bot size={36} className="relative z-10" />
+            <Bot className="w-6 h-6 sm:w-9 sm:h-9 relative z-10" />
             <motion.div 
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 1, 0.5]
               }}
               transition={{ repeat: Infinity, duration: 3 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-white shadow-lg" 
+              className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-5 sm:h-5 bg-emerald-500 rounded-full border-2 sm:border-4 border-white shadow-lg" 
             />
           </motion.div>
           <div>
-            <h1 className="text-5xl font-black text-slate-900 tracking-tight leading-none">
-              Hệ thống Tri thức <span className="text-accent underline decoration-accent/20 underline-offset-8">AI</span>
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight sm:leading-none">
+              Trợ lý tri thức <span className="text-accent underline decoration-accent/20 underline-offset-4 sm:underline-offset-8">AI</span>
             </h1>
-            <div className="flex items-center gap-3 mt-3">
-              <div className="px-3 py-1 bg-accent/10 border border-accent/20 rounded-lg">
-                <p className="text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-2">
-                  <Sparkles size={12} className="animate-pulse" />
-                  DLU Intelligent Core v3.0
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 sm:mt-3">
+              <div className="px-2 py-0.5 sm:px-3 sm:py-1 bg-accent/10 border border-accent/20 rounded-md sm:rounded-lg">
+                <p className="text-[8px] sm:text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-1 sm:gap-2">
+                  <Sparkles size={10} className="animate-pulse" />
+                  DLU Intelligent Core
                 </p>
               </div>
-              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Đã đồng bộ hóa 100% dữ liệu chi đoàn</p>
+              <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">Đồng bộ 100% dữ liệu</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden sm:flex items-center gap-4">
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50/50 border border-emerald-100 rounded-xl">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Core Active</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50/50 border border-emerald-100 rounded-xl">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Active</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 bg-white/40 backdrop-blur-3xl border border-white border-t-slate-200/50 rounded-[4rem] overflow-hidden flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative">
+      <div className="flex-1 bg-white/40 backdrop-blur-3xl border border-white border-t-slate-200/50 rounded-[2rem] sm:rounded-[3rem] lg:rounded-[4rem] overflow-hidden flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative">
         {/* Subtle decorative grid */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.02] pointer-events-none" />
         
@@ -615,26 +615,26 @@ Quy tắc ứng xử:
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-6 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
+        <div className="p-3 sm:p-6 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
           <form onSubmit={handleSend} className="relative flex items-center group max-w-5xl mx-auto">
-            <div className="absolute left-6 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
-              <Sparkles size={22} strokeWidth={2.5} />
+            <div className="absolute left-4 sm:left-6 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
+              <Sparkles className="w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2.5} />
             </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Vui lòng đợi Core khởi động..." : "Điều lệnh hoặc câu hỏi của bạn? (VD: Tìm đoàn viên...)"}
+              placeholder={isInitializing ? "Nạp Core..." : "Hỏi AI? (VD: Tìm đoàn viên...)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-white border border-slate-200 rounded-2xl pl-14 pr-16 py-4 text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-semibold text-base shadow-xl shadow-slate-200/5 group-hover:border-slate-300 leading-relaxed"
+              className="w-full bg-white border border-slate-200 rounded-xl sm:rounded-2xl pl-10 sm:pl-14 pr-12 sm:pr-16 py-3 sm:py-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 sm:focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all shadow-lg sm:shadow-xl shadow-slate-200/5 group-hover:border-slate-300"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-2 px-6 h-10 bg-slate-900 text-white rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg shadow-slate-900/30 hover:shadow-accent/50 group/btn"
+              className="absolute right-1.5 sm:right-2 px-3 sm:px-6 h-8 sm:h-10 bg-slate-900 text-white rounded-lg sm:rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg hover:shadow-accent/50 group/btn"
             >
-              <Send size={18} strokeWidth={2.5} className="group-hover/btn:translate-x-1 transition-transform mr-2" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Gửi</span>
+              <Send className="w-4 h-4 sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+              <span className="hidden sm:inline-block ml-2 text-[10px] font-black uppercase tracking-widest">Gửi</span>
             </button>
           </form>
 

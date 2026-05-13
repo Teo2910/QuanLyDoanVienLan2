@@ -228,39 +228,39 @@ export const MovementList: React.FC = () => {
   }
 
   return (
-    <div className="space-y-12 pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4">
+    <div className="space-y-8 sm:space-y-12 pb-20 px-4 sm:px-0">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="w-full lg:w-auto">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4">
             {profile?.role === "admin" ? "Chiến dịch & Báo cáo" : "Báo cáo phong trào"}
           </h2>
-          <div className="flex items-center gap-3">
-             <div className="px-3 py-1 bg-accent/10 text-accent rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent/20">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+             <div className="px-2 sm:px-3 py-1 bg-accent/10 text-accent rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-widest border border-accent/20">
                Hệ thống tập trung
              </div>
-             <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">
+             <p className="text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.1em] sm:tracking-[0.2em]">
                {isAdmin ? "Quản lý và điều phối các đơn vị cơ sở" : "Kênh báo cáo chính thức cấp chi đoàn"}
              </p>
           </div>
         </div>
         {isAdmin && (
-          <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full lg:w-auto">
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsAIModalOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-white border border-slate-200 text-slate-600 rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-5 bg-white border border-slate-200 text-slate-600 rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] shadow-sm transition-all"
             >
-              <Sparkles size={18} className="text-accent animate-pulse" />
+              <Sparkles size={16} className="text-accent" />
               Sáng tạo AI
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-slate-900 text-white rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-slate-900/20 hover:bg-accent transition-all"
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-5 bg-slate-900 text-white rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] shadow-xl hover:bg-accent transition-all"
             >
-              <Plus size={18} strokeWidth={2.5} />
+              <Plus size={16} strokeWidth={2.5} />
               Lễ ra quân
             </motion.button>
           </div>
@@ -268,27 +268,27 @@ export const MovementList: React.FC = () => {
       </div>
 
       {isAdmin && (
-        <section className="bg-white border border-slate-200 rounded-[3.5rem] overflow-hidden shadow-2xl shadow-slate-200/40">
-          <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-             <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.05)]">
-                   <BarChart3 size={24} strokeWidth={2.5} />
+        <section className="bg-white border border-slate-200 rounded-2xl sm:rounded-[2.5rem] lg:rounded-[3.5rem] overflow-hidden shadow-2xl shadow-slate-200/40">
+          <div className="p-6 sm:p-10 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+             <div className="flex items-center gap-4 sm:gap-5">
+                <div className="w-10 h-10 sm:w-14 sm:h-14 bg-accent/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-accent">
+                   <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.5} />
                 </div>
                 <div>
-                   <h3 className="text-2xl font-black text-slate-900 tracking-tight">Tổng cục phong trào</h3>
-                   <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Dữ liệu thời gian thực</p>
+                   <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Tổng cục phong trào</h3>
+                   <p className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Dữ liệu thời gian thực</p>
                 </div>
              </div>
           </div>
-          <div className="overflow-x-auto no-scrollbar px-2">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr>
-                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100">Phong trào & Chiến dịch</th>
-                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đơn vị</th>
-                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đã báo</th>
-                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Tổng nộp</th>
-                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right">Mức độ hoàn thành</th>
+                <tr className="bg-slate-50/30">
+                  <th className="px-6 sm:px-10 py-6 sm:py-8 text-[9px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100">Phong trào & Chiến dịch</th>
+                  <th className="px-6 sm:px-10 py-6 sm:py-8 text-[9px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đơn vị</th>
+                  <th className="px-6 sm:px-10 py-6 sm:py-8 text-[9px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đã báo</th>
+                  <th className="px-6 sm:px-10 py-6 sm:py-8 text-[9px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Tổng nộp</th>
+                  <th className="px-6 sm:px-10 py-6 sm:py-8 text-[9px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right">Mức độ</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -514,18 +514,18 @@ export const MovementList: React.FC = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
             >
-              <div className="p-10 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+              <div className="p-6 sm:p-10 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50/50 gap-4">
                 <div>
-                  <h3 className="text-4xl font-bold text-slate-900 tracking-tighter mb-2">{selectedMovement.title}</h3>
-                  <div className="flex items-center gap-6 text-slate-400">
-                    <span className="flex items-center gap-2 text-xs font-semibold">
+                  <h3 className="text-2xl sm:text-4xl font-bold text-slate-900 tracking-tighter mb-2">{selectedMovement.title}</h3>
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-slate-400">
+                    <span className="flex items-center gap-2 text-[10px] sm:text-xs font-semibold">
                       <Calendar size={14} className="text-accent" />
                       {selectedMovement.startDate} — {selectedMovement.endDate}
                     </span>
                     {isAdmin && (
-                      <span className="flex items-center gap-2 text-xs font-semibold">
+                      <span className="flex items-center gap-2 text-[10px] sm:text-xs font-semibold">
                         <BarChart3 size={14} className="text-accent" />
-                        {reports.filter(r => r.movementId === selectedMovement.id).length} báo cáo / {selectedMovement.participatingUnitIds.length} đơn vị
+                        {reports.filter(r => r.movementId === selectedMovement.id).length}/{selectedMovement.participatingUnitIds.length} báo cáo
                       </span>
                     )}
                     {isAdmin && (
@@ -535,28 +535,28 @@ export const MovementList: React.FC = () => {
                           setEditingMovement(selectedMovement);
                           setIsEditModalOpen(true);
                         }}
-                        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-accent hover:text-blue-700 transition-colors"
+                        className="flex items-center gap-2 text-[9px] sm:text-[10px] uppercase tracking-widest font-black text-accent hover:text-blue-700 transition-colors"
                       >
                         <Clock size={14} /> Chỉnh sửa
                       </button>
                     )}
                   </div>
                 </div>
-                <button onClick={() => setIsDetailModalOpen(false)} className="p-3 bg-slate-100 hover:bg-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-all">
-                  <Plus size={24} className="rotate-45" />
+                <button onClick={() => setIsDetailModalOpen(false)} className="p-2 sm:p-3 bg-slate-100 hover:bg-slate-200 rounded-xl sm:rounded-2xl text-slate-400 hover:text-slate-900 transition-all self-end sm:self-center">
+                  <Plus size={20} className="rotate-45" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                <div className={cn("grid grid-cols-1 gap-12", isAdmin ? "lg:grid-cols-10" : "max-w-2xl mx-auto")}>
-                  <div className={cn("space-y-10", isAdmin ? "lg:col-span-6" : "w-full")}>
-                    <section className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 relative overflow-hidden group">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-10 custom-scrollbar">
+                <div className={cn("grid grid-cols-1 gap-8 sm:gap-12", isAdmin ? "lg:grid-cols-10" : "max-w-2xl mx-auto")}>
+                  <div className={cn("space-y-8 sm:space-y-10", isAdmin ? "lg:col-span-6" : "w-full")}>
+                    <section className="bg-slate-50 rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8 border border-slate-100 relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-[50px] -mr-16 -mt-16 group-hover:bg-accent/10 transition-all duration-700" />
-                      <h4 className="text-[10px] uppercase tracking-[0.25em] text-accent font-black mb-6 flex items-center gap-2">
+                      <h4 className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-accent font-black mb-4 sm:mb-6 flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
                         Nội dung chi tiết
                       </h4>
-                      <p className="text-slate-600 leading-relaxed whitespace-pre-wrap text-sm lg:text-base font-medium">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
+                      <p className="text-slate-600 leading-relaxed whitespace-pre-wrap text-sm font-medium">{selectedMovement.description || "Không có mô tả chi tiết."}</p>
                     </section>
 
                     {selectedMovement.attachments.length > 0 && (

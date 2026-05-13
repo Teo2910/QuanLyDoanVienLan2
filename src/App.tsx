@@ -92,16 +92,16 @@ const Dashboard = () => {
   ];
 
   return (
-    <div id="dashboard-page" className="max-w-7xl mx-auto px-4 lg:px-8">
-      <div className="mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+    <div id="dashboard-page" className="max-w-7xl mx-auto">
+      <div className="mb-10 lg:mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <h2 className="text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4">
-            Xin chào, <span className="text-accent">{profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}</span>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-4">
+            Xin chào, <span className="text-accent">{profile?.fullName?.split(' ').pop() || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}</span>
           </h2>
-          <p className="text-slate-400 text-[10px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
+          <p className="text-slate-400 text-[8px] lg:text-[10px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
              <div className="w-8 h-px bg-slate-200" /> Hệ thống quản lý Đoàn cơ sở
           </p>
         </motion.div>
@@ -118,41 +118,41 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-10 lg:mb-16">
         {cards.map((card, index) => (
           <motion.div 
             key={card.label} 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white border border-slate-100 p-10 rounded-[3rem] flex flex-col justify-between transition-all hover:shadow-2xl hover:shadow-slate-200/60 hover:-translate-y-2 group shadow-sm relative overflow-hidden"
+            className="bg-white border border-slate-100 p-6 lg:p-10 rounded-[2.5rem] lg:rounded-[3rem] flex flex-col justify-between transition-all hover:shadow-2xl hover:shadow-slate-200/60 hover:-translate-y-2 group shadow-sm relative overflow-hidden"
           >
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100" />
-            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg relative z-10", card.bg, card.color)}>
-              <card.icon size={32} strokeWidth={2.5} />
+            <div className={cn("w-12 h-12 lg:w-16 lg:h-16 rounded-2xl lg:rounded-[1.8rem] flex items-center justify-center mb-6 lg:mb-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg relative z-10", card.bg, card.color)}>
+              <card.icon className="w-6 h-6 lg:w-8 lg:h-8" strokeWidth={2.5} />
             </div>
             <div className="relative z-10">
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-2 opacity-60">{card.label}</p>
-              <h3 className="text-5xl font-black text-slate-900 tracking-tighter">{card.value}</h3>
+              <p className="text-[9px] lg:text-[10px] uppercase tracking-widest text-slate-400 font-black mb-1 lg:mb-2 opacity-60">{card.label}</p>
+              <h3 className="text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter tabular-nums">{card.value}</h3>
             </div>
-            <div className="w-12 h-1 bg-slate-100 rounded-full mt-6 group-hover:w-full transition-all duration-700 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <div className="w-12 h-1 bg-slate-100 rounded-full mt-4 lg:mt-6 group-hover:w-full transition-all duration-700 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
           </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
         {/* Recent Activities Section */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-100 p-12 rounded-[4rem] shadow-sm hover:shadow-2xl transition-all duration-500"
+          className="bg-white border border-slate-100 p-6 sm:p-8 lg:p-12 rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] shadow-sm hover:shadow-2xl transition-all duration-500"
         >
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black flex items-center gap-4">
-                <div className="w-2 h-10 bg-accent rounded-full" />
+            <div className="flex justify-between items-center mb-8 lg:mb-10">
+              <h3 className="text-[10px] lg:text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black flex items-center gap-3 lg:gap-4">
+                <div className="w-1.5 h-8 lg:w-2 lg:h-10 bg-accent rounded-full" />
                 Hoạt động sắp tới
               </h3>
-              <Link to="/activities" className="text-[10px] text-accent font-black uppercase tracking-widest hover:bg-accent/5 px-4 py-2 rounded-xl transition-all">Xem tất cả →</Link>
+              <Link to="/activities" className="text-[9px] lg:text-[10px] text-accent font-black uppercase tracking-widest hover:bg-accent/5 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl transition-all">Tất cả →</Link>
             </div>
            <div className="space-y-4">
              {recentActivities.length > 0 ? (
@@ -160,29 +160,29 @@ const Dashboard = () => {
                  <motion.div 
                     whileHover={{ x: 10 }}
                     key={evt.id} 
-                    className="flex justify-between items-center p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] hover:border-accent hover:bg-white transition-all cursor-pointer group shadow-sm"
+                    className="flex justify-between items-center p-5 sm:p-8 bg-slate-50 border border-slate-100 rounded-[2rem] sm:rounded-[2.5rem] hover:border-accent hover:bg-white transition-all cursor-pointer group shadow-sm"
                  >
-                    <div className="flex items-center gap-6">
-                       <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-accent shadow-sm group-hover:scale-110 transition-transform">
-                          <Calendar size={24} />
+                    <div className="flex items-center gap-4 sm:gap-6">
+                       <div className="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-accent shadow-sm group-hover:scale-110 transition-transform">
+                          <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
                        </div>
-                       <div>
-                          <p className="font-black text-slate-900 text-xl group-hover:text-accent transition-colors leading-tight">{evt.title}</p>
-                          <span className="inline-block text-[9px] uppercase tracking-widest text-white bg-slate-900 px-3 py-1 rounded-lg mt-2 font-black">{evt.type}</span>
+                       <div className="min-w-0">
+                          <p className="font-black text-slate-900 text-base sm:text-xl group-hover:text-accent transition-colors leading-tight truncate">{evt.title}</p>
+                          <span className="inline-block text-[8px] sm:text-[9px] uppercase tracking-widest text-white bg-slate-900 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg mt-1 sm:mt-2 font-black">{evt.type}</span>
                        </div>
                     </div>
-                    <div className="text-right">
-                       <p className="text-lg font-black text-slate-900 tabular-nums">
+                    <div className="text-right shrink-0">
+                       <p className="text-base sm:text-lg font-black text-slate-900 tabular-nums">
                          {new Date(evt.date).toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit' })}
                        </p>
-                       <p className="text-[10px] uppercase font-black text-slate-300 tracking-widest">{new Date(evt.date).getFullYear()}</p>
+                       <p className="text-[8px] sm:text-[10px] uppercase font-black text-slate-300 tracking-widest">{new Date(evt.date).getFullYear()}</p>
                     </div>
                  </motion.div>
                ))
              ) : (
-               <div className="py-20 text-center border-4 border-dashed border-slate-50 rounded-[3rem] bg-slate-50/20">
-                 <Calendar size={40} className="mx-auto text-slate-100 mb-4" />
-                 <p className="text-[10px] uppercase tracking-widest text-slate-300 font-black">Lịch trình đang trống</p>
+               <div className="py-12 sm:py-20 text-center border-[3px] sm:border-4 border-dashed border-slate-50 rounded-[2rem] sm:rounded-[3rem] bg-slate-50/20">
+                 <Calendar className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-100 mb-4" />
+                 <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-300 font-black">Lịch trình đang trống</p>
                </div>
              )}
            </div>
@@ -193,16 +193,16 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white border border-slate-100 p-12 rounded-[4rem] shadow-sm hover:shadow-2xl transition-all duration-500"
+          className="bg-white border border-slate-100 p-6 sm:p-8 lg:p-12 rounded-[2.5rem] sm:rounded-[3rem] lg:rounded-[4rem] shadow-sm hover:shadow-2xl transition-all duration-500"
         >
-            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black flex items-center gap-4">
-                <div className="w-2 h-10 bg-emerald-500 rounded-full" />
+            <div className="flex justify-between items-center mb-8 lg:mb-10">
+              <h3 className="text-[10px] lg:text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black flex items-center gap-3 lg:gap-4">
+                <div className="w-1.5 h-8 lg:w-2 lg:h-10 bg-emerald-500 rounded-full" />
                 Kết nạp mới
               </h3>
-              <Link to="/members" className="text-[10px] text-emerald-600 font-black uppercase tracking-widest hover:bg-emerald-50 px-4 py-2 rounded-xl transition-all">Danh sách →</Link>
+              <Link to="/members" className="text-[9px] lg:text-[10px] text-emerald-600 font-black uppercase tracking-widest hover:bg-emerald-50 px-3 py-1.5 lg:px-4 lg:py-2 rounded-xl transition-all">Tất cả →</Link>
             </div>
-           <div className="space-y-6">
+           <div className="space-y-4 lg:space-y-6">
              {recentMembers.length > 0 ? (
                recentMembers.map((m) => {
                  const joinDate = m.createdAt ? new Date(m.createdAt).toLocaleDateString("vi-VN") : "N/A";
@@ -210,36 +210,36 @@ const Dashboard = () => {
                    <motion.div 
                       whileHover={{ scale: 1.02 }}
                       key={m.id} 
-                      className="flex items-center gap-6 group cursor-pointer p-4 rounded-3xl hover:bg-slate-50/80 transition-all border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md"
+                      className="flex items-center gap-4 sm:gap-6 group cursor-pointer p-3 sm:p-4 rounded-3xl hover:bg-slate-50/80 transition-all border border-transparent hover:border-slate-100 shadow-sm hover:shadow-md"
                    >
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-[1.8rem] bg-white border-2 border-slate-100 flex items-center justify-center font-black text-2xl text-slate-900 group-hover:border-accent group-hover:text-accent transition-all shadow-xl shadow-slate-200/50 overflow-hidden relative">
+                      <div className="relative shrink-0">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[1.8rem] bg-white border-2 border-slate-100 flex items-center justify-center font-black text-xl sm:text-2xl text-slate-900 group-hover:border-accent group-hover:text-accent transition-all shadow-xl shadow-slate-200/50 overflow-hidden relative">
                           <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                           {m.fullName.charAt(0)}
                         </div>
                         {m.isOutstanding && (
-                          <div className="absolute -top-1 -right-1 bg-amber-400 text-white rounded-xl p-1.5 border-4 border-white shadow-lg animate-bounce">
-                            <Star size={12} fill="currentColor" />
+                          <div className="absolute -top-1 -right-1 bg-amber-400 text-white rounded-lg p-1 border-2 border-white shadow-lg">
+                            <Star size={10} fill="currentColor" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-black text-slate-900 text-xl group-hover:text-accent transition-colors truncate leading-tight mb-1">{m.fullName}</p>
-                        <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black flex items-center gap-2">
-                           <Building2 size={12} className="text-accent" /> {m.unitName}
+                        <p className="font-black text-slate-900 text-base sm:text-xl group-hover:text-accent transition-colors truncate leading-tight mb-0.5 sm:mb-1">{m.fullName}</p>
+                        <p className="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-black flex items-center gap-2 truncate">
+                           <Building2 size={10} className="text-accent" /> {m.unitName}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-[10px] uppercase tracking-widest text-slate-300 font-black mb-1">Ngày vào</p>
-                        <p className="text-xs font-black text-slate-900 bg-white px-3 py-1.5 rounded-xl border border-slate-100 tabular-nums shadow-sm">{joinDate}</p>
+                        <p className="text-[8px] sm:text-[10px] uppercase tracking-widest text-slate-300 font-black mb-0.5">Ngày vào</p>
+                        <p className="text-[10px] sm:text-xs font-black text-slate-900 bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-slate-100 tabular-nums shadow-sm">{joinDate}</p>
                       </div>
                    </motion.div>
                  );
                })
              ) : (
-               <div className="py-20 text-center border-4 border-dashed border-slate-50 rounded-[3rem] bg-slate-50/20">
-                 <Users size={40} className="mx-auto text-slate-100 mb-4" />
-                 <p className="text-[10px] uppercase tracking-widest text-slate-300 font-black">Chưa ghi nhận kết nạp mới</p>
+               <div className="py-12 sm:py-20 text-center border-[3px] sm:border-4 border-dashed border-slate-50 rounded-[2rem] sm:rounded-[3rem] bg-slate-50/20">
+                 <Users className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-100 mb-4" />
+                 <p className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-300 font-black">Chưa ghi nhận</p>
                </div>
              )}
            </div>
