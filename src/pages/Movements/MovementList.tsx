@@ -229,38 +229,38 @@ export const MovementList: React.FC = () => {
 
   return (
     <div className="space-y-12 pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 px-2 md:px-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 tracking-tighter leading-tight lg:leading-none mb-3 lg:mb-4">
+          <h2 className="text-6xl font-black text-slate-900 tracking-tighter leading-none mb-4">
             {profile?.role === "admin" ? "Chiến dịch & Báo cáo" : "Báo cáo phong trào"}
           </h2>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-3">
              <div className="px-3 py-1 bg-accent/10 text-accent rounded-lg text-[10px] font-black uppercase tracking-widest border border-accent/20">
                Hệ thống tập trung
              </div>
-             <p className="text-slate-400 text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] leading-relaxed">
+             <p className="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">
                {isAdmin ? "Quản lý và điều phối các đơn vị cơ sở" : "Kênh báo cáo chính thức cấp chi đoàn"}
              </p>
           </div>
         </div>
         {isAdmin && (
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="flex gap-4 w-full md:w-auto">
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsAIModalOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-6 lg:px-8 py-4 lg:py-5 bg-white border border-slate-200 text-slate-600 rounded-2xl lg:rounded-3xl font-black uppercase tracking-widest text-[10px] lg:text-[11px] shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all"
+              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-white border border-slate-200 text-slate-600 rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all"
             >
-              <Sparkles size={16} className="text-accent animate-pulse" />
+              <Sparkles size={18} className="text-accent animate-pulse" />
               Sáng tạo AI
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-6 lg:px-8 py-4 lg:py-5 bg-slate-900 text-white rounded-2xl lg:rounded-3xl font-black uppercase tracking-widest text-[10px] lg:text-[11px] shadow-2xl shadow-slate-900/20 hover:bg-accent transition-all"
+              className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-slate-900 text-white rounded-3xl font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-slate-900/20 hover:bg-accent transition-all"
             >
-              <Plus size={16} strokeWidth={2.5} />
+              <Plus size={18} strokeWidth={2.5} />
               Lễ ra quân
             </motion.button>
           </div>
@@ -268,28 +268,27 @@ export const MovementList: React.FC = () => {
       </div>
 
       {isAdmin && (
-        <section className="bg-white border border-slate-200 rounded-2xl lg:rounded-[3.5rem] overflow-hidden shadow-2xl shadow-slate-200/40">
-          <div className="p-6 lg:p-10 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-             <div className="flex items-center gap-4 lg:gap-5">
-                <div className="w-12 h-12 lg:w-14 lg:h-14 bg-accent/10 rounded-xl lg:rounded-2xl flex items-center justify-center text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.05)] text-accent">
-                   <BarChart3 size={20} className="lg:hidden" strokeWidth={2.5} />
-                   <BarChart3 size={24} className="hidden lg:block" strokeWidth={2.5} />
+        <section className="bg-white border border-slate-200 rounded-[3.5rem] overflow-hidden shadow-2xl shadow-slate-200/40">
+          <div className="p-10 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+             <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.05)]">
+                   <BarChart3 size={24} strokeWidth={2.5} />
                 </div>
                 <div>
-                   <h3 className="text-xl lg:text-2xl font-black text-slate-900 tracking-tight">Tổng cục phong trào</h3>
+                   <h3 className="text-2xl font-black text-slate-900 tracking-tight">Tổng cục phong trào</h3>
                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">Dữ liệu thời gian thực</p>
                 </div>
              </div>
           </div>
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px] lg:min-w-0">
+          <div className="overflow-x-auto no-scrollbar px-2">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr>
-                  <th className="px-6 lg:px-10 py-6 lg:py-8 text-[10px] lg:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100">Phong trào & Chiến dịch</th>
-                  <th className="px-6 lg:px-10 py-6 lg:py-8 text-[10px] lg:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đơn vị</th>
-                  <th className="px-6 lg:px-10 py-6 lg:py-8 text-[10px] lg:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đã báo</th>
-                  <th className="px-6 lg:px-10 py-6 lg:py-8 text-[10px] lg:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Tổng nộp</th>
-                  <th className="px-6 lg:px-10 py-6 lg:py-8 text-[10px] lg:text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right">Mức độ hoàn thành</th>
+                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100">Phong trào & Chiến dịch</th>
+                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đơn vị</th>
+                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Đã báo</th>
+                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-center">Tổng nộp</th>
+                  <th className="px-10 py-8 text-[11px] uppercase font-black tracking-[0.2em] text-slate-400 border-b border-slate-100 text-right">Mức độ hoàn thành</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -310,28 +309,28 @@ export const MovementList: React.FC = () => {
                       whileHover={{ backgroundColor: "rgba(37,99,235,0.02)" }}
                       className="cursor-pointer transition-all duration-300 group"
                     >
-                      <td className="px-6 lg:px-10 py-6 lg:py-8">
-                        <div className="flex items-center gap-3 lg:gap-4">
-                           <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 bg-accent rounded-full opacity-0 group-hover:opacity-100 transition-all scale-0 group-hover:scale-100" />
-                           <span className="text-sm lg:text-base font-black text-slate-700 group-hover:text-accent group-hover:translate-x-2 transition-all">{movement.title}</span>
+                      <td className="px-10 py-8">
+                        <div className="flex items-center gap-4">
+                           <div className="w-2 h-2 bg-accent rounded-full opacity-0 group-hover:opacity-100 transition-all scale-0 group-hover:scale-100" />
+                           <span className="text-base font-black text-slate-700 group-hover:text-accent group-hover:translate-x-2 transition-all">{movement.title}</span>
                         </div>
                       </td>
-                      <td className="px-6 lg:px-10 py-6 lg:py-8 text-center">
-                        <span className="text-xs lg:text-sm font-black text-slate-400 tabular-nums">{totalUnits}</span>
+                      <td className="px-10 py-8 text-center">
+                        <span className="text-sm font-black text-slate-400 tabular-nums">{totalUnits}</span>
                       </td>
-                      <td className="px-6 lg:px-10 py-6 lg:py-8 text-center">
-                        <div className="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-emerald-50 text-emerald-600 font-black text-xs lg:text-sm tabular-nums">
+                      <td className="px-10 py-8 text-center">
+                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 font-black text-sm tabular-nums">
                            {reportedCount}
                         </div>
                       </td>
-                      <td className="px-6 lg:px-10 py-6 lg:py-8 text-center">
-                        <div className="inline-flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-accent/5 text-accent font-black text-xs lg:text-sm tabular-nums border border-accent/10">
+                      <td className="px-10 py-8 text-center">
+                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/5 text-accent font-black text-sm tabular-nums border border-accent/10">
                            {totalSubmissions}
                         </div>
                       </td>
-                      <td className="px-6 lg:px-10 py-6 lg:py-8 text-right">
-                         <div className="flex items-center justify-end gap-3 lg:gap-6">
-                            <div className="w-20 lg:w-32 h-1.5 lg:h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                      <td className="px-10 py-8 text-right">
+                         <div className="flex items-center justify-end gap-6">
+                            <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                                <motion.div 
                                  initial={{ width: 0 }}
                                  animate={{ width: `${rate}%` }}
@@ -342,7 +341,7 @@ export const MovementList: React.FC = () => {
                                />
                             </div>
                             <span className={cn(
-                              "text-xs lg:text-sm font-black w-10 lg:w-14 tabular-nums transition-colors",
+                              "text-sm font-black w-14 tabular-nums transition-colors",
                               Number(rate) >= 80 ? "text-emerald-600" : Number(rate) >= 50 ? "text-accent" : "text-orange-600"
                             )}>{rate}%</span>
                          </div>
