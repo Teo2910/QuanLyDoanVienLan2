@@ -158,12 +158,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-8 lg:p-10 w-72">
           <div className="flex items-center justify-between lg:justify-start gap-4 group cursor-pointer">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-700 flex items-center justify-center shadow-xl shadow-accent/20 group-hover:rotate-12 transition-transform duration-500">
-                <span className="text-white font-black text-xs lg:text-sm">QN</span>
+              <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
+                <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+                  alt="VNPT Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
-                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">Quản lý Đoàn</h1>
-                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống thông minh</p>
+                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">VNPT DLU</h1>
+                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Smart Management</p>
               </div>
             </div>
             {/* Mobile Close Button */}

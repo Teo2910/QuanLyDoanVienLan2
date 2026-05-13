@@ -286,11 +286,14 @@ const AuthScreen = () => {
          animate={{ opacity: 1, scale: 1 }}
          className="max-w-md w-full bg-white border border-slate-200 p-8 sm:p-12 rounded-3xl sm:rounded-[4rem] text-center shadow-2xl flex flex-col items-center"
        >
-          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-accent flex items-center justify-center mb-6 sm:mb-10 rounded-2xl sm:rounded-[2.5rem] shadow-2xl shadow-accent/20 relative group overflow-hidden">
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Star className="text-white relative z-10" size={32} fill="currentColor" />
+          <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center mb-6 sm:mb-10 transition-transform hover:scale-110 duration-500">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+              alt="VNPT Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-2 tracking-tighter leading-none">Quản Lý Đoàn</h1>
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-2 tracking-tighter leading-none">VNPT DLU</h1>
           <p className="text-slate-400 mb-8 sm:mb-12 text-[9px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.4em] font-black">
             {isRegister ? "Đăng ký thành viên mới" : "Cổng thông tin nội bộ"}
           </p>

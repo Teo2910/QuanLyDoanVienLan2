@@ -232,8 +232,12 @@ export const ChatWidget = () => {
             <div className="p-4 sm:p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10">
                <div className="flex-1 min-w-0">
                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-2xl bg-slate-900 flex items-center justify-center text-accent shadow-xl shadow-slate-900/10 shrink-0">
-                       <Sparkles size={14} className="sm:w-[18px] sm:h-[18px]" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
+                       <img 
+                         src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/VNPT_Logo.svg/1200px-VNPT_Logo.svg.png" 
+                         alt="VNPT Logo" 
+                         className="w-full h-full object-contain"
+                       />
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-xs sm:text-base font-black text-slate-900 tracking-tight truncate">
