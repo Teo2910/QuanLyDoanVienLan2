@@ -159,60 +159,78 @@ export const ActivityList = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredActivities.map((activity) => (
-          <div key={activity.id} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 hover:border-accent transition-all group flex flex-col justify-between shadow-lg hover:shadow-2xl hover:shadow-accent/5">
-            <div>
-              <div className="flex justify-between items-start mb-6">
-                <span className="px-4 py-1.5 bg-accent/5 border border-accent/10 rounded-full text-[9px] uppercase tracking-widest font-black text-accent">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {filteredActivities.map((activity, index) => (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            key={activity.id} 
+            className="bg-white border border-slate-200 rounded-[3rem] p-10 hover:border-accent transition-all group flex flex-col justify-between shadow-sm hover:shadow-2xl hover:shadow-slate-200/60 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-accent/10 transition-all duration-500" />
+            
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-8">
+                <span className={cn(
+                  "px-4 py-1.5 rounded-xl text-[10px] uppercase tracking-widest font-black border transition-all",
+                  activity.type === "Hội họp" ? "bg-blue-50 text-blue-600 border-blue-100" :
+                  activity.type === "Phong trào" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                  activity.type === "Giáo dục" ? "bg-purple-50 text-purple-600 border-purple-100" :
+                  "bg-rose-50 text-rose-600 border-rose-100"
+                )}>
                   {activity.type}
                 </span>
                 {(isAdmin || isSecretary) && (
                   <div className="flex gap-2">
                     <motion.button 
-                      whileHover={{ scale: 1.2, rotate: 15 }}
-                      whileTap={{ scale: 0.8 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => handleEdit(activity)} 
-                      className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 hover:text-accent hover:border-accent/30 transition-all shadow-sm"
+                      className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/30 transition-all shadow-sm"
                     >
-                      <Edit2 size={14} />
-                    </motion.button>
-                    <motion.button 
-                      whileHover={{ scale: 1.2, rotate: -15 }}
-                      whileTap={{ scale: 0.8 }}
-                      onClick={() => handleDelete(activity.id)} 
-                      className="p-2.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-400 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                    >
-                      <Trash2 size={14} />
+                      <Edit2 size={14} strokeWidth={2.5} />
                     </motion.button>
                   </div>
                 )}
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-accent transition-colors leading-tight">
+              <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-accent transition-colors leading-tight tracking-tight">
                 {activity.title}
               </h3>
-              <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed italic">
-                {activity.description || "Không có mô tả chi tiết."}
+              <p className="text-slate-500 text-sm mb-8 line-clamp-3 leading-relaxed font-medium">
+                {activity.description || "Không có nội dung mô tả chi tiết cho hoạt động này."}
               </p>
             </div>
-            <div className="space-y-3 pt-6 border-t border-slate-50">
-              <div className="flex items-center gap-3 text-slate-600">
-                <Calendar size={14} className="text-accent" />
-                <span className="text-[11px] font-bold tracking-widest uppercase">
-                  {(() => {
-                    const d = new Date(activity.date);
-                    return isNaN(d.getTime()) ? activity.date : d.toLocaleDateString("vi-VN");
-                  })()}
-                </span>
+
+            <div className="relative z-10 space-y-4 pt-8 border-t border-slate-100/60">
+              <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-accent shadow-inner">
+                    <Calendar size={18} strokeWidth={2.5} />
+                 </div>
+                 <div>
+                    <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Thời gian</p>
+                    <p className="text-sm font-black text-slate-900 tabular-nums">
+                      {(() => {
+                        const d = new Date(activity.date);
+                        return isNaN(d.getTime()) ? activity.date : d.toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' });
+                      })()}
+                    </p>
+                 </div>
               </div>
-              <div className="flex items-center gap-3 text-slate-400">
-                <MapPin size={14} className="text-accent/60" />
-                <span className="text-[10px] uppercase tracking-widest font-medium truncate">{activity.location}</span>
+
+              <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-rose-500 shadow-inner">
+                    <MapPin size={18} strokeWidth={2.5} />
+                 </div>
+                 <div className="min-w-0">
+                    <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Địa điểm</p>
+                    <p className="text-sm font-black text-slate-900 truncate">{activity.location}</p>
+                 </div>
               </div>
               
               {isAdmin && activity.type === "Phong trào" && (
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={async (e) => {
                     e.stopPropagation();
@@ -239,14 +257,14 @@ export const ActivityList = () => {
                       }
                     }
                   }}
-                  className="w-full mt-4 py-3 bg-accent/5 border border-accent/10 rounded-xl text-accent text-[10px] font-black uppercase tracking-widest hover:bg-accent hover:text-white transition-all flex items-center justify-center gap-2"
+                  className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10"
                 >
-                  <Award size={14} />
-                  Chuyển thành Phong trào
+                  <Award size={16} strokeWidth={2.5} />
+                  Nâng cấp thành Phong trào
                 </motion.button>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
 
         {filteredActivities.length === 0 && (

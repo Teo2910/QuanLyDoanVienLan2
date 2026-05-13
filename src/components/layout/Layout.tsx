@@ -138,23 +138,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         id="sidebar"
         className={cn(
-          "bg-white border-r border-slate-200 w-72 transition-all duration-300 ease-in-out z-50 flex flex-col shadow-xl shrink-0 overflow-hidden h-screen sticky top-0",
+          "bg-white/90 backdrop-blur-3xl border-r border-slate-200 w-72 transition-all duration-500 ease-in-out z-50 flex flex-col shadow-2xl shrink-0 overflow-hidden h-screen sticky top-0",
           !isSidebarOpen && "w-0 opacity-0 -translate-x-full"
         )}
       >
         <div className="p-10 w-72">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+          <div className="flex items-center gap-4 group cursor-pointer">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-700 flex items-center justify-center shadow-xl shadow-accent/20 group-hover:rotate-12 transition-transform duration-500">
               <span className="text-white font-black text-sm">QN</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Quản lý Đoàn</h1>
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400 font-bold">Thanh niên Đà Lạt</p>
+              <h1 className="text-xl font-black text-slate-900 tracking-tighter leading-none">Quản lý Đoàn</h1>
+              <p className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Hệ thống thông minh</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-6 space-y-2 w-72 mt-2 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-6 space-y-1 w-72 mt-2 overflow-y-auto custom-scrollbar no-scrollbar">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
@@ -163,115 +163,122 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                  "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-500 group relative overflow-hidden",
                   isActive
-                    ? "bg-accent/5 text-accent shadow-sm border border-accent/10"
-                    : "text-slate-500 hover:text-accent hover:bg-slate-50"
+                    ? "bg-accent/[0.03] text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.02)]"
+                    : "text-slate-500 hover:text-accent hover:bg-slate-50/50"
                 )}
               >
                 <div className={cn(
-                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 shrink-0",
+                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-500 shrink-0 relative z-10",
                   isActive 
-                    ? "bg-accent text-white shadow-lg shadow-accent/20" 
-                    : "bg-slate-100 text-slate-400 group-hover:bg-accent/10 group-hover:text-accent"
+                    ? "bg-accent text-white shadow-xl shadow-accent/30 scale-110" 
+                    : "bg-slate-100/50 text-slate-400 group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-6"
                 )}>
-                  <Icon size={20} />
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 
                 <span className={cn(
-                  "text-[15px] font-semibold tracking-tight transition-all duration-300",
-                  isActive ? "text-accent" : "text-slate-600"
+                  "text-[14px] font-black tracking-tight transition-all duration-500 relative z-10",
+                  isActive ? "text-slate-900" : "text-slate-500 group-hover:translate-x-1"
                 )}>
                   {item.name}
                 </span>
 
                 {isActive && (
-                  <motion.div 
-                    layoutId="active-nav-indicator"
-                    className="absolute right-4 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(37,99,235,0.8)]"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
+                  <>
+                    <motion.div 
+                      layoutId="active-nav-bg"
+                      className="absolute inset-0 bg-accent/[0.04] rounded-2xl border border-accent/10"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                    <motion.div 
+                      layoutId="active-nav-indicator"
+                      className="absolute right-0 w-1.5 h-8 bg-accent rounded-l-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  </>
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-6 border-t border-slate-100 w-72">
+        <div className="p-8 border-t border-slate-100 bg-slate-50/30 w-72">
           <motion.button 
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsProfileModalOpen(true)}
-            className="bg-slate-50 p-4 rounded-xl flex items-center space-x-3 border border-slate-100 w-full hover:bg-slate-100 transition-all text-left group"
+            className="bg-white p-4 rounded-3xl flex items-center space-x-3 border border-slate-200 w-full hover:shadow-xl hover:shadow-slate-200/50 transition-all text-left group"
           >
             {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full object-cover shadow-md border border-white group-hover:border-accent/40" />
+              <img src={profile.avatarUrl} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover shadow-lg border-2 border-white group-hover:border-accent group-hover:scale-105 transition-all" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-white shadow-lg text-[10px]">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center font-black text-white shadow-lg text-xs">
                 {userInitials}
               </div>
             )}
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-semibold">{userRoleName}</p>
+              <p className="text-[13px] font-black text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
+              <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
             </div>
           </motion.button>
           <motion.button 
-            whileHover={{ x: 5 }}
+            whileHover={{ x: 5, color: "#ef4444" }}
             whileTap={{ scale: 0.95 }}
             onClick={logout}
-            className="mt-6 flex items-center gap-3 px-4 py-2 w-full text-slate-400 hover:text-red-500 transition-all text-[10px] font-black uppercase tracking-widest hover:bg-red-50 rounded-xl"
+            className="mt-6 flex items-center gap-3 px-5 py-3 w-full text-slate-400 transition-all text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 rounded-2xl"
           >
-            <LogOut size={14} />
-            <span>Đăng xuất</span>
+            <LogOut size={16} strokeWidth={2.5} />
+            <span>Thoát hệ thống</span>
           </motion.button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-300 h-screen flex flex-col overflow-hidden">
+      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="h-20 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-10">
-          <div className="flex items-center gap-4">
-            <button 
+        <header className="h-24 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-10 shadow-sm">
+          <div className="flex items-center gap-6">
+            <motion.button 
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
               id="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 transition-colors"
+              className="w-12 h-12 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
             >
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-            <div className="h-8 w-[1px] bg-slate-200 mx-2" />
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Quản lý Đoàn viên</h2>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest leading-none mt-1 font-semibold">DLU Internal Portal</p>
+            </motion.button>
+            <div className="hidden sm:block">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tighter">Bảng điều khiển</h2>
+              <p className="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black flex items-center gap-2">
+                 <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> Phiên bản 2.5
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div className="relative">
               <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   const newState = !isUserListOpen;
                   setIsUserListOpen(newState);
                   if (newState) fetchUsersData();
                 }}
-                className="flex items-center gap-3 p-2 bg-slate-50 hover:bg-slate-100 rounded-xl transition-all border border-slate-100"
+                className="flex items-center gap-4 p-3 bg-white border border-slate-200 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all"
               >
-                <div className="text-right hidden lg:block">
-                  <p className="text-[10px] uppercase tracking-widest text-slate-900 font-black">{userRoleName}</p>
-                  <div className="flex items-center justify-end gap-1">
-                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-                     <p className="text-[9px] text-slate-400 uppercase tracking-tighter">Trực tuyến</p>
-                  </div>
+                <div className="text-right hidden lg:block px-2">
+                  <p className="text-[10px] uppercase font-black text-slate-900 tracking-widest">{profile?.fullName}</p>
+                  <p className="text-[8px] text-emerald-500 font-black uppercase tracking-tighter">Bí thư trực tuyến</p>
                 </div>
                 {profile?.avatarUrl ? (
-                  <img src={profile.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full object-cover border border-slate-200 shadow-sm" />
+                  <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 rounded-2xl object-cover border border-slate-100 shadow-inner" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center font-bold text-accent shadow-sm text-[10px]">
+                  <div className="w-10 h-10 rounded-2xl bg-accent text-white flex items-center justify-center font-black text-xs shadow-lg">
                     {userInitials}
                   </div>
                 )}
