@@ -792,43 +792,49 @@ export const MemberList: React.FC = () => {
         variant={confirmConfig.variant}
       />
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
         <div className="flex-1">
-          <h2 className="text-4xl font-bold text-slate-900 flex items-center gap-4 tracking-tight mb-4">
-            <Users className="text-accent" size={36} />
-            Quản lý đoàn viên
-          </h2>
-          <div className="relative max-w-md">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-lg shadow-accent/5">
+              <Users size={32} />
+            </div>
+            <div>
+              <h2 className="text-4xl font-black text-slate-900 tracking-tight">
+                Quản lý đoàn viên
+              </h2>
+              <p className="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black mt-1">Cơ sở dữ liệu nhân sự số hóa 4.0</p>
+            </div>
+          </div>
+          <div className="relative max-w-md group">
             <input 
               type="text" 
               placeholder="Tìm kiếm nhanh đoàn viên..." 
-              className="w-full bg-white border border-slate-200 rounded-2xl py-3 px-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400"
+              className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 px-12 text-sm text-slate-900 focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/10 transition-all placeholder:text-slate-400 shadow-sm group-hover:border-slate-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-500 transition-colors"
               >
                 <X size={16} />
               </button>
             )}
           </div>
-          <p className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black mt-3">Cơ sở dữ liệu hồ sơ nhân sự tập trung</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 mr-2">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3">
             <motion.button 
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               onClick={exportToExcel}
-              className="group flex items-center gap-3 px-8 py-4 bg-accent border border-accent/20 rounded-2xl transition-all duration-300 shadow-xl shadow-accent/20 hover:shadow-accent/40"
+              className="group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl transition-all duration-300 shadow-md hover:shadow-xl hover:border-emerald-500/30 hover:text-emerald-600"
               title="Xuất danh sách ra tệp Excel"
             >
-              <Download size={20} className="text-white group-hover:translate-y-0.5 transition-transform" />
-              <span className="text-xs font-black uppercase tracking-widest text-white">Xuất Excel</span>
+              <Download size={20} className="text-slate-400 group-hover:text-emerald-500 transition-colors" />
+              <span className="text-xs font-black uppercase tracking-widest">Xuất Excel</span>
             </motion.button>
             <div className="relative">
               <input 
@@ -839,76 +845,85 @@ export const MemberList: React.FC = () => {
                 id="excel-import"
               />
               <motion.label 
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 htmlFor="excel-import"
-                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:border-accent hover:text-accent transition-all duration-300 shadow-md hover:shadow-accent/10"
+                className="cursor-pointer group flex items-center gap-3 px-8 py-4 bg-white border border-slate-200 rounded-2xl text-slate-600 hover:border-blue-500/30 hover:text-blue-600 transition-all duration-300 shadow-md hover:shadow-xl"
                 title="Nhập danh sách từ tệp Excel"
               >
-                <Upload size={20} className="text-slate-400 group-hover:text-accent group-hover:translate-y-0.5 transition-all" />
-                <span className="text-xs font-black uppercase tracking-widest transition-colors">Nhập Excel</span>
+                <Upload size={20} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+                <span className="text-xs font-black uppercase tracking-widest">Nhập dữ liệu</span>
               </motion.label>
             </div>
           </div>
+          <div className="w-px h-10 bg-slate-200 hidden lg:block mx-2" />
           <motion.button 
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={openAddModal}
-            className="group flex items-center gap-3 px-8 py-4 bg-slate-900 border border-slate-900 rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/10 hover:shadow-accent/30 hover:bg-accent hover:border-accent"
+            className="group flex items-center gap-3 px-10 py-4 bg-slate-900 text-white rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/10 hover:bg-accent hover:shadow-accent/30"
           >
-            <Plus size={20} className="text-white group-hover:rotate-90 transition-transform" />
-            <span className="text-xs font-black uppercase tracking-widest text-white">Thêm đoàn viên mới</span>
+            <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+            <span className="text-xs font-black uppercase tracking-widest">Thêm đoàn viên</span>
           </motion.button>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-[2rem] p-8 mb-8 pb-32 shadow-xl">
+      <div className="bg-white border border-slate-100 rounded-[3rem] p-10 mb-12 shadow-2xl shadow-slate-200/40">
         {/* Main Search Row */}
-        <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between mb-8">
           <form 
             onSubmit={(e) => e.preventDefault()}
             className="relative flex-1 group w-full md:max-w-2xl"
           >
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={20} />
+            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+              <Search className="text-slate-300 group-focus-within:text-accent transition-colors" size={24} />
+            </div>
             <input 
               type="text"
-              placeholder="Tìm kiếm theo tên, MSSV, quê quán..."
-              className="w-full pl-16 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:bg-white transition-all outline-none text-sm"
+              placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..."
+              className="w-full pl-16 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all outline-none font-medium shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </form>
           
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <button 
+          <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsAdvancedSearchOpen(!isAdvancedSearchOpen)}
               className={cn(
-                "flex items-center gap-2 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all border",
+                "flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] uppercase tracking-[0.1em] font-black transition-all border shadow-sm",
                 isAdvancedSearchOpen 
-                  ? "bg-accent text-white border-accent" 
-                  : "bg-slate-50 text-slate-500 border-slate-200 hover:border-accent/40"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-slate-900/20" 
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               )}
             >
-              <Filter size={14} />
-              Tìm kiếm nâng cao
-              {isAdvancedSearchOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
+              <Filter size={16} />
+              Lọc nâng cao
+              {isAdvancedSearchOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </motion.button>
 
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={resetFilters}
-              className="p-3 rounded-full bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all border border-slate-200"
-              title="Đặt lại bộ lọc"
+              className="p-4 rounded-2xl bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all border border-slate-200 hover:border-rose-200 shadow-sm"
+              title="Xóa tất cả bộ lọc"
             >
-              <RotateCcw size={16} />
-            </button>
+              <RotateCcw size={20} />
+            </motion.button>
 
-            <button 
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowSavePreset(!showSavePreset)}
-              className="flex items-center gap-2 px-6 py-3 rounded-full text-[10px] uppercase tracking-widest font-bold bg-slate-50 text-slate-500 border border-slate-200 hover:border-accent/40 hover:text-accent transition-all"
+              className="flex items-center gap-3 px-8 py-4 rounded-2xl text-[11px] uppercase tracking-[0.1em] font-black bg-accent/5 text-accent border border-accent/20 hover:bg-accent hover:text-white transition-all shadow-sm"
             >
-              <Bookmark size={14} />
-              Lưu mẫu
-            </button>
+              <Bookmark size={16} />
+              Lưu cấu hình
+            </motion.button>
           </div>
         </div>
 
@@ -1020,51 +1035,53 @@ export const MemberList: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-[2rem] flex flex-col min-h-[600px] shadow-2xl mb-32 overflow-hidden">
-        <div className="px-8 pt-8">
+      <div className="bg-white border border-slate-100 rounded-[3rem] flex flex-col min-h-[600px] shadow-2xl mb-32 overflow-hidden border-t-8 border-t-accent flex-1">
+        <div className="px-10 pt-10">
           <AnimatePresence>
             {(isAdmin || isSecretary) && selectedIds.length > 0 && (
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                initial={{ opacity: 0, scale: 0.98, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                className="mb-8 flex flex-col sm:flex-row items-center justify-between bg-red-500/10 border border-red-500/20 p-6 rounded-[2rem] gap-6"
+                exit={{ opacity: 0, scale: 0.98, y: -20 }}
+                className="mb-10 flex flex-col sm:flex-row items-center justify-between bg-white border-2 border-rose-500 p-8 rounded-[2.5rem] gap-8 shadow-2xl shadow-rose-200/40 relative overflow-hidden group"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
-                    <Trash2 size={24} />
+                <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+                  <Trash2 size={120} className="text-rose-600 rotate-12" />
+                </div>
+                <div className="flex items-center gap-8 relative z-10">
+                  <div className="w-16 h-16 rounded-3xl bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/30">
+                    <Trash2 size={32} />
                   </div>
                   <div>
-                    <span className="text-red-400 text-lg font-bold block">
-                      Đã chọn {selectedIds.length} đoàn viên
-                    </span>
+                    <h4 className="text-rose-600 text-2xl font-black tracking-tight">
+                      Lựa chọn đoàn viên ({selectedIds.length})
+                    </h4>
                     <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ x: 5 }}
                       onClick={() => setSelectedIds([])}
-                      className="text-white/40 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 px-4 py-2 rounded-xl border border-white/5 hover:border-white/20 hover:bg-white/10"
+                      className="text-slate-400 hover:text-slate-600 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 mt-1"
                     >
-                      Bỏ chọn tất cả
+                      Bỏ chọn tất cả <X size={12} />
                     </motion.button>
                   </div>
                 </div>
-                <div className="flex gap-3 w-full sm:w-auto">
+                <div className="flex gap-4 w-full sm:w-auto relative z-10">
                   <motion.button 
-                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileHover={{ scale: 1.05, y: -4 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleBulkDelete}
-                    className="group flex-1 sm:flex-none bg-red-500 border border-white/10 rounded-2xl px-10 py-4 transition-all shadow-xl shadow-red-500/20 hover:bg-white"
+                    className="group flex-1 sm:flex-none bg-rose-600 text-white rounded-2xl px-12 py-5 transition-all shadow-xl shadow-rose-600/30 hover:bg-slate-900 border border-transparent"
                   >
-                    <span className="text-[11px] font-black text-white group-hover:text-red-600 uppercase tracking-widest transition-colors">Xóa mục đã chọn</span>
+                    <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa vĩnh viễn</span>
                   </motion.button>
                   {selectedIds.length === filteredMembers.length && filteredMembers.length > 1 && (
                     <motion.button 
-                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileHover={{ scale: 1.05, y: -4 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleDeleteAllFiltered}
-                      className="group flex-1 sm:flex-none bg-white border border-red-500/10 rounded-2xl px-10 py-4 transition-all shadow-xl hover:bg-red-500"
+                      className="group flex-1 sm:flex-none bg-white border-2 border-rose-600 text-rose-600 rounded-2xl px-12 py-5 transition-all shadow-xl hover:bg-rose-50"
                     >
-                      <span className="text-[11px] font-black text-red-600 group-hover:text-white uppercase tracking-widest transition-colors">Xóa tất cả ({filteredMembers.length})</span>
+                      <span className="text-xs font-black uppercase tracking-widest transition-colors">Xóa khớp lọc ({filteredMembers.length})</span>
                     </motion.button>
                   )}
                 </div>
@@ -1183,33 +1200,43 @@ export const MemberList: React.FC = () => {
                         {(currentPage - 1) * pageSize + index + 1}
                       </span>
                     </td>
-                    <td className="py-6 px-4">
-      <div className="flex items-center gap-4">
+                    <td className="py-8 px-4">
+      <div className="flex items-center gap-5">
         <div className="relative group/avatar">
-          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-lg text-slate-600 group-hover:border-accent group-hover:text-accent transition-all overflow-hidden shadow-inner">
+          <div className="w-14 h-14 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center font-black text-xl text-slate-800 group-hover:border-accent group-hover:shadow-lg group-hover:shadow-accent/10 transition-all overflow-hidden shadow-sm relative z-10">
             {member.fullName.charAt(0)}
+            <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); handleToggleOutstanding(member); }}
             className={cn(
-              "absolute -top-1 -right-1 p-1.5 rounded-full border transition-all transform hover:scale-110 shadow-lg",
+              "absolute -top-2 -right-2 p-2 rounded-xl border-2 transition-all transform hover:scale-125 z-20 shadow-xl",
               member.isOutstanding 
-                ? "bg-yellow-400 border-yellow-500 text-white shadow-yellow-400/30" 
-                : "bg-white border-slate-200 text-slate-300 hover:text-yellow-500"
+                ? "bg-amber-400 border-amber-300 text-white shadow-amber-400/40" 
+                : "bg-white border-slate-100 text-slate-200 hover:text-amber-500 hover:border-amber-100"
             )}
             title={member.isOutstanding ? "Bỏ đánh dấu tiêu biểu" : "Đánh dấu đoàn viên tiêu biểu"}
           >
-            <Star size={10} fill={member.isOutstanding ? "currentColor" : "none"} />
+            <Star size={12} fill={member.isOutstanding ? "currentColor" : "none"} />
           </button>
         </div>
         <div>
-          <div className="flex items-center gap-2">
-            <p className="font-bold text-slate-900 group-hover:text-accent transition-colors">{member.fullName}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-base font-black text-slate-900 group-hover:text-accent transition-colors tracking-tight">{member.fullName}</p>
             {member.isOutstanding && (
-              <span className="bg-yellow-400/10 text-yellow-600 text-[8px] px-1.5 py-0.5 rounded-sm uppercase font-black tracking-widest border border-yellow-400/20">Tiêu biểu</span>
+              <span className="bg-amber-400/10 text-amber-600 text-[9px] px-2 py-0.5 rounded-lg uppercase font-black tracking-widest border border-amber-400/20 shadow-sm">Tiêu biểu</span>
             )}
           </div>
-          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mt-0.5">{member.gender === "Nam" ? "Nam" : "Nữ"}</p>
+          <div className="flex items-center gap-3 mt-1">
+            <span className={cn(
+              "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md",
+              member.gender === "Nam" ? "text-blue-500 bg-blue-50" : "text-rose-500 bg-rose-50"
+            )}>
+              {member.gender}
+            </span>
+            <span className="w-1 h-1 rounded-full bg-slate-200" />
+            <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">{member.professionalLevel || "Thành viên"}</p>
+          </div>
         </div>
       </div>
     </td>
@@ -1672,173 +1699,162 @@ export const MemberList: React.FC = () => {
               </div>
             </div>
 
-            {/* Information Grid */}
-            <div className="flex-1 overflow-y-auto px-10 pb-10 custom-scrollbar">
+            {/* Member Details - Main Information */}
+            <div className="flex-1 overflow-y-auto px-10 pb-10 custom-scrollbar shadow-inner">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Academic Group */}
-                <div className="space-y-6">
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-accent/60 mb-4 border-b border-white/5 pb-2">Học tập & Hoạt động</h4>
+                {/* Academic & Background Group */}
+                <div className="space-y-8">
+                  <h4 className="text-[11px] uppercase tracking-[0.3em] font-black text-accent mt-6 mb-4 border-b border-slate-100 pb-2">Học tập & Hoạt Đoàn</h4>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Chi đoàn</p>
-                      <p className="text-white text-sm font-medium italic">{getUnitName(detailsMember.unitId)}</p>
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Chi đoàn & Đơn vị</p>
+                      <p className="text-slate-900 text-sm font-black italic">{getUnitName(detailsMember.unitId)}</p>
                     </div>
-                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Quê quán</p>
-                      <p className="text-white text-sm font-medium">{detailsMember.hometown || "N/A"}</p>
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Quê quán</p>
+                      <p className="text-slate-900 text-sm font-black">{detailsMember.hometown || "N/A"}</p>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Nơi sinh</p>
-                    <p className="text-white text-sm font-medium">{detailsMember.placeOfBirth || "Chưa cập nhật"}</p>
+                  <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                    <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Nơi sinh & Thường trú</p>
+                    <p className="text-slate-900 text-sm font-black">{detailsMember.placeOfBirth || "Chưa cập nhật"}</p>
+                    <p className="text-slate-500 text-xs mt-1 italic">{detailsMember.permanentAddress || ""}</p>
                   </div>
 
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Địa chỉ thường trú</p>
-                    <p className="text-white text-sm font-medium">{detailsMember.permanentAddress || "Chưa cập nhật"}</p>
+                  <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                    <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Địa chỉ thường trú</p>
+                    <p className="text-slate-900 text-sm font-black">{detailsMember.permanentAddress || "Chưa cập nhật"}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Dân tộc</p>
-                      <p className="text-white text-sm font-medium">{detailsMember.ethnic || "Kinh"}</p>
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Dân tộc & Tôn giáo</p>
+                      <p className="text-slate-900 text-sm font-black">{detailsMember.ethnic || "Kinh"} / {detailsMember.religion || "Không"}</p>
                     </div>
-                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Tôn giáo</p>
-                      <p className="text-white text-sm font-medium">{detailsMember.religion || "Không"}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Chức vụ</p>
-                    <p className="text-white text-sm font-medium italic">{detailsMember.position || "Đoàn viên"}</p>
-                  </div>
-
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Trình độ chuyên môn</p>
-                    <p className="text-white text-sm font-medium">{detailsMember.professionalLevel || "Chưa cập nhật"}</p>
-                  </div>
-
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Xếp loại đoàn viên</p>
-                    <div className="flex items-center gap-3">
-                      <p className="text-white font-bold">{detailsMember.achievementLevel || "Chưa xếp loại"}</p>
-                      {detailsMember.achievementLevel === "Xuất sắc" && (
-                        <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                      )}
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Giới tính</p>
+                      <p className="text-slate-900 text-sm font-black">{detailsMember.gender}</p>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Ngày vào Đoàn</p>
-                    <div className="flex items-center gap-3 text-white">
-                      <CalendarIcon size={16} className="text-accent" />
-                      <p className="font-mono">{detailsMember.joinDate || "---"}</p>
-                    </div>
+                  <div className="p-5 bg-slate-900 text-white rounded-3xl group transition-all shadow-xl shadow-slate-900/10">
+                    <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Chức vụ & Trình độ</p>
+                    <p className="text-white text-sm font-black italic uppercase tracking-tight">{detailsMember.position || "Đoàn viên"}</p>
+                    <p className="text-accent text-[10px] font-black mt-1 uppercase tracking-widest">Trình độ: {detailsMember.professionalLevel || "Chưa cập nhật"}</p>
                   </div>
                 </div>
 
-                {/* Personal Group */}
-                <div className="space-y-6">
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-4 border-b border-white/5 pb-2">Liên hệ & Cá nhân</h4>
+                {/* Contact & Status Group */}
+                <div className="space-y-8">
+                  <h4 className="text-[11px] uppercase tracking-[0.3em] font-black text-accent mt-6 mb-4 border-b border-slate-100 pb-2">Liên hệ & Xếp loại</h4>
                   
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400">
-                      <Mail size={18} />
+                  <div className="p-6 bg-accent/5 border border-accent/10 rounded-3xl space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                        <Mail size={18} />
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-0.5 font-bold">Email chính thức</p>
+                        <p className="text-slate-900 text-sm font-black truncate">{detailsMember.email || "Chưa cập nhật"}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-0.5 font-bold">Email</p>
-                      <p className="text-white text-sm truncate">{detailsMember.email || "Chưa cập nhật"}</p>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                        <Phone size={18} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-0.5 font-bold">Số điện thoại</p>
+                        <p className="text-slate-900 text-sm font-black tabular-nums">{detailsMember.phone || "---"}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400">
-                      <Phone size={18} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Ngày vào Đoàn</p>
+                      <p className="text-slate-900 text-sm font-black italic">{detailsMember.joinDate || "---"}</p>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-[9px] uppercase tracking-widest text-white/20 mb-0.5 font-bold">Số điện thoại</p>
-                      <p className="text-white text-sm font-mono tracking-tight">{detailsMember.phone || "---"}</p>
+                    <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl group hover:border-accent transition-all">
+                      <p className="text-[9px] uppercase tracking-widest text-slate-400 mb-1 font-bold">Niên khóa</p>
+                      <p className="text-slate-900 text-sm font-black italic">{detailsMember.academicYear || "N/A"}</p>
                     </div>
                   </div>
 
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Ngày sinh</p>
-                    <p className="text-white font-mono">
-                      {detailsMember.dob && !isNaN(new Date(detailsMember.dob).getTime()) 
-                        ? new Date(detailsMember.dob).toLocaleDateString("vi-VN") 
-                        : "---"}
-                    </p>
-                  </div>
-                  
-                  <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
-                    <p className="text-[9px] uppercase tracking-widest text-white/20 mb-1 font-bold">Dân tộc</p>
-                    <p className="text-white">{detailsMember.ethnic || "---"}</p>
+                  <div className="p-8 bg-amber-50 border border-amber-100 rounded-[2rem] relative overflow-hidden group">
+                    <Star className="absolute -bottom-6 -right-6 text-amber-200 opacity-20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700" size={100} />
+                    <div className="relative z-10">
+                      <p className="text-[9px] uppercase tracking-widest text-amber-600 mb-2 font-bold">Xếp loại & Danh hiệu</p>
+                      <div className="flex items-center gap-3">
+                         <p className="text-amber-900 font-black text-xl leading-tight">
+                            {detailsMember.achievementLevel || "Chưa xếp loại"}
+                         </p>
+                         {detailsMember.isOutstanding && (
+                           <div className="bg-amber-500 text-white px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-tighter">
+                             Tiêu biểu
+                           </div>
+                         )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Status Timeline Snippet */}
               <div className="mt-10">
-                 <h4 className="text-[10px] uppercase tracking-[0.3em] font-black text-white/20 mb-6 border-b border-white/5 pb-2">Hoạt động gần nhất</h4>
+                 <h4 className="text-[11px] uppercase tracking-[0.3em] font-black text-slate-400 mb-6 border-b border-slate-100 pb-2">Hoạt động gần nhất</h4>
                  {detailsMember.statusHistory && detailsMember.statusHistory.length > 0 ? (
                    <div className="space-y-4">
                       {detailsMember.statusHistory.slice(-2).reverse().map((h, i) => (
-                        <div key={i} className="p-5 bg-white/[0.01] border border-white/5 rounded-3xl flex items-start gap-4">
-                           <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent shrink-0 mt-1">
+                        <div key={i} className="p-5 bg-slate-50 border border-slate-100 rounded-3xl flex items-start gap-4">
+                           <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0 mt-1 shadow-sm">
                               <History size={14} />
                            </div>
                            <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] text-white/60 font-mono italic">
+                                <span className="text-[10px] text-slate-400 font-bold italic">
                                   {h.date && !isNaN(new Date(h.date).getTime()) 
                                     ? new Date(h.date).toLocaleDateString("vi-VN") 
                                     : "---"}
                                 </span>
-                                <span className="text-accent">→</span>
-                                <span className="text-[10px] uppercase font-bold text-white">{h.newStatus}</span>
+                                <span className="text-accent font-black">→</span>
+                                <span className={cn(
+                                   "text-[10px] uppercase font-black px-2 py-0.5 rounded-lg border",
+                                   statusColors[h.newStatus as keyof typeof statusColors] || "bg-slate-50 text-slate-600 border-slate-200"
+                                )}>{h.newStatus}</span>
                               </div>
-                              <p className="text-sm text-white/40 italic">"{h.reason}"</p>
+                              <p className="text-sm text-slate-600 italic font-medium">"{h.reason}"</p>
                            </div>
                         </div>
                       ))}
-                      <motion.button 
-                        whileHover={{ scale: 1.05, x: 5 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setShowDetailsModal(false);
-                          handleViewHistory(detailsMember);
-                        }}
-                        className="text-[10px] uppercase tracking-widest font-black text-accent py-2.5 px-8 rounded-xl border border-accent/20 bg-accent/5 hover:bg-accent hover:text-white transition-all shadow-lg shadow-accent/5"
-                      >
-                        Xem toàn bộ lịch sử
-                      </motion.button>
                    </div>
                  ) : (
-                   <p className="text-sm text-white/20 italic">Chưa có thay đổi trạng thái nào được ghi nhận.</p>
+                   <div className="bg-slate-50 p-10 rounded-[2rem] border-2 border-dashed border-slate-100 text-center">
+                     <p className="text-sm text-slate-300 italic font-medium">Chưa có ghi nhận thay đổi trạng thái nào.</p>
+                   </div>
                  )}
               </div>
             </div>
             
-            <div className="p-8 border-t border-white/5 flex gap-4 shrink-0 bg-white/[0.01]">
+            <div className="p-8 border-t border-slate-100 flex gap-4 shrink-0 bg-slate-50/50">
               <motion.button 
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setShowDetailsModal(false);
                   handleEdit(detailsMember);
                 }}
-                className="flex-1 py-4 bg-accent border border-white/20 rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-white"
+                className="flex-1 py-4 bg-accent text-white rounded-2xl transition-all shadow-xl shadow-accent/20 hover:bg-blue-700"
               >
-                <span className="text-xs font-black uppercase tracking-widest text-slate-950">Chỉnh sửa hồ sơ</span>
+                <span className="text-xs font-black uppercase tracking-widest">Chỉnh sửa hồ sơ</span>
               </motion.button>
               <motion.button 
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowDetailsModal(false)}
-                className="px-10 py-4 bg-white/5 text-white/60 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border border-white/10"
+                className="px-10 py-4 bg-white text-slate-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:text-slate-600 transition-all border border-slate-200"
               >
                 Đóng
               </motion.button>

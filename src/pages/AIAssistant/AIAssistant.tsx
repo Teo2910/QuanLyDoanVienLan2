@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Send, User, ChevronRight, Loader2, Database, Sparkles, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
 import { dataService } from "../../services/dataService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -388,91 +389,143 @@ Quy tắc ứng xử:
   };
 
   return (
-    <div className="p-8 pb-32 h-[calc(100vh-theme(spacing.16))] flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-8 h-[calc(100vh-theme(spacing.16))] flex flex-col max-w-6xl mx-auto">
+      <div className="mb-10 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3 tracking-tight">
-            <Bot className="text-accent" size={32} />
-            Trợ lý AI Thông minh
-          </h1>
-          <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] mt-2 flex items-center gap-2 font-black">
-            <Database size={12} />
-            {isInitializing ? "Đang kết nối CSDL..." : "Đã đồng bộ dữ liệu hệ thống"}
-          </p>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center shadow-xl shadow-accent/20 relative group">
+              <Bot size={32} />
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+                Trợ lý AI Nghiệp vụ
+              </h1>
+              <p className="text-[10px] text-slate-400 uppercase tracking-[0.3em] mt-1 flex items-center gap-2 font-black">
+                <Sparkles size={12} className="text-accent" />
+                DLU Intelligent Core v2.4
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-3 px-6 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hệ thống sẵn sàng</span>
         </div>
       </div>
 
-      <div className="flex-1 bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden flex flex-col shadow-xl">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
+      <div className="flex-1 bg-white border border-slate-100 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50 relative border-b-8 border-b-accent/10">
+        {isInitializing && (
+          <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Đang đồng bộ hóa tri thức hệ thống...</p>
+          </div>
+        )}
+        
+        <div className="flex-1 overflow-y-auto p-10 space-y-10 bg-slate-50/50 scroll-smooth custom-scrollbar">
           {chatHistory.map((msg, i) => (
-            <div key={i} className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              {msg.role === "model" && (
-                <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shrink-0 shadow-lg shadow-accent/20">
-                  <Bot size={20} className="text-white" />
-                </div>
-              )}
-              
-              <div className={`max-w-[85%] rounded-[1.5rem] p-5 shadow-sm leading-relaxed ${msg.role === "user" ? "bg-accent text-white rounded-tr-sm shadow-accent/10 border border-accent/20" : "bg-white border border-slate-100 text-slate-900 rounded-tl-sm relative"}`}>
-                {msg.isAction && (
-                  <div className="absolute -top-3 -right-3 bg-green-500 text-white p-1 rounded-full border-2 border-white shadow-lg animate-bounce">
-                    <CheckCircle2 size={16} />
+            <motion.div 
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: i === chatHistory.length - 1 ? 0.1 : 0 }}
+              key={i} 
+              className={`flex gap-6 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+            >
+              <div className="shrink-0 pt-1">
+                {msg.role === "model" ? (
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center shadow-xl shadow-slate-900/10 border border-slate-800">
+                    <Bot size={22} className="text-white" />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-lg shadow-slate-200/20">
+                    <User size={22} className="text-slate-400" />
                   </div>
                 )}
-                <div className={`text-[15px] max-w-none whitespace-pre-wrap ${msg.role === "user" ? "text-white font-medium" : "text-slate-700 font-medium"}`}>
-                  {msg.text}
-                </div>
               </div>
-
-              {msg.role === "user" && (
-                <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200">
-                  <User size={20} className="text-slate-400" />
+              
+              <div className={`max-w-[80%] relative ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                <div className={`
+                  group relative rounded-[2rem] p-7 shadow-xl leading-relaxed text-[15px] transition-all
+                  ${msg.role === "user" 
+                    ? "bg-slate-900 text-white rounded-tr-sm shadow-slate-900/10 font-medium" 
+                    : "bg-white border border-slate-100 text-slate-700 rounded-tl-sm shadow-slate-200/30 font-medium"}
+                `}>
+                  {msg.isAction && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-4 -right-4 bg-emerald-500 text-white p-2 rounded-2xl border-4 border-white shadow-2xl z-20"
+                    >
+                      <CheckCircle2 size={24} />
+                    </motion.div>
+                  )}
+                  <div className="prose prose-slate max-w-none prose-sm group-hover:prose-p:text-slate-900 transition-colors">
+                    {msg.text}
+                  </div>
                 </div>
-              )}
-            </div>
+                <p className={`text-[9px] font-black uppercase tracking-widest text-slate-300 mt-3 ${msg.role === "user" ? "mr-4" : "ml-4"}`}>
+                  {msg.role === "user" ? "Người điều hành" : "Trợ lý ảo DLU"} • {format(new Date(), "HH:mm")}
+                </p>
+              </div>
+            </motion.div>
           ))}
           
           {isLoading && (
-            <div className="flex gap-4 justify-start">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
-                <Bot size={20} className="text-accent" />
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex gap-6"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20 animate-pulse">
+                <Bot size={22} className="text-accent" />
               </div>
-              <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 flex items-center gap-3 shadow-sm">
-                <Loader2 size={16} className="text-accent animate-spin" />
-                <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">AI đang suy nghĩ...</span>
+              <div className="bg-white border border-slate-100 rounded-[1.5rem] rounded-tl-sm p-6 flex items-center gap-4 shadow-xl shadow-slate-200/20">
+                <div className="flex gap-1.5">
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 rounded-full bg-accent" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 rounded-full bg-accent/60" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 rounded-full bg-accent/30" />
+                </div>
+                <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Đang xử lý nghiệp vụ...</span>
               </div>
-            </div>
+            </motion.div>
           )}
           
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-6 bg-white border-t border-slate-100">
-          <form onSubmit={handleSend} className="relative flex items-center">
+        <div className="p-8 bg-white border-t border-slate-100 relative shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
+          <form onSubmit={handleSend} className="relative flex items-center group">
+            <div className="absolute left-6 text-slate-300 group-focus-within:text-accent transition-colors">
+              <Sparkles size={24} />
+            </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Đang đồng bộ dữ liệu hệ thống..." : "Nhập yêu cầu của bạn (VD: Tạo phong trào rèn luyện thân thể...)"}
+              placeholder={isInitializing ? "Đang giải mã hệ quản trị..." : "Bạn cần hỗ trợ nghiệp vụ gì? (Tạo đoàn viên, phong trào, tra cứu...)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-5 pr-16 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-50 transition-all shadow-inner font-medium"
+              className="w-full bg-slate-50 border border-slate-100 rounded-[2rem] pl-16 pr-20 py-6 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent disabled:opacity-50 transition-all font-bold text-base shadow-inner group-hover:border-slate-200"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-3 p-3 bg-accent text-white rounded-xl disabled:opacity-50 hover:bg-slate-900 transition-all flex items-center justify-center shadow-lg shadow-accent/20"
+              className="absolute right-3 w-14 h-14 bg-slate-900 text-white rounded-2xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-xl shadow-slate-900/20 hover:shadow-accent/40 group/btn"
             >
-              <Send size={18} />
+              <Send size={24} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
             </button>
           </form>
-          <div className="mt-4 flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-            {["Tra cứu đoàn viên", "Tạo phong trào TN", "Báo cáo thống kê", "Tạo hoạt động mới"].map((hint) => (
-              <button 
+          <div className="mt-8 flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 self-center mr-2">Gợi ý tác vụ:</span>
+            {["Tra cứu hồ sơ đoàn viên", "Phát động phong trào", "Kiểm tra xếp loại", "Tạo hoạt động thanh niên"].map((hint) => (
+              <motion.button 
                 key={hint}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setQuery(hint)}
-                className="whitespace-nowrap px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-accent hover:border-accent/40 transition-all"
+                className="whitespace-nowrap px-6 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-black uppercase tracking-[0.1em] text-slate-500 hover:text-accent hover:border-accent/30 transition-all shadow-sm hover:shadow-lg"
               >
                 {hint}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>

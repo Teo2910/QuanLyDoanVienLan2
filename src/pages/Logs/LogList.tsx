@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { dataService } from "../../services/dataService";
 import { SystemLog } from "../../types";
-import { Activity, Clock, User, Tag, FileText } from "lucide-react";
+import { Activity, Clock, User, Tag, FileText, Smartphone, Shield, AlertTriangle, Plus, Trash2, RotateCcw } from "lucide-react";
 import { motion } from "motion/react";
+import { cn } from "../../lib/utils";
 
 export const LogList = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -39,71 +40,108 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12 px-6">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">Nhật ký hoạt động</h2>
-          <p className="text-slate-400 mt-2 text-[10px] uppercase tracking-[0.2em] font-black">Lịch sử tương tác hệ thống thời gian thực</p>
+          <h2 className="text-5xl font-black text-slate-900 tracking-tight leading-tight">Nhật ký hệ thống</h2>
+          <p className="text-slate-400 mt-2 text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-2">
+             <Activity size={14} className="text-accent" /> Lịch sử vận hành toàn bộ nền tảng thời gian thực
+          </p>
+        </div>
+        <div className="bg-white p-3 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-6">
+           <div className="flex flex-col items-end">
+              <p className="text-xs font-black text-slate-900 tabular-nums">{logs.length} bản ghi</p>
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Đang giám sát</p>
+           </div>
+           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent animate-pulse">
+              <Shield size={20} />
+           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-[3.5rem] p-8 sm:p-12 md:p-16 shadow-2xl overflow-hidden min-h-[500px]">
+      <div className="max-w-6xl mx-auto px-6 space-y-6">
         {logs.length === 0 ? (
-          <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-[3rem] bg-slate-50/50">
-            <p className="text-slate-300 uppercase tracking-[0.2em] font-black text-xs">
-              Chưa có hoạt động nào được ghi nhận
-            </p>
+          <div className="py-24 text-center border-4 border-dashed border-slate-100 rounded-[4rem] bg-slate-50/50">
+             <FileText size={48} className="mx-auto text-slate-200 mb-6" />
+             <p className="text-slate-300 uppercase tracking-[0.3em] font-black text-sm">
+               Dữ liệu đang trống
+             </p>
           </div>
         ) : (
-          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
-            {logs.map((log, index) => (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                key={log.id} 
-                className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
-              >
-                {/* Timeline dot */}
-                <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-slate-50 absolute left-0 md:left-1/2 -translate-x-1/2 z-10 shadow-xl ml-6 md:ml-0 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-300">
-                  <Activity size={16} className="text-accent group-hover:text-white transition-colors" />
+          logs.map((log, index) => (
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.03 }}
+              key={log.id} 
+              className="group relative"
+            >
+              <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 hover:border-accent transition-all duration-500 flex flex-col md:flex-row items-start md:items-center gap-8">
+                
+                {/* Icon Section */}
+                <div className={cn(
+                  "w-16 h-16 rounded-[1.6rem] flex items-center justify-center shrink-0 border-2 transition-all duration-500 group-hover:scale-110",
+                  log.action.toLowerCase().includes("thêm") ? "bg-emerald-50 border-emerald-100 text-emerald-600 shadow-lg shadow-emerald-500/10" :
+                  log.action.toLowerCase().includes("xóa") ? "bg-rose-50 border-rose-100 text-rose-600 shadow-lg shadow-rose-500/10" :
+                  log.action.toLowerCase().includes("cập nhật") ? "bg-blue-50 border-blue-100 text-blue-600 shadow-lg shadow-blue-500/10" :
+                  "bg-amber-50 border-amber-100 text-amber-600 shadow-lg shadow-amber-500/10"
+                )}>
+                  {log.action.toLowerCase().includes("thêm") ? <Plus size={28} strokeWidth={2.5} /> :
+                   log.action.toLowerCase().includes("xóa") ? <Trash2 size={24} strokeWidth={2.5} /> :
+                   log.action.toLowerCase().includes("cập nhật") ? <RotateCcw size={24} strokeWidth={2.5} /> :
+                   <Activity size={24} strokeWidth={2.5} />}
                 </div>
 
-                {/* Card */}
-                <div className="w-full md:w-5/12 pl-20 md:pl-0">
-                  <div className="bg-slate-50 border border-slate-100 p-8 rounded-[2rem] md:group-odd:text-right group-hover:bg-white group-hover:border-accent/20 group-hover:shadow-2xl group-hover:shadow-accent/5 transition-all duration-300">
-                    <div className="flex flex-col md:group-odd:items-end mb-4 gap-3">
-                      <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[9px] uppercase font-black tracking-widest border ${getActionColor(log.action)}`}>
-                        {log.action}
-                      </span>
-                      <h4 className="text-slate-900 font-bold text-lg leading-tight group-hover:text-accent transition-colors">
-                        {log.details || log.entityId}
-                      </h4>
+                {/* Info Section */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <span className={cn(
+                      "px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border",
+                      getActionColor(log.action)
+                    )}>
+                      {log.action}
+                    </span>
+                    <span className="text-[10px] font-black text-slate-300 tracking-widest uppercase">
+                       ID: {log.id.slice(-8)}
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 truncate tracking-tight group-hover:text-accent transition-colors">
+                    {log.details || log.entityId}
+                  </h4>
+                  <div className="flex flex-wrap items-center gap-6 mt-4">
+                    <div className="flex items-center gap-2">
+                       <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center">
+                          <User size={12} className="text-slate-400" />
+                       </div>
+                       <span className="text-xs font-bold text-slate-600">{log.userName}</span>
                     </div>
-
-                    <div className="space-y-3 mt-6 pt-6 border-t border-slate-200/50 inline-block text-left w-full">
-                      <div className="flex items-center gap-3 text-slate-500 text-[11px] font-bold">
-                        <User size={14} className="text-accent" />
-                        <span className="truncate">{log.userName}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-400 text-[11px] font-medium">
-                        <Tag size={14} className="text-accent/60" />
-                        <span className="uppercase tracking-widest">{log.entityType}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-400 text-[11px]">
-                        <Clock size={14} className="text-accent/60" />
-                        <span className="font-mono">
-                          {(() => {
-                            const d = new Date(log.timestamp);
-                            return isNaN(d.getTime()) ? "N/A" : d.toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "medium" });
-                          })()}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2">
+                       <Tag size={12} className="text-slate-400" />
+                       <span className="text-[10px] font-black tracking-widest uppercase text-slate-400">{log.entityType}</span>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+
+                {/* Time Section */}
+                <div className="shrink-0 text-right md:border-l md:border-slate-100 md:pl-8">
+                  <div className="flex items-center justify-end gap-2 text-slate-900 font-black">
+                     <Clock size={14} className="text-accent" />
+                     <span className="text-xl tabular-nums leading-none">
+                       {(() => {
+                         const d = new Date(log.timestamp);
+                         return d.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                       })()}
+                     </span>
+                  </div>
+                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-2 bg-slate-50 px-3 py-1 rounded-lg inline-block">
+                    {(() => {
+                      const d = new Date(log.timestamp);
+                      return d.toLocaleDateString("vi-VN");
+                    })()}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))
         )}
       </div>
     </div>

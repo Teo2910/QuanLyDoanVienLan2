@@ -110,6 +110,8 @@ export const Statistics: React.FC = () => {
       const females = unitMembers.filter(m => m.gender === "Nữ").length;
       const kinh = unitMembers.filter(m => m.ethnic?.toLowerCase() === 'kinh').length;
       const others = unitMembers.filter(m => m.ethnic && m.ethnic.toLowerCase() !== 'kinh').length;
+      const religious = unitMembers.filter(m => m.religion && m.religion.toLowerCase() !== 'không').length;
+      const noReligion = unitMembers.filter(m => !m.religion || m.religion.toLowerCase() === 'không').length;
       const outstanding = unitMembers.filter(m => m.isOutstanding).length;
       const active = unitMembers.filter(m => m.status === "Đang sinh hoạt").length;
       const moved = unitMembers.filter(m => m.status === "Đã chuyển sinh hoạt").length;
@@ -117,6 +119,7 @@ export const Statistics: React.FC = () => {
       const excellent = unitMembers.filter(m => m.achievementLevel === "Xuất sắc").length;
       const good = unitMembers.filter(m => m.achievementLevel === "Khá").length;
       const average = unitMembers.filter(m => m.achievementLevel === "Trung bình").length;
+      const graduate = unitMembers.filter(m => m.professionalLevel?.toLowerCase().includes("đại học") || m.professionalLevel?.toLowerCase().includes("thạc sĩ")).length;
 
       return {
         id: unit.id,
@@ -125,9 +128,11 @@ export const Statistics: React.FC = () => {
         males,
         females,
         ethnic: { kinh, others },
+        religion: { religious, noReligion },
         outstanding,
         status: { active, moved, left },
-        achievements: { excellent, good, average }
+        achievements: { excellent, good, average },
+        graduate
       };
     }).sort((a, b) => b.total - a.total);
   }, [allMembers, units]);
@@ -139,6 +144,8 @@ export const Statistics: React.FC = () => {
       acc.females += unit.females;
       acc.kinh += unit.ethnic.kinh;
       acc.others += unit.ethnic.others;
+      acc.religious += unit.religion.religious;
+      acc.noReligion += unit.religion.noReligion;
       acc.active += unit.status.active;
       acc.moved += unit.status.moved;
       acc.left += unit.status.left;
@@ -146,12 +153,14 @@ export const Statistics: React.FC = () => {
       acc.good += unit.achievements.good;
       acc.average += unit.achievements.average;
       acc.outstanding += unit.outstanding;
+      acc.graduate += unit.graduate;
       return acc;
     }, {
       total: 0, males: 0, females: 0, kinh: 0, others: 0,
+      religious: 0, noReligion: 0,
       active: 0, moved: 0, left: 0,
       excellent: 0, good: 0, average: 0,
-      outstanding: 0
+      outstanding: 0, graduate: 0
     });
   }, [unitTableStats]);
 
@@ -401,9 +410,11 @@ export const Statistics: React.FC = () => {
                   <th className="py-6 px-8 border-r border-slate-200 min-w-[300px]" rowSpan={2}>Tên đơn vị</th>
                   <th className="py-4 px-4 text-center border-r border-slate-200 bg-blue-100/50 text-blue-700" colSpan={3}>Cơ bản</th>
                   <th className="py-4 px-4 text-center border-r border-slate-200 bg-emerald-100/50 text-emerald-700" colSpan={2}>Dân tộc</th>
+                  <th className="py-4 px-4 text-center border-r border-slate-200 bg-teal-100/50 text-teal-700" colSpan={2}>Tôn giáo</th>
                   <th className="py-4 px-4 text-center border-r border-slate-200 bg-purple-100/50 text-purple-700" colSpan={3}>Trạng thái</th>
                   <th className="py-4 px-4 text-center border-r border-slate-200 bg-amber-100/50 text-amber-700" colSpan={3}>Xếp loại</th>
-                  <th className="py-6 px-8 text-center text-slate-700" rowSpan={2}>Tiêu biểu</th>
+                  <th className="py-6 px-8 text-center text-slate-700 border-l border-slate-200" rowSpan={2}>Tiêu biểu</th>
+                  <th className="py-6 px-8 text-center text-slate-700 border-l border-slate-200" rowSpan={2}>ĐH/Sau ĐH</th>
                 </tr>
                 <tr className="text-[9px] uppercase tracking-widest text-slate-400 font-black bg-slate-50/80 border-b border-slate-200">
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-blue-50/50">Tổng</th>
@@ -411,6 +422,8 @@ export const Statistics: React.FC = () => {
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-blue-50/50">Nữ</th>
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-emerald-50/50">Kinh</th>
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-emerald-50/50">Khác</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-200 bg-teal-50/50">Có</th>
+                  <th className="py-3 px-4 text-center border-r border-slate-200 bg-teal-50/50">Không</th>
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-purple-50/50">Đang SH</th>
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-purple-50/50">Chuyển</th>
                   <th className="py-3 px-4 text-center border-r border-slate-200 bg-purple-50/50">T. Thành</th>
@@ -434,15 +447,22 @@ export const Statistics: React.FC = () => {
                     <td className="py-6 px-4 text-center font-bold text-rose-500 border-r border-slate-100 bg-blue-50/10">{unit.females}</td>
                     <td className="py-6 px-4 text-center font-bold text-slate-600 border-r border-slate-100 bg-emerald-50/10">{unit.ethnic.kinh}</td>
                     <td className="py-6 px-4 text-center font-bold text-teal-500 border-r border-slate-100 bg-emerald-50/10">{unit.ethnic.others}</td>
+                    <td className="py-6 px-4 text-center font-bold text-teal-600 border-r border-slate-100 bg-teal-50/10">{unit.religion.religious}</td>
+                    <td className="py-6 px-4 text-center font-bold text-slate-400 border-r border-slate-100 bg-teal-50/10">{unit.religion.noReligion}</td>
                     <td className="py-6 px-4 text-center font-bold text-indigo-500 border-r border-slate-100 bg-purple-50/10">{unit.status.active}</td>
                     <td className="py-6 px-4 text-center font-bold text-slate-400 border-r border-slate-100 bg-purple-50/10">{unit.status.moved}</td>
                     <td className="py-6 px-4 text-center font-bold text-slate-400 border-r border-slate-100 bg-purple-50/10">{unit.status.left}</td>
                     <td className="py-6 px-4 text-center font-black text-emerald-600 border-r border-slate-100 bg-amber-50/10">{unit.achievements.excellent}</td>
                     <td className="py-6 px-4 text-center font-bold text-blue-500 border-r border-slate-100 bg-amber-50/10">{unit.achievements.good}</td>
                     <td className="py-6 px-4 text-center font-bold text-slate-500 border-r border-slate-100 bg-amber-50/10">{unit.achievements.average}</td>
-                    <td className="py-6 px-8 text-center bg-slate-50/30">
+                    <td className="py-6 px-8 text-center bg-slate-50/30 border-r border-slate-100">
                        <span className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm", unit.outstanding > 0 ? "bg-amber-100 text-amber-600 border border-amber-200 shadow-sm" : "text-slate-200")}>
                          {unit.outstanding}
+                       </span>
+                    </td>
+                    <td className="py-6 px-8 text-center bg-slate-50/30">
+                       <span className={cn("inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm", unit.graduate > 0 ? "bg-blue-100 text-blue-600 border border-blue-200 shadow-sm" : "text-slate-200")}>
+                         {unit.graduate}
                        </span>
                     </td>
                   </tr>
@@ -465,13 +485,16 @@ export const Statistics: React.FC = () => {
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.females}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.kinh}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.others}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.religious}</td>
+                  <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.noReligion}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.active}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.moved}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.left}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.excellent}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.good}</td>
                   <td className="py-10 px-4 text-center border-r border-white/5 text-2xl font-black text-white">{totalStats.average}</td>
-                  <td className="py-10 px-8 text-center text-4xl font-black text-white bg-accent/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">{totalStats.outstanding}</td>
+                  <td className="py-10 px-8 text-center text-4xl font-black text-white border-r border-white/5 bg-accent/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">{totalStats.outstanding}</td>
+                  <td className="py-10 px-8 text-center text-4xl font-black text-white bg-blue-500/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">{totalStats.graduate}</td>
                 </tr>
               </tfoot>
             </table>
