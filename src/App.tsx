@@ -278,164 +278,105 @@ const AuthScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
-       {/* Futuristic Background elements */}
-       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/10 blur-[150px] -mr-96 -mt-96 rounded-full" />
-       <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-blue-500/10 blur-[150px] -ml-96 -mb-96 rounded-full" />
-       
-       {/* Animated Circuit lines/dots */}
-       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <div className="absolute top-1/4 left-0 w-full h-px bg-white" />
-          <div className="absolute top-2/4 left-0 w-full h-px bg-white" />
-          <div className="absolute top-3/4 left-0 w-full h-px bg-white" />
-          <div className="absolute left-1/4 top-0 w-px h-full bg-white" />
-          <div className="absolute left-2/4 top-0 w-px h-full bg-white" />
-          <div className="absolute left-3/4 top-0 w-px h-full bg-white" />
-       </div>
-
-       <motion.div 
-         initial={{ opacity: 0, y: 40, scale: 0.95 }}
-         animate={{ opacity: 1, y: 0, scale: 1 }}
-         className="max-w-md w-full relative z-10"
-       >
-          <div className="bg-white border border-slate-200 p-12 rounded-[4rem] text-center shadow-[0_50px_100px_rgba(0,0,0,0.1)] flex flex-col items-center relative overflow-hidden">
-            {/* Branding Accent */}
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent via-blue-400 to-accent" />
-
-            <div className="w-24 h-24 bg-slate-900 flex items-center justify-center mb-8 rounded-[2.2rem] shadow-2xl relative group">
-              <div className="absolute inset-0 bg-accent rounded-[2.2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <Star className="text-white relative z-10" size={44} fill="currentColor" />
-              <div className="absolute -inset-4 bg-accent/20 blur-2xl rounded-full scale-0 group-hover:scale-100 transition-transform duration-700" />
-            </div>
-
-            <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">HỆ THỐNG ĐIỀU HÀNH</h1>
-            <p className="text-slate-400 mb-10 text-[10px] font-black uppercase tracking-[0.4em]">
-              {isRegister ? "Đăng ký thành viên mới" : "Cổng xác thực tập trung DLU"}
-            </p>
-
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full p-4 mb-8 bg-rose-50 border border-rose-100 rounded-2xl text-rose-500 text-[10px] font-black uppercase tracking-widest shadow-sm"
-              >
-                {error}
-              </motion.div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="w-full space-y-6 text-left">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1 mb-2 block">Cung cấp định danh</label>
-                  <div className="relative group">
-                    <input 
-                      type="email"
-                      placeholder="Email cá nhân"
-                      required
-                      className="w-full px-7 py-5 bg-slate-50 border border-slate-200 rounded-[1.8rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all font-bold placeholder:text-slate-300 placeholder:font-medium"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1 mb-2 block">Chứng chỉ bảo mật</label>
-                  <div className="relative group">
-                    <input 
-                      type="password"
-                      placeholder="Mật khẩu truy cập"
-                      required
-                      minLength={6}
-                      className="w-full px-7 py-5 bg-slate-50 border border-slate-200 rounded-[1.8rem] text-slate-900 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent transition-all font-bold placeholder:text-slate-300 placeholder:font-medium"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <AnimatePresence mode="wait">
-                {isRegister && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-6 overflow-hidden pt-2"
-                  >
-                    <div>
-                      <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1 mb-2 block">Vai trò nghiệp vụ</label>
-                      <div className="flex gap-4 p-1.5 bg-slate-50 rounded-[2rem] border border-slate-100">
-                        <button 
-                          type="button"
-                          onClick={() => setRole('secretary')}
-                          className={cn(
-                            "flex-1 py-3.5 rounded-[1.6rem] text-[10px] uppercase tracking-widest font-black transition-all duration-300",
-                            role === 'secretary' ? "bg-white text-accent shadow-xl border border-slate-100" : "text-slate-400 hover:text-slate-600"
-                          )}
-                        >
-                          Bí thư
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={() => setRole('admin')}
-                          className={cn(
-                            "flex-1 py-3.5 rounded-[1.6rem] text-[10px] uppercase tracking-widest font-black transition-all duration-300",
-                            role === 'admin' ? "bg-white text-accent shadow-xl border border-slate-100" : "text-slate-400 hover:text-slate-600"
-                          )}
-                        >
-                          Quản trị
-                        </button>
-                      </div>
-                    </div>
-
-                    {role === 'secretary' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1 mb-2 block">Thuộc Chi đoàn trực thuộc</label>
-                        <CustomSelect
-                          options={units.map(u => ({ value: u.id, label: u.name }))}
-                          value={unitId}
-                          onChange={setUnitId}
-                          placeholder="Chọn chi đoàn..."
-                        />
-                      </motion.div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <motion.button 
-                whileHover={{ scale: 1.02, y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] hover:bg-accent transition-all shadow-2xl shadow-slate-900/40 mt-6 relative group overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <span className="relative z-10">
-                  {isRegister ? "Khởi tạo quyền truy cập" : "Phát thực thể điều hành"}
-                </span>
-              </motion.button>
-            </form>
-
-            <div className="mt-10 flex items-center justify-center gap-4 w-full">
-               <div className="h-px bg-slate-100 flex-1" />
-               <button 
-                onClick={() => { setIsRegister(!isRegister); setError(null); }}
-                className="text-[10px] text-slate-400 uppercase tracking-widest font-black hover:text-accent transition-colors shrink-0"
-              >
-                {isRegister ? "Về trang đăng nhập" : "Yêu cầu cấp phát mới?"}
-              </button>
-              <div className="h-px bg-slate-100 flex-1" />
-            </div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-gradient-to-br from-white to-slate-100">
+       <div className="max-w-md w-full bg-white border border-slate-200 p-12 rounded-[4rem] text-center shadow-2xl flex flex-col items-center">
+          <div className="w-20 h-20 bg-accent flex items-center justify-center mb-8 rounded-[2rem] shadow-xl shadow-accent/20">
+            <Star className="text-white" size={40} fill="currentColor" />
           </div>
-          
-          <p className="text-center mt-10 text-[9px] text-slate-600 font-bold uppercase tracking-[0.4em]">
-            Digital Governance System &copy; 2024
+          <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Quản Lý Đoàn</h1>
+          <p className="text-slate-400 mb-10 text-xs uppercase tracking-[0.2em] font-bold">
+            {isRegister ? "Đăng ký thành viên mới" : "Cổng thông tin nội bộ"}
           </p>
-       </motion.div>
+
+          {error && (
+            <div className="w-full p-4 mb-6 bg-red-50 border border-red-100 rounded-2xl text-red-500 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="w-full space-y-5 text-left">
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Email / Tài khoản</label>
+              <input 
+                type="email"
+                placeholder="Nhập email của bạn"
+                required
+                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Mật khẩu</label>
+              <input 
+                type="password"
+                placeholder="••••••••"
+                required
+                minLength={6}
+                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            
+            {isRegister && (
+              <>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Vai trò trong hệ thống</label>
+                  <div className="flex gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setRole('secretary')}
+                      className={cn(
+                        "flex-1 py-3 rounded-2xl text-[10px] uppercase tracking-widest font-black border-2 transition-all",
+                        role === 'secretary' ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"
+                      )}
+                    >
+                      Bí thư
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setRole('admin')}
+                      className={cn(
+                        "flex-1 py-3 rounded-2xl text-[10px] uppercase tracking-widest font-black border-2 transition-all",
+                        role === 'admin' ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" : "bg-white border-slate-100 text-slate-400 hover:border-slate-300"
+                      )}
+                    >
+                      Quản trị
+                    </button>
+                  </div>
+                </div>
+
+                {role === 'secretary' && (
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1 mb-2 block">Trực thuộc Chi đoàn</label>
+                    <CustomSelect
+                      options={units.map(u => ({ value: u.id, label: u.name }))}
+                      value={unitId}
+                      onChange={setUnitId}
+                      placeholder="Chọn chi đoàn..."
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full py-5 bg-accent text-white rounded-full font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl shadow-accent/20 mt-4 active:scale-95"
+            >
+              {isRegister ? "Khởi tạo tài khoản" : "Truy cập hệ thống"}
+            </button>
+          </form>
+
+          <button 
+            onClick={() => { setIsRegister(!isRegister); setError(null); }}
+            className="mt-8 text-[10px] text-slate-400 uppercase tracking-widest font-black hover:text-accent transition-colors"
+          >
+            {isRegister ? "Đã có tài khoản? Đăng nhập" : "Yêu cầu cấp tài khoản mới?"}
+          </button>
+       </div>
     </div>
   );
 };

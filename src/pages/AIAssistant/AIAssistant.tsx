@@ -389,217 +389,142 @@ Quy tắc ứng xử:
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f8fafc] overflow-hidden relative">
-      {/* Dynamic Background Accents */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 blur-[120px] -mr-64 -mt-64 rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] -ml-64 -mb-64 rounded-full pointer-events-none" />
-
-      {/* Header */}
-      <header className="px-10 py-8 bg-white/70 backdrop-blur-xl border-b border-slate-200 flex justify-between items-center z-10 shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-gradient-to-br from-accent to-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-accent/20 rotate-3 group transition-transform hover:rotate-0">
-            <Bot size={32} strokeWidth={2.5} />
-          </div>
-          <div>
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tighter">Trợ lý Thông minh</h2>
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-emerald-100">AI Core v2.4</span>
+    <div className="p-8 h-[calc(100vh-theme(spacing.16))] flex flex-col max-w-6xl mx-auto">
+      <div className="mb-10 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center shadow-xl shadow-accent/20 relative group">
+              <Bot size={32} />
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
             </div>
-            <p className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mt-1">Phân tích & Hỗ trợ điều hành tự động</p>
-          </div>
-        </div>
-        <div className="hidden md:flex items-center gap-4">
-           <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 font-bold text-[10px] uppercase tracking-widest">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              Hệ thống sẵn sàng
-           </div>
-        </div>
-      </header>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar relative z-10">
-        {isInitializing && (
-          <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center gap-6">
-            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-            <div className="text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Đang đồng bộ hóa tri thức...</p>
-              <p className="text-[9px] text-slate-300 font-bold mt-2 italic">Dữ liệu Đoàn viên & Nghiệp vụ DLU</p>
-            </div>
-          </div>
-        )}
-
-        {chatHistory.length <= 1 && !isLoading ? (
-          <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center space-y-12">
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="relative"
-            >
-               <div className="absolute inset-0 bg-accent/20 blur-[60px] rounded-full animate-pulse" />
-               <div className="w-36 h-36 bg-white rounded-[3rem] border border-slate-100 shadow-2xl flex items-center justify-center relative z-10">
-                  <Sparkles size={56} className="text-accent" />
-               </div>
-            </motion.div>
-            
-            <div className="space-y-4">
-              <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-tight">
-                Tôi có thể giúp gì cho <span className="text-accent underline decoration-accent/20 underline-offset-8">chiến dịch</span> của bạn?
-              </h3>
-              <p className="text-slate-500 font-medium leading-relaxed max-w-lg mx-auto">
-                Hệ thống AI tích hợp sâu giúp bạn truy xuất báo cáo, lập kế hoạch phong trào và phân tích nhân sự bằng ngôn ngữ tự nhiên.
+            <div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+                Trợ lý AI Nghiệp vụ
+              </h1>
+              <p className="text-[10px] text-slate-400 uppercase tracking-[0.3em] mt-1 flex items-center gap-2 font-black">
+                <Sparkles size={12} className="text-accent" />
+                DLU Intelligent Core v2.4
               </p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-              {[
-                { title: "Phân tích Đoàn viên", desc: "Thống kê tỉ lệ xếp loại năm 2023", icon: Database },
-                { title: "Lập kế hoạch", desc: "Đề xuất 5 hoạt động mùa hè cho Chi đoàn", icon: Sparkles },
-                { title: "Báo cáo nhanh", desc: "Tóm tắt tiến độ các phong trào hiện nay", icon: CheckCircle2 },
-                { title: "Tra cứu hồ sơ", desc: "Tìm kiếm các đoàn viên tiêu biểu nhất", icon: User },
-              ].map((item, idx) => (
-                <motion.button
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  onClick={() => setQuery(item.title)}
-                  className="p-6 bg-white border border-slate-100 rounded-[2.5rem] text-left hover:border-accent hover:shadow-2xl hover:shadow-slate-200 transition-all group relative overflow-hidden active:scale-95"
-                >
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-accent/[0.02] rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform" />
-                  <item.icon size={20} className="text-accent mb-4 group-hover:scale-110 transition-transform" />
-                  <p className="text-sm font-black text-slate-900 group-hover:text-accent transition-colors">{item.title}</p>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-1">{item.desc}</p>
-                </motion.button>
-              ))}
-            </div>
           </div>
-        ) : (
-          <div className="max-w-4xl mx-auto w-full space-y-10 pb-10">
-            <AnimatePresence>
-              {chatHistory.map((m, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  className={cn(
-                    "flex gap-6",
-                    m.role === "user" ? "flex-row-reverse" : "flex-row"
-                  )}
-                >
-                  <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xl relative",
-                    m.role === "user" ? "bg-slate-900 text-white" : "bg-white border border-slate-100 text-accent"
-                  )}>
-                    {m.role === "user" ? <User size={22} /> : <Bot size={22} />}
-                    {m.isAction && (
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white">
-                        <CheckCircle2 size={10} />
-                      </div>
-                    )}
-                  </div>
-                  <div className={cn(
-                    "relative max-w-[85%] p-8 rounded-[2.5rem] shadow-sm transition-all hover:shadow-md",
-                    m.role === "user" 
-                      ? "bg-white border-2 border-slate-100 text-slate-900 rounded-tr-none" 
-                      : "bg-white border border-slate-100 text-slate-800 rounded-tl-none border-l-4 border-l-accent"
-                  )}>
-                    <div className="prose prose-slate max-w-none text-[15px] font-medium leading-relaxed">
-                       {m.text}
-                    </div>
-                    <p className={`text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 mt-4 ${m.role === "user" ? "text-right" : "text-left"}`}>
-                       {m.role === "user" ? "Chủ sở hữu" : "Trợ lý DLU"} • {format(new Date(), "HH:mm")}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-              
-              {isLoading && (
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex gap-6"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shrink-0 shadow-lg animate-pulse text-accent">
-                    <Bot size={22} />
-                  </div>
-                  <div className="bg-white border border-slate-100 rounded-[2.5rem] rounded-tl-none p-8 flex items-center gap-6 shadow-xl shadow-slate-200/20">
-                    <div className="flex gap-1.5">
-                      <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2.5 h-2.5 rounded-full bg-accent" />
-                      <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2.5 h-2.5 rounded-full bg-accent" />
-                      <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2.5 h-2.5 rounded-full bg-accent" />
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] animate-pulse">AI đang giải mã nghiệp vụ...</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
-          </div>
-        )}
+        </div>
+        <div className="hidden md:flex items-center gap-3 px-6 py-3 bg-white border border-slate-100 rounded-2xl shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hệ thống sẵn sàng</span>
+        </div>
       </div>
 
-      {/* Input Area */}
-      <div className="p-10 shrink-0 relative z-20">
-        <div className="max-w-4xl mx-auto relative">
-          <div className="absolute inset-x-0 bottom-full mb-6 px-10 flex items-center justify-between">
-             <div className="flex items-center gap-2 px-4 py-1.5 bg-white border border-slate-100 rounded-full shadow-sm">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">Kênh bảo mật 256-bit</span>
-             </div>
-             <p className="text-[9px] text-slate-300 font-bold uppercase tracking-tight">Shift + Enter để xuống hàng</p>
+      <div className="flex-1 bg-white border border-slate-100 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50 relative border-b-8 border-b-accent/10">
+        {isInitializing && (
+          <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Đang đồng bộ hóa tri thức hệ thống...</p>
           </div>
+        )}
+        
+        <div className="flex-1 overflow-y-auto p-10 space-y-10 bg-slate-50/50 scroll-smooth custom-scrollbar">
+          {chatHistory.map((msg, i) => (
+            <motion.div 
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: i === chatHistory.length - 1 ? 0.1 : 0 }}
+              key={i} 
+              className={`flex gap-6 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+            >
+              <div className="shrink-0 pt-1">
+                {msg.role === "model" ? (
+                  <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center shadow-xl shadow-slate-900/10 border border-slate-800">
+                    <Bot size={22} className="text-white" />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-lg shadow-slate-200/20">
+                    <User size={22} className="text-slate-400" />
+                  </div>
+                )}
+              </div>
+              
+              <div className={`max-w-[80%] relative ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                <div className={`
+                  group relative rounded-[2rem] p-7 shadow-xl leading-relaxed text-[15px] transition-all
+                  ${msg.role === "user" 
+                    ? "bg-slate-900 text-white rounded-tr-sm shadow-slate-900/10 font-medium" 
+                    : "bg-white border border-slate-100 text-slate-700 rounded-tl-sm shadow-slate-200/30 font-medium"}
+                `}>
+                  {msg.isAction && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-4 -right-4 bg-emerald-500 text-white p-2 rounded-2xl border-4 border-white shadow-2xl z-20"
+                    >
+                      <CheckCircle2 size={24} />
+                    </motion.div>
+                  )}
+                  <div className="prose prose-slate max-w-none prose-sm group-hover:prose-p:text-slate-900 transition-colors">
+                    {msg.text}
+                  </div>
+                </div>
+                <p className={`text-[9px] font-black uppercase tracking-widest text-slate-300 mt-3 ${msg.role === "user" ? "mr-4" : "ml-4"}`}>
+                  {msg.role === "user" ? "Người điều hành" : "Trợ lý ảo DLU"} • {format(new Date(), "HH:mm")}
+                </p>
+              </div>
+            </motion.div>
+          ))}
           
-          <form 
-            onSubmit={handleSend}
-            className="bg-white border border-slate-200 rounded-[3.5rem] p-4 flex items-center gap-4 shadow-[0_30px_100px_rgba(0,0,0,0.08)] focus-within:border-accent transition-all duration-500 focus-within:-translate-y-2"
-          >
-            <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-[2.2rem] flex items-center justify-center text-slate-400 shrink-0">
-              <Database size={24} />
+          {isLoading && (
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex gap-6"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20 animate-pulse">
+                <Bot size={22} className="text-accent" />
+              </div>
+              <div className="bg-white border border-slate-100 rounded-[1.5rem] rounded-tl-sm p-6 flex items-center gap-4 shadow-xl shadow-slate-200/20">
+                <div className="flex gap-1.5">
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 rounded-full bg-accent" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 rounded-full bg-accent/60" />
+                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 rounded-full bg-accent/30" />
+                </div>
+                <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Đang xử lý nghiệp vụ...</span>
+              </div>
+            </motion.div>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="p-8 bg-white border-t border-slate-100 relative shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
+          <form onSubmit={handleSend} className="relative flex items-center group">
+            <div className="absolute left-6 text-slate-300 group-focus-within:text-accent transition-colors">
+              <Sparkles size={24} />
             </div>
-            <textarea
-              rows={1}
+            <input
+              type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend(e);
-                }
-              }}
-              placeholder={isInitializing ? "Hệ thống đang khởi động..." : "Bạn cần hỗ trợ nghiệp vụ gì? (Tạo hồ sơ, phong trào, tra cứu...)"}
+              placeholder={isInitializing ? "Đang giải mã hệ quản trị..." : "Bạn cần hỗ trợ nghiệp vụ gì? (Tạo đoàn viên, phong trào, tra cứu...)"}
               disabled={isInitializing || isLoading}
-              className="flex-1 bg-transparent resize-none focus:outline-none text-slate-900 placeholder:text-slate-300 font-bold py-4 text-lg no-scrollbar"
+              className="w-full bg-slate-50 border border-slate-100 rounded-[2rem] pl-16 pr-20 py-6 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-accent/5 focus:bg-white focus:border-accent disabled:opacity-50 transition-all font-bold text-base shadow-inner group-hover:border-slate-200"
             />
-            <motion.button
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              disabled={isLoading || !query.trim()}
+            <button
               type="submit"
-              className={cn(
-                "w-16 h-16 rounded-[2.2rem] flex items-center justify-center transition-all duration-500 shadow-2xl",
-                query.trim() && !isLoading ? "bg-slate-900 text-white shadow-slate-900/40 hover:bg-accent hover:shadow-accent/40" : "bg-slate-100 text-slate-300 shadow-none pointer-events-none"
-              )}
+              disabled={!query.trim() || isInitializing || isLoading}
+              className="absolute right-3 w-14 h-14 bg-slate-900 text-white rounded-2xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-xl shadow-slate-900/20 hover:shadow-accent/40 group/btn"
             >
-              <Send size={24} strokeWidth={2.5} className={cn("transition-transform", query.trim() ? "translate-x-0.5 -translate-y-0.5" : "")} />
-            </motion.button>
+              <Send size={24} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
+            </button>
           </form>
-          
-          <div className="flex gap-4 mt-8 overflow-x-auto pb-4 no-scrollbar px-6">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 self-center whitespace-nowrap">Phổ biến:</span>
-            {[
-              { text: "Thống kê đoàn viên tiêu biểu", icon: Sparkles },
-              { text: "Phát động phong trào hè", icon: Database },
-              { text: "Xếp loại chi đoàn xuất sắc", icon: CheckCircle2 }
-            ].map((hint, idx) => (
+          <div className="mt-8 flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 self-center mr-2">Gợi ý tác vụ:</span>
+            {["Tra cứu hồ sơ đoàn viên", "Phát động phong trào", "Kiểm tra xếp loại", "Tạo hoạt động thanh niên"].map((hint) => (
               <motion.button 
-                key={idx}
-                whileHover={{ scale: 1.05, y: -4 }}
+                key={hint}
+                whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setQuery(hint.text)}
-                className="whitespace-nowrap px-6 py-3.5 rounded-[1.5rem] bg-white border border-slate-100 text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 hover:text-accent hover:border-accent/40 transition-all shadow-md flex items-center gap-3 active:scale-95 shrink-0"
+                onClick={() => setQuery(hint)}
+                className="whitespace-nowrap px-6 py-3 rounded-2xl bg-white border border-slate-100 text-[10px] font-black uppercase tracking-[0.1em] text-slate-500 hover:text-accent hover:border-accent/30 transition-all shadow-sm hover:shadow-lg"
               >
-                <hint.icon size={14} className="text-accent" />
-                {hint.text}
+                {hint}
               </motion.button>
             ))}
           </div>
