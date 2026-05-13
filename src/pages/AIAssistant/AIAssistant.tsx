@@ -472,46 +472,46 @@ Quy tắc ứng xử:
       <div className="absolute top-[10%] left-[5%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-[120px] -z-10 animate-pulse" />
       <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] bg-blue-400/5 rounded-full blur-[100px] -z-10" />
 
-      <div className="mb-6 lg:mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 px-2 lg:px-4">
-        <div className="flex items-center gap-4 lg:gap-5">
+      <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 px-1 sm:px-2 lg:px-4">
+        <div className="flex items-center gap-3 sm:gap-4 lg:gap-5">
           <motion.div 
             initial={{ rotate: -10, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
-            className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-2xl shadow-slate-900/20 relative group overflow-hidden shrink-0"
+            className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl lg:rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-2xl shadow-slate-900/20 relative group overflow-hidden shrink-0"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Bot size={20} className="sm:w-9 sm:h-9 relative z-10" />
+            <Bot size={18} className="sm:w-8 sm:h-8 lg:w-9 lg:h-9 relative z-10" />
             <motion.div 
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 1, 0.5]
               }}
               transition={{ repeat: Infinity, duration: 3 }}
-              className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-5 sm:h-5 bg-emerald-500 rounded-full border-2 sm:border-4 border-white shadow-lg" 
+              className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5 bg-emerald-500 rounded-full border-2 sm:border-3 lg:border-4 border-white shadow-lg" 
             />
           </motion.div>
           <div>
-            <h1 className="text-xl sm:text-3xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none">
-              Hệ thống Tri thức <span className="text-accent underline decoration-accent/20 underline-offset-4 sm:underline-offset-8">AI</span>
+            <h1 className="text-lg sm:text-2xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none">
+              Hệ thống Tri thức <span className="text-accent underline decoration-accent/20 underline-offset-2 sm:underline-offset-4 lg:underline-offset-8">AI</span>
             </h1>
-            <div className="flex flex-wrap items-center gap-2 lg:gap-3 mt-1 sm:mt-3">
-              <div className="px-2 lg:px-3 py-1 bg-accent/10 border border-accent/20 rounded-lg shrink-0">
-                <p className="text-[7px] sm:text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-1 sm:gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 lg:gap-3 mt-1 sm:mt-2 lg:mt-3">
+              <div className="px-2 lg:px-3 py-0.5 sm:py-1 bg-accent/10 border border-accent/20 rounded-lg shrink-0">
+                <p className="text-[6px] sm:text-[9px] lg:text-[10px] text-accent font-black uppercase tracking-widest flex items-center gap-1 sm:gap-2">
                   <Sparkles size={8} className="sm:w-3 sm:h-3 animate-pulse" />
                   DLU Core v3.0
                 </p>
               </div>
-              <p className="text-[7px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden xs:block">Đã đồng bộ hóa 100% dữ liệu</p>
+              <p className="text-[6px] sm:text-[8px] lg:text-[9px] text-slate-400 font-bold uppercase tracking-widest hidden xs:block">Đồng bộ 100%</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 ml-auto md:ml-0">
+        <div className="flex items-center gap-4 ml-auto md:ml-0 overflow-hidden">
           <div className="flex flex-col items-end">
-            <span className="text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
-            <div className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 bg-emerald-50/50 border border-emerald-100 rounded-lg lg:rounded-xl">
-              <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-emerald-600">Core Active</span>
+            <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 bg-emerald-50/50 border border-emerald-100 rounded-lg lg:rounded-xl">
+              <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-emerald-600">Core Active</span>
             </div>
           </div>
         </div>
@@ -612,26 +612,26 @@ Quy tắc ứng xử:
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 lg:p-6 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)]">
+        <div className="p-3 sm:p-4 lg:p-6 bg-white/50 backdrop-blur-3xl border-t border-white relative z-20 shadow-[0_-15px_40px_rgba(0,0,0,0.03)] pb-8 sm:pb-6">
           <form onSubmit={handleSend} className="relative flex items-center group max-w-5xl mx-auto">
-            <div className="absolute left-4 lg:left-6 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
-              <Sparkles size={18} lg:size={22} strokeWidth={2.5} />
+            <div className="absolute left-3.5 sm:left-4 lg:left-6 text-slate-300 group-focus-within:text-accent group-focus-within:scale-110 transition-all duration-500">
+              <Sparkles size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" strokeWidth={2.5} />
             </div>
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={isInitializing ? "Core đang khởi động..." : "Điều lệnh hoặc câu hỏi? (VD: Tìm đoàn viên...)"}
+              placeholder={isInitializing ? "Core đang khởi động..." : "Điều lệnh? (VD: Tìm đoàn viên...)"}
               disabled={isInitializing || isLoading}
-              className="w-full bg-white border border-slate-200 rounded-xl lg:rounded-2xl pl-11 lg:pl-14 pr-12 lg:pr-16 py-3 lg:py-4 text-sm lg:text-base text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 lg:focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-semibold shadow-xl shadow-slate-200/5 group-hover:border-slate-300 leading-relaxed"
+              className="w-full bg-white border border-slate-200 rounded-xl lg:rounded-2xl pl-10 sm:pl-12 lg:pl-14 pr-12 lg:pr-16 py-3 sm:py-3.5 lg:py-4 text-xs sm:text-sm lg:text-base text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-4 lg:focus:ring-8 focus:ring-accent/5 focus:border-accent disabled:opacity-50 transition-all font-semibold shadow-xl shadow-slate-200/5 group-hover:border-slate-300 leading-relaxed overflow-hidden"
             />
             <button
               type="submit"
               disabled={!query.trim() || isInitializing || isLoading}
-              className="absolute right-1.5 lg:right-2 px-3 lg:px-6 h-8 lg:h-10 bg-slate-900 text-white rounded-lg lg:rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg shadow-slate-900/30 hover:shadow-accent/50 group/btn"
+              className="absolute right-1 sm:right-1.5 lg:right-2 px-2.5 sm:px-4 lg:px-6 h-7 sm:h-8 lg:h-10 bg-slate-900 text-white rounded-lg lg:rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg shadow-slate-900/30 hover:shadow-accent/50 group/btn"
             >
-              <Send size={16} lg:size={18} strokeWidth={2.5} className="group-hover/btn:translate-x-1 transition-transform sm:mr-2" />
-              <span className="hidden sm:inline text-[9px] lg:text-[10px] font-black uppercase tracking-widest">Gửi</span>
+              <Send size={14} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]" strokeWidth={2.5} className="group-hover/btn:translate-x-1 transition-transform sm:mr-2" />
+              <span className="hidden xs:inline text-[8px] sm:text-[9px] lg:text-[10px] font-black uppercase tracking-widest">Gửi</span>
             </button>
           </form>
 
