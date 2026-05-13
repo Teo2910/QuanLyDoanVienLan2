@@ -229,40 +229,40 @@ export const ChatWidget = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-accent/5 pointer-events-none" />
             
-            <div className="p-6 sm:p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10">
-               <div>
-                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-slate-900 flex items-center justify-center text-accent shadow-xl shadow-slate-900/10">
-                       <Sparkles size={16} className="sm:w-[18px] sm:h-[18px]" />
+            <div className="p-4 sm:p-8 border-b border-slate-100 bg-white/50 flex items-center justify-between relative z-10">
+               <div className="flex-1 min-w-0">
+                 <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-2xl bg-slate-900 flex items-center justify-center text-accent shadow-xl shadow-slate-900/10 shrink-0">
+                       <Sparkles size={14} className="sm:w-[18px] sm:h-[18px]" />
                     </div>
-                    <div>
-                      <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
-                        {profile.role === 'admin' ? (activeThreadId ? "Xử lý hỗ trợ" : "Phiên hỗ trợ") : "Hỗ trợ đoàn viên"}
+                    <div className="min-w-0">
+                      <h3 className="text-xs sm:text-base font-black text-slate-900 tracking-tight truncate">
+                        {profile.role === 'admin' ? (activeThreadId ? "Xử lý khách" : "Danh sách") : "Văn phòng Đoàn DLU"}
                       </h3>
-                      <div className="flex items-center gap-2 mt-0.5">
-                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                         <span className="text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                           {profile.role === 'admin' ? 'Hệ thống tập trung' : 'Trực tiếp với Admin DLU'}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                         <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                         <span className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest truncate">
+                           {profile.role === 'admin' ? 'Xử lý yêu cầu' : 'Trực tiếp 24/7'}
                          </span>
                       </div>
                     </div>
                  </div>
                </div>
-               <div className="flex items-center gap-2">
+               <div className="flex items-center gap-1 sm:gap-2 ml-2">
                  {profile.role === 'admin' && activeThreadId && (
                    <motion.button 
                      whileHover={{ scale: 1.1, x: -5 }}
                      onClick={() => { setActiveThreadId(null); loadThreads(); }} 
-                     className="p-2 sm:p-3 bg-slate-50 hover:bg-slate-100 rounded-xl sm:rounded-2xl border border-slate-200 transition-colors"
+                     className="p-1.5 sm:p-3 bg-slate-50 hover:bg-slate-100 rounded-lg sm:rounded-2xl border border-slate-200 transition-colors"
                    >
-                     <ChevronDown size={18} className="text-slate-600 rotate-90" />
+                     <ChevronDown size={14} className="text-slate-600 rotate-90 sm:w-[18px] sm:h-[18px]" />
                    </motion.button>
                  )}
                  <button 
                    onClick={() => setIsOpen(false)}
-                   className="sm:hidden p-2 text-slate-400 hover:text-slate-900"
+                   className="p-2 text-slate-400 hover:text-slate-900 transition-colors"
                  >
-                   <X size={20} />
+                   <X size={20} className="sm:w-6 sm:h-6" />
                  </button>
                </div>
             </div>
@@ -363,12 +363,12 @@ export const ChatWidget = () => {
                    <div ref={messagesEndRef} />
                  </div>
 
-                 <div className="p-4 sm:p-6 bg-white border-t border-slate-100 relative z-10 pb-10 sm:pb-6">
+                 <div className="p-4 sm:p-6 bg-white border-t border-slate-100 relative z-10 pb-[env(safe-area-inset-bottom,1.5rem)] sm:pb-6">
                    <div className="relative group">
                      <textarea
                        autoFocus
                        rows={1}
-                       placeholder="Nhập thông tin cần hỗ trợ..."
+                       placeholder="Gửi yêu cầu hỗ trợ..."
                        value={inputText}
                        onChange={(e) => setInputText(e.target.value)}
                        onKeyDown={(e) => {
@@ -377,19 +377,19 @@ export const ChatWidget = () => {
                            handleSend();
                          }
                        }}
-                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-[2rem] pl-5 sm:pl-6 pr-14 sm:pr-16 py-4 sm:py-5 text-sm text-slate-900 placeholder:text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white focus:border-accent transition-all custom-scrollbar min-h-[56px] sm:min-h-[64px] max-h-[120px]"
+                       className="w-full bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-[2rem] pl-5 sm:pl-6 pr-14 sm:pr-16 py-3.5 sm:py-5 text-sm text-slate-900 placeholder:text-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-accent/10 focus:bg-white focus:border-accent transition-all custom-scrollbar min-h-[48px] sm:min-h-[64px] max-h-[120px]"
                      />
                      <motion.button
                        whileHover={{ scale: 1.1, x: -2 }}
                        whileTap={{ scale: 0.9 }}
                        onClick={handleSend}
                        disabled={!inputText.trim()}
-                       className="absolute right-2 top-2 sm:right-3 sm:top-3 w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 text-accent rounded-xl sm:rounded-2xl flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all shadow-xl shadow-slate-900/10"
+                       className="absolute right-1.5 top-1.5 sm:right-3 sm:top-3 w-9 h-9 sm:w-12 sm:h-12 bg-slate-900 text-accent rounded-xl sm:rounded-2xl flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all shadow-xl shadow-slate-900/10"
                      >
-                       <Send size={16} sm:size={18} strokeWidth={2.5} className="translate-x-[-1px] translate-y-[1px]" />
+                       <Send size={15} strokeWidth={2.5} className="translate-x-[-1px] translate-y-[1px]" />
                      </motion.button>
                    </div>
-                   <p className="text-[8px] sm:text-[9px] text-slate-300 text-center mt-3 sm:mt-4 font-bold uppercase tracking-[0.2em]">DLU Intelligent Core v2.5 • AI Shield Protected</p>
+                   <p className="text-[7px] sm:text-[9px] text-slate-300 text-center mt-3 sm:mt-4 font-bold uppercase tracking-[0.2em]">Core v2.5 • AI Shield Protected</p>
                  </div>
                </>
             )}

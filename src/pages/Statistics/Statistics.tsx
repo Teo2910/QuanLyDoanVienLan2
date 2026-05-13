@@ -273,7 +273,7 @@ export const Statistics: React.FC = () => {
           <div className="h-56 lg:h-64 mb-6 lg:mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} lg:innerRadius={60} outerRadius={70} lg:outerRadius={80} paddingAngle={5}>
+                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
                   {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
@@ -300,8 +300,8 @@ export const Statistics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.statusData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                   {stats?.statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -327,8 +327,8 @@ export const Statistics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.ethnicData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                   {stats?.ethnicData.map((_, i) => <Cell key={i} fill={COLORS[(i + 2) % COLORS.length]} />)}
@@ -354,8 +354,8 @@ export const Statistics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.achievementData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
                 <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                   {stats?.achievementData.map((_, i) => <Cell key={i} fill={COLORS[(i + 4) % COLORS.length]} />)}
@@ -382,8 +382,8 @@ export const Statistics: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats?.unitData} layout="vertical" margin={{ left: window.innerWidth < 1024 ? 50 : 100 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={9} lg:fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} width={window.innerWidth < 1024 ? 100 : 150} />
+                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 600}} width={window.innerWidth < 1024 ? 100 : 150} />
                   <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
                   <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={window.innerWidth < 1024 ? 20 : 30}>
                     {stats?.unitData.map((_, i) => <Cell key={i} fill={COLORS[0]} fillOpacity={1 - (i * 0.1)} />)}

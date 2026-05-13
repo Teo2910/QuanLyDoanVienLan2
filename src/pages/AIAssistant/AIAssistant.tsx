@@ -630,7 +630,7 @@ Quy tắc ứng xử:
               disabled={!query.trim() || isInitializing || isLoading}
               className="absolute right-1 sm:right-1.5 lg:right-2 px-2.5 sm:px-4 lg:px-6 h-7 sm:h-8 lg:h-10 bg-slate-900 text-white rounded-lg lg:rounded-xl disabled:opacity-20 hover:bg-accent transition-all flex items-center justify-center shadow-lg shadow-slate-900/30 hover:shadow-accent/50 group/btn"
             >
-              <Send size={14} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px]" strokeWidth={2.5} className="group-hover/btn:translate-x-1 transition-transform sm:mr-2" />
+              <Send size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px] group-hover/btn:translate-x-1 transition-transform sm:mr-2" />
               <span className="hidden xs:inline text-[8px] sm:text-[9px] lg:text-[10px] font-black uppercase tracking-widest">Gửi</span>
             </button>
           </form>

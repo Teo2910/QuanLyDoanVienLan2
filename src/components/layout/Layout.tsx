@@ -256,7 +256,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={logout}
             className="mt-4 lg:mt-6 flex items-center gap-3 px-4 lg:px-5 py-2.5 lg:py-3 w-full text-slate-400 transition-all text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 rounded-2xl"
           >
-            <LogOut size={14} lg:size={16} strokeWidth={2.5} />
+            <LogOut size={16} strokeWidth={2.5} />
             <span>Thoát hệ thống</span>
           </motion.button>
         </div>
@@ -274,7 +274,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
             >
-              {isSidebarOpen ? <X size={18} lg:size={20} /> : <Menu size={18} lg:size={20} />}
+              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
             <div>
               <h2 className="text-lg lg:text-2xl font-black text-slate-900 tracking-tighter">Bảng điều khiển</h2>
