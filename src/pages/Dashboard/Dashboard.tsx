@@ -94,59 +94,82 @@ export const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-6">
-        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-        <p className="text-slate-400 text-[10px] uppercase font-black tracking-widest animate-pulse">Khởi tạo dữ liệu...</p>
+        <div className="w-16 h-16 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+        <p className="text-slate-400 text-[10px] uppercase font-black tracking-[0.4em] animate-pulse">Khởi tạo dữ liệu hệ thống</p>
       </div>
     );
   }
 
   const cards = [
-    { label: "Tổng số chi đoàn", value: stats.totalUnits, icon: Building2, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Tổng số đoàn viên", value: stats.totalMembers, icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Hoạt động sắp tới", value: stats.upcomingCount, icon: Calendar, color: "text-orange-600", bg: "bg-orange-50" },
-    { label: "Đoàn viên tiêu biểu", value: stats.outstandingCount, icon: Star, color: "text-amber-600", bg: "bg-amber-50" },
+    { label: "Hệ thống Chi đoàn", value: stats.totalUnits, sub: "Đang hoạt động", icon: Building2, color: "text-blue-600", bg: "bg-blue-500/10", border: "border-blue-100" },
+    { label: "Tổng số Đoàn viên", value: stats.totalMembers, sub: "Đã chuẩn hóa", icon: Users, color: "text-emerald-600", bg: "bg-emerald-500/10", border: "border-emerald-100" },
+    { label: "Lịch hoạt động", value: stats.upcomingCount, sub: "Sắp diễn ra", icon: Calendar, color: "text-orange-600", bg: "bg-orange-500/10", border: "border-orange-100" },
+    { label: "Đoàn viên Tiêu biểu", value: stats.outstandingCount, sub: "Gương mặt trẻ", icon: Star, color: "text-amber-600", bg: "bg-amber-500/10", border: "border-amber-100" },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-      {/* Header section */}
-      <div className="mb-10 sm:mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-3">
-            Xin chào, <span className="text-accent">{profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')}</span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      {/* Header section with high-end feel */}
+      <div className="mb-12 sm:mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-8 relative">
+        <div className="absolute -left-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-[80px] -z-10" />
+        
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+          <h2 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-[-0.04em] leading-[1] mb-5 font-display italic">
+            Dashboard <span className="text-accent underline decoration-[0.1em] underline-offset-[0.15em] decoration-accent/20">Operational</span>
           </h2>
-          <p className="text-slate-400 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-2">
-             <div className="w-8 h-px bg-accent/30" /> Trung tâm điều hành SMART VNPT
-          </p>
+          <div className="flex items-center gap-4">
+             <div className="h-0.5 w-12 bg-slate-900" />
+             <p className="text-slate-500 text-[9px] uppercase tracking-[0.4em] font-black">
+               {profile?.fullName || (profile?.role === 'admin' ? 'Quản trị viên' : 'Bí thư')} • VNPT SMART CENTER
+             </p>
+          </div>
         </motion.div>
         
-        <div className="bg-white px-6 py-4 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center gap-4">
-           <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-              <Activity size={20} className="animate-pulse" />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/80 backdrop-blur-xl px-8 py-5 rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center gap-5"
+        >
+           <div className="w-14 h-14 rounded-2xl bg-accent text-white flex items-center justify-center shadow-lg shadow-accent/20">
+              <Activity size={24} strokeWidth={2.5} />
            </div>
            <div>
-              <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Hệ thống</p>
-              <p className="text-slate-900 font-black text-sm tabular-nums">Đang vận hành ổn định</p>
+              <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Status Report</p>
+              <p className="text-slate-900 font-display font-bold text-base tabular-nums">Mạng lưới ổn định</p>
            </div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      {/* KPI Cards: More modern style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-16 sm:mb-24">
         {cards.map((card, index) => (
           <motion.div 
             key={card.label} 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white border border-slate-100 p-8 rounded-[3rem] flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-200/60 transition-all group shadow-sm relative overflow-hidden"
+            transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -8, transition: { duration: 0.2 } }}
+            className={cn(
+              "bg-white p-8 sm:p-10 rounded-[3rem] border flex flex-col justify-between transition-all group relative overflow-hidden",
+              card.border
+            )}
           >
-            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-500 group-hover:scale-110 shadow-lg", card.bg, card.color)}>
-              <card.icon size={28} strokeWidth={2.5} />
+            <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity translate-x-1/4 -translate-y-1/4 group-hover:scale-125 duration-700">
+               <card.icon size={120} strokeWidth={1} />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-2 opacity-60">{card.label}</p>
-              <h3 className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums">{card.value}</h3>
+            
+            <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-10 transition-all duration-500 group-hover:rotate-6", card.bg, card.color)}>
+              <card.icon size={28} strokeWidth={2.2} />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={cn("w-1 h-1 rounded-full", card.color)} />
+                <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">{card.sub}</p>
+              </div>
+              <h3 className="text-5xl font-display font-bold text-slate-900 tracking-tighter tabular-nums mb-1">{card.value}</h3>
+              <p className="text-[12px] font-bold text-slate-400">{card.label}</p>
             </div>
           </motion.div>
         ))}

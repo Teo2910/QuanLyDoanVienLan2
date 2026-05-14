@@ -200,193 +200,314 @@ export const Statistics: React.FC = () => {
   };
 
   return (
-    <div className="w-full pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6 sm:mb-8 lg:mb-12 text-center sm:text-left">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="w-full sm:w-auto">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 flex items-center justify-center sm:justify-start gap-3 sm:gap-4 tracking-tighter leading-none mb-2">
-            <div className="p-2 sm:p-3 lg:p-4 bg-accent/10 rounded-lg sm:rounded-xl lg:rounded-2xl text-accent shrink-0">
-              <BarChart3 size={20} className="sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
-            </div>
-            Thống kê số liệu
+    <div className="w-full pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 mb-12 sm:mb-16 lg:mb-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full sm:w-auto"
+        >
+          <div className="flex items-center gap-3 mb-4">
+             <div className="w-10 h-1 bg-accent rounded-full" />
+             <p className="text-slate-400 text-[10px] uppercase font-black tracking-[0.4em]">Analytics Engine</p>
+          </div>
+          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-display font-black text-slate-900 tracking-[-0.04em] leading-[0.9] mb-4 italic">
+            Statistical <span className="text-accent underline decoration-[0.08em] underline-offset-[0.1em] decoration-accent/10">Insights</span>
           </h2>
-          <p className="text-[7px] sm:text-[8px] lg:text-[10px] uppercase tracking-[0.2em] lg:tracking-widest text-slate-400 font-black ml-1 sm:ml-12 lg:ml-20">
-            Tổng hợp dữ liệu {selectedUnitName}
+          <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold flex items-center gap-2">
+            Hợp nhất dữ liệu: <span className="text-slate-900 font-black">{selectedUnitName}</span>
           </p>
         </motion.div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 lg:gap-6 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-5 w-full lg:w-auto">
           {!isSecretary && (
-            <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="w-full sm:w-80">
                <CustomSelect 
                  value={selectedUnitId}
                  onChange={setSelectedUnitId}
                  options={unitOptions}
-                 className="w-full sm:w-80"
+                 className="w-full"
                />
             </div>
           )}
           <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleExportExcel}
-            className="flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 bg-white border border-slate-200 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:border-accent text-slate-700 font-bold text-[10px] lg:text-xs uppercase tracking-widest w-full sm:w-auto"
+            className="flex items-center justify-center gap-4 px-10 py-5 bg-slate-900 text-white rounded-3xl transition-all shadow-xl hover:shadow-accent/20 font-black text-[10px] uppercase tracking-widest w-full sm:w-auto shadow-slate-900/10"
           >
-            <Download size={16} className="text-accent lg:w-4 lg:h-4" />
-            Xuất Excel
+            <Download size={18} strokeWidth={2.5} className="text-accent" />
+            Trích xuất Dữ liệu
           </motion.button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* Hero Card for Outstanding Members */}
         <motion.div 
-          whileHover={{ y: -5 }}
-          className="sm:col-span-2 bg-gradient-to-br from-accent to-blue-600 p-6 sm:p-8 lg:p-12 rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          whileHover={{ y: -10 }}
+          className="sm:col-span-2 bg-[#001D3D] p-10 sm:p-14 lg:p-20 rounded-[4rem] shadow-2xl relative overflow-hidden text-white border border-white/5"
         >
-          <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-96 lg:h-96 bg-white/10 blur-[60px] sm:blur-[80px] lg:blur-[100px] -mr-24 sm:-mr-32 lg:-mr-48 -mt-24 sm:-mt-32 lg:-mt-48 rounded-full" />
-          <div className="relative flex flex-col md:flex-row justify-between items-center gap-6 lg:gap-12 text-center md:text-left">
-            <div className="flex-1">
-              <div className="flex items-center justify-center md:justify-start gap-2 sm:gap-3 mb-2 sm:mb-4 lg:mb-6">
-                <Star size={16} className="text-yellow-300 fill-yellow-300 sm:w-5 sm:h-5" />
-                <span className="text-[8px] sm:text-[10px] lg:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black text-white/80">Danh hiệu vinh dự</span>
+          <div className="absolute -right-20 -top-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+          
+          <div className="relative flex flex-col lg:flex-row justify-between items-center gap-12 lg:gap-20">
+            <div className="max-w-xl text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start gap-3 mb-8">
+                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-xl border border-white/10">
+                  <Star size={20} className="text-amber-400 fill-amber-400" />
+                </div>
+                <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Excellence Certification</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight mb-2 sm:mb-4">Đoàn viên Tiêu biểu</h2>
-              <p className="text-white/70 max-w-lg leading-relaxed font-medium text-xs sm:text-sm lg:text-base">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+              <h2 className="text-4xl sm:text-6xl font-display font-bold tracking-tight mb-6 leading-[1.1]">
+                Gương mặt <span className="text-accent">Thanh niên</span> Tiêu biểu
+              </h2>
+              <p className="text-white/40 leading-relaxed font-medium text-sm sm:text-lg">
+                Những cá nhân có thành tích vượt trội trong học tập, công tác và tinh thần cống hiến vì cộng đồng VNPT.
+              </p>
             </div>
-            <div className="flex items-center gap-4 sm:gap-6 lg:gap-10 bg-white/10 backdrop-blur-xl p-4 sm:p-6 lg:p-10 rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[2.5rem] border border-white/20 shadow-2xl shrink-0">
+
+            <div className="flex items-center gap-8 lg:gap-16 bg-white/[0.03] backdrop-blur-3xl p-10 lg:p-14 rounded-[3rem] border border-white/10 shadow-3xl shadow-black/40 shrink-0">
               <div className="text-center">
-                <span className="text-[7px] sm:text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2">Số lượng</span>
-                <span className="text-3xl sm:text-4xl lg:text-6xl font-black leading-none tabular-nums">{stats?.outstandingCount}</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black block mb-4">Total Count</span>
+                <span className="text-5xl lg:text-8xl font-display font-medium leading-none tabular-nums tracking-tighter">
+                  {stats?.outstandingCount}
+                </span>
               </div>
-              <div className="w-px h-10 sm:h-12 lg:h-16 bg-white/20" />
+              <div className="w-px h-20 lg:h-32 bg-white/10" />
               <div className="text-center">
-                <span className="text-[7px] sm:text-[8px] lg:text-[10px] uppercase tracking-widest text-white/50 font-black block mb-1 lg:mb-2">Tỷ lệ</span>
-                <span className="text-xl sm:text-2xl lg:text-4xl font-bold tabular-nums">{((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black block mb-4">Conversion</span>
+                <span className="text-2xl lg:text-5xl font-display font-medium tabular-nums text-accent">
+                  {((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%
+                </span>
               </div>
             </div>
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-5 sm:p-8 lg:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
-            <PieChartIcon size={14} className="text-accent sm:w-4 sm:h-4" /> Cơ cấu giới tính
-          </h3>
-          <div className="h-48 sm:h-56 lg:h-64 mb-4 sm:mb-6 lg:mb-8">
+        {/* Charts: Simplified and more refined */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.1 }}
+          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+        >
+          <div className="flex justify-between items-start mb-12">
+            <div>
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Demographics</h3>
+              <p className="text-xl font-display font-bold text-slate-900">Cơ cấu Giới tính</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
+               <PieChartIcon size={20} />
+            </div>
+          </div>
+
+          <div className="h-64 sm:h-72 lg:h-80 mb-10 relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={stats?.genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={window.innerWidth < 640 ? 50 : 60} outerRadius={window.innerWidth < 640 ? 70 : 80} paddingAngle={5}>
-                  {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Pie 
+                  data={stats?.genderData} 
+                  dataKey="value" 
+                  nameKey="name" 
+                  cx="50%" cy="50%" 
+                  innerRadius="65%" 
+                  outerRadius="90%" 
+                  paddingAngle={8}
+                >
+                  {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} cornerRadius={10} />)}
                 </Pie>
-                <Tooltip contentStyle={{borderRadius: '1rem', border:'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Tooltip 
+                  contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                  itemStyle={{fontWeight: 900, textTransform: 'uppercase', fontSize: '10px'}}
+                />
               </PieChart>
             </ResponsiveContainer>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                  <p className="text-3xl font-display font-bold text-slate-900 leading-none">{(totalStats.total)}</p>
+                  <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black mt-1">Tổng cộng</p>
+                </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
+          
+          <div className="grid grid-cols-2 gap-4">
             {stats?.genderData.map((item, i) => (
-              <div key={item.name} className="flex flex-col sm:flex-row items-center sm:justify-between p-2.5 sm:p-3 lg:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100 text-center sm:text-left gap-1 sm:gap-0">
-                <span className="text-[10px] sm:text-xs lg:text-sm font-bold text-slate-600 flex items-center gap-1.5 sm:gap-2 lg:gap-3">
-                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 lg:w-3 lg:h-3 rounded-full shrink-0" style={{backgroundColor: COLORS[i % COLORS.length]}} /> {item.name}
-                </span>
-                <span className="text-sm sm:text-base lg:text-lg font-black text-slate-900 tabular-nums">{item.value}</span>
+              <div key={item.name} className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 flex flex-col gap-1">
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} />
+                    <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">{item.name}</span>
+                </div>
+                <div className="flex items-end justify-between">
+                  <span className="text-3xl font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
+                  <span className="text-[10px] font-black text-slate-300">{(item.value / (totalStats.total || 1) * 100).toFixed(1)}%</span>
+                </div>
               </div>
             ))}
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-5 sm:p-8 lg:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
-            <Activity size={14} className="text-accent sm:w-4 sm:h-4" /> Tình trạng sinh hoạt
-          </h3>
-          <div className="h-48 sm:h-56 lg:h-64 mb-4 sm:mb-6 lg:mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.2 }}
+          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+        >
+          <div className="flex justify-between items-start mb-12">
+            <div>
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Operational Status</h3>
+              <p className="text-xl font-display font-bold text-slate-900">Tình trạng Sinh hoạt</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
+               <Activity size={20} />
+            </div>
+          </div>
+
+          <div className="h-64 sm:h-72 lg:h-80 mb-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.statusData}>
+              <BarChart data={stats?.statusData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1rem', border:'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {stats?.statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <Tooltip 
+                   cursor={{fill: 'rgba(59,130,246,0.05)', radius: [12, 12, 0, 0]}} 
+                   contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={40}>
+                  {stats?.statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.8} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
-            {stats?.statusData.slice(0, 2).map((item, i) => (
-              <div key={item.name} className="flex flex-col sm:flex-row items-center sm:justify-between p-2.5 sm:p-3 lg:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-100 text-center sm:text-left gap-1 sm:gap-0">
-                <span className="text-[10px] sm:text-xs lg:text-sm font-bold text-slate-600 truncate w-full">{item.name}</span>
-                <span className="text-sm sm:text-base lg:text-lg font-black text-slate-900 tabular-nums">{item.value}</span>
-              </div>
-            ))}
+
+          <div className="space-y-4">
+             {stats?.statusData.map((item, i) => (
+                <div key={item.name} className="flex items-center justify-between p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50 group hover:border-accent/20 transition-all">
+                   <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center font-display font-bold text-slate-400 group-hover:text-accent transition-colors">
+                        0{i + 1}
+                      </div>
+                      <span className="text-[13px] font-bold text-slate-700">{item.name}</span>
+                   </div>
+                   <span className="text-xl font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
+                </div>
+             ))}
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-5 sm:p-8 lg:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
-            <Users size={14} className="text-accent sm:w-4 sm:h-4" /> Cơ cấu dân tộc
-          </h3>
-          <div className="h-48 sm:h-56 lg:h-64 mb-4 sm:mb-6 lg:mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.3 }}
+          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+        >
+          <div className="flex justify-between items-start mb-12">
+            <div>
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Ethnic Diversity</h3>
+              <p className="text-xl font-display font-bold text-slate-900">Cơ cấu Dân tộc</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
+               <Users size={20} />
+            </div>
+          </div>
+
+          <div className="h-64 sm:h-72 lg:h-80 mb-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.ethnicData}>
+              <BarChart data={stats?.ethnicData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1rem', border:'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <Tooltip 
+                   cursor={{fill: 'rgba(37,99,235,0.05)', radius: [10, 10, 0, 0]}} 
+                   contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={32}>
                   {stats?.ethnicData.map((_, i) => <Cell key={i} fill={COLORS[(i + 2) % COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap gap-3">
             {stats?.ethnicData.slice(0, 4).map((item, i) => (
-              <div key={item.name} className="px-2.5 sm:px-4 py-1.5 lg:py-2 bg-slate-50 rounded-lg sm:rounded-xl border border-slate-100 flex items-center gap-1.5 sm:gap-2">
-                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full" style={{backgroundColor: COLORS[(i + 2) % COLORS.length]}} />
-                <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.name}: {item.value}</span>
+              <div key={item.name} className="px-5 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[(i + 2) % COLORS.length]}} />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.name}: <span className="text-slate-900">{item.value}</span></span>
               </div>
             ))}
           </div>
         </motion.div>
 
-        <motion.div className="bg-white border border-slate-100 p-5 sm:p-8 lg:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
-          <h3 className="text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
-            <Star size={14} className="text-accent sm:w-4 sm:h-4" /> Xếp loại đoàn viên
-          </h3>
-          <div className="h-48 sm:h-56 lg:h-64 mb-4 sm:mb-6 lg:mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.4 }}
+          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+        >
+          <div className="flex justify-between items-start mb-12">
+            <div>
+              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Contribution Quality</h3>
+              <p className="text-xl font-display font-bold text-slate-900">Xếp loại Đoàn viên</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
+               <Star size={20} />
+            </div>
+          </div>
+
+          <div className="h-64 sm:h-72 lg:h-80 mb-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats?.achievementData}>
+              <BarChart data={stats?.achievementData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1rem', border:'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <Tooltip 
+                   cursor={{fill: 'rgba(139,92,246,0.05)', radius: [10, 10, 0, 0]}} 
+                   contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                />
+                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={32}>
                   {stats?.achievementData.map((_, i) => <Cell key={i} fill={COLORS[(i + 4) % COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap gap-3">
             {stats?.achievementData.map((item, i) => (
-              <div key={item.name} className="px-2.5 sm:px-4 py-1.5 lg:py-2 bg-slate-50 rounded-lg sm:rounded-xl border border-slate-100 flex items-center gap-1.5 sm:gap-2">
-                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full" style={{backgroundColor: COLORS[(i + 4) % COLORS.length]}} />
-                <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.name}: {item.value}</span>
+              <div key={item.name} className="px-5 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[(i + 4) % COLORS.length]}} />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.name}: <span className="text-slate-900">{item.value}</span></span>
               </div>
             ))}
           </div>
         </motion.div>
 
         {selectedUnitId === "all" && (
-          <motion.div className="sm:col-span-2 bg-white border border-slate-100 p-5 sm:p-8 lg:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] lg:rounded-[3rem] shadow-xl shadow-slate-200/50">
-            <h3 className="text-[9px] sm:text-[10px] lg:text-xs uppercase tracking-widest text-slate-400 font-black mb-4 sm:mb-6 lg:mb-8 flex items-center gap-3">
-              <Building2 size={14} className="text-accent sm:w-4 sm:h-4" /> Quy mô cơ sở (Thành viên/Đơn vị)
-            </h3>
-            <div className="h-64 sm:h-80 lg:h-96">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="sm:col-span-2 bg-white border border-slate-100 p-10 lg:p-20 rounded-[4rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+          >
+            <div className="flex justify-between items-center mb-16">
+               <div>
+                  <h3 className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-black mb-3">Institutional Scale</h3>
+                  <p className="text-3xl font-display font-bold text-slate-900">Mạng lưới Chi đoàn</p>
+               </div>
+               <div className="p-4 bg-accent/5 text-accent rounded-3xl">
+                  <Building2 size={32} />
+               </div>
+            </div>
+            
+            <div className="h-96 sm:h-[30rem] lg:h-[40rem]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats?.unitData} layout="vertical" margin={{ left: window.innerWidth < 640 ? 30 : (window.innerWidth < 1024 ? 50 : 100) }}>
+                <BarChart data={stats?.unitData} layout="vertical" margin={{ left: window.innerWidth < 640 ? 40 : (window.innerWidth < 1024 ? 100 : 180) }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={window.innerWidth < 640 ? 8 : 10} tick={{fill: '#94a3b8', fontWeight: 600}} width={window.innerWidth < 640 ? 60 : (window.innerWidth < 1024 ? 100 : 150)} />
-                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '1rem', border:'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
-                  <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={window.innerWidth < 640 ? 12 : (window.innerWidth < 1024 ? 20 : 30)}>
-                    {stats?.unitData.map((_, i) => <Cell key={i} fill={COLORS[0]} fillOpacity={1 - (i * 0.1)} />)}
+                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={12} tick={{fill: '#475569', fontWeight: 700}} width={window.innerWidth < 640 ? 80 : (window.innerWidth < 1024 ? 140 : 200)} />
+                  <Tooltip cursor={{fill: 'rgba(0,0,0,0.02)', radius: [0, 10, 10, 0]}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1.25rem'}} />
+                  <Bar dataKey="value" radius={[0, 15, 15, 0]} barSize={window.innerWidth < 640 ? 12 : 32}>
+                    {stats?.unitData.map((_, i) => <Cell key={i} fill={COLORS[0]} fillOpacity={1 - (i * 0.08)} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -394,16 +515,16 @@ export const Statistics: React.FC = () => {
           </motion.div>
         )}
 
-        <div className="sm:col-span-2 bg-white border border-slate-200 rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.5rem] shadow-2xl overflow-hidden mt-6 lg:mt-10">
-          <div className="p-5 sm:p-8 lg:p-10 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10 text-center sm:text-left">
-            <div className="w-full sm:w-auto">
-              <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tighter">Chi tiết cơ sở</h3>
-              <p className="text-[7px] sm:text-[8px] lg:text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">Dữ liệu hợp nhất toàn hệ thống</p>
+        <div className="sm:col-span-2 bg-white border border-slate-100 rounded-[4rem] shadow-2xl overflow-hidden mt-12 lg:mt-20">
+          <div className="p-10 lg:p-14 border-b border-slate-100 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
+            <div>
+              <h3 className="text-3xl lg:text-4xl font-display font-bold text-slate-900 tracking-tight">Chi tiết Hệ thống</h3>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-black mt-2">Phân tích dữ liệu hợp nhất SMART VNPT</p>
             </div>
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-               <div className="px-4 lg:px-6 py-2 sm:py-2.5 lg:py-3 bg-slate-50 border border-slate-200 rounded-lg sm:rounded-xl lg:rounded-2xl font-black text-slate-900 text-[10px] sm:text-xs lg:text-sm shadow-sm flex items-center justify-center gap-2 sm:gap-3 flex-1 sm:flex-initial">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-accent rounded-full animate-pulse" />
-                  {units.length} Chi đoàn
+            <div className="flex items-center gap-6">
+               <div className="px-8 py-4 bg-accent text-white rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-accent/20 flex items-center gap-4">
+                  <Activity size={18} className="animate-pulse" />
+                  {units.length} Chi đoàn Cơ sở
                </div>
             </div>
           </div>

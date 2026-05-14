@@ -134,7 +134,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const userRoleName = profile?.role === "admin" ? "Quản trị viên" : "Bí thư";
 
   return (
-    <div id="app-layout" className="min-h-screen bg-slate-50 flex text-slate-900 overflow-x-hidden">
+    <div id="app-layout" className="min-h-screen bg-slate-50 flex text-slate-900 overflow-x-hidden font-sans">
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -143,7 +143,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] lg:hidden"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -152,19 +152,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         id="sidebar"
         className={cn(
-          "fixed lg:sticky top-0 left-0 bg-white/90 backdrop-blur-3xl border-r border-slate-200 w-72 transition-all duration-500 ease-in-out z-[70] flex flex-col shadow-2xl shrink-0 overflow-hidden h-screen",
+          "fixed lg:sticky top-0 left-0 bg-white shadow-[20px_0_60px_-15px_rgba(0,0,0,0.05)] w-72 transition-all duration-700 ease-[0.16,1,0.3,1] z-[70] flex flex-col shrink-0 overflow-hidden h-screen border-r border-slate-100",
           !isSidebarOpen ? "-translate-x-full lg:w-0 lg:opacity-0" : "translate-x-0 opacity-100"
         )}
       >
         <div className="p-8 lg:p-10 w-72">
-          <div className="flex items-center justify-between lg:justify-start gap-4 group cursor-pointer">
+          <div className="flex items-center justify-between lg:justify-start gap-5 group cursor-pointer">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center group-hover:rotate-6 transition-transform duration-500">
+              <div className="w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 bg-accent/5 rounded-2xl p-2 shadow-inner">
                 <VNPTLogo className="w-full h-full" />
               </div>
               <div>
-                <h1 className="text-lg lg:text-xl font-black text-slate-900 tracking-tighter leading-none">VNPT</h1>
-                <p className="text-[8px] lg:text-[9px] uppercase tracking-[0.2em] text-slate-400 font-black mt-1">QUẢN LÝ ĐOÀN VIÊN</p>
+                <h1 className="text-2xl font-display font-black text-slate-900 tracking-[-0.05em] leading-none">VNPT</h1>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-accent font-black mt-1">Management</p>
               </div>
             </div>
             {/* Mobile Close Button */}
@@ -177,7 +177,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 lg:px-6 space-y-1 w-72 mt-2 overflow-y-auto no-scrollbar">
+        <nav className="flex-1 px-6 space-y-2 w-72 mt-2 overflow-y-auto no-scrollbar pb-10">
+          <div className="px-4 mb-4">
+            <p className="text-[9px] uppercase tracking-[0.4em] text-slate-400 font-black mb-4 opacity-50">Menu chính</p>
+          </div>
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
@@ -189,99 +192,85 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   if (window.innerWidth < 1024) setIsSidebarOpen(false);
                 }}
                 className={cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-500 group relative overflow-hidden",
+                  "flex items-center gap-4 px-4 py-3.5 rounded-[1.25rem] transition-all duration-500 group relative",
                   isActive
-                    ? "bg-accent/[0.03] text-accent shadow-[inset_0_0_20px_rgba(37,99,235,0.02)]"
-                    : "text-slate-500 hover:text-accent hover:bg-slate-50/50"
+                    ? "text-accent"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
                 <div className={cn(
-                  "w-9 h-9 lg:w-10 lg:h-10 flex items-center justify-center rounded-xl transition-all duration-500 shrink-0 relative z-10",
+                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-500 shrink-0 relative z-10 shadow-sm",
                   isActive 
-                    ? "bg-accent text-white shadow-xl shadow-accent/30 scale-110" 
-                    : "bg-slate-100/50 text-slate-400 group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-6"
+                    ? "bg-accent text-white shadow-xl shadow-accent/20 scale-110" 
+                    : "bg-white border border-slate-100 text-slate-400 group-hover:text-accent group-hover:border-accent/20 group-hover:-translate-y-1"
                 )}>
                   <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 
                 <span className={cn(
-                  "text-[13px] lg:text-[14px] font-black tracking-tight transition-all duration-500 relative z-10",
+                  "text-[13px] font-bold tracking-tight transition-all duration-500 relative z-10",
                   isActive ? "text-slate-900" : "text-slate-500 group-hover:translate-x-1"
                 )}>
                   {item.name}
                 </span>
 
                 {isActive && (
-                  <>
-                    <motion.div 
-                      layoutId="active-nav-bg"
-                      className="absolute inset-0 bg-accent/[0.04] rounded-2xl border border-accent/10"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                    <motion.div 
-                      layoutId="active-nav-indicator"
-                      className="absolute right-0 w-1.5 h-8 bg-accent rounded-l-full shadow-[0_0_15px_rgba(37,99,235,0.5)]"
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
-                  </>
+                  <motion.div 
+                    layoutId="active-nav-indicator"
+                    className="absolute inset-0 bg-accent/[0.05] rounded-[1.25rem] border border-accent/10"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-6 lg:p-8 border-t border-slate-100 bg-slate-50/30 w-72">
+        <div className="p-8 border-t border-slate-50 w-72 bg-slate-50/20">
           <motion.button 
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsProfileModalOpen(true)}
-            className="bg-white p-3 lg:p-4 rounded-3xl flex items-center space-x-3 border border-slate-200 w-full hover:shadow-xl hover:shadow-slate-200/50 transition-all text-left group"
+            className="bg-white p-4 rounded-3xl flex items-center space-x-3 border border-slate-100 w-full hover:shadow-2xl hover:shadow-slate-200/40 transition-all text-left shadow-sm group"
           >
-            {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl object-cover shadow-lg border-2 border-white group-hover:border-accent group-hover:scale-105 transition-all" />
-            ) : (
-              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-gradient-to-br from-accent to-blue-600 flex items-center justify-center font-black text-white shadow-lg text-[10px]">
-                {userInitials}
-              </div>
-            )}
-            <div className="overflow-hidden">
-              <p className="text-xs lg:text-[13px] font-black text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || profile?.email}</p>
-              <p className="text-[8px] lg:text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
+            <div className="relative shrink-0">
+              {profile?.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="Avatar" className="w-12 h-12 rounded-2xl object-cover shadow-md border-2 border-white group-hover:border-accent transition-all" />
+              ) : (
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center font-black text-white shadow-lg text-[10px]">
+                  {userInitials}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-sm" />
             </div>
-          </motion.button>
-          <motion.button 
-            whileHover={{ x: 5, color: "#ef4444" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={logout}
-            className="mt-4 lg:mt-6 flex items-center gap-3 px-4 lg:px-5 py-2.5 lg:py-3 w-full text-slate-400 transition-all text-[9px] lg:text-[10px] font-black uppercase tracking-widest hover:bg-rose-50 rounded-2xl"
-          >
-            <LogOut size={16} strokeWidth={2.5} />
-            <span>Thoát hệ thống</span>
+            <div className="overflow-hidden">
+              <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || (profile?.email ? profile.email.split('@')[0] : 'User')}</p>
+              <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
+            </div>
           </motion.button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden w-full">
-        {/* Top Header */}
-        <header className="h-20 lg:h-24 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl sticky top-0 z-40 flex items-center justify-between px-6 lg:px-10 shadow-sm">
-          <div className="flex items-center gap-4 lg:gap-6">
+      <main className="flex-1 transition-all duration-500 h-screen flex flex-col overflow-hidden w-full relative">
+        {/* Top Header: More premium glassmorphism */}
+        <header className="h-24 bg-white/60 backdrop-blur-2xl px-10 sticky top-0 z-40 flex items-center justify-between border-b border-slate-100 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center gap-6">
             <motion.button 
-              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileHover={{ rotate: 90, scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               id="sidebar-toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
+              className="w-12 h-12 flex items-center justify-center bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-accent hover:border-accent/40 shadow-sm transition-all"
             >
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
             <div>
-              <h2 className="text-lg lg:text-2xl font-black text-slate-900 tracking-tighter">Bảng điều khiển</h2>
-              <p className="text-[8px] lg:text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black flex items-center gap-2">
-                 <div className="w-1 h-1 bg-green-500 rounded-full animate-pulse" /> <span className="hidden xs:inline">Phiên bản</span> 2.5
-              </p>
+              <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight leading-none mb-1">Hệ thống Quản lý</h2>
+              <div className="flex items-center gap-2">
+                 <div className="w-1.5 h-1.5 bg-accent rounded-sm rotate-45" />
+                 <p className="text-[9px] text-slate-400 uppercase tracking-[0.4em] font-black leading-none">VNPT Digital Hub</p>
+              </div>
             </div>
           </div>
 

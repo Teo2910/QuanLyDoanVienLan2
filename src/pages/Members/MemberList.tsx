@@ -1136,192 +1136,115 @@ export const MemberList: React.FC = () => {
                       <motion.div
                         initial={false}
                         animate={{ scale: selectedIds.length > 0 && selectedIds.length === filteredMembers.length ? 1 : 0 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
                       >
-                        <CheckCircle2 size={12} className="text-white" />
+                        <CheckCircle2 size={10} className="text-white" />
                       </motion.div>
                     </div>
                   </th>
-                  <th className="py-6 sm:py-8 px-2 sm:px-4 font-black text-center w-16 whitespace-nowrap">STT</th>
+                  <th className="py-6 sm:py-8 px-2 sm:px-4 font-black text-center w-16 whitespace-nowrap">ID</th>
                   <th 
-                    className="py-6 sm:py-8 px-4 sm:px-6 font-black cursor-pointer hover:text-accent transition-colors group/header min-w-[240px] sm:min-w-[280px]"
+                    className="py-6 sm:py-8 px-4 sm:px-6 font-black cursor-pointer hover:text-accent transition-colors group/header min-w-[280px]"
                     onClick={() => handleSort("fullName")}
                   >
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      Họ tên & Thông tin
-                      <span className={cn("transition-all", sortField === "fullName" ? "opacity-100 scale-100" : "opacity-0 scale-75 group-hover/header:opacity-40 group-hover/header:scale-100")}>
-                        {sortField === "fullName" ? (sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      Hồ sơ & Chức vụ
+                      <ArrowUpDown size={14} className={cn("opacity-40", sortField === "fullName" && "opacity-100 text-accent")} />
                     </div>
                   </th>
                   <th 
                     className="py-6 sm:py-8 px-4 sm:px-6 font-black cursor-pointer hover:text-accent transition-colors group/header"
                     onClick={() => handleSort("memberId")}
                   >
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      Mã định danh
-                      <span className={cn("transition-all", sortField === "memberId" ? "opacity-100 scale-100" : "opacity-0 scale-75 group-hover/header:opacity-40 group-hover/header:scale-100")}>
-                        {sortField === "memberId" ? (sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
-                      </span>
+                    <div className="flex items-center gap-3">
+                      MSSV
+                      <ArrowUpDown size={14} className={cn("opacity-40", sortField === "memberId" && "opacity-100 text-accent")} />
                     </div>
                   </th>
                   <th className="py-8 px-6 font-black text-center">Xếp loại</th>
-                  <th className="py-8 px-6 font-black">Chi đoàn công tác</th>
-                  <th 
-                    className="py-8 px-6 font-black cursor-pointer hover:text-accent transition-colors group/header"
-                    onClick={() => handleSort("joinDate")}
-                  >
-                    <div className="flex items-center gap-3">
-                      Kỷ niệm vào đoàn
-                      <span className={cn("transition-all", sortField === "joinDate" ? "opacity-100 scale-100" : "opacity-0 scale-75 group-hover/header:opacity-40 group-hover/header:scale-100")}>
-                        {sortField === "joinDate" ? (sortDirection === "asc" ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
-                      </span>
-                    </div>
-                  </th>
+                  <th className="py-8 px-6 font-black">Cơ sở Trực thuộc</th>
                   <th className="py-8 px-6 font-black text-center">Trạng thái</th>
-                  <th className="py-8 px-8 font-black text-right min-w-[200px]">Quan lý</th>
+                  <th className="py-8 px-8 font-black text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {paginatedMembers.map((member, index) => (
                   <motion.tr 
                     key={member.id} 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    onClick={() => handleViewDetails(member)}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.02 }}
                     className={cn(
-                      "group cursor-pointer transition-all duration-300 relative",
-                      selectedIds.includes(member.id) ? "bg-accent/[0.03]" : "hover:bg-slate-50/50"
+                      "group cursor-pointer transition-all duration-500",
+                      selectedIds.includes(member.id) ? "bg-accent/[0.02]" : "hover:bg-slate-50/40"
                     )}
+                    onClick={() => handleViewDetails(member)}
                   >
-                    <td className="py-5 sm:py-7 px-4 sm:px-8 text-center relative z-10" onClick={(e) => e.stopPropagation()}>
-                      <div 
+                    <td className="py-6 px-4 text-center" onClick={(e) => e.stopPropagation()}>
+                       <div 
                         onClick={() => handleSelectMember(member.id)}
                         className={cn(
                           "w-5 h-5 rounded-lg border-2 mx-auto cursor-pointer flex items-center justify-center transition-all duration-300",
                           selectedIds.includes(member.id) 
-                            ? "bg-accent border-accent shadow-lg shadow-accent/20" 
+                            ? "bg-accent border-accent shadow-lg shadow-accent/20 scale-110" 
                             : "border-slate-200 group-hover:border-accent bg-white"
                         )}
                       >
-                        <motion.div
-                          initial={false}
-                          animate={{ scale: selectedIds.includes(member.id) ? 1 : 0 }}
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        >
-                          <CheckCircle2 size={12} className="text-white" />
-                        </motion.div>
+                        {selectedIds.includes(member.id) && <CheckCircle2 size={10} className="text-white" />}
                       </div>
                     </td>
-                    <td className="py-5 sm:py-7 px-2 sm:px-4 text-center">
-                      <span className="text-[10px] sm:text-[11px] font-black text-slate-300 tabular-nums">
-                        {String((currentPage - 1) * pageSize + index + 1).padStart(2, '0')}
-                      </span>
+                    <td className="py-6 text-center">
+                       <span className="text-[10px] font-black text-slate-300">#{(currentPage - 1) * pageSize + index + 1}</span>
                     </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6">
-                      <div className="flex items-center gap-3 sm:gap-5">
-                        <div className="relative shrink-0">
-                          <div className={cn(
-                            "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center font-black text-base sm:text-lg transition-all duration-500 border-2",
-                            member.gender === "Nam" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-rose-50 text-rose-600 border-rose-100",
-                            "group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-md"
-                          )}>
-                            {member.fullName.charAt(0)}
-                          </div>
-                          {member.isOutstanding && (
-                            <div className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 w-5 h-5 sm:w-6 sm:h-6 bg-amber-400 rounded-lg border-2 border-white flex items-center justify-center text-white shadow-xl shadow-amber-400/30 animate-bounce">
-                              <Star size={8} fill="currentColor" className="sm:w-[10px] sm:h-[10px]" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <h4 className="text-sm sm:text-[15px] font-black text-slate-900 tracking-tight group-hover:text-accent transition-colors duration-300 whitespace-nowrap">
-                            {member.fullName}
-                          </h4>
-                          <div className="flex items-center gap-1.5 sm:gap-2">
-                             <span className={cn(
-                               "text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-1.2 sm:px-1.5 py-0.5 rounded-md",
-                               member.gender === "Nam" ? "text-blue-400 bg-blue-50/50" : "text-rose-400 bg-rose-50/50"
+                    <td className="py-6 px-6">
+                       <div className="flex items-center gap-4">
+                          <div className="relative group/avatar">
+                             <div className={cn(
+                               "w-12 h-12 rounded-[1.25rem] flex items-center justify-center font-display font-black text-lg shadow-sm border border-slate-100 transition-all duration-500 group-hover/avatar:rotate-6 group-hover/avatar:scale-110",
+                               member.gender === "Nam" ? "bg-blue-50 text-blue-600" : "bg-rose-50 text-rose-600"
                              )}>
-                               {member.gender}
-                             </span>
-                             <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-[0.05em]">{member.academicYear}</span>
+                               {member.fullName.charAt(0)}
+                             </div>
+                             {member.isOutstanding && (
+                               <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-amber-400 rounded-lg border-2 border-white flex items-center justify-center text-white shadow-lg shadow-amber-400/20">
+                                  <Star size={10} fill="currentColor" />
+                               </div>
+                             )}
                           </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6">
-                       <div className="flex flex-col gap-0.5 sm:gap-1">
-                          <span className="text-xs sm:text-[13px] font-black text-slate-700 tracking-tight font-mono whitespace-nowrap">{member.memberId}</span>
-                          <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest">{member.professionalLevel || "Thanh niên"}</span>
+                          <div>
+                             <h4 className="text-sm font-display font-bold text-slate-900 group-hover:text-accent transition-colors">{member.fullName}</h4>
+                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{member.position || "Đoàn viên"}</p>
+                          </div>
                        </div>
                     </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6 text-center">
-                       <span className={cn(
-                        "inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider border transition-all duration-300 whitespace-nowrap",
-                        member.achievementLevel === "Xuất sắc" ? "bg-accent/5 text-accent border-accent/10 hover:bg-accent hover:text-white" :
-                        member.achievementLevel === "Khá" ? "bg-slate-50 text-slate-600 border-slate-100" :
-                        "bg-white text-slate-300 border-slate-100"
-                       )}>
-                         {member.achievementLevel || "Chưa xếp loại"}
-                       </span>
+                    <td className="py-6 px-6">
+                       <span className="text-xs font-mono font-bold text-slate-600 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100">{member.memberId}</span>
                     </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6">
-                       <span className="text-xs sm:text-sm font-bold text-slate-600 tracking-tight line-clamp-1 min-w-[120px]">{getUnitName(member.unitId)}</span>
-                    </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6">
-                       <div className="flex items-center gap-2 sm:gap-3 whitespace-nowrap">
-                          <CalendarIcon size={12} className="text-slate-300 sm:w-[14px] sm:h-[14px]" />
-                          <span className="text-[11px] sm:text-xs font-black text-slate-500 tabular-nums">{member.joinDate || "---"}</span>
-                       </div>
-                    </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-6 text-center">
+                    <td className="py-6 px-6 text-center">
                        <div className={cn(
-                        "inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-[1rem] sm:rounded-2xl border transition-all duration-300 whitespace-nowrap",
-                        member.status === "Đang sinh hoạt" ? "bg-emerald-50 border-emerald-100 text-emerald-600 shadow-sm shadow-emerald-100/50" :
-                        member.status === "Đã chuyển sinh hoạt" ? "bg-blue-50 border-blue-100 text-accent shadow-sm shadow-blue-100/50" :
-                        "bg-slate-50 border-slate-100 text-slate-400"
+                         "inline-flex px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all duration-300",
+                         member.achievementLevel === "Xuất sắc" ? "bg-accent/5 text-accent border-accent/10 hover:bg-accent hover:text-white" : "bg-slate-50 text-slate-500 border-slate-100"
                        )}>
-                         <div className={cn("w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full animate-pulse", 
-                            member.status === "Đang sinh hoạt" ? "bg-emerald-500" : 
-                            member.status === "Đã chuyển sinh hoạt" ? "bg-accent" : "bg-slate-300"
-                         )} />
-                         <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">{member.status}</span>
+                         {member.achievementLevel}
                        </div>
                     </td>
-                    <td className="py-5 sm:py-7 px-4 sm:px-8 text-right relative z-10" onClick={(e) => e.stopPropagation()}>
-                       <div className="flex justify-end gap-1.5 sm:gap-2 transform transition-all duration-500 lg:opacity-0 lg:group-hover:opacity-100 lg:translate-x-4 lg:group-hover:translate-x-0">
-                          <button 
-                            onClick={() => handleViewDetails(member)}
-                            className="p-2 sm:p-3 bg-white border border-slate-100 rounded-lg sm:rounded-xl text-slate-400 hover:text-accent hover:border-accent hover:shadow-lg hover:shadow-accent/5 transition-all outline-none"
-                            title="Xem chi tiết"
-                          >
-                            <Eye size={14} className="sm:w-[16px] sm:h-[16px]" />
-                          </button>
-                          <button 
-                            onClick={() => handleViewHistory(member)}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-accent hover:border-accent hover:shadow-lg hover:shadow-accent/5 transition-all outline-none"
-                            title="Lịch sử thay đổi"
-                          >
-                            <History size={16} />
-                          </button>
-                          <button 
-                            onClick={() => handleEdit(member)}
-                            className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-500 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50 transition-all outline-none"
-                            title="Chỉnh sửa hồ sơ"
-                          >
-                            <Edit3 size={16} />
-                          </button>
+                    <td className="py-6 px-6">
+                       <p className="text-xs font-bold text-slate-600 line-clamp-1 max-w-[200px]">{getUnitName(member.unitId)}</p>
+                    </td>
+                    <td className="py-6 px-6 text-center">
+                       <div className={cn(
+                         "inline-flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all duration-500",
+                         member.status === "Đang sinh hoạt" ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-slate-50 border-slate-100 text-slate-400"
+                       )}>
+                          <div className={cn("w-1.5 h-1.5 rounded-full", member.status === "Đang sinh hoạt" ? "bg-emerald-500 animate-pulse" : "bg-slate-300")} />
+                          <span className="text-[10px] font-black uppercase tracking-[0.1em]">{member.status}</span>
+                       </div>
+                    </td>
+                    <td className="py-6 px-8 text-right" onClick={(e) => e.stopPropagation()}>
+                       <div className="flex justify-end gap-2 transform transition-all duration-500 lg:opacity-0 lg:translate-x-4 lg:group-hover:opacity-100 lg:group-hover:translate-x-0">
+                          <button onClick={() => handleViewDetails(member)} className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-accent hover:border-accent hover:shadow-xl transition-all"><Eye size={16} /></button>
+                          <button onClick={() => handleEdit(member)} className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-blue-500 hover:border-blue-200 hover:shadow-xl transition-all"><Edit3 size={16} /></button>
                           {(isAdmin || isSecretary) && (
-                            <button 
-                              onClick={() => handleDelete(member.id)}
-                              className="p-3 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:shadow-lg hover:shadow-rose-50 transition-all outline-none"
-                              title="Xóa hồ sơ"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            <button onClick={() => handleDelete(member.id)} className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:shadow-xl transition-all"><Trash2 size={16} /></button>
                           )}
                        </div>
                     </td>
