@@ -8,6 +8,9 @@ import { cn } from "../../lib/utils";
 export const LogList = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterDate, setFilterDate] = useState("");
+  const [filterEntityType, setFilterEntityType] = useState("all");
+  const [filterAction, setFilterAction] = useState("all");
 
   useEffect(() => {
     loadLogs();
@@ -23,6 +26,23 @@ export const LogList = () => {
       setLoading(false);
     }
   };
+
+  const filteredLogs = logs.filter(log => {
+    if (filterEntityType !== "all" && log.entityType !== filterEntityType) return false;
+    if (filterAction !== "all" && log.action !== filterAction) return false;
+    
+    if (filterDate) {
+      const ts = Number(log.timestamp);
+      const d = new Date(ts);
+      const logDate = d.toISOString().split('T')[0];
+      if (logDate !== filterDate) return false;
+    }
+    
+    return true;
+  });
+
+  const uniqueEntityTypes = Array.from(new Set(logs.map(l => l.entityType)));
+  const uniqueActions = Array.from(new Set(logs.map(l => l.action)));
 
   const getActionColor = (action: string) => {
     if (action.toLowerCase().includes("thêm")) return "text-emerald-600 bg-emerald-50 border-emerald-100";
@@ -47,27 +67,70 @@ export const LogList = () => {
              <Activity size={14} className="text-accent sm:w-4 sm:h-4" /> Lịch sử vận hành toàn bộ nền tảng thời gian thực
           </p>
         </div>
-        <div className="w-full sm:w-auto bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 flex items-center justify-between sm:justify-start gap-4 sm:gap-6">
-           <div className="flex flex-col items-end">
-              <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">{logs.length} bản ghi</p>
-              <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest">Đang giám sát</p>
-           </div>
-           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-accent/10 flex items-center justify-center text-accent animate-pulse shrink-0">
-              <Shield size={20} className="sm:w-6 sm:h-6" />
-           </div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+            <input 
+              type="date" 
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
+            />
+            <select 
+              value={filterEntityType}
+              onChange={(e) => setFilterEntityType(e.target.value)}
+              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
+            >
+              <option value="all">TẤT CẢ HOẠT ĐỘNG</option>
+              {uniqueEntityTypes.map(type => (
+                <option key={type} value={type}>{type.toUpperCase()}</option>
+              ))}
+            </select>
+            <select 
+              value={filterAction}
+              onChange={(e) => setFilterAction(e.target.value)}
+              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
+            >
+              <option value="all">TẤT CẢ HÀNH ĐỘNG</option>
+              {uniqueActions.map(action => (
+                <option key={action} value={action}>{action.toUpperCase()}</option>
+              ))}
+            </select>
+            {(filterDate || filterEntityType !== "all" || filterAction !== "all") && (
+              <button 
+                onClick={() => {
+                  setFilterDate("");
+                  setFilterEntityType("all");
+                  setFilterAction("all");
+                }}
+                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                title="Xóa bộ lọc"
+              >
+                <RotateCcw size={14} />
+              </button>
+            )}
+          </div>
+          <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 flex items-center justify-between sm:justify-start gap-4 sm:gap-6">
+            <div className="flex flex-col items-end">
+                <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">{filteredLogs.length} bản ghi</p>
+                <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest">Đang giám soát</p>
+            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-accent/10 flex items-center justify-center text-accent animate-pulse shrink-0">
+                <Shield size={20} className="sm:w-6 sm:h-6" />
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-        {logs.length === 0 ? (
+        {filteredLogs.length === 0 ? (
           <div className="py-16 sm:py-24 text-center border-4 border-dashed border-slate-100 rounded-2xl sm:rounded-[4rem] bg-slate-50/50">
              <FileText size={40} className="sm:w-12 sm:h-12 mx-auto text-slate-200 mb-4 sm:mb-6" />
              <p className="text-slate-300 uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black text-xs sm:text-sm">
-                Dữ liệu đang trống
+                Không tìm thấy kết quả phù hợp
              </p>
           </div>
         ) : (
-          logs.map((log, index) => (
+          filteredLogs.map((log, index) => (
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
