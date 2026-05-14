@@ -5,6 +5,18 @@ import { Activity, Clock, User, Tag, FileText, Shield, Plus, Trash2, RotateCcw, 
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../../lib/utils";
 
+const ENTITY_TYPE_LABELS: Record<string, string> = {
+  MOVEMENT: "Phong trào",
+  MEMBER: "Đoàn viên",
+  ACTIVITY: "Hoạt động",
+  UNIT: "Chi đoàn",
+  MOVEMENTREPORT: "Báo cáo",
+  KNOWLEDGE: "Tài liệu nghiệp vụ",
+  DOCUMENT: "Văn bản",
+  USER: "Người dùng",
+  SYSTEM: "Hệ thống"
+};
+
 const CustomSelect = ({ 
   value, 
   onChange, 
@@ -122,7 +134,10 @@ export const LogList = () => {
 
   const entityTypeOptions = [
     { value: "all", label: "TẤT CẢ PHÂN LOẠI" },
-    ...uniqueEntityTypes.map(type => ({ value: type, label: type.toUpperCase() }))
+    ...uniqueEntityTypes.map(type => ({ 
+      value: type, 
+      label: (ENTITY_TYPE_LABELS[type.toUpperCase()] || type).toUpperCase() 
+    }))
   ];
 
   const actionOptions = [
@@ -146,7 +161,7 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-10 lg:px-16 max-w-[1800px] mx-auto">
-      <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-10 mb-16 mt-10">
+      <div className="flex flex-col 2xl:flex-row justify-between 2xl:items-end gap-10 mb-16 mt-10">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
              <div className="h-0.5 w-10 bg-accent rounded-full" />
@@ -162,7 +177,7 @@ export const LogList = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full 2xl:w-auto">
           <div className="bg-white border border-slate-100 shadow-xl p-2 rounded-[2rem] flex flex-wrap items-center gap-2">
             <div className="relative group/date">
               <input 
@@ -281,7 +296,9 @@ export const LogList = () => {
                     </div>
                     <div className="flex items-center gap-2">
                        <Tag size={10} className="text-slate-400 sm:w-3 sm:h-3" />
-                       <span className="text-[8px] sm:text-[10px] font-black tracking-widest uppercase text-slate-400">{log.entityType}</span>
+                       <span className="text-[8px] sm:text-[10px] font-black tracking-widest uppercase text-slate-400">
+                         {ENTITY_TYPE_LABELS[log.entityType.toUpperCase()] || log.entityType}
+                       </span>
                     </div>
                   </div>
                 </div>
