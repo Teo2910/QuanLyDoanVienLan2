@@ -226,7 +226,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           })}
         </nav>
 
-        <div className="p-8 border-t border-slate-50 w-72 bg-slate-50/20">
+        <div className="p-8 border-t border-slate-50 w-72 bg-slate-50/20 space-y-4">
           <motion.button 
             whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
@@ -247,6 +247,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <p className="text-[13px] font-bold text-slate-900 truncate group-hover:text-accent transition-colors">{profile?.fullName || (profile?.email ? profile.email.split('@')[0] : 'User')}</p>
               <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{userRoleName}</p>
             </div>
+          </motion.button>
+
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={logout}
+            className="flex items-center gap-3 px-6 py-3.5 w-full text-slate-400 transition-all text-[10px] font-black uppercase tracking-[0.2em] hover:text-rose-500 hover:bg-rose-50/50 rounded-2xl group"
+          >
+            <LogOut size={16} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />
+            <span>Đăng xuất</span>
           </motion.button>
         </div>
       </aside>
