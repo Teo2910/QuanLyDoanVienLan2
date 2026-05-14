@@ -413,8 +413,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Profile Modal */}
       {isProfileModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-md relative shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
+          onClick={() => setIsProfileModalOpen(false)}
+        >
+          <div 
+            className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-md relative shadow-2xl overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Background Decoration */}
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-accent/10 to-transparent -z-10" />
             

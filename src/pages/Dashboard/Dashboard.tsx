@@ -200,10 +200,11 @@ export const Dashboard = () => {
                   innerRadius={70} 
                   outerRadius={100} 
                   paddingAngle={8} 
+                  cornerRadius={10}
                   dataKey="value"
                 >
                   {stats.rankingData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={10} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
