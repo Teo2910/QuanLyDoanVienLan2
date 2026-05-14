@@ -17,7 +17,6 @@ export const Dashboard = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSeeding, setIsSeeding] = useState(false);
 
   const loadData = useCallback(() => {
     Promise.all([
@@ -35,18 +34,6 @@ export const Dashboard = () => {
       setLoading(false);
     });
   }, [profile]);
-
-  const handleSeed = async () => {
-    setIsSeeding(true);
-    try {
-      await fetch("/api/seed", { method: "POST" });
-      loadData();
-    } catch (e) {
-      console.error("Seed failed", e);
-    } finally {
-      setIsSeeding(false);
-    }
-  };
 
   useEffect(() => {
     loadData();
@@ -134,25 +121,13 @@ export const Dashboard = () => {
         </motion.div>
         
         <div className="bg-white px-6 py-4 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center gap-4">
-           {stats.totalMembers === 0 ? (
-             <button 
-               onClick={handleSeed}
-               disabled={isSeeding}
-               className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent/90 transition-all disabled:opacity-50"
-             >
-               {isSeeding ? "Đang xử lý..." : "Khởi tạo dữ liệu mẫu"}
-             </button>
-           ) : (
-             <>
-               <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                  <Activity size={20} className="animate-pulse" />
-               </div>
-               <div>
-                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Hệ thống</p>
-                  <p className="text-slate-900 font-black text-sm tabular-nums">Đang vận hành ổn định</p>
-               </div>
-             </>
-           )}
+           <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+              <Activity size={20} className="animate-pulse" />
+           </div>
+           <div>
+              <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Hệ thống</p>
+              <p className="text-slate-900 font-black text-sm tabular-nums">Đang vận hành ổn định</p>
+           </div>
         </div>
       </div>
 
@@ -166,84 +141,69 @@ export const Dashboard = () => {
             transition={{ delay: index * 0.1 }}
             className="bg-white border border-slate-100 p-8 rounded-[3rem] flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-200/60 transition-all group shadow-sm relative overflow-hidden"
           >
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-slate-50/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-lg relative z-10", card.bg, card.color)}>
+            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-500 group-hover:scale-110 shadow-lg", card.bg, card.color)}>
               <card.icon size={28} strokeWidth={2.5} />
             </div>
-            <div className="relative z-10">
+            <div>
               <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-2 opacity-60">{card.label}</p>
-              <h3 className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums mb-4">{card.value}</h3>
-              <div className="w-10 h-1 bg-slate-100 rounded-full group-hover:w-20 transition-all duration-700" />
+              <h3 className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums">{card.value}</h3>
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* Main Charts area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        {/* Growth Chart */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="lg:col-span-2 bg-slate-900 p-8 sm:p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden text-white"
-        >
-          <div className="flex justify-between items-center mb-8 relative z-10">
-            <div>
-              <h3 className="text-xs uppercase tracking-widest text-accent font-black mb-2 flex items-center gap-2">
-                <TrendingUp size={14} /> Tăng trưởng đoàn viên
-              </h3>
-              <p className="text-white/60 text-[10px] font-bold">Thống kê 6 tháng gần nhất</p>
-            </div>
-          </div>
-          <div className="h-64 sm:h-80 relative z-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.growthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 900}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 900}} />
-                <Tooltip 
-                  contentStyle={{backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', color: '#fff'}}
-                  itemStyle={{color: '#3b82f6'}}
-                />
-                <Area type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorCount)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          {/* Decorative element */}
-          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-accent/20 blur-[100px] rounded-full pointer-events-none" />
-        </motion.div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 text-blue-50">
         {/* Ranking Chart */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white border border-slate-100 p-8 sm:p-10 rounded-[3.5rem] shadow-sm flex flex-col justify-between"
+          className="lg:col-span-3 bg-white border border-slate-100 p-8 sm:p-10 rounded-[3.5rem] shadow-sm flex flex-col md:flex-row items-center justify-between gap-10"
         >
-          <div className="mb-6">
-            <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-1 flex items-center gap-2">
-              <Award size={14} className="text-amber-500" /> Chất lượng đoàn viên
-            </h3>
-            <p className="text-slate-300 text-[10px] uppercase font-black tracking-widest">Phân bổ xếp loại</p>
+          <div className="md:w-1/2">
+            <div className="mb-6">
+              <h3 className="text-xs uppercase tracking-widest text-slate-400 font-black mb-1 flex items-center gap-2">
+                <Award size={14} className="text-amber-500" /> Chất lượng đoàn viên
+              </h3>
+              <p className="text-slate-300 text-[10px] uppercase font-black tracking-widest">Phân bổ xếp loại</p>
+            </div>
+            
+            <div className="space-y-4">
+              {stats.rankingData.map((item, index) => (
+                <div key={item.name} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: COLORS[index % COLORS.length]}} />
+                    <span className="text-sm font-bold text-slate-600">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
+                        <div 
+                          className="h-full rounded-full" 
+                          style={{
+                            backgroundColor: COLORS[index % COLORS.length],
+                            width: `${(item.value / stats.totalMembers) * 100}%`
+                          }} 
+                        />
+                     </div>
+                     <span className="text-sm font-black text-slate-900 tabular-nums">{item.value}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="h-56 relative">
+
+          <div className="h-64 w-64 relative shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie 
                   data={stats.rankingData} 
-                  innerRadius={60} 
-                  outerRadius={80} 
+                  innerRadius={70} 
+                  outerRadius={100} 
                   paddingAngle={8} 
                   dataKey="value"
-                  cornerRadius={10}
                 >
                   {stats.rankingData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={10} />
                   ))}
                 </Pie>
                 <Tooltip />
@@ -251,21 +211,10 @@ export const Dashboard = () => {
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <p className="text-3xl font-black text-slate-900 tracking-tighter leading-none">{stats.totalMembers}</p>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng</p>
+                <p className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{stats.totalMembers}</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng số</p>
               </div>
             </div>
-          </div>
-          <div className="space-y-2 mt-4">
-            {stats.rankingData.map((item, index) => (
-              <div key={item.name} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[index % COLORS.length]}} />
-                  <span className="text-xs font-bold text-slate-600">{item.name}</span>
-                </div>
-                <span className="text-xs font-black text-slate-900 tabular-nums">{item.value}</span>
-              </div>
-            ))}
           </div>
         </motion.div>
       </div>
