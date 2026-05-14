@@ -244,44 +244,43 @@ export const Statistics: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Hero Card for Outstanding Members */}
+        {/* Hero Card for Outstanding Members - Scaled down */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          whileHover={{ y: -10 }}
-          className="sm:col-span-2 bg-[#001D3D] p-10 sm:p-14 lg:p-20 rounded-[4rem] shadow-2xl relative overflow-hidden text-white border border-white/5"
+          whileHover={{ y: -5 }}
+          className="sm:col-span-2 bg-[#001D3D] p-8 sm:p-10 lg:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden text-white border border-white/5"
         >
-          <div className="absolute -right-20 -top-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px] pointer-events-none" />
-          <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute -right-20 -top-20 w-80 h-80 bg-accent/20 rounded-full blur-[100px] pointer-events-none" />
           
-          <div className="relative flex flex-col lg:flex-row justify-between items-center gap-12 lg:gap-20">
+          <div className="relative flex flex-col lg:flex-row justify-between items-center gap-8 lg:gap-12">
             <div className="max-w-xl text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start gap-3 mb-8">
-                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-xl border border-white/10">
-                  <Star size={20} className="text-amber-400 fill-amber-400" />
+              <div className="flex items-center justify-center lg:justify-start gap-2 mb-6">
+                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-xl border border-white/10">
+                  <Star size={16} className="text-amber-400 fill-amber-400" />
                 </div>
-                <span className="text-[10px] uppercase tracking-[0.4em] font-black text-white/40">Excellence Certification</span>
+                <span className="text-[8px] uppercase tracking-[0.4em] font-black text-white/40">Excellence Hub</span>
               </div>
-              <h2 className="text-4xl sm:text-6xl font-display font-bold tracking-tight mb-6 leading-[1.1]">
-                Gương mặt <span className="text-accent">Thanh niên</span> Tiêu biểu
+              <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4 leading-[1.1]">
+                Gương mặt <span className="text-accent">Tiêu biểu</span>
               </h2>
-              <p className="text-white/40 leading-relaxed font-medium text-sm sm:text-lg">
-                Những cá nhân có thành tích vượt trội trong học tập, công tác và tinh thần cống hiến vì cộng đồng VNPT.
+              <p className="text-white/40 leading-relaxed font-medium text-xs sm:text-sm">
+                Những cá nhân xuất sắc đóng góp tích cực cho phong trào VNPT.
               </p>
             </div>
 
-            <div className="flex items-center gap-8 lg:gap-16 bg-white/[0.03] backdrop-blur-3xl p-10 lg:p-14 rounded-[3rem] border border-white/10 shadow-3xl shadow-black/40 shrink-0">
+            <div className="flex items-center gap-6 lg:gap-10 bg-white/[0.03] backdrop-blur-2xl p-6 lg:p-8 rounded-[2rem] border border-white/10 shadow-xl shrink-0">
               <div className="text-center">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black block mb-4">Total Count</span>
-                <span className="text-5xl lg:text-8xl font-display font-medium leading-none tabular-nums tracking-tighter">
+                <span className="text-[8px] uppercase tracking-[0.3em] text-white/30 font-black block mb-2">Số lượng</span>
+                <span className="text-4xl lg:text-5xl font-display font-medium leading-none tabular-nums tracking-tighter">
                   {stats?.outstandingCount}
                 </span>
               </div>
-              <div className="w-px h-20 lg:h-32 bg-white/10" />
+              <div className="w-px h-12 lg:h-16 bg-white/10" />
               <div className="text-center">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black block mb-4">Conversion</span>
-                <span className="text-2xl lg:text-5xl font-display font-medium tabular-nums text-accent">
+                <span className="text-[8px] uppercase tracking-[0.3em] text-white/30 font-black block mb-2">Tỷ lệ</span>
+                <span className="text-xl lg:text-2xl font-display font-medium tabular-nums text-accent">
                   {((stats?.outstandingCount || 0) / (members.length || 1) * 100).toFixed(1)}%
                 </span>
               </div>
@@ -289,24 +288,24 @@ export const Statistics: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Charts: Simplified and more refined */}
+        {/* Charts: Scaled down */}
         <motion.div 
-          initial={{ opacity: 0, y: 30 }} 
+          initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.1 }}
-          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+          className="bg-white border border-slate-100 p-6 lg:p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500"
         >
-          <div className="flex justify-between items-start mb-12">
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Demographics</h3>
-              <p className="text-xl font-display font-bold text-slate-900">Cơ cấu Giới tính</p>
+              <h3 className="text-[9px] uppercase tracking-[0.3em] text-slate-400 font-black mb-1">Demographics</h3>
+              <p className="text-lg font-display font-bold text-slate-900">Cơ cấu Giới tính</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
-               <PieChartIcon size={20} />
+            <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+               <PieChartIcon size={18} />
             </div>
           </div>
 
-          <div className="h-64 sm:h-72 lg:h-80 mb-10 relative">
+          <div className="h-56 sm:h-64 lg:h-72 mb-8 relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie 
@@ -314,36 +313,36 @@ export const Statistics: React.FC = () => {
                   dataKey="value" 
                   nameKey="name" 
                   cx="50%" cy="50%" 
-                  innerRadius="65%" 
-                  outerRadius="90%" 
-                  paddingAngle={8}
+                  innerRadius="70%" 
+                  outerRadius="95%" 
+                  paddingAngle={6}
                 >
-                  {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} cornerRadius={10} />)}
+                  {stats?.genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} cornerRadius={8} />)}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
-                  itemStyle={{fontWeight: 900, textTransform: 'uppercase', fontSize: '10px'}}
+                  contentStyle={{borderRadius: '1.25rem', border:'none', boxShadow: '0 20px 40px -10px rgb(0 0 0 / 0.1)', padding: '0.75rem'}} 
+                  itemStyle={{fontWeight: 900, textTransform: 'uppercase', fontSize: '9px'}}
                 />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="text-center">
-                  <p className="text-3xl font-display font-bold text-slate-900 leading-none">{(totalStats.total)}</p>
-                  <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black mt-1">Tổng cộng</p>
+                  <p className="text-2xl font-display font-bold text-slate-900 leading-none">{(totalStats.total)}</p>
+                  <p className="text-[8px] uppercase tracking-widest text-slate-400 font-black mt-1">Tổng</p>
                 </div>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {stats?.genderData.map((item, i) => (
-              <div key={item.name} className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 flex flex-col gap-1">
-                <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} />
-                    <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">{item.name}</span>
+              <div key={item.name} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100/50 flex flex-col gap-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}} />
+                    <span className="text-[9px] uppercase tracking-widest font-black text-slate-400">{item.name}</span>
                 </div>
                 <div className="flex items-end justify-between">
-                  <span className="text-3xl font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
-                  <span className="text-[10px] font-black text-slate-300">{(item.value / (totalStats.total || 1) * 100).toFixed(1)}%</span>
+                  <span className="text-xl font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
+                  <span className="text-[9px] font-black text-slate-300">{(item.value / (totalStats.total || 1) * 100).toFixed(1)}%</span>
                 </div>
               </div>
             ))}
@@ -351,48 +350,48 @@ export const Statistics: React.FC = () => {
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 30 }} 
+          initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.2 }}
-          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+          className="bg-white border border-slate-100 p-6 lg:p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500"
         >
-          <div className="flex justify-between items-start mb-12">
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Operational Status</h3>
-              <p className="text-xl font-display font-bold text-slate-900">Tình trạng Sinh hoạt</p>
+              <h3 className="text-[9px] uppercase tracking-[0.3em] text-slate-400 font-black mb-1">Operational Status</h3>
+              <p className="text-lg font-display font-bold text-slate-900">Tình trạng Sinh hoạt</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
-               <Activity size={20} />
+            <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+               <Activity size={18} />
             </div>
           </div>
 
-          <div className="h-64 sm:h-72 lg:h-80 mb-10">
+          <div className="h-56 sm:h-64 lg:h-72 mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.statusData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={9} tick={{fill: '#94a3b8', fontWeight: 900}} />
                 <Tooltip 
-                   cursor={{fill: 'rgba(59,130,246,0.05)', radius: [12, 12, 0, 0]}} 
-                   contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                   cursor={{fill: 'rgba(59,130,246,0.03)', radius: [8, 8, 0, 0]}} 
+                   contentStyle={{borderRadius: '1.25rem', border:'none', boxShadow: '0 20px 40px -10px rgb(0 0 0 / 0.1)', padding: '0.75rem'}} 
                 />
-                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={40}>
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={24}>
                   {stats?.statusData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.8} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
              {stats?.statusData.map((item, i) => (
-                <div key={item.name} className="flex items-center justify-between p-5 rounded-2xl bg-slate-50/50 border border-slate-100/50 group hover:border-accent/20 transition-all">
-                   <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center font-display font-bold text-slate-400 group-hover:text-accent transition-colors">
+                <div key={item.name} className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 border border-slate-100/50 group hover:border-accent/20 transition-all">
+                   <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 flex items-center justify-center font-display font-bold text-[10px] text-slate-400 group-hover:text-accent transition-colors">
                         0{i + 1}
                       </div>
-                      <span className="text-[13px] font-bold text-slate-700">{item.name}</span>
+                      <span className="text-[12px] font-bold text-slate-700">{item.name}</span>
                    </div>
-                   <span className="text-xl font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
+                   <span className="text-lg font-display font-bold text-slate-900 tabular-nums">{item.value}</span>
                 </div>
              ))}
           </div>

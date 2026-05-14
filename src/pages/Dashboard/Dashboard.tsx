@@ -141,35 +141,35 @@ export const Dashboard = () => {
         </motion.div>
       </div>
 
-      {/* KPI Cards: More modern style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-16 sm:mb-24">
+      {/* KPI Cards: More compact modern style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-10 sm:mb-16">
         {cards.map((card, index) => (
           <motion.div 
             key={card.label} 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ y: -8, transition: { duration: 0.2 } }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className={cn(
-              "bg-white p-8 sm:p-10 rounded-[3rem] border flex flex-col justify-between transition-all group relative overflow-hidden",
+              "bg-white p-5 sm:p-6 rounded-[2rem] border flex flex-col justify-between transition-all group relative overflow-hidden",
               card.border
             )}
           >
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity translate-x-1/4 -translate-y-1/4 group-hover:scale-125 duration-700">
-               <card.icon size={120} strokeWidth={1} />
+            <div className="absolute top-0 right-0 p-3 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity translate-x-1/4 -translate-y-1/4 group-hover:scale-110 duration-700">
+               <card.icon size={64} strokeWidth={1} />
             </div>
             
-            <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-10 transition-all duration-500 group-hover:rotate-6", card.bg, card.color)}>
-              <card.icon size={28} strokeWidth={2.2} />
+            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-6 transition-all duration-500 group-hover:rotate-6", card.bg, card.color)}>
+              <card.icon size={20} strokeWidth={2.2} />
             </div>
             
             <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-1.5 mb-1">
                 <div className={cn("w-1 h-1 rounded-full", card.color)} />
-                <p className="text-[9px] uppercase tracking-widest text-slate-400 font-black">{card.sub}</p>
+                <p className="text-[8px] uppercase tracking-widest text-slate-400 font-black">{card.sub}</p>
               </div>
-              <h3 className="text-5xl font-display font-bold text-slate-900 tracking-tighter tabular-nums mb-1">{card.value}</h3>
-              <p className="text-[12px] font-bold text-slate-400">{card.label}</p>
+              <h3 className="text-3xl font-display font-bold text-slate-900 tracking-tighter tabular-nums mb-0.5">{card.value}</h3>
+              <p className="text-[10px] font-bold text-slate-400">{card.label}</p>
             </div>
           </motion.div>
         ))}
