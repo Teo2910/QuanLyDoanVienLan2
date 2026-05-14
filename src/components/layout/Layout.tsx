@@ -157,8 +157,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
       >
         <div className="p-8 lg:p-10 w-72">
-          <div className="flex items-center justify-between lg:justify-start gap-5 group cursor-pointer">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between lg:justify-start gap-5 group">
+            <Link to="/" className="flex items-center gap-4 cursor-pointer">
               <div className="w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 bg-accent/5 rounded-2xl p-2 shadow-inner">
                 <VNPTLogo className="w-full h-full" />
               </div>
@@ -166,7 +166,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <h1 className="text-2xl font-display font-black text-slate-900 tracking-[-0.05em] leading-none">VNPT</h1>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-accent font-black mt-1">Management</p>
               </div>
-            </div>
+            </Link>
             {/* Mobile Close Button */}
             <button 
               onClick={() => setIsSidebarOpen(false)}
