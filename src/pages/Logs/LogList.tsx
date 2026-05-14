@@ -146,12 +146,12 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-10 lg:px-16 max-w-[1800px] mx-auto">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-12 mb-20 mt-10">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-20 mt-10">
         <div className="space-y-6">
           <div className="flex items-center gap-4">
              <div className="h-0.5 w-12 bg-accent rounded-full" />
              <p className="text-accent text-[10px] sm:text-[12px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
-                <Activity size={16} className="animate-pulse" /> Live Monitoring
+                <Activity size={16} className="animate-pulse" /> GIÁM SÁT TRỰC TUYẾN
              </p>
           </div>
           <h2 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tighter leading-tight">
@@ -211,12 +211,12 @@ export const LogList = () => {
                 <Shield size={28} className="relative z-10" />
              </div>
              <div>
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2">Monitor Status</p>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2">Trạng thái hệ thống</p>
                 <div className="flex items-baseline gap-3">
                   <p className="text-4xl font-black text-white tabular-nums leading-none tracking-tighter">
                     {filteredLogs.length}
                   </p>
-                  <span className="text-[10px] text-accent font-black uppercase tracking-widest bg-accent/10 px-2 py-0.5 rounded-md">LOGS</span>
+                  <span className="text-[10px] text-accent font-black uppercase tracking-widest bg-accent/10 px-2 py-1 rounded-md">BẢN GHI</span>
                 </div>
              </div>
           </div>
