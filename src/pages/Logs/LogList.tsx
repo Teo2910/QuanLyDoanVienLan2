@@ -60,34 +60,37 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
-        <div className="space-y-2">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">Nhật ký hệ thống</h2>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 mb-16 px-2">
+        <div className="space-y-4">
           <div className="flex items-center gap-3">
-             <div className="h-0.5 w-8 bg-accent rounded-full" />
-             <p className="text-slate-400 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-2">
-                <Activity size={14} className="text-accent sm:w-4 sm:h-4 animate-pulse" /> Lịch sử vận hành toàn bộ nền tảng
+             <div className="h-0.5 w-12 bg-accent rounded-full" />
+             <p className="text-accent text-[9px] sm:text-[11px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
+                <Activity size={14} className="animate-pulse" /> Live Monitor
              </p>
           </div>
+          <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-[0.9]">
+            Nhật ký <br /> <span className="text-slate-300">hệ thống</span>
+          </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full lg:w-auto">
-          <div className="flex flex-wrap items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
-            <div className="relative">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full xl:w-auto">
+          <div className="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 p-2 rounded-[2rem] flex flex-wrap items-center gap-2">
+            <div className="relative group">
               <input 
                 type="date" 
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="pl-3 pr-8 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all appearance-none cursor-pointer"
+                className="pl-4 pr-10 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer"
               />
+              <Clock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-accent transition-colors" />
             </div>
             
             <select 
               value={filterEntityType}
               onChange={(e) => setFilterEntityType(e.target.value)}
-              className="px-4 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer hover:bg-slate-50"
+              className="px-5 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer appearance-none min-w-[160px]"
             >
-              <option value="all">TẤT CẢ HOẠT ĐỘNG</option>
+              <option value="all">TẤT CẢ PHÂN LOẠI</option>
               {uniqueEntityTypes.map(type => (
                 <option key={type} value={type}>{type.toUpperCase()}</option>
               ))}
@@ -96,7 +99,7 @@ export const LogList = () => {
             <select 
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="px-4 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer hover:bg-slate-50"
+              className="px-5 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer appearance-none min-w-[160px]"
             >
               <option value="all">TẤT CẢ HÀNH ĐỘNG</option>
               {uniqueActions.map(action => (
@@ -111,23 +114,27 @@ export const LogList = () => {
                   setFilterEntityType("all");
                   setFilterAction("all");
                 }}
-                className="w-10 h-10 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all duration-300 group"
+                className="w-11 h-11 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-[1.2rem] transition-all duration-500 group bg-rose-50/50"
                 title="Xóa bộ lọc"
               >
-                <RotateCcw size={16} className="group-hover:rotate-180 transition-transform duration-500" />
+                <RotateCcw size={18} className="group-hover:rotate-180 transition-transform duration-700" />
               </button>
             )}
           </div>
 
-          <div className="bg-white px-5 py-4 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-5 min-w-[180px]">
-             <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent animate-pulse shrink-0 border border-accent/20">
-                <Shield size={24} />
+          <div className="bg-slate-900 px-6 py-5 rounded-[2rem] shadow-2xl shadow-slate-900/20 flex items-center gap-6 min-w-[200px] border border-slate-800">
+             <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-accent shrink-0 border border-white/10 relative overflow-hidden">
+                <div className="absolute inset-0 bg-accent/20 animate-pulse" />
+                <Shield size={24} className="relative z-10" />
              </div>
              <div>
-                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Trạng thái</p>
-                <p className="text-lg font-black text-slate-900 tabular-nums leading-none tracking-tight">
-                  {filteredLogs.length} <span className="text-[10px] text-slate-400 font-bold ml-1">BẢN GHI</span>
-                </p>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none mb-1.5">Tổng ghi nhận</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-black text-white tabular-nums leading-none tracking-tighter">
+                    {filteredLogs.length}
+                  </p>
+                  <span className="text-[9px] text-accent font-black uppercase tracking-widest">Bản ghi</span>
+                </div>
              </div>
           </div>
         </div>
