@@ -440,42 +440,42 @@ export const Statistics: React.FC = () => {
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 30 }} 
+          initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ delay: 0.4 }}
-          className="bg-white border border-slate-100 p-10 lg:p-14 rounded-[3.5rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+          className="bg-white border border-slate-100 p-6 lg:p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500"
         >
-          <div className="flex justify-between items-start mb-12">
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h3 className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-black mb-2">Contribution Quality</h3>
-              <p className="text-xl font-display font-bold text-slate-900">Xếp loại Đoàn viên</p>
+              <h3 className="text-[9px] uppercase tracking-[0.3em] text-slate-400 font-black mb-1">Contribution Quality</h3>
+              <p className="text-lg font-display font-bold text-slate-900">Xếp loại Đoàn viên</p>
             </div>
-            <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
-               <Star size={20} />
+            <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+               <Star size={18} />
             </div>
           </div>
 
-          <div className="h-64 sm:h-72 lg:h-80 mb-10">
+          <div className="h-56 sm:h-64 lg:h-72 mb-8">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.achievementData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
-                <YAxis axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} fontSize={9} tick={{fill: '#94a3b8', fontWeight: 900}} />
                 <Tooltip 
-                   cursor={{fill: 'rgba(139,92,246,0.05)', radius: [10, 10, 0, 0]}} 
-                   contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1rem'}} 
+                   cursor={{fill: 'rgba(139,92,246,0.03)', radius: [8, 8, 0, 0]}} 
+                   contentStyle={{borderRadius: '1.25rem', border:'none', boxShadow: '0 20px 40px -10px rgb(0 0 0 / 0.1)', padding: '0.75rem'}} 
                 />
-                <Bar dataKey="value" radius={[10, 10, 0, 0]} barSize={32}>
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={24}>
                   {stats?.achievementData.map((_, i) => <Cell key={i} fill={COLORS[(i + 4) % COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {stats?.achievementData.map((item, i) => (
-              <div key={item.name} className="px-5 py-3 bg-slate-50/50 rounded-2xl border border-slate-100/50 flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[(i + 4) % COLORS.length]}} />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.name}: <span className="text-slate-900">{item.value}</span></span>
+              <div key={item.name} className="px-4 py-2 bg-slate-50/50 rounded-xl border border-slate-100/50 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: COLORS[(i + 4) % COLORS.length]}} />
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{item.name}: <span className="text-slate-900">{item.value}</span></span>
               </div>
             ))}
           </div>
@@ -486,26 +486,26 @@ export const Statistics: React.FC = () => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="sm:col-span-2 bg-white border border-slate-100 p-10 lg:p-20 rounded-[4rem] shadow-sm hover:shadow-2xl hover:shadow-slate-200/40 transition-all duration-500"
+            className="sm:col-span-2 bg-white border border-slate-100 p-6 lg:p-8 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500"
           >
-            <div className="flex justify-between items-center mb-16">
+            <div className="flex justify-between items-center mb-10">
                <div>
-                  <h3 className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-black mb-3">Institutional Scale</h3>
-                  <p className="text-3xl font-display font-bold text-slate-900">Mạng lưới Chi đoàn</p>
+                  <h3 className="text-[9px] uppercase tracking-[0.3em] text-slate-400 font-black mb-1.5">Institutional Scale</h3>
+                  <p className="text-xl font-display font-bold text-slate-900">Mạng lưới Chi đoàn</p>
                </div>
-               <div className="p-4 bg-accent/5 text-accent rounded-3xl">
-                  <Building2 size={32} />
+               <div className="p-2.5 bg-accent/5 text-accent rounded-xl">
+                  <Building2 size={20} />
                </div>
             </div>
             
-            <div className="h-96 sm:h-[30rem] lg:h-[40rem]">
+            <div className="h-48 sm:h-64 lg:h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats?.unitData} layout="vertical" margin={{ left: window.innerWidth < 640 ? 40 : (window.innerWidth < 1024 ? 100 : 180) }}>
+                <BarChart data={stats?.unitData} layout="vertical" margin={{ left: window.innerWidth < 640 ? 30 : (window.innerWidth < 1024 ? 60 : 100) }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={10} tick={{fill: '#94a3b8', fontWeight: 900}} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={12} tick={{fill: '#475569', fontWeight: 700}} width={window.innerWidth < 640 ? 80 : (window.innerWidth < 1024 ? 140 : 200)} />
-                  <Tooltip cursor={{fill: 'rgba(0,0,0,0.02)', radius: [0, 10, 10, 0]}} contentStyle={{borderRadius: '1.5rem', border:'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '1.25rem'}} />
-                  <Bar dataKey="value" radius={[0, 15, 15, 0]} barSize={window.innerWidth < 640 ? 12 : 32}>
+                  <XAxis type="number" axisLine={false} tickLine={false} fontSize={8} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} fontSize={9} tick={{fill: '#475569', fontWeight: 700}} width={window.innerWidth < 640 ? 60 : (window.innerWidth < 1024 ? 100 : 140)} />
+                  <Tooltip cursor={{fill: 'rgba(0,0,0,0.01)', radius: [0, 8, 8, 0]}} contentStyle={{borderRadius: '1.25rem', border:'none', boxShadow: '0 20px 40px -10px rgb(0 0 0 / 0.1)', padding: '0.75rem'}} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={window.innerWidth < 640 ? 10 : 20}>
                     {stats?.unitData.map((_, i) => <Cell key={i} fill={COLORS[0]} fillOpacity={1 - (i * 0.08)} />)}
                   </Bar>
                 </BarChart>
