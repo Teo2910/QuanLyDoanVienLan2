@@ -40,6 +40,42 @@ async function startServer() {
   });
   const PORT = 3000;
 
+  // --- LOCAL FALLBACK STORE ---
+  // This allows the app to work even if the SQL server is not reachable
+  const localDbPath = path.join(process.cwd(), "db_fallback.json");
+  let localData = {
+    units: [],
+    members: [],
+    activities: [],
+    movements: [],
+    movementReports: [],
+    knowledgeBase: [],
+    activityLogs: []
+  };
+
+  try {
+    if (process.env.NODE_ENV !== "production") {
+      const fs = await import("fs/promises");
+      const exists = await fs.access(localDbPath).then(() => true).catch(() => false);
+      if (exists) {
+        const content = await fs.readFile(localDbPath, "utf-8");
+        localData = JSON.parse(content);
+        console.log("[DB Fallback] Loaded local data from db_fallback.json");
+      }
+    }
+  } catch (e) {
+    console.warn("[DB Fallback] Could not load local data:", e);
+  }
+
+  const persistLocal = async () => {
+    try {
+      const fs = await import("fs/promises");
+      await fs.writeFile(localDbPath, JSON.stringify(localData, null, 2));
+    } catch (e) {
+      console.warn("[DB Fallback] Could not persist local data:", e);
+    }
+  };
+
   // State
   const onlineUsers = new Map<string, { uid: string; lastSeen: number }>();
   const systemUsers = new Map<string, any>();
@@ -62,23 +98,28 @@ async function startServer() {
   app.use("/api", apiRouter);
 
   async function logActivity(req: any, action: string, entityType: string, entityId: string, details: string) {
+    const headerName = req.header("x-user-name") || req.header("X-User-Name");
+    const headerId = req.header("x-user-id") || req.header("X-User-Id");
+    
+    let userName = "Hệ thống";
+    try { userName = headerName ? decodeURIComponent(headerName) : userName; } catch(e) { userName = String(headerName); }
+    
+    let userId = "system";
+    try { userId = headerId ? decodeURIComponent(headerId) : userId; } catch(e) { userId = String(headerId); }
+
+    const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+    const timestamp = Date.now();
+
     if (!pool || !pool.connected) {
-      console.log("logActivity skipped, no pool. pool:", !!pool, "connected:", pool ? pool.connected : false);
+      console.log("[Fallback] Logging activity to local store");
+      (localData.activityLogs as any[]).push({
+        id, userId, userName, action, entityType, entityId, details, createdAt: timestamp
+      });
+      persistLocal();
       return;
     }
     console.log("logActivity executing for", action);
     try {
-      const headerName = req.header("x-user-name") || req.header("X-User-Name");
-      const headerId = req.header("x-user-id") || req.header("X-User-Id");
-      
-      let userName = "Hệ thống";
-      try { userName = headerName ? decodeURIComponent(headerName) : userName; } catch(e) { userName = String(headerName); }
-      
-      let userId = "system";
-      try { userId = headerId ? decodeURIComponent(headerId) : userId; } catch(e) { userId = String(headerId); }
-
-      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
-      const timestamp = Date.now();
       const upRes = await pool.request()
         .input("id", sql.NVarChar, id)
         .input("userId", sql.NVarChar, userId)
@@ -127,7 +168,7 @@ async function startServer() {
   apiRouter.route("/movements")
     .get(async (req, res) => {
       try {
-        if (!pool || !pool.connected) return res.json([]);
+        if (!pool || !pool.connected) return res.json(localData.movements);
         const result = await pool.request().query("SELECT * FROM movements ORDER BY createdAt DESC");
         const formatted = result.recordset.map(m => ({
           ...m,
@@ -654,7 +695,7 @@ async function startServer() {
   // Units
   apiRouter.get("/units", async (req, res) => {
     try {
-      if (!pool || !pool.connected) throw new Error("Database not connected");
+      if (!pool || !pool.connected) return res.json(localData.units);
       const result = await pool.request().query("SELECT * FROM units");
       res.json(result.recordset);
     } catch (err) {
@@ -856,8 +897,7 @@ async function startServer() {
   apiRouter.get("/members", async (req, res) => {
     try {
       if (!pool || !pool.connected) {
-        // Return empty array and warning instead of 500 to keep UI functional but alert user
-        return res.json([]); 
+        return res.json(localData.members); 
       }
       const result = await pool.request().query("SELECT * FROM members");
       const formattedMembers = result.recordset.map(m => ({
@@ -1019,6 +1059,42 @@ async function startServer() {
     }
   });
 
+  apiRouter.post("/seed", async (req, res) => {
+    try {
+      const units = [
+        { id: "u1", name: "Chi đoàn Văn phòng", code: "VP", createdAt: Date.now() },
+        { id: "u2", name: "Chi đoàn Kỹ thuật", code: "KT", createdAt: Date.now() },
+        { id: "u3", name: "Chi đoàn Kinh doanh", code: "KD", createdAt: Date.now() },
+      ];
+      
+      const members = [
+        { id: "m1", fullName: "Nguyễn Văn A", unitId: "u1", status: "Đang sinh hoạt", isOutstanding: true, createdAt: Date.now() - 86400000 * 30 },
+        { id: "m2", fullName: "Trần Thị B", unitId: "u1", status: "Đang sinh hoạt", isOutstanding: false, createdAt: Date.now() - 86400000 * 20 },
+        { id: "m3", fullName: "Lê Văn C", unitId: "u2", status: "Đang sinh hoạt", isOutstanding: true, createdAt: Date.now() - 86400000 * 10 },
+        { id: "m4", fullName: "Phạm Thị D", unitId: "u3", status: "Đang sinh hoạt", isOutstanding: false, createdAt: Date.now() },
+      ];
+
+      const activities = [
+        { id: "a1", title: "Ngày chủ nhật xanh", type: "Tình nguyện", date: new Date(Date.now() + 86400000 * 2).toISOString(), createdAt: Date.now() },
+        { id: "a2", title: "Hội thao VNPT 2026", type: "Phong trào", date: new Date(Date.now() + 86400000 * 5).toISOString(), createdAt: Date.now() },
+      ];
+
+      if (!pool || !pool.connected) {
+        localData.units = units as any;
+        localData.members = members as any;
+        localData.activities = activities as any;
+        await persistLocal();
+        return res.json({ success: true, mode: "local" });
+      }
+
+      // If SQL is connected, we could seed there too, but let's keep it simple for now
+      // and just target the failure case the user is experiencing.
+      res.json({ success: true, mode: "sql_active_no_seed" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   apiRouter.get("/debug-errors", (req, res) => {
     res.json({
       globalErrors,
@@ -1035,7 +1111,7 @@ async function startServer() {
   // Activities
   apiRouter.get("/activities", async (req, res) => {
     try {
-      if (!pool || !pool.connected) return res.json([]);
+      if (!pool || !pool.connected) return res.json(localData.activities);
       // Check if table exists
       const tbl = await pool.request().query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='activities'");
       if (tbl.recordset.length === 0) return res.json([]);

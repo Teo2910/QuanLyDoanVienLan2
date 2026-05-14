@@ -17,6 +17,7 @@ export const Dashboard = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSeeding, setIsSeeding] = useState(false);
 
   const loadData = useCallback(() => {
     Promise.all([
@@ -34,6 +35,18 @@ export const Dashboard = () => {
       setLoading(false);
     });
   }, [profile]);
+
+  const handleSeed = async () => {
+    setIsSeeding(true);
+    try {
+      await fetch("/api/seed", { method: "POST" });
+      loadData();
+    } catch (e) {
+      console.error("Seed failed", e);
+    } finally {
+      setIsSeeding(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -121,13 +134,25 @@ export const Dashboard = () => {
         </motion.div>
         
         <div className="bg-white px-6 py-4 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center gap-4">
-           <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-              <Activity size={20} className="animate-pulse" />
-           </div>
-           <div>
-              <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Hệ thống</p>
-              <p className="text-slate-900 font-black text-sm tabular-nums">Đang vận hành ổn định</p>
-           </div>
+           {stats.totalMembers === 0 ? (
+             <button 
+               onClick={handleSeed}
+               disabled={isSeeding}
+               className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-accent/90 transition-all disabled:opacity-50"
+             >
+               {isSeeding ? "Đang xử lý..." : "Khởi tạo dữ liệu mẫu"}
+             </button>
+           ) : (
+             <>
+               <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                  <Activity size={20} className="animate-pulse" />
+               </div>
+               <div>
+                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Hệ thống</p>
+                  <p className="text-slate-900 font-black text-sm tabular-nums">Đang vận hành ổn định</p>
+               </div>
+             </>
+           )}
         </div>
       </div>
 
@@ -141,12 +166,14 @@ export const Dashboard = () => {
             transition={{ delay: index * 0.1 }}
             className="bg-white border border-slate-100 p-8 rounded-[3rem] flex flex-col justify-between hover:shadow-2xl hover:shadow-slate-200/60 transition-all group shadow-sm relative overflow-hidden"
           >
-            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-500 group-hover:scale-110 shadow-lg", card.bg, card.color)}>
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-slate-50/50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+            <div className={cn("w-16 h-16 rounded-[1.8rem] flex items-center justify-center mb-10 transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 shadow-lg relative z-10", card.bg, card.color)}>
               <card.icon size={28} strokeWidth={2.5} />
             </div>
-            <div>
+            <div className="relative z-10">
               <p className="text-[10px] uppercase tracking-widest text-slate-400 font-black mb-2 opacity-60">{card.label}</p>
-              <h3 className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums">{card.value}</h3>
+              <h3 className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums mb-4">{card.value}</h3>
+              <div className="w-10 h-1 bg-slate-100 rounded-full group-hover:w-20 transition-all duration-700" />
             </div>
           </motion.div>
         ))}
@@ -213,9 +240,10 @@ export const Dashboard = () => {
                   outerRadius={80} 
                   paddingAngle={8} 
                   dataKey="value"
+                  cornerRadius={10}
                 >
                   {stats.rankingData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} cornerRadius={10} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
