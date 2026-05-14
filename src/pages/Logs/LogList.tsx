@@ -1,9 +1,85 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { dataService } from "../../services/dataService";
 import { SystemLog } from "../../types";
-import { Activity, Clock, User, Tag, FileText, Smartphone, Shield, AlertTriangle, Plus, Trash2, RotateCcw } from "lucide-react";
-import { motion } from "motion/react";
+import { Activity, Clock, User, Tag, FileText, Shield, Plus, Trash2, RotateCcw, ChevronDown, Check } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../../lib/utils";
+
+const CustomSelect = ({ 
+  value, 
+  onChange, 
+  options, 
+  placeholder,
+  className 
+}: { 
+  value: string; 
+  onChange: (val: string) => void; 
+  options: { value: string; label: string }[];
+  placeholder: string;
+  className?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt.value === value);
+
+  return (
+    <div className={cn("relative", className)} ref={containerRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-5 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer group"
+      >
+        <span className="truncate uppercase tracking-wider">{selectedOption ? selectedOption.label : placeholder}</span>
+        <ChevronDown 
+          size={14} 
+          className={cn("text-slate-400 transition-transform duration-300", isOpen && "rotate-180")} 
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute z-50 mt-2 w-full min-w-[200px] bg-white border border-slate-100 shadow-2xl rounded-2xl overflow-hidden py-2"
+          >
+            <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+              {options.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-3 text-[10px] font-bold text-left transition-colors",
+                    value === option.value 
+                      ? "bg-accent/5 text-accent" 
+                      : "text-slate-600 hover:bg-slate-50"
+                  )}
+                >
+                  <span className="uppercase tracking-wider">{option.label}</span>
+                  {value === option.value && <Check size={12} className="text-accent" />}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export const LogList = () => {
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -44,6 +120,16 @@ export const LogList = () => {
   const uniqueEntityTypes = Array.from(new Set(logs.map(l => l.entityType)));
   const uniqueActions = Array.from(new Set(logs.map(l => l.action)));
 
+  const entityTypeOptions = [
+    { value: "all", label: "TẤT CẢ PHÂN LOẠI" },
+    ...uniqueEntityTypes.map(type => ({ value: type, label: type.toUpperCase() }))
+  ];
+
+  const actionOptions = [
+    { value: "all", label: "TẤT CẢ HÀNH ĐỘNG" },
+    ...uniqueActions.map(action => ({ value: action, label: action.toUpperCase() }))
+  ];
+
   const getActionColor = (action: string) => {
     if (action.toLowerCase().includes("thêm")) return "text-emerald-600 bg-emerald-50 border-emerald-100";
     if (action.toLowerCase().includes("xóa")) return "text-rose-600 bg-rose-50 border-rose-100";
@@ -59,53 +145,50 @@ export const LogList = () => {
   );
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-6">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 mb-16 px-2">
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-             <div className="h-0.5 w-12 bg-accent rounded-full" />
-             <p className="text-accent text-[9px] sm:text-[11px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
-                <Activity size={14} className="animate-pulse" /> Live Monitor
+    <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-8 xl:px-12 max-w-[1600px] mx-auto">
+      <div className="flex flex-col 2xl:flex-row justify-between items-start 2xl:items-end gap-12 mb-20 px-2 lg:px-4">
+        <div className="space-y-6 max-w-2xl">
+          <div className="flex items-center gap-4">
+             <div className="h-0.5 w-16 bg-accent rounded-full" />
+             <p className="text-accent text-[10px] sm:text-[12px] uppercase tracking-[0.5em] font-black flex items-center gap-2">
+                <Activity size={16} className="animate-pulse" /> Live System Monitor
              </p>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter leading-[0.9]">
-            Nhật ký <br /> <span className="text-slate-300">hệ thống</span>
+          <h2 className="text-5xl sm:text-7xl xl:text-8xl font-black text-slate-900 tracking-tighter leading-[0.85]">
+            Nhật ký <br /> <span className="text-slate-200">vận hành</span>
           </h2>
+          <p className="text-slate-400 text-xs sm:text-sm font-medium max-w-md leading-relaxed border-l-2 border-slate-100 pl-4">
+            Theo dõi chi tiết các thao tác nghiệp vụ, thay đổi dữ liệu và trạng thái hệ thống theo thời gian thực.
+          </p>
         </div>
 
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full xl:w-auto">
-          <div className="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 p-2 rounded-[2rem] flex flex-wrap items-center gap-2">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 w-full 2xl:w-auto">
+          <div className="bg-white border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] p-3 rounded-[2.5rem] flex flex-wrap items-center gap-3 backdrop-blur-xl bg-white/80">
             <div className="relative group">
               <input 
                 type="date" 
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="pl-4 pr-10 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer"
+                className="pl-5 pr-12 py-4 text-[11px] font-black text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-[1.5rem] border border-slate-100 focus:outline-none focus:ring-8 focus:ring-accent/5 transition-all appearance-none cursor-pointer h-[52px]"
               />
-              <Clock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-accent transition-colors" />
+              <Clock size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-accent transition-colors" />
             </div>
             
-            <select 
+            <CustomSelect 
               value={filterEntityType}
-              onChange={(e) => setFilterEntityType(e.target.value)}
-              className="px-5 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer appearance-none min-w-[160px]"
-            >
-              <option value="all">TẤT CẢ PHÂN LOẠI</option>
-              {uniqueEntityTypes.map(type => (
-                <option key={type} value={type}>{type.toUpperCase()}</option>
-              ))}
-            </select>
+              onChange={setFilterEntityType}
+              options={entityTypeOptions}
+              placeholder="PHÂN LOẠI"
+              className="min-w-[200px]"
+            />
 
-            <select 
+            <CustomSelect 
               value={filterAction}
-              onChange={(e) => setFilterAction(e.target.value)}
-              className="px-5 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-100 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer appearance-none min-w-[160px]"
-            >
-              <option value="all">TẤT CẢ HÀNH ĐỘNG</option>
-              {uniqueActions.map(action => (
-                <option key={action} value={action}>{action.toUpperCase()}</option>
-              ))}
-            </select>
+              onChange={setFilterAction}
+              options={actionOptions}
+              placeholder="HÀNH ĐỘNG"
+              className="min-w-[200px]"
+            />
 
             {(filterDate || filterEntityType !== "all" || filterAction !== "all") && (
               <button 
@@ -114,33 +197,33 @@ export const LogList = () => {
                   setFilterEntityType("all");
                   setFilterAction("all");
                 }}
-                className="w-11 h-11 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-[1.2rem] transition-all duration-500 group bg-rose-50/50"
+                className="w-12 h-12 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all duration-500 group bg-rose-50/50"
                 title="Xóa bộ lọc"
               >
-                <RotateCcw size={18} className="group-hover:rotate-180 transition-transform duration-700" />
+                <RotateCcw size={20} className="group-hover:rotate-180 transition-transform duration-700" />
               </button>
             )}
           </div>
 
-          <div className="bg-slate-900 px-6 py-5 rounded-[2rem] shadow-2xl shadow-slate-900/20 flex items-center gap-6 min-w-[200px] border border-slate-800">
-             <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-accent shrink-0 border border-white/10 relative overflow-hidden">
-                <div className="absolute inset-0 bg-accent/20 animate-pulse" />
-                <Shield size={24} className="relative z-10" />
+          <div className="bg-slate-950 px-8 py-6 rounded-[2.5rem] shadow-2xl shadow-slate-900/40 flex items-center gap-8 min-w-[240px] border border-white/5 relative overflow-hidden group">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-[64px] rounded-full -mr-16 -mt-16 group-hover:bg-accent/20 transition-all duration-1000" />
+             <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-accent shrink-0 border border-white/10 relative">
+                <Shield size={28} className="relative z-10" />
              </div>
              <div>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none mb-1.5">Tổng ghi nhận</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-black text-white tabular-nums leading-none tracking-tighter">
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2">Monitor Status</p>
+                <div className="flex items-baseline gap-3">
+                  <p className="text-4xl font-black text-white tabular-nums leading-none tracking-tighter">
                     {filteredLogs.length}
                   </p>
-                  <span className="text-[9px] text-accent font-black uppercase tracking-widest">Bản ghi</span>
+                  <span className="text-[10px] text-accent font-black uppercase tracking-widest bg-accent/10 px-2 py-0.5 rounded-md">LOGS</span>
                 </div>
              </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="max-w-[1400px] mx-auto space-y-6">
         {filteredLogs.length === 0 ? (
           <div className="py-16 sm:py-24 text-center border-4 border-dashed border-slate-100 rounded-2xl sm:rounded-[4rem] bg-slate-50/50">
              <FileText size={40} className="sm:w-12 sm:h-12 mx-auto text-slate-200 mb-4 sm:mb-6" />
