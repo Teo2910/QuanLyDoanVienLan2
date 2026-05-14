@@ -511,12 +511,16 @@ export const MovementList: React.FC = () => {
       {/* Detail Modal */}
       <AnimatePresence>
         {isDetailModalOpen && selectedMovement && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+            onClick={() => setIsDetailModalOpen(false)}
+          >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl cursor-default"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 sm:p-10 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
                 <div className="pr-8">
@@ -776,12 +780,16 @@ export const MovementList: React.FC = () => {
       {/* Report Detail Modal for Admin */}
       <AnimatePresence>
         {isViewingReportModalOpen && viewingReport && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
+          <div 
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+            onClick={() => setIsViewingReportModalOpen(false)}
+          >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+              className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl cursor-default"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 sm:p-10 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                 <div className="pr-12 sm:pr-0">
@@ -897,8 +905,16 @@ export const MovementList: React.FC = () => {
 
       {/* Create Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
-           <div className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+          onClick={() => setIsCreateModalOpen(false)}
+        >
+           <motion.div 
+             initial={{ scale: 0.9, opacity: 0, y: 20 }}
+             animate={{ scale: 1, opacity: 1, y: 0 }}
+             className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl cursor-default"
+             onClick={(e) => e.stopPropagation()}
+           >
               <div className="p-6 sm:p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Thiết lập phong trào mới</h3>
                 <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-900 transition-colors">
@@ -991,8 +1007,16 @@ export const MovementList: React.FC = () => {
 
       {/* Edit Modal */}
       {isEditModalOpen && editingMovement && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
-           <div className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+          onClick={() => setIsEditModalOpen(false)}
+        >
+           <motion.div 
+             initial={{ scale: 0.9, opacity: 0, y: 20 }}
+             animate={{ scale: 1, opacity: 1, y: 0 }}
+             className="bg-white border border-slate-200 rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl cursor-default"
+             onClick={(e) => e.stopPropagation()}
+           >
               <div className="p-6 sm:p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Chỉnh sửa phong trào</h3>
                 <button onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-900 transition-colors">
@@ -1085,8 +1109,16 @@ export const MovementList: React.FC = () => {
 
       {/* Report Modal */}
       {isReportModalOpen && selectedMovement && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
-           <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+          onClick={() => setIsReportModalOpen(false)}
+        >
+           <motion.div 
+             initial={{ scale: 0.9, opacity: 0, y: 20 }}
+             animate={{ scale: 1, opacity: 1, y: 0 }}
+             className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col cursor-default"
+             onClick={(e) => e.stopPropagation()}
+           >
               <div className="p-6 sm:p-10 border-b border-slate-100 bg-slate-50/50">
                  <h4 className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-accent font-black mb-2">
                    {editingReport ? "Cập nhật báo cáo phong trào" : "Báo cáo phong trào"}
@@ -1206,13 +1238,15 @@ export const MovementList: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+            onClick={() => setIsAIModalOpen(false)}
           >
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden"
+              className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3rem] w-full max-w-xl shadow-2xl overflow-hidden cursor-default"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 sm:p-10 border-b border-slate-100 bg-slate-50/50">
                  <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-4">

@@ -284,11 +284,15 @@ export const UnitList: React.FC = () => {
         </div>
       </div>
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+          onClick={() => setShowModal(false)}
+        >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3.5rem] w-full max-w-xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] p-1 relative overflow-hidden flex flex-col max-h-[90vh]"
+            className="bg-white border border-slate-200 rounded-2xl sm:rounded-[3.5rem] w-full max-w-xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] p-1 relative overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 sm:p-10 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
               <div>

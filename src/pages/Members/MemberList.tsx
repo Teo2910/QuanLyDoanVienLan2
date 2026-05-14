@@ -1422,11 +1422,15 @@ export const MemberList: React.FC = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm cursor-pointer"
+          onClick={() => setShowModal(false)}
+        >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden cursor-default"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-8 border-b border-slate-100 flex justify-between items-center shrink-0 bg-slate-50/50">
               <div>
@@ -1677,11 +1681,15 @@ export const MemberList: React.FC = () => {
 
       {/* Detailed Member View Modal */}
       {showDetailsModal && detailsMember && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all">
+        <div 
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all cursor-pointer"
+          onClick={() => setShowDetailsModal(false)}
+        >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            className="bg-white border border-slate-200 rounded-[3rem] w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header with Avatar and Name */}
             <div className="relative p-10 bg-slate-50/50 shrink-0 border-b border-slate-100">
@@ -1901,11 +1909,15 @@ export const MemberList: React.FC = () => {
 
       {/* Status History Modal */}
       {showHistoryModal && historyMember && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto cursor-pointer"
+          onClick={() => setShowHistoryModal(false)}
+        >
           <motion.div 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-surface border border-white/10 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8"
+            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-xl shadow-2xl p-1 my-8 cursor-default"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] rounded-t-[2.4rem]">
               <div>
@@ -1968,11 +1980,15 @@ export const MemberList: React.FC = () => {
       )}
       {/* Quick Unit Modal */}
       {showUnitModal && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div 
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm cursor-pointer"
+          onClick={() => setShowUnitModal(false)}
+        >
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden"
+            className="bg-white border border-slate-200 rounded-[2.5rem] w-full max-w-md shadow-2xl overflow-hidden cursor-default"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <h4 className="text-slate-900 font-black text-lg tracking-tight">Tạo đơn vị nhanh</h4>
