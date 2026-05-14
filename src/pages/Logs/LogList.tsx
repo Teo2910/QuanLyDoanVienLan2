@@ -146,32 +146,32 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-10 lg:px-16 max-w-[1800px] mx-auto">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-12 mb-20 mt-10">
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-             <div className="h-0.5 w-12 bg-accent rounded-full" />
-             <p className="text-accent text-[10px] sm:text-[12px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
-                <Activity size={16} className="animate-pulse" /> GIÁM SÁT TRỰC TUYẾN
+      <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-10 mb-16 mt-10">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+             <div className="h-0.5 w-10 bg-accent rounded-full" />
+             <p className="text-accent text-[9px] sm:text-[11px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
+                <Activity size={14} className="animate-pulse" /> GIÁM SÁT TRỰC TUYẾN
              </p>
           </div>
-          <h2 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tighter leading-tight">
-            Nhật ký <span className="text-slate-300">hệ thống</span>
+          <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-none group">
+            Nhật ký <span className="text-slate-300 group-hover:text-accent transition-colors duration-500">hệ thống</span>
           </h2>
           <p className="text-slate-400 text-sm font-medium max-w-lg leading-relaxed">
-            Giám sát toàn bộ hoạt động nghiệp vụ và thay đổi dữ liệu trên toàn nền tảng theo thời gian thực.
+            Theo dõi chi tiết các thao tác nghiệp vụ và thay đổi dữ liệu theo thời gian thực.
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 w-full xl:w-auto">
-          <div className="bg-white border border-slate-100 shadow-xl p-2.5 rounded-[2.5rem] flex flex-wrap items-center gap-2.5">
-            <div className="relative group">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+          <div className="bg-white border border-slate-100 shadow-xl p-2 rounded-[2rem] flex flex-wrap items-center gap-2">
+            <div className="relative group/date">
               <input 
                 type="date" 
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="pl-5 pr-12 py-4 text-[11px] font-black text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-[1.5rem] border border-slate-100 focus:outline-none focus:ring-8 focus:ring-accent/5 transition-all appearance-none cursor-pointer h-[52px]"
+                className="pl-4 pr-10 py-3 text-[10px] font-black text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-50 focus:outline-none focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer h-[48px]"
               />
-              <Clock size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-accent transition-colors" />
+              <Clock size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover/date:text-accent transition-colors" />
             </div>
             
             <CustomSelect 
@@ -179,7 +179,7 @@ export const LogList = () => {
               onChange={setFilterEntityType}
               options={entityTypeOptions}
               placeholder="PHÂN LOẠI"
-              className="min-w-[200px]"
+              className="min-w-[160px]"
             />
 
             <CustomSelect 
@@ -187,7 +187,7 @@ export const LogList = () => {
               onChange={setFilterAction}
               options={actionOptions}
               placeholder="HÀNH ĐỘNG"
-              className="min-w-[200px]"
+              className="min-w-[160px]"
             />
 
             {(filterDate || filterEntityType !== "all" || filterAction !== "all") && (
@@ -200,23 +200,23 @@ export const LogList = () => {
                 className="w-12 h-12 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all duration-500 group bg-rose-50/50"
                 title="Xóa bộ lọc"
               >
-                <RotateCcw size={20} className="group-hover:rotate-180 transition-transform duration-700" />
+                <RotateCcw size={18} className="group-hover:rotate-180 transition-transform duration-700" />
               </button>
             )}
           </div>
 
-          <div className="bg-slate-950 px-8 py-6 rounded-[2.5rem] shadow-2xl shadow-slate-900/40 flex items-center gap-8 min-w-[240px] border border-white/5 relative overflow-hidden group">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 blur-[64px] rounded-full -mr-16 -mt-16 group-hover:bg-accent/20 transition-all duration-1000" />
-             <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-accent shrink-0 border border-white/10 relative">
-                <Shield size={28} className="relative z-10" />
+          <div className="bg-slate-950 px-6 h-[64px] rounded-[2rem] shadow-2xl flex items-center gap-4 min-w-[200px] border border-slate-800 relative overflow-hidden group/status">
+             <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 blur-3xl rounded-full -mr-12 -mt-12 group-hover/status:bg-accent/10 transition-all duration-1000" />
+             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-accent shrink-0 border border-white/5 relative">
+                <Shield size={20} className="relative z-10" />
              </div>
              <div>
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2">Trạng thái hệ thống</p>
-                <div className="flex items-baseline gap-3">
-                  <p className="text-4xl font-black text-white tabular-nums leading-none tracking-tighter">
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] leading-none mb-1">Trạng thái</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-black text-white tabular-nums leading-none tracking-tighter">
                     {filteredLogs.length}
                   </p>
-                  <span className="text-[10px] text-accent font-black uppercase tracking-widest bg-accent/10 px-2 py-1 rounded-md">BẢN GHI</span>
+                  <span className="text-[9px] text-accent font-black uppercase tracking-widest ">BẢN GHI</span>
                 </div>
              </div>
           </div>
