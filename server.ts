@@ -1350,7 +1350,7 @@ async function startServer() {
           CASE WHEN createdAt IS NOT NULL THEN createdAt ELSE 0 END DESC
       `);
       const mapped = result.recordset.map((row: any) => {
-        row.timestamp = row.createdAt || row.timestamp || 0;
+        row.timestamp = Number(row.createdAt || row.timestamp || 0);
         return row;
       });
       mapped.sort((a: any, b: any) => b.timestamp - a.timestamp);

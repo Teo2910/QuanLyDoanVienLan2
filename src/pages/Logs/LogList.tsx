@@ -127,14 +127,18 @@ export const LogList = () => {
                      <Clock size={12} className="text-accent sm:w-3.5 sm:h-3.5" />
                      <span className="text-lg sm:text-xl tabular-nums leading-none">
                        {(() => {
-                         const d = new Date(log.timestamp);
+                         const ts = Number(log.timestamp);
+                         const d = new Date(ts);
+                         if (isNaN(d.getTime())) return "N/A";
                          return d.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                        })()}
                      </span>
                   </div>
                   <p className="text-[8px] sm:text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1.5 sm:mt-2 bg-slate-50 px-3 py-1 rounded-lg inline-block md:block">
                     {(() => {
-                      const d = new Date(log.timestamp);
+                      const ts = typeof log.timestamp === 'string' ? parseInt(log.timestamp) : log.timestamp;
+                      const d = new Date(ts);
+                      if (isNaN(d.getTime())) return "CHƯA XÁC ĐỊNH";
                       return d.toLocaleDateString("vi-VN");
                     })()}
                   </p>
