@@ -1001,7 +1001,7 @@ export const MovementList: React.FC = () => {
                   </button>
                 </div>
               </form>
-           </div>
+           </motion.div>
         </div>
       )}
 
@@ -1103,7 +1103,7 @@ export const MovementList: React.FC = () => {
                   </button>
                 </div>
               </form>
-           </div>
+           </motion.div>
         </div>
       )}
 
@@ -1228,7 +1228,7 @@ export const MovementList: React.FC = () => {
                     </button>
                  </div>
               </form>
-           </div>
+           </motion.div>
         </div>
       )}
       {/* AI Prompt Modal */}
