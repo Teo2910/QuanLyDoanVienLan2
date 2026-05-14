@@ -145,25 +145,25 @@ export const LogList = () => {
   );
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-8 xl:px-12 max-w-[1600px] mx-auto">
-      <div className="flex flex-col 2xl:flex-row justify-between items-start 2xl:items-end gap-12 mb-20 px-2 lg:px-4">
-        <div className="space-y-6 max-w-2xl">
+    <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-10 lg:px-16 max-w-[1800px] mx-auto">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-12 mb-20 mt-10">
+        <div className="space-y-6">
           <div className="flex items-center gap-4">
-             <div className="h-0.5 w-16 bg-accent rounded-full" />
-             <p className="text-accent text-[10px] sm:text-[12px] uppercase tracking-[0.5em] font-black flex items-center gap-2">
-                <Activity size={16} className="animate-pulse" /> Live System Monitor
+             <div className="h-0.5 w-12 bg-accent rounded-full" />
+             <p className="text-accent text-[10px] sm:text-[12px] uppercase tracking-[0.4em] font-black flex items-center gap-2">
+                <Activity size={16} className="animate-pulse" /> Live Monitoring
              </p>
           </div>
-          <h2 className="text-5xl sm:text-7xl xl:text-8xl font-black text-slate-900 tracking-tighter leading-[0.85]">
-            Nhật ký <br /> <span className="text-slate-200">vận hành</span>
+          <h2 className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tighter leading-tight">
+            Nhật ký <span className="text-slate-300">hệ thống</span>
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm font-medium max-w-md leading-relaxed border-l-2 border-slate-100 pl-4">
-            Theo dõi chi tiết các thao tác nghiệp vụ, thay đổi dữ liệu và trạng thái hệ thống theo thời gian thực.
+          <p className="text-slate-400 text-sm font-medium max-w-lg leading-relaxed">
+            Giám sát toàn bộ hoạt động nghiệp vụ và thay đổi dữ liệu trên toàn nền tảng theo thời gian thực.
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 w-full 2xl:w-auto">
-          <div className="bg-white border border-slate-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] p-3 rounded-[2.5rem] flex flex-wrap items-center gap-3 backdrop-blur-xl bg-white/80">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6 w-full xl:w-auto">
+          <div className="bg-white border border-slate-100 shadow-xl p-2.5 rounded-[2.5rem] flex flex-wrap items-center gap-2.5">
             <div className="relative group">
               <input 
                 type="date" 
