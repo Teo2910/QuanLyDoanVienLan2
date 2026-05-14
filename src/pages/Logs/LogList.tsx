@@ -60,41 +60,50 @@ export const LogList = () => {
 
   return (
     <div className="relative min-h-[calc(100vh-8rem)] pb-20 px-4 sm:px-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8 mb-8 sm:mb-12">
-        <div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
+        <div className="space-y-2">
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">Nhật ký hệ thống</h2>
-          <p className="text-slate-400 mt-2 text-[8px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] font-black flex items-center gap-2">
-             <Activity size={14} className="text-accent sm:w-4 sm:h-4" /> Lịch sử vận hành toàn bộ nền tảng thời gian thực
-          </p>
+          <div className="flex items-center gap-3">
+             <div className="h-0.5 w-8 bg-accent rounded-full" />
+             <p className="text-slate-400 text-[8px] sm:text-[10px] uppercase tracking-[0.3em] font-black flex items-center gap-2">
+                <Activity size={14} className="text-accent sm:w-4 sm:h-4 animate-pulse" /> Lịch sử vận hành toàn bộ nền tảng
+             </p>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-          <div className="flex flex-wrap items-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
-            <input 
-              type="date" 
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
-            />
+
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full lg:w-auto">
+          <div className="flex flex-wrap items-center gap-2 bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/60 shadow-inner">
+            <div className="relative">
+              <input 
+                type="date" 
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="pl-3 pr-8 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all appearance-none cursor-pointer"
+              />
+            </div>
+            
             <select 
               value={filterEntityType}
               onChange={(e) => setFilterEntityType(e.target.value)}
-              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
+              className="px-4 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer hover:bg-slate-50"
             >
               <option value="all">TẤT CẢ HOẠT ĐỘNG</option>
               {uniqueEntityTypes.map(type => (
                 <option key={type} value={type}>{type.toUpperCase()}</option>
               ))}
             </select>
+
             <select 
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="px-3 py-2 text-[10px] font-bold text-slate-600 bg-slate-50 rounded-xl border border-slate-100 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer"
+              className="px-4 py-2.5 text-[10px] font-black text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all cursor-pointer hover:bg-slate-50"
             >
               <option value="all">TẤT CẢ HÀNH ĐỘNG</option>
               {uniqueActions.map(action => (
                 <option key={action} value={action}>{action.toUpperCase()}</option>
               ))}
             </select>
+
             {(filterDate || filterEntityType !== "all" || filterAction !== "all") && (
               <button 
                 onClick={() => {
@@ -102,21 +111,24 @@ export const LogList = () => {
                   setFilterEntityType("all");
                   setFilterAction("all");
                 }}
-                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                className="w-10 h-10 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all duration-300 group"
                 title="Xóa bộ lọc"
               >
-                <RotateCcw size={14} />
+                <RotateCcw size={16} className="group-hover:rotate-180 transition-transform duration-500" />
               </button>
             )}
           </div>
-          <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-xl border border-slate-100 flex items-center justify-between sm:justify-start gap-4 sm:gap-6">
-            <div className="flex flex-col items-end">
-                <p className="text-xs sm:text-sm font-black text-slate-900 tabular-nums">{filteredLogs.length} bản ghi</p>
-                <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest">Đang giám soát</p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-accent/10 flex items-center justify-center text-accent animate-pulse shrink-0">
-                <Shield size={20} className="sm:w-6 sm:h-6" />
-            </div>
+
+          <div className="bg-white px-5 py-4 rounded-[1.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex items-center gap-5 min-w-[180px]">
+             <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent animate-pulse shrink-0 border border-accent/20">
+                <Shield size={24} />
+             </div>
+             <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mb-1">Trạng thái</p>
+                <p className="text-lg font-black text-slate-900 tabular-nums leading-none tracking-tight">
+                  {filteredLogs.length} <span className="text-[10px] text-slate-400 font-bold ml-1">BẢN GHI</span>
+                </p>
+             </div>
           </div>
         </div>
       </div>
