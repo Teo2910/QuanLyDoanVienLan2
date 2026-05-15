@@ -1,0 +1,87 @@
+@model QLDV.Models.Activity
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-calendar-alt"></i> @Model.Title</h1>
+            <p class="text-muted"><span class="badge bg-primary">@Model.Type</span></p>
+        </div>
+        <div>
+            <a href="/activities/edit/@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="/activities/delete/@Model.Id" class="btn btn-danger" onclick="return confirm('Delete this activity?')">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Activity Details
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Date</h6>
+                        <p class="fs-5">@Model.Date</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Location</h6>
+                        <p class="fs-5">@Model.Location</p>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Activity Type</h6>
+                        <span class="badge bg-info fs-6">@Model.Type</span>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Created</h6>
+                        <p>@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("g"))</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h6 class="text-muted">Description</h6>
+                            <p>@Model.Description</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-clock"></i> Activity Info
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Date</small>
+                    <strong>@Model.Date</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">Location</small>
+                    <strong>@Model.Location</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Type</small>
+                    <span class="badge bg-primary">@Model.Type</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

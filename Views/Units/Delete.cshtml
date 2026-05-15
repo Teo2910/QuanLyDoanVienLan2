@@ -1,0 +1,62 @@
+@model QLDV.Models.Unit
+@{
+    ViewData["Title"] = "Delete Unit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-trash"></i> Delete Unit</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle"></i> Confirm Delete
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This will delete the unit and all its data.
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Unit Name</h6>
+                        <p class="fs-5">@Model.Name</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Unit Code</h6>
+                        <p class="fs-5">@Model.Code</p>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Members</h6>
+                        <span class="badge bg-primary fs-6">@Model.Members.Count</span>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Child Units</h6>
+                        <span class="badge bg-info fs-6">@Model.Children.Count</span>
+                    </div>
+                </div>
+
+                <form method="post" action="/units/delete/@Model.Id">
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                        <label class="form-check-label" for="confirmDelete">
+                            I understand that this unit will be permanently deleted
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="fas fa-trash"></i> Delete Unit
+                    </button>
+                    <a href="/units" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

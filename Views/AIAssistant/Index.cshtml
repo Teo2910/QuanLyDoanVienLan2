@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "AI Assistant";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-robot"></i> AI Assistant</h1>
+    <p class="text-muted">Chat with our AI assistant powered by Google Generative AI</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card" style="height: 600px; display: flex; flex-direction: column;">
+            <div class="card-header">
+                <i class="fas fa-comments"></i> Chat
+            </div>
+            <div class="card-body flex-grow-1" id="chatBox" style="overflow-y: auto; background-color: #f0f2f5;">
+                <div class="text-center py-4">
+                    <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; color: var(--primary-color);">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">AI Assistant</h5>
+                    <p class="text-muted small">How can I help you today?</p>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="messageInput" placeholder="Ask me anything..." autocomplete="off">
+                    <button class="btn btn-primary" type="button" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb"></i> Quick Suggestions
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to manage members?')">
+                        <strong>Member Management</strong>
+                        <br><small class="text-muted">Learn about member operations</small>
+                    </button>
+                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to create a campaign?')">
+                        <strong>Create Campaign</strong>
+                        <br><small class="text-muted">Guide for creating campaigns</small>
+                    </button>
+                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('What are the statistics features?')">
+                        <strong>Statistics</strong>
+                        <br><small class="text-muted">Understand data analysis</small>
+                    </button>
+                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to export data?')">
+                        <strong>Export Data</strong>
+                        <br><small class="text-muted">Learn data export options</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> About
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    This AI Assistant is powered by Google Generative AI and is designed to help you navigate the system and answer your questions.
+                </p>
+                <p class="small text-muted">
+                    Responses are generated based on your queries and may not always be 100% accurate. Please verify important information.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-message {
+        margin-bottom: 20px;
+        padding: 12px 18px;
+        border-radius: 18px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .user-message {
+        background: var(--primary-gradient);
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    .ai-message {
+        background-color: #fff;
+        color: #333;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #eee;
+    }
+
+    #chatBox {
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function sendMessage(message) {
+            if (!message) {
+                message = document.getElementById('messageInput').value.trim();
+            }
+            if (!message) return;
+
+            // Display user message
+            const chatBox = document.getElementById('chatBox');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user-message';
+            userMsg.textContent = message;
+            chatBox.appendChild(userMsg);
+
+            // Show loading indicator
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'chat-message ai-message';
+            loadingMsg.innerHTML = '<small><i class="fas fa-spinner fa-spin"></i> Thinking...</small>';
+            chatBox.appendChild(loadingMsg);
+
+            document.getElementById('messageInput').value = '';
+
+            // Send to server
+            fetch('/AIAssistant/Chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingMsg.remove();
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message ai-message';
+                aiMsg.textContent = data.response || 'Sorry, I could not process your request.';
+                chatBox.appendChild(aiMsg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                loadingMsg.remove();
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'chat-message ai-message';
+                errorMsg.textContent = 'Error: ' + error.message;
+                chatBox.appendChild(errorMsg);
+            });
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', () => sendMessage());
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+}

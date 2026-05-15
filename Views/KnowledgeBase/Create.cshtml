@@ -1,0 +1,47 @@
+@model QLDV.Models.KnowledgeItem
+@{
+    ViewData["Title"] = "Create Knowledge Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-plus-circle"></i> Create Knowledge Item</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Knowledge Item Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/knowledgebase/create">
+                    <div class="mb-3">
+                        <label class="form-label">Title *</label>
+                        <input type="text" asp-for="Title" class="form-control" required>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <input type="text" asp-for="Category" class="form-control" placeholder="e.g., Guidelines, Procedures, Best Practices">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Content *</label>
+                        <textarea asp-for="Content" class="form-control" rows="10" required></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                        <small class="text-muted">Supports markdown formatting</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Create Item
+                    </button>
+                    <a href="/knowledgebase" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

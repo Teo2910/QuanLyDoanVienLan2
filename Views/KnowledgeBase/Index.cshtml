@@ -1,0 +1,114 @@
+@model List<QLDV.Models.KnowledgeItem>
+@{
+    ViewData["Title"] = "Knowledge Base";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-book"></i> Knowledge Base</h1>
+            <p class="text-muted">Centralized knowledge and documentation</p>
+        </div>
+        <a href="/knowledgebase/create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus"></i> Add Item
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search knowledge base...">
+            </div>
+            <div class="col-md-4">
+                <select id="categoryFilter" class="form-select">
+                    <option value="">All Categories</option>
+                    @{
+                        var categories = (Model ?? new List<QLDV.Models.KnowledgeItem>())
+                            .Select(k => k.Category)
+                            .Where(c => !string.IsNullOrEmpty(c))
+                            .Distinct()
+                            .ToList();
+                        
+                        foreach (var category in categories)
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if ((Model?.Count ?? 0) > 0)
+        {
+            <div id="knowledgeList">
+                @foreach (var item in (Model ?? new List<QLDV.Models.KnowledgeItem>()).OrderByDescending(k => k.UpdatedAt))
+                {
+                    <div class="knowledge-item mb-3 p-3 border rounded" data-category="@item.Category">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-2">
+                                    <a href="/knowledgebase/details/@item.Id" class="text-decoration-none text-dark">@item.Title</a>
+                                </h5>
+                                @if (!string.IsNullOrEmpty(item.Category))
+                                {
+                                    <span class="badge bg-secondary mb-2">@item.Category</span>
+                                }
+                                <p class="text-muted mb-2">@(item.Content?.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p>
+                                <small class="text-muted">Updated: @(new DateTime(item.UpdatedAt, DateTimeKind.Utc).ToString("g"))</small>
+                            </div>
+                            <div>
+                                <a href="/knowledgebase/details/@item.Id" class="btn btn-sm btn-info" title="View">
+                                    <i class="fas fa-eye text-white"></i>
+                                </a>
+                                <a href="/knowledgebase/edit/@item.Id" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-sm btn-danger" onclick="deleteItem('@item.Id')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No knowledge items found. <a href="/knowledgebase/create">Create one</a></p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function deleteItem(itemId) {
+            if (confirm('Delete this knowledge item?')) {
+                fetch(`/knowledgebase/delete?id=${itemId}`, { method: 'POST' })
+                    .then(response => response.ok ? location.reload() : alert('Error deleting item'));
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            document.querySelectorAll('.knowledge-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const filter = this.value;
+            document.querySelectorAll('.knowledge-item').forEach(item => {
+                const category = item.getAttribute('data-category');
+                item.style.display = !filter || category === filter ? '' : 'none';
+            });
+        });
+    </script>
+}

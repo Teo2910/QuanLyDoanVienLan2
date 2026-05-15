@@ -1,0 +1,76 @@
+@model QLDV.Models.Unit
+@{
+    ViewData["Title"] = "Edit Unit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-edit"></i> Edit Unit</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Unit Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/units/edit/@Model.Id">
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Unit Name *</label>
+                        <input type="text" asp-for="Name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit Code *</label>
+                        <input type="text" asp-for="Code" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Parent Unit</label>
+                        <select asp-for="ParentId" class="form-select">
+                            <option value="">No Parent</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" asp-for="Email" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" asp-for="Phone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="/units" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Unit Info
+            </div>
+            <div class="card-body">
+                <p><strong>Members:</strong> <span class="badge bg-primary">@Model.Members.Count</span></p>
+                <p><strong>Child Units:</strong> <span class="badge bg-info">@Model.Children.Count</span></p>
+                <p><strong>Created:</strong> @(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("g"))</p>
+            </div>
+        </div>
+    </div>
+</div>

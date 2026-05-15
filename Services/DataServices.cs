@@ -1,0 +1,306 @@
+using Microsoft.EntityFrameworkCore;
+using QLDV.Data;
+using QLDV.Models;
+
+namespace QLDV.Services
+{
+    public class MemberService : IMemberService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
+
+        public MemberService(ApplicationDbContext context, ILogService logService)
+        {
+            _context = context;
+            _logService = logService;
+        }
+
+        public async Task<List<Member>> GetAllMembersAsync()
+        {
+            return await _context.Members
+                .Include(m => m.Unit)
+                .Include(m => m.StatusHistory)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<List<Member>> GetMembersByUnitAsync(string unitId)
+        {
+            return await _context.Members
+                .Where(m => m.UnitId == unitId)
+                .Include(m => m.Unit)
+                .Include(m => m.StatusHistory)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Member?> GetMemberByIdAsync(string id)
+        {
+            return await _context.Members
+                .Include(m => m.Unit)
+                .Include(m => m.StatusHistory)
+                .FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<Member> CreateMemberAsync(Member member)
+        {
+            member.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.Members.Add(member);
+            await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync(
+                member.Id, "System", "CREATE", "Member", member.Id,
+                $"Tạo thành viên mới: {member.FullName}");
+
+            return member;
+        }
+
+        public async Task UpdateMemberAsync(Member member)
+        {
+            _context.Members.Update(member);
+            await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync(
+                member.Id, "System", "UPDATE", "Member", member.Id,
+                $"Cập nhật thành viên: {member.FullName}");
+        }
+
+        public async Task DeleteMemberAsync(string id)
+        {
+            var member = await GetMemberByIdAsync(id);
+            if (member == null) throw new Exception("Member not found");
+
+            _context.Members.Remove(member);
+            await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync(
+                id, "System", "DELETE", "Member", id,
+                $"Xóa thành viên: {member.FullName}");
+        }
+
+        public async Task<List<Member>> SearchMembersAsync(string searchTerm, string? unitId = null, string? status = null)
+        {
+            var query = _context.Members.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(m => 
+                    m.FullName.Contains(searchTerm) ||
+                    m.Email!.Contains(searchTerm) ||
+                    m.Phone!.Contains(searchTerm) ||
+                    m.MemberId.Contains(searchTerm));
+            }
+
+            if (!string.IsNullOrEmpty(unitId))
+            {
+                query = query.Where(m => m.UnitId == unitId);
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(m => m.Status == status);
+            }
+
+            return await query
+                .Include(m => m.Unit)
+                .Include(m => m.StatusHistory)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task ChangeMemberStatusAsync(string memberId, string newStatus, string? reason = null)
+        {
+            var member = await GetMemberByIdAsync(memberId);
+            if (member == null) throw new Exception("Member not found");
+
+            var oldStatus = member.Status;
+            member.Status = newStatus;
+
+            var statusChange = new StatusChange
+            {
+                MemberId = memberId,
+                OldStatus = oldStatus,
+                NewStatus = newStatus,
+                Date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Reason = reason
+            };
+
+            _context.StatusChanges.Add(statusChange);
+            _context.Members.Update(member);
+            await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync(
+                memberId, "System", "STATUS_CHANGE", "Member", memberId,
+                $"Thay đổi trạng thái từ '{oldStatus}' sang '{newStatus}'. Lý do: {reason}");
+        }
+    }
+
+    public class UnitService : IUnitService
+    {
+        private readonly ApplicationDbContext _context;
+
+        public UnitService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<Unit>> GetAllUnitsAsync()
+        {
+            return await _context.Units
+                .Include(u => u.Children)
+                .Include(u => u.Members)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Unit?> GetUnitByIdAsync(string id)
+        {
+            return await _context.Units
+                .Include(u => u.Children)
+                .Include(u => u.Parent)
+                .Include(u => u.Members)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<List<Unit>> GetRootUnitsAsync()
+        {
+            return await _context.Units
+                .Where(u => u.ParentId == null)
+                .Include(u => u.Children)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<List<Unit>> GetChildrenAsync(string parentId)
+        {
+            return await _context.Units
+                .Where(u => u.ParentId == parentId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Unit> CreateUnitAsync(Unit unit)
+        {
+            unit.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.Units.Add(unit);
+            await _context.SaveChangesAsync();
+            return unit;
+        }
+
+        public async Task UpdateUnitAsync(Unit unit)
+        {
+            _context.Units.Update(unit);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteUnitAsync(string id)
+        {
+            var unit = await GetUnitByIdAsync(id);
+            if (unit == null) throw new Exception("Unit not found");
+
+            _context.Units.Remove(unit);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public class ActivityService : IActivityService
+    {
+        private readonly ApplicationDbContext _context;
+
+        public ActivityService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<Activity>> GetAllActivitiesAsync()
+        {
+            return await _context.Activities
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Activity?> GetActivityByIdAsync(string id)
+        {
+            return await _context.Activities
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<Activity> CreateActivityAsync(Activity activity)
+        {
+            activity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.Activities.Add(activity);
+            await _context.SaveChangesAsync();
+            return activity;
+        }
+
+        public async Task UpdateActivityAsync(Activity activity)
+        {
+            _context.Activities.Update(activity);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteActivityAsync(string id)
+        {
+            var activity = await GetActivityByIdAsync(id);
+            if (activity == null) throw new Exception("Activity not found");
+
+            _context.Activities.Remove(activity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public class KnowledgeBaseService : IKnowledgeBaseService
+    {
+        private readonly ApplicationDbContext _context;
+
+        public KnowledgeBaseService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<List<KnowledgeItem>> GetAllItemsAsync()
+        {
+            return await _context.KnowledgeItems
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<KnowledgeItem?> GetItemByIdAsync(string id)
+        {
+            return await _context.KnowledgeItems
+                .FirstOrDefaultAsync(k => k.Id == id);
+        }
+
+        public async Task<List<KnowledgeItem>> SearchItemsAsync(string searchTerm)
+        {
+            return await _context.KnowledgeItems
+                .Where(k => k.Title.Contains(searchTerm) || k.Content.Contains(searchTerm))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<KnowledgeItem> CreateItemAsync(KnowledgeItem item)
+        {
+            item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.KnowledgeItems.Add(item);
+            await _context.SaveChangesAsync();
+            return item;
+        }
+
+        public async Task UpdateItemAsync(KnowledgeItem item)
+        {
+            item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.KnowledgeItems.Update(item);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteItemAsync(string id)
+        {
+            var item = await GetItemByIdAsync(id);
+            if (item == null) throw new Exception("Knowledge item not found");
+
+            _context.KnowledgeItems.Remove(item);
+            await _context.SaveChangesAsync();
+        }
+    }
+}

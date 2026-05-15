@@ -1,0 +1,174 @@
+@using System.Text.Json
+@model QLDV.Models.Movement
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-flag"></i> @Model.Title</h1>
+            <p class="text-muted">@Model.StartDate to @Model.EndDate</p>
+        </div>
+        <div>
+            <a href="/movements/edit/@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="/movements" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Campaign Details
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Start Date</h6>
+                        <p class="fs-5">@Model.StartDate</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">End Date</h6>
+                        <p class="fs-5">@Model.EndDate</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="text-muted">Description</h6>
+                            <p>@Model.Description</p>
+                        </div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.AttachmentsJson))
+                {
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="text-muted"><i class="fas fa-paperclip"></i> Campaign Attachments</h6>
+                            <div class="list-group list-group-flush">
+                                @{
+                                    var attachments = JsonSerializer.Deserialize<List<QLDV.Models.Attachment>>(Model.AttachmentsJson);
+                                    foreach (var file in attachments ?? new List<QLDV.Models.Attachment>())
+                                    {
+                                        <a href="@file.Url" target="_blank" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                                            <i class="fas fa-file"></i> @file.Name
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-file-upload"></i> Reports (@ViewBag.Reports.Count)</span>
+                <a href="/movements/submitreport/@Model.Id" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus"></i> Submit Report
+                </a>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Reports?.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Unit</th>
+                                    <th>Description</th>
+                                    <th>Submitted</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var report in ViewBag.Reports)
+                                {
+                                    <tr>
+                                        <td>@report.Unit?.Name</td>
+                                        <td>
+                                            @(report.Description?.Substring(0, Math.Min(50, report.Description.Length)))
+                                            @if (!string.IsNullOrEmpty(report.AttachmentsJson))
+                                            {
+                                                <div class="mt-1">
+                                                    @{
+                                                        var reportFiles = JsonSerializer.Deserialize<List<QLDV.Models.Attachment>>(report.AttachmentsJson);
+                                                        foreach (var f in reportFiles ?? new List<QLDV.Models.Attachment>())
+                                                        {
+                                                            <a href="@f.Url" target="_blank" class="badge bg-light text-dark border text-decoration-none me-1">
+                                                                <i class="fas fa-paperclip"></i> @f.Name
+                                                            </a>
+                                                        }
+                                                    }
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>@(new DateTime(report.SubmittedAt, DateTimeKind.Utc).ToString("g"))</td>
+                                        <td><span class="badge bg-info">@report.SubmissionCount</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4">No reports submitted yet</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calendar-range"></i> Campaign Info
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Start Date</small>
+                    <strong>@Model.StartDate</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">End Date</small>
+                    <strong>@Model.EndDate</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block">Created By</small>
+                    <strong>@Model.CreatorId</strong>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Created</small>
+                    <strong>@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("g"))</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="fas fa-chart-bar"></i> Statistics
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted d-block">Total Reports</small>
+                    <h4>@ViewBag.Reports?.Count ?? 0</h4>
+                </div>
+                <div>
+                    <small class="text-muted d-block">Participating Units</small>
+                    <h4>@ViewBag.ParticipatingUnits?.Count ?? 0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

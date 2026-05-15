@@ -1,0 +1,44 @@
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+    const toast = {
+        show: function(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = `custom-toast toast-${type}`;
+            
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            if (type === 'info') icon = 'fa-info-circle';
+
+            el.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            container.appendChild(el);
+            
+            // Trigger animation
+            setTimeout(() => el.classList.add('show'), 10);
+            
+            // Remove after 4s
+            setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => el.remove(), 400);
+            }, 4000);
+        },
+        success: function(msg) { this.show(msg, 'success'); },
+        error: function(msg) { this.show(msg, 'error'); },
+        info: function(msg) { this.show(msg, 'info'); }
+    };
+
+    // Handle TempData messages from server
+    @if (TempData["Success"] != null)
+    {
+        <text>toast.success('@TempData["Success"]');</text>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <text>toast.error('@TempData["Error"]');</text>
+    }
+</script>

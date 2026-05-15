@@ -1,0 +1,6 @@
+{
+  "name": "Quản Lý Đoàn Viên",
+  "description": "Hệ thống quản lý đoàn viên thanh niên với các chức năng quản lý đơn vị, hồ sơ đoàn viên và theo dõi hoạt động.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

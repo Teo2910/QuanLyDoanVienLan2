@@ -1,0 +1,75 @@
+@model QLDV.Models.Movement
+@{
+    ViewData["Title"] = "Create Movement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-flag-checkered"></i> Create New Campaign</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Campaign Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/movements/create" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Campaign Title *</label>
+                        <input type="text" asp-for="Title" class="form-control" required>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Start Date *</label>
+                            <input type="date" asp-for="StartDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">End Date *</label>
+                            <input type="date" asp-for="EndDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Participating Units</label>
+                        <div class="alert alert-info">
+                            <small>Select units that will participate in this campaign</small>
+                        </div>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            @foreach (var unit in ViewBag.Units ?? new List<object>())
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="@unit.Id" id="unit_@unit.Id" name="participatingUnitIds">
+                                    <label class="form-check-label" for="unit_@unit.Id">
+                                        @unit.Name
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Attachments</label>
+                        <input type="file" name="attachments" class="form-control" multiple>
+                        <small class="text-muted">You can upload multiple files (images, PDF, etc.)</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Create Campaign
+                    </button>
+                    <a href="/movements" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

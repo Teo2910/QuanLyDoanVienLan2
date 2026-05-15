@@ -1,0 +1,54 @@
+@model QLDV.Models.MovementReport
+@{
+    ViewData["Title"] = "Submit Campaign Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-file-upload"></i> Submit Campaign Report</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Report Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/movements/submitreport/@ViewBag.MovementId" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Unit *</label>
+                        <select asp-for="UnitId" class="form-select" required>
+                            <option value="">Select Your Unit</option>
+                            @foreach (var unit in ViewBag.Units ?? new List<object>())
+                            {
+                                <option value="@unit.Id">@unit.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Report Description *</label>
+                        <textarea asp-for="Description" class="form-control" rows="6" required placeholder="Describe the activities, achievements, and details of your unit's participation..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Attachments</label>
+                        <div class="alert alert-info">
+                            <small>You can upload images, documents, or other files to support your report</small>
+                        </div>
+                        <input type="file" name="attachments" class="form-control" id="attachments" multiple>
+                        <small class="text-muted">Supported formats: PDF, DOC, XLS, JPG, PNG (Max 10MB each)</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-upload"></i> Submit Report
+                    </button>
+                    <a href="/movements/details/@ViewBag.MovementId" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

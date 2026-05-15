@@ -1,0 +1,191 @@
+@using Microsoft.AspNetCore.Identity
+@using QLDV.Models
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var currentUser = UserManager.GetUserAsync(User).Result;
+}
+
+<div id="chat-widget-container">
+    <button id="chat-toggle" class="btn btn-primary rounded-circle shadow-lg" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; z-index: 1000;">
+        <i class="fas fa-comment-dots fa-2x"></i>
+        <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+            0
+        </span>
+    </button>
+
+    <div id="chat-window" class="card shadow-lg d-none" style="position: fixed; bottom: 90px; right: 20px; width: 350px; height: 500px; z-index: 1000; display: flex; flex-direction: column;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-comments"></i> Chat Support</h5>
+            <button type="button" class="btn-close btn-close-white" id="chat-close"></button>
+        </div>
+        <div id="chat-messages" class="card-body bg-light" style="overflow-y: auto; flex-grow: 1; padding: 10px;">
+            <!-- Threads for Admin, Messages for User -->
+        </div>
+        <div class="card-footer p-2">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
+                <button class="btn btn-primary" id="chat-send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .message { margin-bottom: 10px; max-width: 80%; padding: 8px 12px; border-radius: 15px; font-size: 0.9rem; }
+    .message-me { background-color: #0056b3; color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+    .message-other { background-color: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
+    .thread-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
+    .thread-item:hover { background-color: #f8f9fa; }
+    .thread-item.unread { font-weight: bold; background-color: #fff9db; }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+<script>
+    const userProfile = {
+        uid: '@(currentUser?.Id ?? "guest")',
+        fullName: '@(currentUser?.FullName ?? currentUser?.UserName ?? "Guest")',
+        role: '@(currentUser?.Role ?? "User")'
+    };
+
+    let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    let activeThreadId = userProfile.role === 'Admin' ? null : userProfile.uid;
+
+    connection.on("ReceiveMessage", function (message) {
+        if (userProfile.role === 'Admin') {
+            if (activeThreadId === message.threadId) {
+                appendMessage(message);
+            } else {
+                loadThreads();
+            }
+        } else {
+            if (message.threadId === userProfile.uid) {
+                appendMessage(message);
+                if (message.senderRole === 'Admin' && !document.getElementById('chat-window').classList.contains('d-none')) {
+                    markAsRead(userProfile.uid);
+                } else if (message.senderRole === 'Admin') {
+                    updateUnreadCount(1);
+                }
+            }
+        }
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+
+    document.getElementById('chat-toggle').addEventListener('click', () => {
+        const win = document.getElementById('chat-window');
+        win.classList.toggle('d-none');
+        if (!win.classList.contains('d-none')) {
+            if (userProfile.role === 'Admin' && !activeThreadId) {
+                loadThreads();
+            } else if (activeThreadId) {
+                loadMessages(activeThreadId);
+                markAsRead(activeThreadId);
+            }
+        }
+    });
+
+    document.getElementById('chat-close').addEventListener('click', () => {
+        document.getElementById('chat-window').classList.add('d-none');
+    });
+
+    document.getElementById('chat-send').addEventListener('click', sendMessage);
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function loadThreads() {
+        fetch('/api/chat/threads')
+            .then(res => res.json())
+            .then(threads => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = '<h6>Recent Chats</h6>';
+                threads.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = `thread-item ${t.unreadCount > 0 ? 'unread' : ''}`;
+                    div.innerHTML = `
+                        <div class="d-flex justify-content-between">
+                            <span>User #${t.threadId.substring(0,6)}</span>
+                            ${t.unreadCount > 0 ? `<span class="badge bg-danger">${t.unreadCount}</span>` : ''}
+                        </div>
+                        <small class="text-muted">${new Date(t.lastMessageAt * 1000).toLocaleTimeString()}</small>
+                    `;
+                    div.onclick = () => {
+                        activeThreadId = t.threadId;
+                        loadMessages(t.threadId);
+                        markAsRead(t.threadId);
+                    };
+                    container.appendChild(div);
+                });
+            });
+    }
+
+    function loadMessages(threadId) {
+        fetch(`/api/chat/messages/${threadId}`)
+            .then(res => res.json())
+            .then(messages => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = userProfile.role === 'Admin' ? '<button class="btn btn-sm btn-link mb-2" onclick="activeThreadId=null;loadThreads();">&larr; Back to list</button>' : '';
+                messages.forEach(appendMessage);
+                container.scrollTop = container.scrollHeight;
+            });
+    }
+
+    function appendMessage(msg) {
+        const container = document.getElementById('chat-messages');
+        const isMe = msg.senderId === userProfile.uid;
+        const div = document.createElement('div');
+        div.className = `message ${isMe ? 'message-me' : 'message-other'}`;
+        div.textContent = msg.content;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const content = input.value.trim();
+        if (!content || !activeThreadId) return;
+
+        const msg = {
+            threadId: activeThreadId,
+            senderId: userProfile.uid,
+            senderName: userProfile.fullName,
+            senderRole: userProfile.role,
+            content: content
+        };
+
+        fetch('/api/chat/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(msg)
+        })
+        .then(res => res.json())
+        .then(() => {
+            input.value = '';
+        });
+    }
+
+    function markAsRead(threadId) {
+        fetch(`/api/chat/read/${threadId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: userProfile.role })
+        }).then(() => {
+            if (userProfile.role !== 'Admin') {
+                document.getElementById('unread-badge').classList.add('d-none');
+                document.getElementById('unread-badge').textContent = '0';
+            } else {
+                loadThreads();
+            }
+        });
+    }
+
+    function updateUnreadCount(delta) {
+        const badge = document.getElementById('unread-badge');
+        const count = parseInt(badge.textContent) + delta;
+        badge.textContent = count;
+        if (count > 0) badge.classList.remove('d-none');
+        else badge.classList.add('d-none');
+    }
+</script>

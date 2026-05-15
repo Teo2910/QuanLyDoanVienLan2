@@ -1,0 +1,196 @@
+@model QLDV.Models.Member
+@{
+    ViewData["Title"] = "Edit Member";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-user-edit"></i> Edit Member</h1>
+    <p class="text-muted">Update member information</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Member Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/members/edit/@Model.Id">
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" asp-for="FullName" class="form-control" required>
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Member ID *</label>
+                            <input type="text" asp-for="MemberId" class="form-control" required>
+                            <span asp-validation-for="MemberId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" asp-for="Email" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" asp-for="Phone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date of Birth *</label>
+                            <input type="date" asp-for="DOB" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Gender *</label>
+                            <select asp-for="Gender" class="form-select" required>
+                                <option value="Nam" selected="@(Model.Gender == "Nam")">Nam</option>
+                                <option value="Nữ" selected="@(Model.Gender == "Nữ")">Nữ</option>
+                                <option value="Khác" selected="@(Model.Gender == "Khác")">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Status</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Đang sinh hoạt" selected="@(Model.Status == "Đang sinh hoạt")">Active</option>
+                                <option value="Đã chuyển sinh hoạt" selected="@(Model.Status == "Đã chuyển sinh hoạt")">Transferred</option>
+                                <option value="Đã trưởng thành" selected="@(Model.Status == "Đã trưởng thành")">Graduated</option>
+                                <option value="Bị kỷ luật" selected="@(Model.Status == "Bị kỷ luật")">Disciplined</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Achievement Level</label>
+                            <select asp-for="AchievementLevel" class="form-select">
+                                <option value="Chưa xếp loại" selected="@(Model.AchievementLevel == "Chưa xếp loại")">Not Rated</option>
+                                <option value="Xuất sắc" selected="@(Model.AchievementLevel == "Xuất sắc")">Outstanding</option>
+                                <option value="Khá" selected="@(Model.AchievementLevel == "Khá")">Good</option>
+                                <option value="Trung bình" selected="@(Model.AchievementLevel == "Trung bình")">Average</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Academic Year</label>
+                            <input type="text" asp-for="AcademicYear" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Join Date</label>
+                            <input type="date" asp-for="JoinDate" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Place of Birth</label>
+                            <input type="text" asp-for="PlaceOfBirth" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Hometown</label>
+                            <input type="text" asp-for="Hometown" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Permanent Address</label>
+                            <textarea asp-for="PermanentAddress" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Position</label>
+                            <input type="text" asp-for="Position" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Professional Level</label>
+                            <input type="text" asp-for="ProfessionalLevel" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Ethnic</label>
+                            <input type="text" asp-for="Ethnic" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" asp-for="IsOutstanding" id="isOutstanding">
+                                <label class="form-check-label" for="isOutstanding">
+                                    Outstanding Member
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="/members" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info">
+                <i class="fas fa-history"></i> Status History
+            </div>
+            <div class="card-body">
+                @if (Model.StatusHistory?.Any() ?? false)
+                {
+                    <div class="timeline">
+                        @foreach (var change in Model.StatusHistory.OrderByDescending(s => s.Date))
+                        {
+                            <div class="timeline-item mb-3">
+                                <small class="text-muted">@(new DateTime(change.Date, DateTimeKind.Utc).ToString("g"))</small>
+                                <div class="mt-1">
+                                    <span class="badge bg-warning">@change.OldStatus</span>
+                                    <i class="fas fa-arrow-right mx-1"></i>
+                                    <span class="badge bg-success">@change.NewStatus</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(change.Reason))
+                                {
+                                    <small class="text-muted d-block mt-2">Reason: @change.Reason</small>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No status changes recorded</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/jquery.validate.unobtrusive.min.js"></script>
+}

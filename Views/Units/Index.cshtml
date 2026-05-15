@@ -1,0 +1,73 @@
+@model List<QLDV.Models.Unit>
+@{
+    ViewData["Title"] = "Units";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-sitemap"></i> Units Management</h1>
+            <p class="text-muted">Manage organizational units and departments</p>
+        </div>
+        <a href="/units/create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus"></i> Add New Unit
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        All Units
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Members</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var unit in Model ?? new List<QLDV.Models.Unit>())
+                    {
+                        <tr>
+                            <td>
+                                <strong>@unit.Name</strong>
+                            </td>
+                            <td>@unit.Code</td>
+                            <td>@unit.Email</td>
+                            <td>@unit.Phone</td>
+                            <td>
+                                <span class="badge bg-info">@unit.Members.Count</span>
+                            </td>
+                            <td>
+                                <a href="/units/details/@unit.Id" class="btn btn-sm btn-info" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/units/edit/@unit.Id" class="btn btn-sm btn-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/units/delete/@unit.Id" class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if ((Model?.Count ?? 0) == 0)
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No units found. <a href="/units/create">Create one</a></p>
+            </div>
+        }
+    </div>
+</div>

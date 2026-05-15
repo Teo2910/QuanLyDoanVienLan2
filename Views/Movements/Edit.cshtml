@@ -1,0 +1,98 @@
+@model QLDV.Models.Movement
+@{
+    ViewData["Title"] = "Edit Campaign";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1>Edit Campaign</h1>
+    <p class="text-muted">Modify campaign details</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="/movements/edit/@Model.Id">
+            <div class="form-group mb-3">
+                <label for="title" class="form-label">Campaign Title</label>
+                <input type="text" class="form-control" 
+                       id="title" name="title" value="@Model.Title" required>
+                <span class="invalid-feedback">@Html.ValidationMessage(nameof(Model.Title))</span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">@Model.Description</textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="col-md-6 mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="datetime-local" class="form-control" id="startDate" name="startDate" 
+                           value="@Model.StartDate" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="datetime-local" class="form-control" id="endDate" name="endDate" 
+                           value="@Model.EndDate" required>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="targetUnit" class="form-label">Target Unit</label>
+                <select class="form-control" id="targetUnit" name="targetUnit">
+                    <option value="">Select a unit...</option>
+                    @if (ViewBag.Units != null)
+                    {
+                        @foreach (var unit in ViewBag.Units)
+                        {
+                            <option value="@unit.Id" selected="@(unit.Id == Model.TargetUnit)">@unit.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="Active" selected="@(Model.Status == "Active")">Active</option>
+                    <option value="Completed" selected="@(Model.Status == "Completed")">Completed</option>
+                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Campaign
+                </button>
+                <a href="/movements" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Validate end date is after start date
+        const startInput = document.getElementById('startDate');
+        const endInput = document.getElementById('endDate');
+        
+        function validateDates() {
+            if (startInput.value && endInput.value) {
+                const start = new Date(startInput.value);
+                const end = new Date(endInput.value);
+                if (end <= start) {
+                    endInput.classList.add('is-invalid');
+                    return false;
+                } else {
+                    endInput.classList.remove('is-invalid');
+                }
+            }
+            return true;
+        }
+        
+        startInput.addEventListener('change', validateDates);
+        endInput.addEventListener('change', validateDates);
+    </script>
+}

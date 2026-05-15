@@ -1,0 +1,68 @@
+@model QLDV.Models.Unit
+@{
+    ViewData["Title"] = "Create Unit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <h1><i class="fas fa-plus-circle"></i> Create New Unit</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Unit Information
+            </div>
+            <div class="card-body">
+                <form method="post" action="/units/create">
+                    <div class="mb-3">
+                        <label class="form-label">Unit Name *</label>
+                        <input type="text" asp-for="Name" class="form-control" required>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Unit Code *</label>
+                        <input type="text" asp-for="Code" class="form-control" required>
+                        <span asp-validation-for="Code" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Parent Unit (Optional)</label>
+                        <select asp-for="ParentId" class="form-select">
+                            <option value="">No Parent (Root Unit)</option>
+                            @foreach (var unit in ViewBag.ParentUnits ?? new List<object>())
+                            {
+                                <option value="@unit.Id">@unit.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" asp-for="Email" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" asp-for="Phone" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Create Unit
+                    </button>
+                    <a href="/units" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,178 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+
+namespace QLDV.Models
+{
+    public class ApplicationUser : IdentityUser
+    {
+        public string Role { get; set; } = "User"; // admin, secretary, user
+        public bool IsSecretary { get; set; }
+        public string? FullName { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? UnitId { get; set; }
+        public long CreatedAt { get; set; }
+    }
+
+    public class Unit
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+        public string? ParentId { get; set; }
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public long CreatedAt { get; set; }
+
+        // Navigation properties
+        public Unit? Parent { get; set; }
+        public ICollection<Unit> Children { get; set; } = new List<Unit>();
+        public ICollection<Member> Members { get; set; } = new List<Member>();
+    }
+
+    public class Member
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string FullName { get; set; } = string.Empty;
+        public string MemberId { get; set; } = string.Empty;
+        public string DOB { get; set; } = string.Empty;
+        public string Gender { get; set; } = string.Empty; // Nam, Nữ, Khác
+        public string? Ethnic { get; set; }
+        public string? Religion { get; set; }
+        public string? PlaceOfBirth { get; set; }
+        public string? Hometown { get; set; }
+        public string? PermanentAddress { get; set; }
+        public string? JoinDate { get; set; }
+        public string UnitId { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+        public string? AcademicYear { get; set; }
+        public string? ProfessionalLevel { get; set; }
+        public string? Position { get; set; }
+        public string AchievementLevel { get; set; } = "Chưa xếp loại"; // Xuất sắc, Khá, Trung bình, Chưa xếp loại
+        public string Status { get; set; } = "Đang sinh hoạt"; // Đang sinh hoạt, Đã chuyển sinh hoạt, Đã trưởng thành, Bị kỷ luật
+        public bool IsOutstanding { get; set; }
+        public long CreatedAt { get; set; }
+
+        // Navigation properties
+        public Unit? Unit { get; set; }
+        public ICollection<StatusChange> StatusHistory { get; set; } = new List<StatusChange>();
+    }
+
+    public class StatusChange
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string MemberId { get; set; } = string.Empty;
+        public string OldStatus { get; set; } = string.Empty;
+        public string NewStatus { get; set; } = string.Empty;
+        public long Date { get; set; }
+        public string? Reason { get; set; }
+
+        // Navigation properties
+        public Member? Member { get; set; }
+    }
+
+    public class Activity
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Title { get; set; } = string.Empty;
+        public string Date { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public long CreatedAt { get; set; }
+    }
+
+    public class Movement
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Title { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string? Description { get; set; }
+        public string TargetUnit { get; set; } = string.Empty;
+        public string Status { get; set; } = "Active"; // Active, Completed, Cancelled
+        public string? AttachmentsJson { get; set; } // JSON stored as string
+        public string? ParticipatingUnitIdsJson { get; set; } // JSON stored as string
+        public string CreatorId { get; set; } = string.Empty;
+        public long CreatedAt { get; set; }
+
+        // Navigation properties
+        public ICollection<MovementReport> Reports { get; set; } = new List<MovementReport>();
+    }
+
+    public class MovementReport
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string MovementId { get; set; } = string.Empty;
+        public string UnitId { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string? AttachmentsJson { get; set; } // JSON stored as string
+        public long SubmittedAt { get; set; }
+        public int SubmissionCount { get; set; }
+
+        // Navigation properties
+        public Movement? Movement { get; set; }
+        public Unit? Unit { get; set; }
+    }
+
+    public class KnowledgeItem
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string? Category { get; set; }
+        public long UpdatedAt { get; set; }
+    }
+
+    public class SystemLog
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string UserId { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Action { get; set; } = string.Empty;
+        public string EntityType { get; set; } = string.Empty;
+        public string EntityId { get; set; } = string.Empty;
+        public string Details { get; set; } = string.Empty;
+        public long Timestamp { get; set; }
+    }
+
+    public class UserProfile
+    {
+        public string Uid { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty; // admin, secretary
+        public bool IsSecretary { get; set; }
+        public string? FullName { get; set; }
+        public string? AvatarUrl { get; set; }
+        public string? Phone { get; set; }
+        public string? UnitId { get; set; }
+    }
+
+    public class Attachment
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+    }
+
+    public class ChatMessage
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string ThreadId { get; set; } = string.Empty;
+        public string SenderId { get; set; } = string.Empty;
+        public string SenderName { get; set; } = string.Empty;
+        public string SenderRole { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public bool IsRead { get; set; }
+        public long CreatedAt { get; set; }
+    }
+
+    public class ChatThread
+    {
+        public string ThreadId { get; set; } = string.Empty;
+        public long LastMessageAt { get; set; }
+        public int UnreadCount { get; set; }
+    }
+}

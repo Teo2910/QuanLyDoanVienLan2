@@ -1,0 +1,57 @@
+@model QLDV.Models.SystemLog
+@{
+    ViewData["Title"] = "Log Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-history"></i> Log Details</h1>
+            <p class="text-muted">Detailed information for log entry @Model.Id</p>
+        </div>
+        <div>
+            <a href="/logs" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Logs
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-info-circle"></i> Log Information
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">Timestamp:</div>
+            <div class="col-sm-9">@(DateTimeOffset.FromUnixTimeSeconds(Model.Timestamp).ToString("dd/MM/yyyy HH:mm:ss"))</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">User:</div>
+            <div class="col-sm-9">@Model.UserName (@Model.UserId)</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">Action:</div>
+            <div class="col-sm-9">
+                <span class="badge bg-primary">@Model.Action</span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">Entity Type:</div>
+            <div class="col-sm-9">@Model.EntityType</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">Entity ID:</div>
+            <div class="col-sm-9">@Model.EntityId</div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">Details:</div>
+            <div class="col-sm-9">
+                <div class="p-3 bg-light border rounded">
+                    @Model.Details
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
