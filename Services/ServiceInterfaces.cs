@@ -50,6 +50,7 @@ namespace QLDV.Services
         Task UpdateMovementAsync(Movement movement);
         Task DeleteMovementAsync(string id);
         Task<List<MovementReport>> GetReportsByMovementAsync(string movementId);
+        Task<MovementReport?> GetReportByIdAsync(string id);
         Task<MovementReport> SubmitReportAsync(MovementReport report);
         Task UpdateReportAsync(MovementReport report);
     }
@@ -71,6 +72,8 @@ namespace QLDV.Services
         Task<Dictionary<string, int>> GetMemberCountByAchievementAsync();
         Task<int> GetTotalMembersAsync();
         Task<List<dynamic>> GetMembersByUnitAsync();
+        Task<List<UnitStatisticsViewModel>> GetDetailedUnitStatisticsAsync();
+        Task<int> GetTotalOutstandingCountAsync();
     }
 
     public interface ILogService
@@ -85,5 +88,6 @@ namespace QLDV.Services
     {
         Task<string> GenerateResponseAsync(string prompt);
         Task<string> AnalyzeDataAsync(string data, string query);
+        Task<string> ProcessSmartCommandAsync(string userId, string message);
     }
 }

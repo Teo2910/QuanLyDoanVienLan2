@@ -2,7 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using QLDV.Services;
 using QLDV.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.IO;
 
 namespace QLDV.Controllers
 {
@@ -22,6 +26,15 @@ namespace QLDV.Controllers
             return View(activities);
         }
 
+        public async Task<IActionResult> Details(string id)
+        {
+            var activity = await _activityService.GetActivityByIdAsync(id);
+            if (activity == null)
+                return NotFound();
+
+            return View(activity);
+        }
+
         public IActionResult Create()
         {
             return View();
@@ -35,10 +48,12 @@ namespace QLDV.Controllers
                 try
                 {
                     await _activityService.CreateActivityAsync(activity);
-                    return RedirectToAction(nameof(Index));
+                    TempData["Success"] = "Tạo hoạt động mới thành công!";
+                    return RedirectToAction(nameof(Details), new { id = activity.Id });
                 }
                 catch (Exception ex)
                 {
+                    TempData["Error"] = $"Lỗi khi tạo hoạt động: {ex.Message}";
                     ModelState.AddModelError("", $"Error creating activity: {ex.Message}");
                 }
             }
@@ -65,10 +80,12 @@ namespace QLDV.Controllers
                 try
                 {
                     await _activityService.UpdateActivityAsync(activity);
-                    return RedirectToAction(nameof(Index));
+                    TempData["Success"] = "Cập nhật hoạt động thành công!";
+                    return RedirectToAction(nameof(Details), new { id = activity.Id });
                 }
                 catch (Exception ex)
                 {
+                    TempData["Error"] = $"Lỗi khi cập nhật hoạt động: {ex.Message}";
                     ModelState.AddModelError("", $"Error updating activity: {ex.Message}");
                 }
             }
@@ -96,12 +113,14 @@ namespace QLDV.Controllers
         private readonly IMovementService _movementService;
         private readonly IUnitService _unitService;
         private readonly IFileService _fileService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public MovementsController(IMovementService movementService, IUnitService unitService, IFileService fileService)
+        public MovementsController(IMovementService movementService, IUnitService unitService, IFileService fileService, UserManager<ApplicationUser> userManager)
         {
             _movementService = movementService;
             _unitService = unitService;
             _fileService = fileService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -137,6 +156,20 @@ namespace QLDV.Controllers
 
             ViewBag.MovementStats = stats;
             return View(movements);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                await _movementService.DeleteMovementAsync(id);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         public async Task<IActionResult> Details(string id)
@@ -184,7 +217,7 @@ namespace QLDV.Controllers
 
                     await _movementService.CreateMovementAsync(movement);
                     TempData["Success"] = "Movement created successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Details), new { id = movement.Id });
                 }
                 catch (Exception ex)
                 {
@@ -213,12 +246,29 @@ namespace QLDV.Controllers
             if (id != movement.Id)
                 return BadRequest();
 
+            var existingMovement = await _movementService.GetMovementByIdAsync(id);
+            if (existingMovement == null)
+                return NotFound();
+
+            // Clear errors for fields we don't update from the form
+            ModelState.Remove("CreatorId");
+            ModelState.Remove("CreatedAt");
+            ModelState.Remove("Reports");
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _movementService.UpdateMovementAsync(movement);
-                    return RedirectToAction(nameof(Index));
+                    existingMovement.Title = movement.Title;
+                    existingMovement.StartDate = movement.StartDate;
+                    existingMovement.EndDate = movement.EndDate;
+                    existingMovement.Description = movement.Description;
+                    existingMovement.TargetUnit = movement.TargetUnit;
+                    existingMovement.Status = movement.Status;
+                    // Keep CreatorId and CreatedAt from the original entity
+
+                    await _movementService.UpdateMovementAsync(existingMovement);
+                    return RedirectToAction(nameof(Details), new { id = existingMovement.Id });
                 }
                 catch (Exception ex)
                 {
@@ -230,18 +280,41 @@ namespace QLDV.Controllers
             return View(movement);
         }
 
-        public async Task<IActionResult> SubmitReport(string movementId)
+        public async Task<IActionResult> SubmitReport(string id, string? movementId)
         {
-            ViewBag.MovementId = movementId;
+            var mId = !string.IsNullOrEmpty(id) ? id : movementId;
+            ViewBag.MovementId = mId;
             var units = await _unitService.GetAllUnitsAsync();
             ViewBag.Units = units;
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitReport(string movementId, MovementReport report, List<IFormFile> attachments)
+        public async Task<IActionResult> SubmitReport(string id, MovementReport report, List<IFormFile> attachments)
         {
-            report.MovementId = movementId;
+            report.MovementId = id;
+            
+            // If UnitId is missing from form, try to get it from current user
+            if (string.IsNullOrEmpty(report.UnitId))
+            {
+                var user = await _userManager.GetUserAsync(User);
+                report.UnitId = user?.UnitId ?? "";
+            }
+
+            // Clear validation errors for fields we set manually or don't need from form
+            ModelState.Remove("Id");
+            ModelState.Remove("MovementId");
+            ModelState.Remove("UnitId"); // We've ensured it's set or we'll handle it below
+            ModelState.Remove("SubmittedAt");
+            ModelState.Remove("SubmissionCount");
+            ModelState.Remove("Movement");
+            ModelState.Remove("Unit");
+
+            if (string.IsNullOrEmpty(report.UnitId))
+            {
+                ModelState.AddModelError("UnitId", "Tài khoản của bạn chưa được gán vào đơn vị nào. Vui lòng liên hệ Admin.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -263,17 +336,26 @@ namespace QLDV.Controllers
                     }
 
                     await _movementService.SubmitReportAsync(report);
-                    TempData["Success"] = "Report submitted successfully!";
-                    return RedirectToAction(nameof(Details), new { id = movementId });
+                    TempData["Success"] = "Gửi báo cáo thành công!";
+                    return RedirectToAction(nameof(Details), new { id = id });
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", $"Error submitting report: {ex.Message}");
+                    ModelState.AddModelError("", $"Lỗi khi nộp báo cáo: {ex.Message}");
                 }
             }
-            ViewBag.MovementId = movementId;
+            
+            ViewBag.MovementId = id;
             var units = await _unitService.GetAllUnitsAsync();
             ViewBag.Units = units;
+            return View(report);
+        }
+
+        public async Task<IActionResult> ReportDetails(string id)
+        {
+            var report = await _movementService.GetReportByIdAsync(id);
+            if (report == null) return NotFound();
+
             return View(report);
         }
     }
@@ -323,7 +405,7 @@ namespace QLDV.Controllers
                 try
                 {
                     await _knowledgeService.CreateItemAsync(item);
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Details), new { id = item.Id });
                 }
                 catch (Exception ex)
                 {
@@ -353,7 +435,7 @@ namespace QLDV.Controllers
                 try
                 {
                     await _knowledgeService.UpdateItemAsync(item);
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Details), new { id = item.Id });
                 }
                 catch (Exception ex)
                 {
@@ -382,10 +464,14 @@ namespace QLDV.Controllers
     public class StatisticsController : Controller
     {
         private readonly IStatisticsService _statisticsService;
+        private readonly IMemberService _memberService;
+        private readonly IUnitService _unitService;
 
-        public StatisticsController(IStatisticsService statisticsService)
+        public StatisticsController(IStatisticsService statisticsService, IMemberService memberService, IUnitService unitService)
         {
             _statisticsService = statisticsService;
+            _memberService = memberService;
+            _unitService = unitService;
         }
 
         public async Task<IActionResult> Index()
@@ -395,12 +481,16 @@ namespace QLDV.Controllers
             var membersByGender = await _statisticsService.GetMemberCountByGenderAsync();
             var membersByAchievement = await _statisticsService.GetMemberCountByAchievementAsync();
             var membersByUnit = await _statisticsService.GetMembersByUnitAsync();
+            var detailedStats = await _statisticsService.GetDetailedUnitStatisticsAsync();
+            var totalOutstanding = await _statisticsService.GetTotalOutstandingCountAsync();
 
             ViewBag.TotalMembers = totalMembers;
             ViewBag.MembersByStatus = membersByStatus;
             ViewBag.MembersByGender = membersByGender;
             ViewBag.MembersByAchievement = membersByAchievement;
             ViewBag.MembersByUnit = membersByUnit;
+            ViewBag.DetailedStats = detailedStats;
+            ViewBag.TotalOutstanding = totalOutstanding;
 
             return View();
         }
@@ -418,6 +508,289 @@ namespace QLDV.Controllers
             };
 
             return Json(stats);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportExcel()
+        {
+            var detailedStats = await _statisticsService.GetDetailedUnitStatisticsAsync();
+            
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Thống kê chi tiết");
+                
+                // --- STRUCTURED HEADERS (Row 1: Group Titles, Row 2: Sub-headers) ---
+                
+                // 1. Group Titles
+                worksheet.Cells[1, 1].Value = "ĐƠN VỊ CHI ĐOÀN";
+                worksheet.Cells[1, 1, 2, 1].Merge = true; // Vertical merge for Unit Name
+
+                worksheet.Cells[1, 2].Value = "NHÂN KHẨU HỌC";
+                worksheet.Cells[1, 2, 1, 4].Merge = true; // Horizontal merge for Demographics
+
+                worksheet.Cells[1, 5].Value = "DÂN TỘC";
+                worksheet.Cells[1, 5, 1, 6].Merge = true;
+
+                worksheet.Cells[1, 7].Value = "TÔN GIÁO";
+                worksheet.Cells[1, 7, 1, 8].Merge = true;
+
+                worksheet.Cells[1, 9].Value = "TRẠNG THÁI HOẠT ĐỘNG";
+                worksheet.Cells[1, 9, 1, 11].Merge = true;
+
+                worksheet.Cells[1, 12].Value = "XẾP LOẠI CHẤT LƯỢNG";
+                worksheet.Cells[1, 12, 1, 14].Merge = true;
+
+                worksheet.Cells[1, 15].Value = "TIÊU BIỂU";
+                worksheet.Cells[1, 15, 2, 15].Merge = true;
+
+                // 2. Sub-headers (Row 2)
+                worksheet.Cells[2, 2].Value = "TỔNG";
+                worksheet.Cells[2, 3].Value = "NAM";
+                worksheet.Cells[2, 4].Value = "NỮ";
+                worksheet.Cells[2, 5].Value = "KINH";
+                worksheet.Cells[2, 6].Value = "KHÁC";
+                worksheet.Cells[2, 7].Value = "CÓ";
+                worksheet.Cells[2, 8].Value = "KHÔNG";
+                worksheet.Cells[2, 9].Value = "ĐANG SH";
+                worksheet.Cells[2, 10].Value = "CHUYỂN";
+                worksheet.Cells[2, 11].Value = "T. THÀNH";
+                worksheet.Cells[2, 12].Value = "X. SẮC";
+                worksheet.Cells[2, 13].Value = "KHÁ";
+                worksheet.Cells[2, 14].Value = "T. BÌNH";
+
+                // --- STYLING HEADERS ---
+                using (var range = worksheet.Cells[1, 1, 2, 15])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(248, 251, 255)); // Light blue bg
+                    range.Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(26, 115, 232)); // Primary blue text
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+
+                // --- ADD DATA ---
+                int startRow = 3;
+                for (int i = 0; i < detailedStats.Count; i++)
+                {
+                    var s = detailedStats[i];
+                    int r = startRow + i;
+                    worksheet.Cells[r, 1].Value = s.UnitName;
+                    worksheet.Cells[r, 2].Value = s.Total;
+                    worksheet.Cells[r, 3].Value = s.Male;
+                    worksheet.Cells[r, 4].Value = s.Female;
+                    worksheet.Cells[r, 5].Value = s.Kinh;
+                    worksheet.Cells[r, 6].Value = s.OtherEthnic;
+                    worksheet.Cells[r, 7].Value = s.HasReligion;
+                    worksheet.Cells[r, 8].Value = s.NoReligion;
+                    worksheet.Cells[r, 9].Value = s.Active;
+                    worksheet.Cells[r, 10].Value = s.Transferred;
+                    worksheet.Cells[r, 11].Value = s.Graduated;
+                    worksheet.Cells[r, 12].Value = s.Excellent;
+                    worksheet.Cells[r, 13].Value = s.Good;
+                    worksheet.Cells[r, 14].Value = s.Average;
+                    worksheet.Cells[r, 15].Value = s.Outstanding;
+
+                    // Zebra striping
+                    if (i % 2 == 1)
+                    {
+                        worksheet.Cells[r, 1, r, 15].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Cells[r, 1, r, 15].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(252, 252, 252));
+                    }
+                }
+
+                // --- ADD SUMMARY TOTAL ROW (Row at the bottom) ---
+                int totalRow = startRow + detailedStats.Count;
+                worksheet.Cells[totalRow, 1].Value = "TỔNG TOÀN ĐOÀN";
+                worksheet.Cells[totalRow, 2].Formula = $"SUM(B{startRow}:B{totalRow - 1})";
+                worksheet.Cells[totalRow, 3].Formula = $"SUM(C{startRow}:C{totalRow - 1})";
+                worksheet.Cells[totalRow, 4].Formula = $"SUM(D{startRow}:D{totalRow - 1})";
+                worksheet.Cells[totalRow, 5].Formula = $"SUM(E{startRow}:E{totalRow - 1})";
+                worksheet.Cells[totalRow, 6].Formula = $"SUM(F{startRow}:F{totalRow - 1})";
+                worksheet.Cells[totalRow, 7].Formula = $"SUM(G{startRow}:G{totalRow - 1})";
+                worksheet.Cells[totalRow, 8].Formula = $"SUM(H{startRow}:H{totalRow - 1})";
+                worksheet.Cells[totalRow, 9].Formula = $"SUM(I{startRow}:I{totalRow - 1})";
+                worksheet.Cells[totalRow, 10].Formula = $"SUM(J{startRow}:J{totalRow - 1})";
+                worksheet.Cells[totalRow, 11].Formula = $"SUM(K{startRow}:K{totalRow - 1})";
+                worksheet.Cells[totalRow, 12].Formula = $"SUM(L{startRow}:L{totalRow - 1})";
+                worksheet.Cells[totalRow, 13].Formula = $"SUM(M{startRow}:M{totalRow - 1})";
+                worksheet.Cells[totalRow, 14].Formula = $"SUM(N{startRow}:N{totalRow - 1})";
+                worksheet.Cells[totalRow, 15].Formula = $"SUM(O{startRow}:O{totalRow - 1})";
+
+                // Style Total Row
+                using (var range = worksheet.Cells[totalRow, 1, totalRow, 15])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(15, 23, 42)); // Dark navy bg
+                    range.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                }
+
+                worksheet.Cells.AutoFitColumns();
+                worksheet.Column(1).Width = 35; // Wider for unit names
+                
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                string fileName = $"ThongKe_QLDV_{DateTime.Now:yyyyMMdd}.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ImportExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn file Excel hợp lệ.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(file.OpenReadStream()))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+                    int colCount = worksheet.Dimension.Columns;
+                    int importedCount = 0;
+
+                    var units = await _unitService.GetAllUnitsAsync();
+                    var defaultUnit = units.FirstOrDefault();
+
+                    var skipKeywords = new[] { "Họ và tên", "Họ tên", "STT", "Số thứ tự", "Định danh", "Ngày sinh", "Giới tính", "Chi đoàn", "Thống kê", "Báo cáo", "Dữ liệu", "Danh sách" };
+                    var orgPrefixes = new[] { "BCH ", "ĐOÀN ", "CHI ĐOÀN ", "HỆ THỐNG ", "CƠ SỞ ", "TỔ ", "TRUNG TÂM ", "UBND ", "TỈNH " };
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var fullName = worksheet.Cells[row, 2].Value?.ToString()?.Trim();
+                        if (string.IsNullOrEmpty(fullName))
+                        {
+                            fullName = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                        }
+
+                        if (string.IsNullOrEmpty(fullName)) continue;
+
+                        // AGGRESSIVE FILTERING
+                        // 1. Skip if string is way too long for a name ( > 40 chars)
+                        if (fullName.Length > 40) continue;
+                        
+                        // 2. Skip if it contains too many words (typical of titles, e.g., > 6 words)
+                        if (fullName.Split(' ').Length > 6) continue;
+
+                        // 3. Skip if it contains known report/org keywords
+                        if (skipKeywords.Any(k => fullName.Contains(k, StringComparison.OrdinalIgnoreCase))) continue;
+                        if (orgPrefixes.Any(p => fullName.Contains(p, StringComparison.OrdinalIgnoreCase))) continue;
+                        
+                        // 4. Skip numeric
+                        if (double.TryParse(fullName, out _)) continue;
+
+                        string memberId = "";
+                        string dobString = "2005-01-01";
+                        string gender = "";
+                        string unitNameFromExcel = "";
+                        string status = "";
+                        string achievement = "";
+                        string ethnic = "";
+
+                        for (int col = 1; col <= Math.Min(colCount, 15); col++)
+                        {
+                            var cellValue = worksheet.Cells[row, col].Value;
+                            if (cellValue == null) continue;
+                            var cellStr = cellValue.ToString()?.Trim();
+                            if (string.IsNullOrEmpty(cellStr)) continue;
+
+                            if (cellStr == fullName) continue;
+
+                            // 1. Check if it's a Date (likely DOB)
+                            if (cellValue is DateTime dt)
+                            {
+                                if (dt.Year < 2015) dobString = dt.ToString("yyyy-MM-dd");
+                            }
+                            else if (DateTime.TryParse(cellStr, out var parsedDate))
+                            {
+                                if (parsedDate.Year < 2015 && parsedDate.Year > 1940) dobString = parsedDate.ToString("yyyy-MM-dd");
+                            }
+                            // 2. Check if it's Gender (Must be exact match)
+                            else if (cellStr.Equals("Nam", StringComparison.OrdinalIgnoreCase) || cellStr.Equals("Nữ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (string.IsNullOrEmpty(gender)) gender = cellStr;
+                            }
+                            // 3. Check if it's a typical ID
+                            else if (cellStr.StartsWith("DV", StringComparison.OrdinalIgnoreCase) && cellStr.Length > 2)
+                            {
+                                memberId = cellStr;
+                            }
+                            // 4. Check if it's a Unit Name (Only if NOT gender and length > 3)
+                            else if (cellStr.Length > 3 && 
+                                    !cellStr.Equals("Nam", StringComparison.OrdinalIgnoreCase) && 
+                                    !cellStr.Equals("Nữ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var unitMatch = units.FirstOrDefault(u => 
+                                    (u.Name.Equals(cellStr, StringComparison.OrdinalIgnoreCase) || u.Name.Contains(cellStr)) &&
+                                    !u.Name.Equals("Nam", StringComparison.OrdinalIgnoreCase) &&
+                                    !u.Name.Equals("Nữ", StringComparison.OrdinalIgnoreCase));
+                                    
+                                if (unitMatch != null && string.IsNullOrEmpty(unitNameFromExcel))
+                                {
+                                    unitNameFromExcel = unitMatch.Name;
+                                }
+                            }
+                            // 5. Check if it's Status
+                            else if (cellStr.Contains("sinh hoạt") || cellStr.Contains("trưởng thành") || cellStr.Contains("chuyển"))
+                            {
+                                status = cellStr;
+                            }
+                            // 6. Check if it's Achievement
+                            else if (cellStr.Contains("Xuất sắc") || cellStr.Contains("Khá") || cellStr.Contains("Trung bình"))
+                            {
+                                achievement = cellStr;
+                            }
+                        }
+
+                        // Heuristic cleanup
+                        if (string.IsNullOrEmpty(memberId)) memberId = "DV" + new Random().Next(1000, 9999);
+                        if (string.IsNullOrEmpty(gender))
+                        {
+                            if (fullName.Contains(" Thị ") || fullName.Contains(" Hồng ") || fullName.Contains(" Ngọc ")) gender = "Nữ";
+                            else gender = "Nam";
+                        }
+                        
+                        var finalUnitId = units.FirstOrDefault(u => u.Name.Equals(unitNameFromExcel, StringComparison.OrdinalIgnoreCase))?.Id 
+                                    ?? units.FirstOrDefault(u => u.Name.Contains(unitNameFromExcel ?? "---"))?.Id 
+                                    ?? defaultUnit?.Id ?? "U001";
+
+                        var member = new Member
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            FullName = fullName,
+                            MemberId = memberId,
+                            DOB = dobString,
+                            Gender = gender,
+                            UnitId = finalUnitId,
+                            Status = string.IsNullOrEmpty(status) ? "Đang sinh hoạt" : status,
+                            AchievementLevel = string.IsNullOrEmpty(achievement) ? "Chưa xếp loại" : achievement,
+                            Ethnic = string.IsNullOrEmpty(ethnic) ? "Kinh" : ethnic,
+                            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                        };
+
+                        await _memberService.CreateMemberAsync(member);
+                        importedCount++;
+                    }
+
+                    TempData["SuccessMessage"] = $"Đã nhập thành công {importedCount} đoàn viên từ file Excel.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi khi xử lý file: {ex.Message}";
+            }
+
+            return RedirectToAction("Index");
         }
     }
 

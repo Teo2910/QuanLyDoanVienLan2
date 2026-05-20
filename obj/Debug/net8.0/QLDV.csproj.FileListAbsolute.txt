@@ -201,3 +201,4 @@ C:\QLDV\obj\Debug\net8.0\refint\QLDV.dll
 C:\QLDV\obj\Debug\net8.0\QLDV.pdb
 C:\QLDV\obj\Debug\net8.0\QLDV.genruntimeconfig.cache
 C:\QLDV\obj\Debug\net8.0\ref\QLDV.dll
+C:\QLDV\bin\Debug\net8.0\models_list.json

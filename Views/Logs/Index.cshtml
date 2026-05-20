@@ -1,53 +1,328 @@
 @model List<QLDV.Models.SystemLog>
 @{
-    ViewData["Title"] = "System Logs";
+    ViewData["Title"] = "Nhật ký hệ thống";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-history"></i> System Logs</h1>
-    <p class="text-muted">View all system activities and user actions</p>
-</div>
+<style>
+    .log-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 1rem;
+        padding-bottom: 4rem;
+    }
 
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="text" id="userFilter" class="form-control" placeholder="Filter by user...">
-            </div>
-            <div class="col-md-4">
-                <select id="actionFilter" class="form-select">
-                    <option value="">All Actions</option>
-                    <option value="CREATE">Create</option>
-                    <option value="UPDATE">Update</option>
-                    <option value="DELETE">Delete</option>
-                    <option value="STATUS_CHANGE">Status Change</option>
-                    <option value="SUBMIT_REPORT">Submit Report</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <select id="entityFilter" class="form-select">
-                    <option value="">All Entities</option>
-                    <option value="Member">Member</option>
-                    <option value="Unit">Unit</option>
-                    <option value="Activity">Activity</option>
-                    <option value="Movement">Movement</option>
-                </select>
+    .log-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 1100px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
+
+    .form-header {
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header .subtext {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-header .dot-blue {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    /* Filters Styling */
+    .filter-row {
+        background: #f8fbff;
+        border-radius: 24px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
+
+    .custom-input {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 14px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.2s;
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .custom-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
+
+    .custom-select {
+        appearance: none;
+        background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ccc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") no-repeat right 1rem center/12px 10px;
+        border: 1px solid #eee;
+        border-radius: 14px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        width: 100%;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    /* Custom Dropdown Styles */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-dropdown-trigger {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 14px;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+    }
+
+    .custom-dropdown-trigger:hover {
+        background: #f0f7ff;
+    }
+
+    .custom-dropdown-trigger.active {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border: 1px solid #f0f0f0;
+        z-index: 120;
+        padding: 8px;
+        display: none;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .dropdown-menu-custom.show {
+        display: block;
+    }
+
+    .dropdown-item-custom {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #444;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .dropdown-item-custom:hover {
+        background: #f8fbff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom.selected {
+        background: #f0f7ff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom i {
+        display: none;
+        font-size: 0.8rem;
+    }
+
+    .dropdown-item-custom.selected i {
+        display: block;
+    }
+
+    /* Table Styling */
+    .log-table-container {
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .modern-table th {
+        background: #f8fbff;
+        padding: 1.25rem 1rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left;
+    }
+
+    .modern-table td {
+        padding: 1.25rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #444;
+        border-bottom: 1px solid #f8f9fa;
+        vertical-align: middle;
+    }
+
+    .modern-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge-modern {
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-create { background: #e8f5e9; color: #28a745; }
+    .badge-update { background: #f0f7ff; color: #1a73e8; }
+    .badge-delete { background: #fff5f5; color: #ff5252; }
+    .badge-status { background: #fff8e1; color: #f39c12; }
+    .badge-other { background: #f8f9fa; color: #999; }
+
+    .time-text {
+        color: #999;
+        font-size: 0.75rem;
+    }
+
+    .btn-view-details {
+        width: 36px;
+        height: 36px;
+        background: #f8fbff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-view-details:hover {
+        background: var(--primary-color);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .entity-code {
+        background: #f4f7fa;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: #666;
+    }
+</style>
+
+<div class="log-layout-container">
+    <div class="log-style-card">
+        <div class="form-header">
+            <div>
+                <h2>Nhật ký hệ thống</h2>
+                <div class="subtext">
+                    <div class="dot-blue"></div>
+                    LỊCH SỬ HOẠT ĐỘNG VÀ THAO TÁC NGƯỜI DÙNG
+                </div>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover" id="logsTable">
+
+        <div class="filter-row">
+            <div>
+                <input type="text" id="userFilter" class="custom-input" placeholder="Tìm theo người dùng...">
+            </div>
+            <div class="dropdown-container">
+                <input type="hidden" id="actionFilterValue" />
+                <div class="custom-dropdown-trigger" id="actionDropdownTrigger">
+                    <span id="actionSelectedText">Tất cả thao tác</span>
+                    <i class="fas fa-chevron-down" style="color: #ccc; font-size: 0.8rem;"></i>
+                </div>
+                <div class="dropdown-menu-custom" id="actionDropdownMenu">
+                    <div class="dropdown-item-custom" data-value="">Tất cả thao tác <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="CREATE">Thêm mới <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="UPDATE">Cập nhật <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="DELETE">Xóa <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="STATUS_CHANGE">Trạng thái <i class="fas fa-check"></i></div>
+                </div>
+            </div>
+            <div class="dropdown-container">
+                <input type="hidden" id="entityFilterValue" />
+                <div class="custom-dropdown-trigger" id="entityDropdownTrigger">
+                    <span id="entitySelectedText">Tất cả đối tượng</span>
+                    <i class="fas fa-chevron-down" style="color: #ccc; font-size: 0.8rem;"></i>
+                </div>
+                <div class="dropdown-menu-custom" id="entityDropdownMenu">
+                    <div class="dropdown-item-custom" data-value="">Tất cả đối tượng <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="Member">Đoàn viên <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="Unit">Đơn vị <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="Activity">Hoạt động <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom" data-value="Movement">Phong trào <i class="fas fa-check"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-table-container">
+            <table class="modern-table" id="logsTable">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Entity Type</th>
-                        <th>Entity ID</th>
-                        <th>Details</th>
-                        <th>Actions</th>
+                        <th>THỜI GIAN</th>
+                        <th>NGƯỜI DÙNG</th>
+                        <th>THAO TÁC</th>
+                        <th>ĐỐI TƯỢNG</th>
+                        <th>NỘI DUNG</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,30 +330,55 @@
                     {
                         <tr>
                             <td>
-                                <small>@(new DateTime(log.Timestamp, DateTimeKind.Utc).ToString("g"))</small>
+                                <div class="time-text">
+                                    @{
+                                        // Attempt to handle both unix seconds and milliseconds just in case
+                                        DateTime dt;
+                                        if (log.Timestamp > 1000000000000) // Milliseconds
+                                            dt = DateTimeOffset.FromUnixTimeMilliseconds(log.Timestamp).LocalDateTime;
+                                        else // Seconds
+                                            dt = DateTimeOffset.FromUnixTimeSeconds(log.Timestamp).LocalDateTime;
+                                    }
+                                    @dt.ToString("dd/MM/yyyy")<br>
+                                    @dt.ToString("HH:mm:ss")
+                                </div>
                             </td>
-                            <td>@log.UserName</td>
+                            <td>
+                                <div style="font-weight: 700;">@log.UserName</div>
+                            </td>
                             <td>
                                 @{
-                                    var actionBadgeColor = log.Action switch
+                                    var badgeClass = log.Action switch
                                     {
-                                        "CREATE" => "success",
-                                        "UPDATE" => "info",
-                                        "DELETE" => "danger",
-                                        "STATUS_CHANGE" => "warning",
-                                        _ => "secondary"
+                                        "CREATE" => "badge-create",
+                                        "UPDATE" => "badge-update",
+                                        "DELETE" => "badge-delete",
+                                        "STATUS_CHANGE" => "badge-status",
+                                        _ => "badge-other"
+                                    };
+                                    var actionText = log.Action switch
+                                    {
+                                        "CREATE" => "THÊM MỚI",
+                                        "UPDATE" => "CẬP NHẬT",
+                                        "DELETE" => "XÓA",
+                                        "STATUS_CHANGE" => "TRẠNG THÁI",
+                                        _ => log.Action
                                     };
                                 }
-                                <span class="badge bg-@actionBadgeColor">@log.Action</span>
-                            </td>
-                            <td>@log.EntityType</td>
-                            <td><code>@log.EntityId</code></td>
-                            <td>
-                                <small>@(log.Details?.Length > 50 ? log.Details.Substring(0, 50) + "..." : log.Details)</small>
+                                <span class="badge-modern @badgeClass">@actionText</span>
                             </td>
                             <td>
-                                <a href="/logs/details/@log.Id" class="btn btn-sm btn-info" title="View Details">
-                                    <i class="fas fa-eye text-white"></i>
+                                <div style="font-size: 0.8rem;">@log.EntityType</div>
+                                <span class="entity-code">@log.EntityId.Substring(0, Math.Min(8, log.EntityId.Length))...</span>
+                            </td>
+                            <td style="max-width: 300px;">
+                                <div style="font-size: 0.85rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@log.Details">
+                                    @log.Details
+                                </div>
+                            </td>
+                            <td>
+                                <a href="/logs/details/@log.Id" class="btn-view-details">
+                                    <i class="fas fa-chevron-right"></i>
                                 </a>
                             </td>
                         </tr>
@@ -86,11 +386,12 @@
                 </tbody>
             </table>
         </div>
+
         @if ((Model?.Count ?? 0) == 0)
         {
             <div class="text-center py-5">
-                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No logs found</p>
+                <i class="fas fa-history" style="font-size: 3rem; color: #f0f4f8; margin-bottom: 1rem;"></i>
+                <p style="font-weight: 700; color: #ccc; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Không có dữ liệu nhật ký</p>
             </div>
         }
     </div>
@@ -98,26 +399,72 @@
 
 @section Scripts {
     <script>
-        function filterTable() {
-            const userFilter = document.getElementById('userFilter').value.toLowerCase();
-            const actionFilter = document.getElementById('actionFilter').value;
-            const entityFilter = document.getElementById('entityFilter').value;
+        $(document).ready(function() {
+            function filterTable() {
+                const userFilter = $('#userFilter').val().toLowerCase();
+                const actionFilter = $('#actionFilterValue').val();
+                const entityFilter = $('#entityFilterValue').val();
 
-            document.querySelectorAll('#logsTable tbody tr').forEach(row => {
-                const user = row.cells[1].textContent.toLowerCase();
-                const action = row.cells[2].textContent;
-                const entity = row.cells[3].textContent;
+                $('#logsTable tbody tr').each(function() {
+                    const user = $(this).find('td:eq(1)').text().toLowerCase();
+                    const action = $(this).find('td:eq(2) .badge-modern').text();
+                    const entity = $(this).find('td:eq(3)').text();
 
-                const userMatch = !userFilter || user.includes(userFilter);
-                const actionMatch = !actionFilter || action.includes(actionFilter);
-                const entityMatch = !entityFilter || entity.includes(entityFilter);
+                    const userMatch = !userFilter || user.includes(userFilter);
+                    const actionMatch = !actionFilter || action.includes(getActionText(actionFilter));
+                    const entityMatch = !entityFilter || entity.includes(entityFilter);
 
-                row.style.display = userMatch && actionMatch && entityMatch ? '' : 'none';
+                    $(this).toggle(userMatch && actionMatch && entityMatch);
+                });
+            }
+
+            function getActionText(val) {
+                switch(val) {
+                    case 'CREATE': return 'THÊM MỚI';
+                    case 'UPDATE': return 'CẬP NHẬT';
+                    case 'DELETE': return 'XÓA';
+                    case 'STATUS_CHANGE': return 'TRẠNG THÁI';
+                    default: return val;
+                }
+            }
+
+            function setupCustomDropdown(triggerId, menuId, inputId, textId) {
+                const trigger = $('#' + triggerId);
+                const menu = $('#' + menuId);
+                const input = $('#' + inputId);
+                const text = $('#' + textId);
+
+                trigger.on('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = menu.hasClass('show');
+                    $('.dropdown-menu-custom').not(menu).removeClass('show');
+                    $('.custom-dropdown-trigger').not(trigger).removeClass('active');
+                    menu.toggleClass('show');
+                    trigger.toggleClass('active');
+                });
+
+                menu.on('click', '.dropdown-item-custom', function() {
+                    const val = $(this).data('value');
+                    const label = $(this).text().trim();
+                    input.val(val);
+                    text.text(label);
+                    menu.find('.dropdown-item-custom').removeClass('selected');
+                    $(this).addClass('selected');
+                    menu.removeClass('show');
+                    trigger.removeClass('active');
+                    filterTable();
+                });
+            }
+
+            setupCustomDropdown('actionDropdownTrigger', 'actionDropdownMenu', 'actionFilterValue', 'actionSelectedText');
+            setupCustomDropdown('entityDropdownTrigger', 'entityDropdownMenu', 'entityFilterValue', 'entitySelectedText');
+
+            $(document).on('click', function() {
+                $('.dropdown-menu-custom').removeClass('show');
+                $('.custom-dropdown-trigger').removeClass('active');
             });
-        }
 
-        document.getElementById('userFilter').addEventListener('keyup', filterTable);
-        document.getElementById('actionFilter').addEventListener('change', filterTable);
-        document.getElementById('entityFilter').addEventListener('change', filterTable);
+            $('#userFilter').on('keyup', filterTable);
+        });
     </script>
 }

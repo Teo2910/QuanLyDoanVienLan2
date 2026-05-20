@@ -1,36 +1,186 @@
 @model QLDV.Models.KnowledgeItem
 @{
-    ViewData["Title"] = "Knowledge Item Details";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Model.Title;
+    Layout = null;
 }
 
-<div class="content-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-book"></i> @Model.Title</h1>
-            <p class="text-muted">
-                @if (!string.IsNullOrEmpty(Model.Category))
-                {
-                    <span class="badge bg-secondary">@Model.Category</span>
-                }
-                Updated: @(new DateTime(Model.UpdatedAt, DateTimeKind.Utc).ToString("g"))
-            </p>
-        </div>
-        <div>
-            <a href="/knowledgebase/edit/@Model.Id" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit
-            </a>
-            <a href="/knowledgebase" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
-    </div>
-</div>
+<div class="form-layout-container">
+    <style>
+        .modal-style-card {
+            background: #fff !important;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 40px !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1) !important;
+            padding: 3.5rem !important;
+            position: relative;
+            margin: auto;
+        }
 
-<div class="card">
-    <div class="card-body">
-        <div class="knowledge-content">
-            @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+        .close-modal-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 36px;
+            height: 36px;
+            background: #f4f7fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+            z-index: 100;
+        }
+
+        .close-modal-btn:hover {
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .detail-header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid #f0f4f8;
+            padding-bottom: 2rem;
+        }
+
+        .detail-title-box h2 {
+            font-weight: 800;
+            font-size: 2.2rem;
+            letter-spacing: -1px;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        .detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-badge {
+            background: #e8f0fe;
+            color: #0061f2;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .meta-item i {
+            color: #0061f2;
+        }
+
+        .knowledge-content-body {
+            color: #1e293b;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            padding: 1rem 0;
+        }
+
+        .detail-actions {
+            margin-top: 3rem;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-edit-main {
+            background: #0061f2 !important;
+            color: #fff !important;
+            border-radius: 16px !important;
+            padding: 1rem 2rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(0, 97, 242, 0.2);
+        }
+
+        .btn-edit-main:hover {
+            background: #0052cc !important;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 97, 242, 0.3);
+        }
+
+        .btn-back {
+            background: #f4f7fa !important;
+            color: #666 !important;
+            border-radius: 16px !important;
+            padding: 1rem 2rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #eef2f7 !important;
+            color: #1a1a1a !important;
+        }
+    </style>
+
+    <div class="modal-style-card">
+        <a href="javascript:void(0)" class="close-modal-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="detail-header">
+            <div class="detail-title-box">
+                <h2>@Model.Title</h2>
+                <div class="detail-meta">
+                    @if (!string.IsNullOrEmpty(Model.Category))
+                    {
+                        <span class="category-badge">@Model.Category</span>
+                    }
+                    else
+                    {
+                        <span class="category-badge">NGHIỆP VỤ ĐOÀN</span>
+                    }
+                    <div class="meta-item">
+                        <i class="far fa-calendar-alt"></i>
+                        Cập nhật: @(new DateTime(Model.UpdatedAt, DateTimeKind.Utc).ToString("dd/MM/yyyy HH:mm"))
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="knowledge-content-body">
+            @Model.Content
+        </div>
+
+        <div class="detail-actions">
+            <a href="/knowledgebase/edit/@Model.Id" class="btn-edit-main">
+                <i class="fas fa-edit"></i> Chỉnh sửa
+            </a>
+            <a href="javascript:void(0)" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
         </div>
     </div>
 </div>

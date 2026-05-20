@@ -1,54 +1,220 @@
 @model QLDV.Models.MovementReport
+@using Microsoft.AspNetCore.Identity
+@using QLDV.Models
+@inject UserManager<ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "Submit Campaign Report";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Nộp báo cáo phong trào";
+    Layout = null; // Important for AJAX modal loading
+    var currentUser = await UserManager.GetUserAsync(User);
+    var unitId = currentUser?.UnitId ?? "";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-file-upload"></i> Submit Campaign Report</h1>
-</div>
+<div class="form-layout-container">
+    <style>
+        .form-style-card {
+            background: #fff !important;
+            width: 100%;
+            max-width: 700px;
+            border-radius: 40px !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1) !important;
+            padding: 3.5rem !important;
+            position: relative;
+            margin: auto;
+        }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                Report Information
-            </div>
-            <div class="card-body">
-                <form method="post" action="/movements/submitreport/@ViewBag.MovementId" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">Unit *</label>
-                        <select asp-for="UnitId" class="form-select" required>
-                            <option value="">Select Your Unit</option>
-                            @foreach (var unit in ViewBag.Units ?? new List<object>())
-                            {
-                                <option value="@unit.Id">@unit.Name</option>
-                            }
-                        </select>
-                    </div>
+        .close-form-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 36px;
+            height: 36px;
+            background: #f4f7fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Report Description *</label>
-                        <textarea asp-for="Description" class="form-control" rows="6" required placeholder="Describe the activities, achievements, and details of your unit's participation..."></textarea>
-                    </div>
+        .close-form-btn:hover {
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Attachments</label>
-                        <div class="alert alert-info">
-                            <small>You can upload images, documents, or other files to support your report</small>
-                        </div>
-                        <input type="file" name="attachments" class="form-control" id="attachments" multiple>
-                        <small class="text-muted">Supported formats: PDF, DOC, XLS, JPG, PNG (Max 10MB each)</small>
-                    </div>
+        .form-header {
+            margin-bottom: 2.5rem;
+        }
 
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-upload"></i> Submit Report
-                    </button>
-                    <a href="/movements/details/@ViewBag.MovementId" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-times"></i> Cancel
-                    </a>
-                </form>
+        .form-header h2 {
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header .subtext {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-header .dot-blue {
+            width: 6px;
+            height: 6px;
+            background: #0061f2;
+            border-radius: 50%;
+        }
+
+        .custom-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .custom-input {
+            background: #f8fbff !important;
+            border: 1px solid transparent !important;
+            border-radius: 16px !important;
+            padding: 1rem 1.25rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            transition: all 0.2s !important;
+            width: 100% !important;
+            font-size: 0.9rem !important;
+        }
+
+        .custom-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .custom-input:focus {
+            background: #fff !important;
+            border-color: #0061f2 !important;
+            box-shadow: 0 0 0 4px rgba(0, 97, 242, 0.05) !important;
+            outline: none !important;
+        }
+
+        .custom-textarea {
+            min-height: 200px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .submit-btn {
+            background: #0061f2 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 1.25rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            width: 100% !important;
+            margin-top: 2rem !important;
+            transition: all 0.2s !important;
+            box-shadow: 0 8px 20px rgba(0, 97, 242, 0.2) !important;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 97, 242, 0.3) !important;
+            background: #0052cc !important;
+        }
+
+        .file-upload-design {
+            background: #f8fbff;
+            border: 2px dashed #e0e8f0;
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-upload-design:hover {
+            border-color: #0061f2;
+            background: #f0f7ff;
+        }
+
+        .file-tag {
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            margin-top: 10px;
+        }
+    </style>
+
+    <div class="form-style-card">
+        <a href="javascript:void(0)" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Nộp báo cáo phong trào</h2>
+            <div class="subtext">
+                <div class="dot-blue"></div>
+                BÁO CÁO KẾT QUẢ TRIỂN KHAI ĐƠN VỊ
             </div>
         </div>
+
+        <form method="post" action="/movements/submitreport/@ViewBag.MovementId" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius: 16px; font-size: 0.8rem; margin-bottom: 1.5rem;"></div>
+            
+            <input type="hidden" name="MovementId" value="@ViewBag.MovementId" />
+            <input type="hidden" asp-for="UnitId" value="@unitId" />
+            
+            <div class="mb-4">
+                <label class="custom-label">Nội dung báo cáo chi tiết *</label>
+                <textarea asp-for="Description" class="custom-input custom-textarea" 
+                          placeholder="Mô tả các hoạt động đã triển khai, kết quả đạt được, số lượng đoàn viên tham gia..." required></textarea>
+                <span asp-validation-for="Description" class="text-danger" style="font-size: 0.7rem;"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">Tài liệu đính kèm (Ảnh, văn bản...)</label>
+                <div class="position-relative" onclick="document.getElementById('report-attachments').click()">
+                    <div class="file-upload-design">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #0061f2; opacity: 0.5;"></i>
+                        <span style="font-weight: 700; color: #666;">Nhấn để tải tệp lên</span>
+                        <small style="font-weight: 600; color: #ccc;">PDF, JPG, PNG, DOC (Tối đa 10MB)</small>
+                    </div>
+                    <input type="file" name="attachments" id="report-attachments" 
+                           style="opacity: 0; position: absolute; width: 0; height: 0;" multiple>
+                </div>
+                <div id="report-file-list" class="d-flex flex-wrap gap-2 mt-2"></div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                GỬI BÁO CÁO NGAY
+            </button>
+        </form>
     </div>
 </div>

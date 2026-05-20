@@ -1,57 +1,231 @@
 @model QLDV.Models.SystemLog
 @{
-    ViewData["Title"] = "Log Details";
+    ViewData["Title"] = "Chi tiết nhật ký";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-history"></i> Log Details</h1>
-            <p class="text-muted">Detailed information for log entry @Model.Id</p>
-        </div>
-        <div>
-            <a href="/logs" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Logs
-            </a>
-        </div>
-    </div>
-</div>
+<style>
+    .log-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
 
-<div class="card">
-    <div class="card-header">
-        <i class="fas fa-info-circle"></i> Log Information
-    </div>
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">Timestamp:</div>
-            <div class="col-sm-9">@(DateTimeOffset.FromUnixTimeSeconds(Model.Timestamp).ToString("dd/MM/yyyy HH:mm:ss"))</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">User:</div>
-            <div class="col-sm-9">@Model.UserName (@Model.UserId)</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">Action:</div>
-            <div class="col-sm-9">
-                <span class="badge bg-primary">@Model.Action</span>
+    .log-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
+
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 36px;
+        height: 36px;
+        background: #f4f7fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .close-form-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
+
+    .form-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header .subtext {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-header .dot-blue {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    .detail-row {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .detail-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .detail-value {
+        font-weight: 700;
+        color: #1a1a1a;
+        font-size: 1rem;
+    }
+
+    .badge-modern {
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 6px 12px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-create { background: #e8f5e9; color: #28a745; }
+    .badge-update { background: #f0f7ff; color: #1a73e8; }
+    .badge-delete { background: #fff5f5; color: #ff5252; }
+    .badge-status { background: #fff8e1; color: #f39c12; }
+    .badge-other { background: #f8f9fa; color: #999; }
+
+    .details-box {
+        background: #f8fbff;
+        border-radius: 20px;
+        padding: 1.5rem;
+        font-weight: 600;
+        color: #444;
+        line-height: 1.6;
+        border: 1px solid #f0f7ff;
+    }
+
+    .back-btn {
+        background: #f4f7fa;
+        color: #666;
+        border: none;
+        border-radius: 16px;
+        padding: 1rem;
+        font-weight: 800;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin-top: 2rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .back-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
+</style>
+
+<div class="log-layout-container">
+    <div class="log-style-card">
+        <a href="/logs" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Chi tiết nhật ký</h2>
+            <div class="subtext">
+                <div class="dot-blue"></div>
+                THÔNG TIN CHI TIẾT THAO TÁC HỆ THỐNG
             </div>
         </div>
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">Entity Type:</div>
-            <div class="col-sm-9">@Model.EntityType</div>
+
+        <div class="detail-row">
+            <span class="detail-label">THỜI GIAN</span>
+            <div class="detail-value">
+                @{
+                    DateTime dt;
+                    if (Model.Timestamp > 1000000000000)
+                        dt = DateTimeOffset.FromUnixTimeMilliseconds(Model.Timestamp).LocalDateTime;
+                    else
+                        dt = DateTimeOffset.FromUnixTimeSeconds(Model.Timestamp).LocalDateTime;
+                }
+                @dt.ToString("dd/MM/yyyy HH:mm:ss")
+            </div>
         </div>
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">Entity ID:</div>
-            <div class="col-sm-9">@Model.EntityId</div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-3 font-weight-bold">Details:</div>
-            <div class="col-sm-9">
-                <div class="p-3 bg-light border rounded">
-                    @Model.Details
+
+        <div class="row">
+            <div class="col-md-6 detail-row">
+                <span class="detail-label">NGƯỜI THỰC HIỆN</span>
+                <div class="detail-value">@Model.UserName</div>
+                <small style="color: #999; font-size: 0.7rem;">ID: @Model.UserId</small>
+            </div>
+            <div class="col-md-6 detail-row">
+                <span class="detail-label">THAO TÁC</span>
+                <div>
+                    @{
+                        var badgeClass = Model.Action switch
+                        {
+                            "CREATE" => "badge-create",
+                            "UPDATE" => "badge-update",
+                            "DELETE" => "badge-delete",
+                            "STATUS_CHANGE" => "badge-status",
+                            _ => "badge-other"
+                        };
+                        var actionText = Model.Action switch
+                        {
+                            "CREATE" => "THÊM MỚI",
+                            "UPDATE" => "CẬP NHẬT",
+                            "DELETE" => "XÓA",
+                            "STATUS_CHANGE" => "TRẠNG THÁI",
+                            _ => Model.Action
+                        };
+                    }
+                    <span class="badge-modern @badgeClass">@actionText</span>
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-6 detail-row">
+                <span class="detail-label">LOẠI ĐỐI TƯỢNG</span>
+                <div class="detail-value">@Model.EntityType</div>
+            </div>
+            <div class="col-md-6 detail-row">
+                <span class="detail-label">MÃ ĐỐI TƯỢNG</span>
+                <div class="detail-value" style="font-family: monospace; font-size: 0.9rem;">@Model.EntityId</div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <span class="detail-label">NỘI DUNG CHI TIẾT</span>
+            <div class="details-box">
+                @Model.Details
+            </div>
+        </div>
+
+        <a href="/logs" class="back-btn">
+            <i class="fas fa-arrow-left"></i> QUAY LẠI DANH SÁCH
+        </a>
     </div>
 </div>

@@ -1,133 +1,334 @@
+@using QLDV.Models
 @{
-    ViewData["Title"] = "Statistics";
+    ViewData["Title"] = "Thống kê số liệu";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var totalMembers = ViewBag.TotalMembers ?? 0;
+    var totalOutstanding = ViewBag.TotalOutstanding ?? 0;
+    var detailedStats = ViewBag.DetailedStats as List<UnitStatisticsViewModel> ?? new List<UnitStatisticsViewModel>();
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-chart-bar"></i> Statistics & Analytics</h1>
-    <p class="text-muted">View comprehensive statistics about members and activities</p>
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Thống kê số liệu</h1>
+                <p>TỔNG HỢP DỮ LIỆU TOÀN HỆ THỐNG</p>
+            </div>
+        </div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="dropdown" style="position: relative;">
+                <button class="btn-premium btn-premium-light px-4" type="button" id="unitDropdownTrigger" style="min-width: 240px; justify-content: space-between;">
+                    <span id="selectedUnitText">Toàn hệ thống (@totalMembers)</span>
+                    <i class="fas fa-chevron-down ms-3" style="font-size: 0.7rem; opacity: 0.5;"></i>
+                </button>
+                <div class="dropdown-menu-premium" id="unitDropdownMenu">
+                    <div class="dropdown-item-premium active" data-unit="all">
+                        <span>Toàn hệ thống</span>
+                        <span class="status-pill status-pill-info ms-auto" style="font-size: 0.6rem;">@totalMembers</span>
+                    </div>
+                    @foreach (var unit in detailedStats)
+                    {
+                        <div class="dropdown-item-premium" data-unit="@unit.UnitName">
+                            <span>@unit.UnitName</span>
+                            <span class="status-pill status-pill-warning ms-auto" style="font-size: 0.6rem;">@unit.Total</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <a href="/Statistics/ExportExcel" class="btn-premium btn-premium-light">
+                <i class="fas fa-file-excel"></i> XUẤT EXCEL
+            </a>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-chart-doughnut"></i> Members by Status
+<div class="card-premium mb-4" style="background: var(--primary-gradient); border: none; overflow: hidden; position: relative; padding: 3rem;">
+    <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -80px; left: -80px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+    
+    <div class="row align-items-center position-relative">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff;">
+                    <i class="fas fa-star" style="font-size: 0.8rem;"></i>
+                </div>
+                <span class="text-white small fw-black text-uppercase letter-spacing-1">Danh hiệu vinh dự</span>
             </div>
-            <div class="card-body">
-                <canvas id="statusChart" height="300"></canvas>
-            </div>
+            <h1 class="text-white fw-black mb-3" style="font-size: 3.5rem; letter-spacing: -2px; line-height: 1;">Đoàn viên Tiêu biểu</h1>
+            <p class="text-white opacity-75 fw-bold mb-0" style="max-width: 500px; line-height: 1.6;">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
         </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-venus-mars"></i> Members by Gender
-            </div>
-            <div class="card-body">
-                <canvas id="genderChart" height="300"></canvas>
+        <div class="col-lg-4 text-center mt-4 mt-lg-0">
+            <div class="bg-white bg-opacity-10 rounded-pill p-4 px-5 d-inline-block border border-white border-opacity-10 shadow-lg" style="backdrop-filter: blur(10px);">
+                <div class="d-flex align-items-center gap-5">
+                    <div class="text-center">
+                        <span class="d-block text-white fw-black" style="font-size: 2.8rem; line-height: 1;" id="outstandingCount">@totalOutstanding</span>
+                        <span class="text-white opacity-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">Tổng số</span>
+                    </div>
+                    <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.15);"></div>
+                    <div class="text-center">
+                        <span class="d-block text-white fw-black" style="font-size: 2.8rem; line-height: 1;" id="outstandingPercent">@((totalMembers > 0 ? (double)totalOutstanding * 100 / totalMembers : 0).ToString("F1"))%</span>
+                        <span class="text-white opacity-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">Tỷ lệ</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="row mb-5">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-star"></i> Members by Achievement Level
+        <div class="card-premium h-100 p-4">
+            <div class="section-header mb-4">
+                <div class="section-title">Cơ cấu giới tính</div>
+                <i class="fas fa-venus-mars text-muted opacity-50"></i>
             </div>
-            <div class="card-body">
-                <canvas id="achievementChart" height="300"></canvas>
+            <div style="height: 300px; position: relative;">
+                <canvas id="genderChart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-building"></i> Members by Unit
+        <div class="card-premium h-100 p-4">
+            <div class="section-header mb-4">
+                <div class="section-title">Tình trạng sinh hoạt</div>
+                <i class="fas fa-heartbeat text-muted opacity-50"></i>
             </div>
-            <div class="card-body">
-                <canvas id="unitChart" height="300"></canvas>
+            <div style="height: 300px; position: relative;">
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="card-premium mb-5">
+    <div class="section-header mb-5">
+        <div class="section-title">Chi tiết cơ sở</div>
+        <div class="status-pill status-pill-info">@detailedStats.Count CHI ĐOÀN</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-premium-new" style="font-size: 0.85rem;">
+            <thead>
+                <tr>
+                    <th rowspan="2" class="align-middle">ĐƠN VỊ CHI ĐOÀN</th>
+                    <th colspan="3" class="text-center py-3" style="background: rgba(0, 97, 242, 0.02);">NHÂN KHẨU HỌC</th>
+                    <th colspan="3" class="text-center py-3" style="background: rgba(16, 185, 129, 0.02);">TRẠNG THÁI</th>
+                    <th colspan="3" class="text-center py-3" style="background: rgba(239, 68, 68, 0.02);">XẾP LOẠI</th>
+                    <th rowspan="2" class="text-center align-middle">TIÊU BIỂU</th>
+                </tr>
+                <tr>
+                    <th class="text-center">TỔNG</th>
+                    <th class="text-center">NAM</th>
+                    <th class="text-center">NỮ</th>
+                    <th class="text-center">ĐANG SH</th>
+                    <th class="text-center">CHUYỂN</th>
+                    <th class="text-center">T. THÀNH</th>
+                    <th class="text-center">X. SẮC</th>
+                    <th class="text-center">KHÁ</th>
+                    <th class="text-center">T. BÌNH</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < detailedStats.Count; i++)
+                {
+                    var s = detailedStats[i];
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="text-muted small fw-bold">@((i+1).ToString("D2"))</span>
+                                <span class="fw-bold text-dark">@s.UnitName</span>
+                            </div>
+                        </td>
+                        <td class="text-center fw-black text-dark">@s.Total</td>
+                        <td class="text-center fw-bold text-primary">@s.Male</td>
+                        <td class="text-center fw-bold text-danger">@s.Female</td>
+                        <td class="text-center"><span class="status-pill status-pill-success">@s.Active</span></td>
+                        <td class="text-center"><span class="status-pill status-pill-info">@s.Transferred</span></td>
+                        <td class="text-center"><span class="status-pill status-pill-warning">@s.Graduated</span></td>
+                        <td class="text-center fw-bold">@s.Excellent</td>
+                        <td class="text-center fw-bold">@s.Good</td>
+                        <td class="text-center fw-bold">@s.Average</td>
+                        <td class="text-center">
+                            @if(s.Outstanding > 0) {
+                                <div class="bg-warning bg-opacity-10 text-warning rounded-pill p-1 px-3 fw-black d-inline-block">@s.Outstanding</div>
+                            } else {
+                                <span class="text-muted opacity-25">0</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script>
-        // Load statistics
-        fetch('/statistics/getstatistics')
-            .then(response => response.json())
-            .then(data => {
-                // Status Chart
-                const statusCtx = document.getElementById('statusChart').getContext('2d');
-                new Chart(statusCtx, {
+        $(document).ready(function() {
+            const allStats = @Html.Raw(Json.Serialize(detailedStats));
+            const totalSystemMembers = @totalMembers;
+            const totalSystemOutstanding = @totalOutstanding;
+
+            let genderChart, statusChart;
+
+            function initDashboard(data, isAll = false) {
+                let total, outstanding, male, female, active, graduated, transferred;
+                
+                if (isAll) {
+                    total = totalSystemMembers;
+                    outstanding = totalSystemOutstanding;
+                    male = allStats.reduce((s, c) => s + c.male, 0);
+                    female = allStats.reduce((s, c) => s + c.female, 0);
+                    active = allStats.reduce((s, c) => s + c.active, 0);
+                    graduated = allStats.reduce((s, c) => s + c.graduated, 0);
+                    transferred = allStats.reduce((s, c) => s + c.transferred, 0);
+                } else {
+                    total = data.total;
+                    outstanding = data.outstanding;
+                    male = data.male;
+                    female = data.female;
+                    active = data.active;
+                    graduated = data.graduated;
+                    transferred = data.transferred;
+                }
+
+                const percent = total > 0 ? (outstanding * 100 / total).toFixed(1) : 0;
+                document.getElementById('outstandingCount').textContent = outstanding;
+                document.getElementById('outstandingPercent').textContent = percent + '%';
+
+                updateGenderChart(male, female);
+                updateStatusBarChart(active, graduated, transferred);
+            }
+
+            function updateGenderChart(male, female) {
+                const ctx = document.getElementById('genderChart').getContext('2d');
+                if (genderChart) genderChart.destroy();
+                genderChart = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: Object.keys(data.membersByStatus || {}),
+                        labels: ['Nam', 'Nữ'],
                         datasets: [{
-                            data: Object.values(data.membersByStatus || {}),
-                            backgroundColor: ['#0056b3', '#28a745', '#ffc107', '#dc3545']
+                            data: [male, female],
+                            backgroundColor: ['#0061f2', '#ef4444'],
+                            borderWidth: 0, cutout: '75%'
                         }]
                     },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                    options: { 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { 
+                                position: 'right', 
+                                labels: { 
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 25,
+                                    font: { weight: '800', size: 12, family: "'Inter', sans-serif" } 
+                                } 
+                            } 
+                        } 
+                    }
                 });
+            }
 
-                // Gender Chart
-                const genderCtx = document.getElementById('genderChart').getContext('2d');
-                new Chart(genderCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: Object.keys(data.membersByGender || {}),
-                        datasets: [{
-                            data: Object.values(data.membersByGender || {}),
-                            backgroundColor: ['#ff6b6b', '#4ecdc4', '#95e1d3']
-                        }]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-                });
-
-                // Achievement Chart
-                const achievementCtx = document.getElementById('achievementChart').getContext('2d');
-                new Chart(achievementCtx, {
+            function updateStatusBarChart(active, graduated, transferred) {
+                const ctx = document.getElementById('statusChart').getContext('2d');
+                if (statusChart) statusChart.destroy();
+                statusChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: Object.keys(data.membersByAchievement || {}),
+                        labels: ['Đang sinh hoạt', 'Đã trưởng thành', 'Đã chuyển'],
                         datasets: [{
-                            label: 'Count',
-                            data: Object.values(data.membersByAchievement || {}),
-                            backgroundColor: '#0056b3'
+                            data: [active, graduated, transferred],
+                            backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                            borderRadius: 12, barThickness: 50
                         }]
                     },
                     options: {
                         responsive: true,
-                        scales: { y: { beginAtZero: true } },
-                        plugins: { legend: { display: false } }
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { weight: '800', size: 11 }, color: '#94a3b8' } },
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 11 }, color: '#94a3b8' } }
+                        }
                     }
                 });
+            }
 
-                // Unit Chart
-                const unitChart = document.getElementById('unitChart').getContext('2d');
-                const unitData = data.membersByUnit || [];
-                new Chart(unitChart, {
-                    type: 'bar',
-                    data: {
-                        labels: unitData.map(u => u.unit),
-                        datasets: [{
-                            label: 'Members',
-                            data: unitData.map(u => u.count),
-                            backgroundColor: '#0056b3'
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        scales: { x: { beginAtZero: true } },
-                        plugins: { legend: { display: false } }
-                    }
-                });
+            // Dropdown Logic
+            $('#unitDropdownTrigger').on('click', function(e) {
+                e.stopPropagation();
+                $('#unitDropdownMenu').toggleClass('show');
             });
+
+            $('.dropdown-item-premium').on('click', function() {
+                const unitName = $(this).data('unit');
+                const count = $(this).find('.status-pill').text();
+                $('#selectedUnitText').text(unitName === 'all' ? `Toàn hệ thống (${count})` : `${unitName} (${count})`);
+                $('.dropdown-item-premium').removeClass('active');
+                $(this).addClass('active');
+                $('#unitDropdownMenu').removeClass('show');
+
+                if (unitName === 'all') initDashboard(null, true);
+                else initDashboard(allStats.find(s => s.unitName === unitName), false);
+            });
+
+            $(document).on('click', () => $('#unitDropdownMenu').removeClass('show'));
+
+            initDashboard(null, true);
+        });
     </script>
 }
+
+<style>
+    .dropdown-menu-premium {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: var(--shadow-premium);
+        border: 1px solid #f1f5f9;
+        margin-top: 10px;
+        display: none;
+        z-index: 1000;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .dropdown-menu-premium.show {
+        display: block;
+        animation: slideUp 0.3s ease;
+    }
+
+    .dropdown-item-premium {
+        padding: 12px 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+
+    .dropdown-item-premium:hover {
+        background: #f8fafc;
+        color: var(--primary);
+    }
+
+    .dropdown-item-premium.active {
+        background: #f0f7ff;
+        color: var(--primary);
+    }
+
+    @@keyframes slideUp {
+        from { transform: translateY(10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>

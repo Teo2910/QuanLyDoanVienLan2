@@ -1,122 +1,566 @@
 @model List<QLDV.Models.Activity>
 @{
-    ViewData["Title"] = "Activities";
+    ViewData["Title"] = "Hoạt động sắp tới";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-calendar-alt"></i> Activities Management</h1>
-            <p class="text-muted">Manage organization activities and events</p>
+<style>
+    .page-header-new {
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-title-box h1 {
+        font-weight: 800;
+        font-size: 2rem;
+        letter-spacing: -1px;
+        margin: 0;
+        color: #1a1a1a;
+    }
+
+    .header-title-box p {
+        margin: 4px 0 0 0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        width: 300px;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ccc;
+    }
+
+    .search-input-modern {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 15px;
+        padding: 0.65rem 1rem 0.65rem 2.5rem;
+        width: 100%;
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .search-input-modern:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
+
+    .btn-add-activity {
+        background: var(--primary-color);
+        color: #fff;
+        padding: 0.65rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        box-shadow: 0 6px 15px rgba(0, 86, 179, 0.2);
+        transition: all 0.2s;
+    }
+
+    .btn-add-activity:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 86, 179, 0.3);
+        color: #fff;
+    }
+
+    /* Activity Grid */
+    .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .activity-card {
+        background: #fff;
+        border-radius: 35px;
+        padding: 2rem;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: transform 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .activity-card:hover {
+        transform: translateY(-5px);
+        border-color: #f0f4f8;
+    }
+
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .activity-type-badge {
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 5px 15px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .type-phong-trao { background: #e8f5e9; color: #28a745; }
+    .type-the-thao { background: #fff5f5; color: #ff5252; }
+    .type-hoi-hop { background: #f0f7ff; color: #1a73e8; }
+    .type-seminar { background: #fef9e7; color: #f39c12; }
+    .type-other { background: #f8f9fa; color: #999; }
+
+    .btn-edit-small {
+        width: 36px;
+        height: 36px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #eee;
+    }
+
+    .btn-edit-small:hover {
+        background: #fff;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .activity-card h3 {
+        font-weight: 800;
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+        color: #1a1a1a;
+        line-height: 1.3;
+    }
+
+    .activity-description {
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 600;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .activity-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 1.25rem;
+    }
+
+    .meta-icon-box {
+        width: 36px;
+        height: 36px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        border: 1px solid #eee;
+        font-size: 0.9rem;
+    }
+
+    .meta-info-text label {
+        display: block;
+        font-size: 0.55rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+
+    .meta-info-text span {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .btn-upgrade {
+        background: #0066ff;
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 1rem;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-upgrade:hover {
+        background: #005ce6;
+        transform: translateY(-2px);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 20000;
+        display: none;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        overflow-y: auto; /* Enable scrolling on the overlay */
+        padding: 40px 20px; /* Space at top and bottom */
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal-content-wrapper {
+        width: 100%;
+        max-width: 600px;
+        position: relative;
+        margin: auto; /* Center horizontally and allow vertical expansion */
+    }
+
+    /* Consolidated Activity Styles for Modal Injection */
+    .modal-overlay .form-layout-container {
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .modal-overlay .form-style-card {
+        background: #fff !important;
+        border-radius: 40px !important;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.15) !important;
+        padding: 3.5rem !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        position: relative;
+    }
+</style>
+
+<div id="activityModal" class="modal-overlay">
+    <div class="modal-content-wrapper">
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<div class="page-header-new">
+    <div class="header-title-box">
+        <h1>Hoạt động sắp tới</h1>
+        <p>LỊCH TRÌNH VÀ SỰ KIỆN ĐOÀN THANH NIÊN CƠ SỞ</p>
+    </div>
+    <div class="header-right">
+        <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="activitySearch" class="search-input-modern" placeholder="Tìm kiếm hoạt động...">
         </div>
-        <a href="/activities/create" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus"></i> Add New Activity
+        <a href="javascript:void(0)" onclick="openActivityModal('/activities/create')" class="btn-add-activity">
+            <i class="fas fa-plus"></i> THÊM HOẠT ĐỘNG
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-md-8">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search activities...">
-            </div>
-            <div class="col-md-4">
-                <select id="typeFilter" class="form-select">
-                    <option value="">All Types</option>
-                    <option value="Meeting">Meeting</option>
-                    <option value="Training">Training</option>
-                    <option value="Event">Event</option>
-                    <option value="Seminar">Seminar</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover" id="activitiesTable">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Description</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var activity in Model ?? new List<QLDV.Models.Activity>())
-                    {
-                        <tr>
-                            <td><strong>@activity.Title</strong></td>
-                            <td><span class="badge bg-primary">@activity.Type</span></td>
-                            <td>@activity.Date</td>
-                            <td>@activity.Location</td>
-                            <td>@(activity.Description?.Length > 50 ? activity.Description.Substring(0, 50) + "..." : activity.Description)</td>
-                            <td>
-                                <a href="/activities/edit/@activity.Id" class="btn btn-sm btn-primary" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-danger" onclick="deleteActivity('@activity.Id')" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+<div class="activity-grid" id="activityGrid">
+    @foreach (var activity in Model ?? new List<QLDV.Models.Activity>())
+    {
+        <div class="activity-item">
+            <div class="activity-card">
+                <div class="card-top">
+                    @{
+                        var typeClass = activity.Type switch {
+                            "Meeting" or "Hội họp" => "type-hoi-hop",
+                            "Training" or "Tập huấn" => "type-phong-trao",
+                            "Event" or "Sự kiện" => "type-the-thao",
+                            "Seminar" or "Hội thảo" => "type-seminar",
+                            _ => "type-other"
+                        };
+                        var typeLabel = activity.Type switch {
+                            "Meeting" => "HỘI HỌP",
+                            "Training" => "PHONG TRÀO",
+                            "Event" => "THỂ THAO",
+                            "Seminar" => "HỘI THẢO",
+                            _ => activity.Type?.ToUpper() ?? "KHÁC"
+                        };
                     }
-                </tbody>
-            </table>
-        </div>
-        @if ((Model?.Count ?? 0) == 0)
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No activities found. <a href="/activities/create">Create one</a></p>
+                    <span class="activity-type-badge @typeClass">@typeLabel</span>
+                    <a href="javascript:void(0)" onclick="openActivityModal('/activities/edit/@activity.Id')" class="btn-edit-small">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                </div>
+
+
+                <h3>@activity.Title</h3>
+                <p class="activity-description">@(activity.Description ?? "Không có mô tả cho hoạt động này.")</p>
+
+                <div class="activity-meta-row">
+                    <div class="meta-icon-box">
+                        <i class="far fa-calendar-alt"></i>
+                    </div>
+                    <div class="meta-info-text">
+                        <label>THỜI GIAN</label>
+                        <span>@activity.Date</span>
+                    </div>
+                </div>
+
+                <div class="activity-meta-row">
+                    <div class="meta-icon-box">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="meta-info-text">
+                        <label>ĐỊA ĐIỂM</label>
+                        <span>@activity.Location</span>
+                    </div>
+                </div>
+
+                <button class="btn-upgrade">
+                    <i class="fas fa-medal"></i> NÂNG CẤP THÀNH PHONG TRÀO
+                </button>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
+
+@if ((Model?.Count ?? 0) == 0)
+{
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-day" style="font-size: 3rem; color: #eee; margin-bottom: 1.5rem;"></i>
+        <p class="text-muted fw-bold">Chưa có hoạt động nào sắp tới.</p>
+    </div>
+}
 
 @section Scripts {
     <script>
-        function deleteActivity(activityId) {
-            if (confirm('Are you sure you want to delete this activity?')) {
-                fetch(`/activities/delete?id=${activityId}`, {
-                    method: 'POST'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Error deleting activity');
-                    }
+        $(document).ready(function() {
+            $("#activitySearch").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#activityGrid .activity-item").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
-            }
-        }
-
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            const filter = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#activitiesTable tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
             });
-        });
 
-        // Type filter
-        document.getElementById('typeFilter').addEventListener('change', function() {
-            const filter = this.value;
-            const rows = document.querySelectorAll('#activitiesTable tbody tr');
-            rows.forEach(row => {
-                if (!filter || row.textContent.includes(filter)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+            // Modal Logic
+            const modal = document.getElementById('activityModal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeActivityModal();
                 }
             });
+
+            window.openActivityModal = function(url) {
+                const body = document.getElementById('modalBody');
+                body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-dark">Đang tải hoạt động...</p></div>';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        if (!doc || !doc.body) {
+                            throw new Error('Failed to parse response or response is empty');
+                        }
+
+                        const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
+                        if (!content) {
+                            throw new Error('Content not found in response');
+                        }
+                        
+                        body.innerHTML = '';
+                        if (doc.querySelectorAll) {
+                            doc.querySelectorAll('style').forEach(s => body.appendChild(s.cloneNode(true)));
+                        }
+                        body.insertAdjacentHTML('beforeend', content.outerHTML);
+
+                        // Execute scripts
+                        if (doc.querySelectorAll) {
+                            doc.querySelectorAll('script').forEach(oldScript => {
+                                // Skip common library scripts
+                                const src = oldScript.getAttribute('src') || '';
+                                if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) {
+                                    return;
+                                }
+
+                                const newScript = document.createElement('script');
+                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                body.appendChild(newScript);
+                            });
+                        }
+
+                        initializeActivityModalScripts();
+                    })
+                    .catch(error => {
+                        console.error('Modal error:', error);
+                        body.innerHTML = '<div class="alert alert-danger">Lỗi khi tải: ' + error.message + '</div>';
+                    });
+            };
+
+            window.closeActivityModal = function() {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    document.getElementById('modalBody').innerHTML = '';
+                }, 300);
+            };
+
+            function initializeActivityModalScripts() {
+                // 0. Handle Close Button inside modal
+                const closeBtn = document.querySelector('#modalBody .close-form-btn, #modalBody .btn-back');
+                if (closeBtn) {
+                    closeBtn.href = 'javascript:void(0)';
+                    closeBtn.onclick = (e) => {
+                        e.preventDefault();
+                        closeActivityModal();
+                    };
+                }
+
+                // 1. Initialize Flatpickr
+                if (typeof flatpickr !== 'undefined') {
+                    flatpickr("#modalBody .date-picker", {
+                        dateFormat: "Y-m-d",
+                        altInput: true,
+                        altFormat: "m/d/Y",
+                        allowInput: true,
+                        disableMobile: true
+                    });
+                }
+
+                // 2. Setup Dropdowns
+                function setupModalDropdown(triggerId, menuId, inputId, textId) {
+                    const trigger = document.querySelector(`#modalBody #${triggerId}`);
+                    const menu = document.querySelector(`#modalBody #${menuId}`);
+                    const input = document.querySelector(`#modalBody #${inputId}`);
+                    const text = document.querySelector(`#modalBody #${textId}`);
+                    if (!trigger || !menu) return;
+
+                    const items = menu.querySelectorAll('.dropdown-item-custom');
+
+                    trigger.onclick = (e) => {
+                        e.stopPropagation();
+                        const isOpen = menu.classList.contains('show');
+                        document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));
+                        document.querySelectorAll('.custom-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                        if (!isOpen) {
+                            menu.classList.add('show');
+                            trigger.classList.add('active');
+                        }
+                    };
+
+                    items.forEach(item => {
+                        item.onclick = () => {
+                            const val = item.getAttribute('data-value');
+                            const label = item.textContent.trim();
+                            if (input) input.value = val;
+                            if (text) text.textContent = label;
+                            items.forEach(i => i.classList.remove('selected'));
+                            item.classList.add('selected');
+                            menu.classList.remove('show');
+                            trigger.classList.remove('active');
+                        };
+                    });
+                }
+
+                setupModalDropdown('typeDropdownTrigger', 'typeDropdownMenu', 'TypeInput', 'typeSelectedText');
+
+                // Handle Form Submit
+                const form = document.querySelector('#modalBody form');
+                if (form) {
+                    form.onsubmit = function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(form);
+                        const url = form.getAttribute('action');
+
+                        fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(response => {
+                            if (response.redirected) {
+                                if (typeof toast !== 'undefined') toast.success('Thao tác thành công!');
+                                setTimeout(() => location.reload(), 1000);
+                                return;
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            if (html) {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                
+                                if (!doc || !doc.body) {
+                                    console.error('Failed to parse validation errors');
+                                    return;
+                                }
+
+                                const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
+                                if (content) {
+                                    document.getElementById('modalBody').innerHTML = content.innerHTML;
+                                    
+                                    // Re-inject styles if any
+                                    if (doc.querySelectorAll) {
+                                        doc.querySelectorAll('style').forEach(s => document.getElementById('modalBody').appendChild(s.cloneNode(true)));
+                                    }
+                                    
+                                    initializeActivityModalScripts();
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            if (typeof toast !== 'undefined') toast.error('Lỗi khi gửi dữ liệu: ' + error);
+                        });
+                    };
+                }
+            }
         });
     </script>
 }

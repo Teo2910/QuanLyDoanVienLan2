@@ -52,8 +52,11 @@ namespace QLDV.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
+            using var scope = HttpContext.RequestServices.CreateScope();
+            var unitService = scope.ServiceProvider.GetRequiredService<IUnitService>();
+            ViewBag.Units = await unitService.GetAllUnitsAsync();
             return View();
         }
 
@@ -63,11 +66,23 @@ namespace QLDV.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Verify Admin Code if Admin role is selected
+                if (model.Role == "Admin")
+                {
+                    if (model.AdminCode != "kiemchutdinh29")
+                    {
+                        ModelState.AddModelError("AdminCode", "Mã xác nhận Admin không chính xác. Bạn không có quyền tạo tài khoản Quản trị viên.");
+                        await FetchUnitsForViewBag();
+                        return View(model);
+                    }
+                }
+
                 var user = new ApplicationUser 
                 { 
                     UserName = model.Email, 
                     Email = model.Email,
                     FullName = model.FullName,
+                    UnitId = model.Role == "Secretary" ? model.UnitId : null,
                     CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
 
@@ -81,6 +96,7 @@ namespace QLDV.Controllers
                     catch (Exception ex)
                     {
                         ModelState.AddModelError("", "Error uploading avatar: " + ex.Message);
+                        await FetchUnitsForViewBag();
                         return View(model);
                     }
                 }
@@ -88,15 +104,14 @@ namespace QLDV.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // Create default roles if they don't exist
+                    // Ensure roles exist
                     if (!await _roleManager.RoleExistsAsync("Admin"))
                         await _roleManager.CreateAsync(new IdentityRole("Admin"));
                     if (!await _roleManager.RoleExistsAsync("Secretary"))
                         await _roleManager.CreateAsync(new IdentityRole("Secretary"));
 
-                    // Assign role based on some logic or first user
-                    var usersCount = _userManager.Users.Count();
-                    if (usersCount == 1)
+                    // Assign requested role
+                    if (model.Role == "Admin")
                     {
                         await _userManager.AddToRoleAsync(user, "Admin");
                         user.Role = "Admin";
@@ -116,7 +131,16 @@ namespace QLDV.Controllers
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+            
+            await FetchUnitsForViewBag();
             return View(model);
+        }
+
+        private async Task FetchUnitsForViewBag()
+        {
+            using var scope = HttpContext.RequestServices.CreateScope();
+            var unitService = scope.ServiceProvider.GetRequiredService<IUnitService>();
+            ViewBag.Units = await unitService.GetAllUnitsAsync();
         }
 
         [HttpPost]
@@ -138,6 +162,43 @@ namespace QLDV.Controllers
         public IActionResult Profile()
         {
             return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return NotFound();
+
+                user.FullName = model.FullName;
+                user.PhoneNumber = model.PhoneNumber;
+
+                if (model.Avatar != null)
+                {
+                    try
+                    {
+                        var fileName = await _fileService.SaveFileAsync(model.Avatar, "avatars");
+                        user.AvatarUrl = _fileService.GetFileUrl(fileName, "avatars");
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { success = false, message = "Error uploading avatar: " + ex.Message });
+                    }
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return Json(new { success = true, message = "Cập nhật thông tin thành công!", user = new { fullName = user.FullName, avatarUrl = user.AvatarUrl, phoneNumber = user.PhoneNumber } });
+                }
+                
+                return Json(new { success = false, message = string.Join(", ", result.Errors.Select(e => e.Description)) });
+            }
+            return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)
@@ -166,6 +227,16 @@ namespace QLDV.Controllers
         public string Password { get; set; } = string.Empty;
         public string ConfirmPassword { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
+        public string Role { get; set; } = "Secretary"; // Default to Secretary
+        public string? AdminCode { get; set; }
+        public string? UnitId { get; set; }
+        public IFormFile? Avatar { get; set; }
+    }
+
+    public class UpdateProfileViewModel
+    {
+        public string FullName { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
         public IFormFile? Avatar { get; set; }
     }
 }

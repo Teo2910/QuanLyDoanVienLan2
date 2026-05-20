@@ -4,153 +4,377 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-building"></i> @Model.Name</h1>
-            <p class="text-muted">@Model.Code</p>
-        </div>
-        <div>
-            <a href="/units/edit/@Model.Id" class="btn btn-primary">
-                <i class="fas fa-edit"></i> Edit
-            </a>
-            <a href="/units/delete/@Model.Id" class="btn btn-danger">
-                <i class="fas fa-trash"></i> Delete
-            </a>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-info-circle"></i> Unit Information
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <h6 class="text-muted">Unit Code</h6>
-                        <p>@Model.Code</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-muted">Email</h6>
-                        <p>@(Model.Email ?? "N/A")</p>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <h6 class="text-muted">Phone</h6>
-                        <p>@(Model.Phone ?? "N/A")</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-muted">Created</h6>
-                        <p>@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("g"))</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <h6 class="text-muted">Address</h6>
-                        <p>@(Model.Address ?? "N/A")</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mt-4">
-            <div class="card-header">
-                <i class="fas fa-users"></i> Members (@Model.Members.Count)
-            </div>
-            <div class="card-body">
-                @if (Model.Members.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Member ID</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var member in Model.Members)
-                                {
-                                    <tr>
-                                        <td>@member.FullName</td>
-                                        <td>@member.MemberId</td>
-                                        <td><span class="badge bg-primary">@member.Status</span></td>
-                                        <td>
-                                            <a href="/members/edit/@member.Id" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <p class="text-muted">No members in this unit</p>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-chart-bar"></i> Statistics
-            </div>
-            <div class="card-body">
-                <div class="stat-item mb-3">
-                    <small class="text-muted">Total Members</small>
-                    <h4>@Model.Members.Count</h4>
-                </div>
-                <div class="stat-item mb-3">
-                    <small class="text-muted">Child Units</small>
-                    <h4>@Model.Children.Count</h4>
-                </div>
-                @if (Model.Parent != null)
-                {
-                    <div class="stat-item">
-                        <small class="text-muted">Parent Unit</small>
-                        <p>
-                            <a href="/units/details/@Model.Parent.Id">@Model.Parent.Name</a>
-                        </p>
-                    </div>
-                }
-            </div>
-        </div>
-
-        @if (Model.Children.Any())
-        {
-            <div class="card mt-3">
-                <div class="card-header">
-                    <i class="fas fa-sitemap"></i> Child Units
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @foreach (var child in Model.Children)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="/units/details/@child.Id">@child.Name</a>
-                                <span class="badge bg-secondary">@child.Members.Count</span>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        }
-    </div>
-</div>
-
 <style>
-    .stat-item {
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 15px;
+    .modal-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
+
+    .modal-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 1000px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
+
+    .close-modal-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 44px;
+        height: 44px;
+        background: #f4f7fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .close-modal-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
+
+    .details-header {
+        margin-bottom: 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .header-main-box {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-icon-box {
+        width: 64px;
+        height: 64px;
+        background: #f0f4f8;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #1a1a1a;
+    }
+
+    .header-text h1 {
+        font-weight: 800;
+        font-size: 2.25rem;
+        letter-spacing: -1px;
+        margin-bottom: 0.25rem;
+        color: #1a1a1a;
+    }
+
+    .header-text .unit-code {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .action-link {
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+    .link-blue { background: #f0f7ff; color: var(--primary-color); }
+    .link-red { background: #fff5f5; color: #dc3545; }
+
+    .action-link:hover {
+        transform: translateY(-2px);
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 3rem;
+    }
+
+    /* Section Styles */
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-label .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    .info-box {
+        background: #f8fbff;
+        border-radius: 30px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        margin-bottom: 2rem;
+    }
+
+    .info-item label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .info-item span {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    /* Right Sidebar */
+    .stats-card {
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        border-radius: 30px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card-title {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1a1a1a;
+    }
+
+    /* Members List */
+    .member-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .member-item:hover {
+        background: #f1f3f5;
+    }
+
+    .member-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .member-id {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #ccc;
+        margin-left: 10px;
+    }
+
+    .status-badge {
+        background: #fff;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 </style>
+
+<div class="modal-layout-container">
+    <div class="modal-style-card">
+        <a href="/units" class="close-modal-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="details-header">
+            <div class="header-main-box">
+                <div class="header-icon-box">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="header-text">
+                    <h1>@Model.Name</h1>
+                    <div class="unit-code">MÃ ĐƠN VỊ: @Model.Code</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/units/edit/@Model.Id" class="action-link link-blue">
+                    <i class="far fa-edit"></i> CHỈNH SỬA
+                </a>
+                <a href="/units/delete/@Model.Id" class="action-link link-red">
+                    <i class="far fa-trash-alt"></i> XÓA
+                </a>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="details-left">
+                <div class="section-label">
+                    <div class="dot"></div>
+                    THÔNG TIN CHI TIẾT
+                </div>
+                <div class="info-box">
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>EMAIL LIÊN HỆ</label>
+                            <span>@(Model.Email ?? "Chưa cập nhật")</span>
+                        </div>
+                        <div class="info-item">
+                            <label>SỐ ĐIỆN THOẠI</label>
+                            <span>@(Model.Phone ?? "Chưa cập nhật")</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>ĐỊA CHỈ TRỤ SỞ</label>
+                            <span>@(Model.Address ?? "Chưa cập nhật")</span>
+                        </div>
+                        <div class="info-item">
+                            <label>NGÀY THIẾT LẬP</label>
+                            <span>@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("yyyy-MM-dd"))</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-label">
+                    <div class="dot"></div>
+                    DANH SÁCH ĐOÀN VIÊN (@Model.Members.Count)
+                </div>
+                <div class="members-list">
+                    @if (Model.Members.Any())
+                    {
+                        @foreach (var member in Model.Members)
+                        {
+                            <div class="member-item">
+                                <div>
+                                    <span class="member-name">@member.FullName</span>
+                                    <span class="member-id">#@member.MemberId</span>
+                                </div>
+                                <div class="status-badge">@member.Status</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Chưa có đoàn viên nào trong đơn vị này.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="details-right">
+                <div class="stats-card">
+                    <div class="stats-card-title">
+                        THỐNG KÊ ĐƠN VỊ
+                        <i class="fas fa-chart-line" style="color: #eee;"></i>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <div class="stat-label">TỔNG ĐOÀN VIÊN</div>
+                        <div class="stat-value">@Model.Members.Count</div>
+                    </div>
+
+                    <div class="stat-row">
+                        <div class="stat-label">ĐƠN VỊ CON</div>
+                        <div class="stat-value">@Model.Children.Count</div>
+                    </div>
+
+                    @if (Model.Parent != null)
+                    {
+                        <div class="stat-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed #eee;">
+                            <div class="stat-label">ĐƠN VỊ CẤP TRÊN</div>
+                            <div class="stat-value" style="font-size: 0.9rem; text-align: right;">
+                                <a href="/units/details/@Model.Parent.Id" style="color: var(--primary-color); text-decoration: none;">@Model.Parent.Name</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Children.Any())
+                {
+                    <div class="section-label">
+                        <div class="dot"></div>
+                        ĐƠN VỊ TRỰC THUỘC
+                    </div>
+                    @foreach (var child in Model.Children)
+                    {
+                        <a href="/units/details/@child.Id" style="text-decoration: none;">
+                            <div class="member-item">
+                                <span class="member-name" style="font-size: 0.85rem;">@child.Name</span>
+                                <div class="status-badge" style="font-size: 0.65rem;">@child.Members.Count ĐV</div>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

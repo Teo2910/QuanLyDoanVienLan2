@@ -1,63 +1,305 @@
 @model QLDV.Models.Activity
 @{
-    ViewData["Title"] = "Create Activity";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Thêm hoạt động mới";
+    Layout = null; // Set to null for AJAX requests to avoid full layout
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-calendar-plus"></i> Create New Activity</h1>
-</div>
+<div class="form-layout-container">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .form-style-card {
+            background: #fff !important;
+            width: 100%;
+            max-width: 600px;
+            border-radius: 40px !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1) !important;
+            padding: 3.5rem !important;
+            position: relative;
+            margin: auto;
+        }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                Activity Information
-            </div>
-            <div class="card-body">
-                <form method="post" action="/activities/create">
-                    <div class="mb-3">
-                        <label class="form-label">Activity Title *</label>
-                        <input type="text" asp-for="Title" class="form-control" required>
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
+        .close-form-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 36px;
+            height: 36px;
+            background: #f4f7fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Activity Type *</label>
-                            <select asp-for="Type" class="form-select" required>
-                                <option value="">Select Type</option>
-                                <option value="Meeting">Meeting</option>
-                                <option value="Training">Training</option>
-                                <option value="Event">Event</option>
-                                <option value="Seminar">Seminar</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Date *</label>
-                            <input type="date" asp-for="Date" class="form-control" required>
-                        </div>
-                    </div>
+        .close-form-btn:hover {
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Location *</label>
-                        <input type="text" asp-for="Location" class="form-control" required>
-                    </div>
+        .form-header {
+            margin-bottom: 3rem;
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                    </div>
+        .form-header h2 {
+            font-weight: 800;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
 
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Create Activity
-                    </button>
-                    <a href="/activities" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-times"></i> Cancel
-                    </a>
-                </form>
+        .form-header .subtext {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-header .dot-blue {
+            width: 6px;
+            height: 6px;
+            background: #0066ff;
+            border-radius: 50%;
+        }
+
+        .custom-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .custom-input {
+            background: #f8fbff !important;
+            border: 1px solid transparent !important;
+            border-radius: 20px !important;
+            padding: 1.1rem 1.25rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            transition: all 0.2s !important;
+            width: 100% !important;
+            font-size: 0.9rem !important;
+        }
+
+        .custom-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .custom-input:focus {
+            background: #fff !important;
+            border-color: #0066ff !important;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.05) !important;
+            outline: none !important;
+        }
+
+        .custom-textarea {
+            min-height: 150px;
+            resize: none;
+        }
+
+        /* Custom Dropdown Styles */
+        .dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-dropdown-trigger {
+            background: #f8fbff;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            padding: 1.1rem 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .custom-dropdown-trigger:hover {
+            background: #f0f7ff;
+        }
+
+        .custom-dropdown-trigger.active {
+            background: #fff;
+            border-color: #0066ff;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.05);
+        }
+
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+            z-index: 1200;
+            padding: 8px;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu-custom.show {
+            display: block;
+        }
+
+        .dropdown-item-custom {
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #444;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item-custom:hover {
+            background: #f8fbff;
+            color: #0066ff;
+        }
+
+        .dropdown-item-custom.selected {
+            background: #f0f7ff;
+            color: #0066ff;
+        }
+
+        .dropdown-item-custom i {
+            display: none;
+            font-size: 0.8rem;
+        }
+
+        .dropdown-item-custom.selected i {
+            display: block;
+        }
+
+        .submit-btn {
+            background: #0066ff !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 1.25rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            width: 100% !important;
+            margin-top: 2.5rem !important;
+            transition: all 0.2s !important;
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.2) !important;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 102, 255, 0.3) !important;
+            background: #005ce6 !important;
+        }
+
+        /* Flatpickr Custom Styling */
+        .flatpickr-calendar {
+            border-radius: 24px !important;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.1) !important;
+            border: 1px solid #f0f0f0 !important;
+            padding: 10px !important;
+            z-index: 99999 !important;
+        }
+
+        .flatpickr-day.selected {
+            background: #0066ff !important;
+            border-color: #0066ff !important;
+            border-radius: 12px !important;
+        }
+
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="form-style-card">
+        <a href="/activities" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Thêm hoạt động mới</h2>
+            <div class="subtext">
+                <div class="dot-blue"></div>
+                THÔNG TIN CHI TIẾT SỰ KIỆN
             </div>
         </div>
+
+        <form method="post" action="/activities/create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" style="font-size: 0.8rem; font-weight: 600;"></div>
+            
+            <div class="mb-4">
+                <input type="text" asp-for="Title" class="custom-input" placeholder="VD: Ngày hội thanh niên khỏe...">
+                <span asp-validation-for="Title" class="text-danger" style="font-size: 0.7rem; font-weight: 700; margin-top: 5px; display: block;"></span>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="custom-label">NGÀY TỔ CHỨC</label>
+                    <div class="dropdown-container">
+                        <input type="text" asp-for="Date" class="custom-input date-picker" placeholder="mm/dd/yyyy">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #cbd5e1; pointer-events: none;"></i>
+                    </div>
+                    <span asp-validation-for="Date" class="text-danger" style="font-size: 0.7rem; font-weight: 700; margin-top: 5px; display: block;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="custom-label">PHÂN LOẠI</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="Type" id="TypeInput" />
+                        <div class="custom-dropdown-trigger" id="typeDropdownTrigger">
+                            <span id="typeSelectedText">Hội họp</span>
+                            <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="typeDropdownMenu">
+                            <div class="dropdown-item-custom" data-value="Meeting">Hội họp <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="Training">Tập huấn <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="Event">Sự kiện <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="Seminar">Hội thảo <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="Other">Khác <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Type" class="text-danger" style="font-size: 0.7rem; font-weight: 700; margin-top: 5px; display: block;"></span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">ĐỊA ĐIỂM TỔ CHỨC</label>
+                <input type="text" asp-for="Location" class="custom-input" placeholder="VD: Sân vận động trường...">
+                <span asp-validation-for="Location" class="text-danger" style="font-size: 0.7rem; font-weight: 700; margin-top: 5px; display: block;"></span>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">MÔ TẢ CHI TIẾT NỘI DUNG</label>
+                <textarea asp-for="Description" class="custom-input custom-textarea" placeholder="Nêu ngắn gọn mục đích, ý nghĩa và nội dung sẽ diễn ra..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                LƯU HOẠT ĐỘNG
+            </button>
+        </form>
     </div>
 </div>

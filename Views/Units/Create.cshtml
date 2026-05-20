@@ -1,68 +1,334 @@
 @model QLDV.Models.Unit
 @{
-    ViewData["Title"] = "Create Unit";
+    ViewData["Title"] = "Thêm đơn vị mới";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-plus-circle"></i> Create New Unit</h1>
-</div>
+<style>
+    .form-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                Unit Information
-            </div>
-            <div class="card-body">
-                <form method="post" action="/units/create">
-                    <div class="mb-3">
-                        <label class="form-label">Unit Name *</label>
-                        <input type="text" asp-for="Name" class="form-control" required>
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
+    .form-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
 
-                    <div class="mb-3">
-                        <label class="form-label">Unit Code *</label>
-                        <input type="text" asp-for="Code" class="form-control" required>
-                        <span asp-validation-for="Code" class="text-danger"></span>
-                    </div>
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 36px;
+        height: 36px;
+        background: #f4f7fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
 
-                    <div class="mb-3">
-                        <label class="form-label">Parent Unit (Optional)</label>
-                        <select asp-for="ParentId" class="form-select">
-                            <option value="">No Parent (Root Unit)</option>
-                            @foreach (var unit in ViewBag.ParentUnits ?? new List<object>())
-                            {
-                                <option value="@unit.Id">@unit.Name</option>
-                            }
-                        </select>
-                    </div>
+    .close-form-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" asp-for="Email" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Phone</label>
-                            <input type="tel" asp-for="Phone" class="form-control">
-                        </div>
-                    </div>
+    .form-header {
+        margin-bottom: 2.5rem;
+    }
 
-                    <div class="mb-3">
-                        <label class="form-label">Address</label>
-                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
-                    </div>
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
 
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Create Unit
-                    </button>
-                    <a href="/units" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-times"></i> Cancel
-                    </a>
-                </form>
+    .form-header .subtext {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-header .dot-blue {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-color);
+        border-radius: 50%;
+    }
+
+    .custom-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .custom-input {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .custom-input::placeholder {
+        color: #ccc;
+    }
+
+    .custom-input:focus {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
+
+    /* Custom Dropdown Styles */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-dropdown-trigger {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .custom-dropdown-trigger:hover {
+        background: #f0f7ff;
+    }
+
+    .custom-dropdown-trigger.active {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border: 1px solid #f0f0f0;
+        z-index: 100;
+        padding: 8px;
+        display: none;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-menu-custom.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .dropdown-item-custom {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #444;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .dropdown-item-custom:hover {
+        background: #f8fbff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom.selected {
+        background: #f0f7ff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom i {
+        display: none;
+        font-size: 0.8rem;
+    }
+
+    .dropdown-item-custom.selected i {
+        display: block;
+    }
+
+    .submit-btn {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 1.25rem;
+        font-weight: 800;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin-top: 2rem;
+        transition: all 0.2s;
+        box-shadow: 0 10px 20px rgba(0, 86, 179, 0.2);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 86, 179, 0.3);
+    }
+</style>
+
+<div class="form-layout-container">
+    <div class="form-style-card">
+        <a href="/units" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Thiết lập đơn vị mới</h2>
+            <div class="subtext">
+                <div class="dot-blue"></div>
+                CUNG CẤP CHI TIẾT THÔNG TIN CƠ SỞ ĐOÀN
             </div>
         </div>
+
+        <form method="post" action="/units/create">
+            <div class="mb-4">
+                <label class="custom-label">MÃ ĐƠN VỊ (CODE)</label>
+                <input type="text" asp-for="Code" class="custom-input" placeholder="VD: VNPT-01" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">TÊN GỌI ĐƠN VỊ CHÍNH THỨC</label>
+                <input type="text" asp-for="Name" class="custom-input" placeholder="Tên đơn vị..." required>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">EMAIL LIÊN HỆ CÔNG TÁC</label>
+                <input type="email" asp-for="Email" class="custom-input" placeholder="email@domain.com">
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">ĐƠN VỊ QUẢN LÝ CẤP TRÊN</label>
+                <div class="dropdown-container">
+                    <input type="hidden" asp-for="ParentId" id="ParentIdInput" />
+                    <div class="custom-dropdown-trigger" id="parentDropdownTrigger">
+                        <span id="parentSelectedText">Không có (Đơn vị cấp cao nhất)</span>
+                        <i class="fas fa-building" style="color: #ccc; font-size: 0.9rem;"></i>
+                    </div>
+                    <div class="dropdown-menu-custom" id="parentDropdownMenu">
+                        <div class="dropdown-item-custom selected" data-value="">
+                            Không có (Đơn vị cấp cao nhất)
+                            <i class="fas fa-check"></i>
+                        </div>
+                        @foreach (var unit in ViewBag.ParentUnits ?? new List<QLDV.Models.Unit>())
+                        {
+                            <div class="dropdown-item-custom" data-value="@unit.Id">
+                                @unit.Name
+                                <i class="fas fa-check"></i>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">ĐỊA CHỈ TRỤ SỞ / VĂN PHÒNG</label>
+                <input type="text" asp-for="Address" class="custom-input" placeholder="Địa chỉ...">
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">SỐ ĐIỆN THOẠI</label>
+                <input type="tel" asp-for="Phone" class="custom-input" placeholder="Số điện thoại...">
+            </div>
+
+            <button type="submit" class="submit-btn">
+                XÁC NHẬN THIẾT LẬP
+            </button>
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function setupDropdown(triggerId, menuId, inputId, textId) {
+            const trigger = document.getElementById(triggerId);
+            const menu = document.getElementById(menuId);
+            const input = document.getElementById(inputId);
+            const text = document.getElementById(textId);
+            const items = menu.querySelectorAll('.dropdown-item-custom');
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = menu.classList.contains('show');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.custom-dropdown-trigger').forEach(t => t.classList.remove('active'));
+
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    trigger.classList.add('active');
+                }
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const val = item.getAttribute('data-value');
+                    const label = item.textContent.trim();
+                    
+                    input.value = val;
+                    text.textContent = label;
+                    
+                    items.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    menu.classList.remove('show');
+                    trigger.classList.remove('active');
+                });
+            });
+        }
+
+        setupDropdown('parentDropdownTrigger', 'parentDropdownMenu', 'ParentIdInput', 'parentSelectedText');
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.custom-dropdown-trigger').forEach(t => t.classList.remove('active'));
+        });
+    </script>
+}

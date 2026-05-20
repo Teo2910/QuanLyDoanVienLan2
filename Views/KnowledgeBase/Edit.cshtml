@@ -1,47 +1,193 @@
 @model QLDV.Models.KnowledgeItem
 @{
-    ViewData["Title"] = "Edit Knowledge Item";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chỉnh sửa Tài liệu";
+    Layout = null;
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-edit"></i> Edit Knowledge Item</h1>
-</div>
+<div class="form-layout-container">
+    <style>
+        .form-style-card {
+            background: #fff !important;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 40px !important;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1) !important;
+            padding: 3.5rem !important;
+            position: relative;
+            margin: auto;
+        }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                Knowledge Item Information
-            </div>
-            <div class="card-body">
-                <form method="post" action="/knowledgebase/edit/@Model.Id">
-                    <input type="hidden" asp-for="Id" />
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Title *</label>
-                        <input type="text" asp-for="Title" class="form-control" required>
-                    </div>
+        .close-form-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 36px;
+            height: 36px;
+            background: #f4f7fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+            z-index: 100;
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <input type="text" asp-for="Category" class="form-control" placeholder="e.g., Guidelines, Procedures, Best Practices">
-                    </div>
+        .close-form-btn:hover {
+            background: #fff;
+            color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
-                    <div class="mb-3">
-                        <label class="form-label">Content *</label>
-                        <textarea asp-for="Content" class="form-control" rows="10" required></textarea>
-                        <small class="text-muted">Supports markdown formatting</small>
-                    </div>
+        .form-header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Save Changes
-                    </button>
-                    <a href="/knowledgebase" class="btn btn-secondary btn-lg">
-                        <i class="fas fa-times"></i> Cancel
-                    </a>
-                </form>
-            </div>
+        .form-header i {
+            font-size: 1.75rem;
+            color: #1a1a1a;
+        }
+
+        .form-header h2 {
+            font-weight: 800;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .custom-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .custom-input {
+            background: #f8fbff !important;
+            border: 1px solid transparent !important;
+            border-radius: 16px !important;
+            padding: 1rem 1.25rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            transition: all 0.2s !important;
+            width: 100% !important;
+            font-size: 0.95rem !important;
+        }
+
+        .custom-input:focus {
+            background: #fff !important;
+            border-color: #0061f2 !important;
+            box-shadow: 0 0 0 4px rgba(0, 97, 242, 0.05) !important;
+            outline: none !important;
+        }
+
+        .custom-textarea {
+            min-height: 400px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .submit-btn {
+            background: #0061f2 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 16px !important;
+            padding: 1.1rem 2rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            transition: all 0.2s !important;
+            box-shadow: 0 8px 20px rgba(0, 97, 242, 0.2) !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 97, 242, 0.3) !important;
+            background: #0052cc !important;
+        }
+
+        .btn-cancel {
+            background: #f4f7fa !important;
+            color: #666 !important;
+            border-radius: 16px !important;
+            padding: 1.1rem 2rem !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #eef2f7 !important;
+            color: #1a1a1a !important;
+        }
+    </style>
+
+    <div class="form-style-card">
+        <a href="/knowledgebase" class="close-form-btn btn-cancel">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <i class="fas fa-edit"></i>
+            <h2>Chỉnh sửa Tài liệu</h2>
         </div>
+
+        <form method="post" action="/knowledgebase/edit/@Model.Id">
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <label class="custom-label">Tiêu đề tài liệu *</label>
+                        <input type="text" asp-for="Title" class="custom-input" placeholder="Nhập tiêu đề..." required>
+                        <span asp-validation-for="Title" class="text-danger" style="font-size: 0.75rem;"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <label class="custom-label">Phân loại</label>
+                        <input type="text" asp-for="Category" class="custom-input" placeholder="Ví dụ: Nghiệp vụ Đoàn...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">Nội dung tài liệu *</label>
+                <textarea asp-for="Content" class="custom-input custom-textarea" placeholder="Nhập nội dung chi tiết..." required></textarea>
+                <span asp-validation-for="Content" class="text-danger" style="font-size: 0.75rem;"></span>
+                <div class="mt-2" style="font-size: 0.75rem; color: #888;">
+                    <i class="fas fa-info-circle me-1"></i> Hỗ trợ định dạng văn bản tự do.
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+                <a href="/knowledgebase" class="btn-cancel">
+                    Hủy bỏ
+                </a>
+            </div>
+        </form>
     </div>
 </div>

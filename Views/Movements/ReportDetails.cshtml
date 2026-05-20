@@ -1,0 +1,113 @@
+@model QLDV.Models.MovementReport
+@using System.Text.Json
+@{
+    Layout = null;
+    var attachments = string.IsNullOrEmpty(Model.AttachmentsJson) 
+        ? new List<QLDV.Models.Attachment>() 
+        : JsonSerializer.Deserialize<List<QLDV.Models.Attachment>>(Model.AttachmentsJson) ?? new List<QLDV.Models.Attachment>();
+    
+    var submittedAt = DateTimeOffset.FromUnixTimeMilliseconds(Model.SubmittedAt).LocalDateTime;
+}
+
+<div class="modal-layout-container">
+    <div class="report-view-card">
+        <button class="close-modal-btn-top close-modal-btn">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="return-btn-top" onclick="openMovementModal('/movements/details/@Model.MovementId')">
+            <i class="fas fa-arrow-left"></i>
+        </div>
+
+        <div class="report-view-header text-center">
+            <span class="report-label-tag">Báo cáo chi tiết</span>
+            <h2 class="report-unit-name-title">@Model.Unit?.Name</h2>
+            <div class="report-timestamp-line justify-content-center">
+                <span>NỘP NGÀY: @submittedAt.ToString("HH:mm:ss d/M/yyyy")</span>
+                <span class="report-count-badge-new">SỐ LẦN BÁO CÁO: @Model.SubmissionCount</span>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <span class="section-header-text">Nội dung báo cáo</span>
+            <div class="report-description-box-new">
+                @Model.Description
+            </div>
+        </div>
+
+        <div>
+            <span class="section-header-text">Minh chứng đính kèm</span>
+            
+            @if (attachments.Any())
+            {
+                var mainImage = attachments.FirstOrDefault(a => a.Type != null && a.Type.StartsWith("image/"));
+                if (mainImage != null)
+                {
+                    <div class="evidence-container-gray">
+                        <div class="evidence-filename-overlay">@mainImage.Name</div>
+                        <img src="@mainImage.Url" class="evidence-main-img" />
+                        <div class="evidence-actions-overlay">
+                            <a href="@mainImage.Url" target="_blank" class="glass-action-btn">
+                                <i class="fas fa-expand"></i> Xem ảnh
+                            </a>
+                            <a href="@mainImage.Url" download="@mainImage.Name" class="glass-action-btn blue-accent">
+                                <i class="fas fa-download"></i> Tải về
+                            </a>
+                        </div>
+                    </div>
+                    
+                    @if (attachments.Count > 1)
+                    {
+                        <div class="document-grid-new">
+                            @foreach (var file in attachments)
+                            {
+                                if (file == mainImage) continue;
+
+                                <a href="@file.Url" target="_blank" class="document-card-new">
+                                    <div class="document-icon-box">
+                                        @if (file.Type != null && file.Type.StartsWith("image/")) { <i class="fas fa-image" style="color: #10b981;"></i> }
+                                        else if (file.Name.EndsWith(".pdf")) { <i class="fas fa-file-pdf" style="color: #ef4444;"></i> }
+                                        else { <i class="fas fa-file-alt" style="color: #64748b;"></i> }
+                                    </div>
+                                    <div style="flex: 1; overflow: hidden;">
+                                        <div style="font-weight: 800; color: #1e293b; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@file.Name</div>
+                                        <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">Nhấn để xem tài liệu</div>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="document-grid-new">
+                        @foreach (var file in attachments)
+                        {
+                            <a href="@file.Url" target="_blank" class="document-card-new">
+                                <div class="document-icon-box">
+                                    @if (file.Name.EndsWith(".pdf")) { <i class="fas fa-file-pdf" style="color: #ef4444;"></i> }
+                                    else { <i class="fas fa-file-alt" style="color: #64748b;"></i> }
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; color: #1e293b; font-size: 0.85rem;">@file.Name</div>
+                                    <div style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">Nhấn để xem tài liệu</div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="text-align: center; padding: 3rem; background: #f8fafc; border-radius: 20px; color: #94a3b8; font-weight: 600;">
+                    <i class="fas fa-folder-open mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                    <p>Không có minh chứng đính kèm</p>
+                </div>
+            }
+        </div>
+
+        <div class="report-view-footer">
+            <button type="button" class="btn-close-modal-gray" onclick="closeMovementModal()">ĐÓNG</button>
+        </div>
+    </div>
+</div>

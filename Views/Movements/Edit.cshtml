@@ -1,98 +1,423 @@
+@using System.Text.Json
 @model QLDV.Models.Movement
 @{
-    ViewData["Title"] = "Edit Campaign";
+    ViewData["Title"] = "Chỉnh sửa phong trào";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1>Edit Campaign</h1>
-    <p class="text-muted">Modify campaign details</p>
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .form-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
 
-<div class="card">
-    <div class="card-body">
+    .form-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 700px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
+
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 36px;
+        height: 36px;
+        background: #f4f7fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .close-form-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
+
+    .form-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .custom-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .custom-input {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .custom-input::placeholder {
+        color: #ccc;
+    }
+
+    .custom-input:focus {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
+
+    .custom-textarea {
+        min-height: 150px;
+        resize: none;
+    }
+
+    .submit-btn {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 1.25rem;
+        font-weight: 800;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin-top: 2rem;
+        transition: all 0.2s;
+        box-shadow: 0 10px 20px rgba(0, 86, 179, 0.2);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 86, 179, 0.3);
+    }
+
+    /* Custom Dropdown Styles */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .custom-dropdown-trigger {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .custom-dropdown-trigger:hover {
+        background: #f0f7ff;
+    }
+
+    .custom-dropdown-trigger.active {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border: 1px solid #f0f0f0;
+        z-index: 100;
+        padding: 8px;
+        display: none;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-menu-custom.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .dropdown-item-custom {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #444;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .dropdown-item-custom:hover {
+        background: #f8fbff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom.selected {
+        background: #f0f7ff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom i {
+        display: none;
+        font-size: 0.8rem;
+    }
+
+    .dropdown-item-custom.selected i {
+        display: block;
+    }
+
+    /* Flatpickr Custom Styling */
+    .flatpickr-calendar {
+        border-radius: 24px !important;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.1) !important;
+        border: 1px solid #f0f0f0 !important;
+        padding: 10px !important;
+        background: #fff !important;
+    }
+
+    .flatpickr-day.selected {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        border-radius: 12px !important;
+    }
+
+    .flatpickr-day:hover {
+        background: #f0f7ff !important;
+        border-color: transparent !important;
+        border-radius: 12px !important;
+        color: var(--primary-color) !important;
+    }
+
+    .flatpickr-months .flatpickr-month {
+        color: #1a1a1a !important;
+        fill: #1a1a1a !important;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        font-weight: 800 !important;
+    }
+
+    .flatpickr-weekday {
+        font-weight: 800 !important;
+        color: #ccc !important;
+        text-transform: uppercase !important;
+        font-size: 0.7rem !important;
+    }
+</style>
+
+<div class="form-layout-container">
+    <div class="form-style-card">
+        <a href="/movements/details/@Model.Id" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Chỉnh sửa phong trào</h2>
+            <div asp-validation-summary="All" class="text-danger mt-3" style="font-size: 0.8rem; font-weight: 600;"></div>
+        </div>
+
         <form method="post" action="/movements/edit/@Model.Id">
-            <div class="form-group mb-3">
-                <label for="title" class="form-label">Campaign Title</label>
-                <input type="text" class="form-control" 
-                       id="title" name="title" value="@Model.Title" required>
-                <span class="invalid-feedback">@Html.ValidationMessage(nameof(Model.Title))</span>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatorId" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <input type="hidden" asp-for="AttachmentsJson" />
+            <input type="hidden" asp-for="ParticipatingUnitIdsJson" />
+
+            <div class="mb-4">
+                <label class="custom-label">TIÊU ĐỀ PHONG TRÀO</label>
+                <input type="text" asp-for="Title" class="custom-input" placeholder="Tiêu đề phong trào" required>
+                <span asp-validation-for="Title" class="text-danger" style="font-size: 0.7rem;"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3">@Model.Description</textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="col-md-6 mb-3">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="datetime-local" class="form-control" id="startDate" name="startDate" 
-                           value="@Model.StartDate" required>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="custom-label">NGÀY BẮT ĐẦU</label>
+                    <div class="dropdown-container">
+                        <input type="text" asp-for="StartDate" class="custom-input date-picker" required 
+                               placeholder="Chọn ngày bắt đầu"
+                               value="@Model.StartDate.ToString("yyyy-MM-dd")">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
+                    </div>
+                    <span asp-validation-for="StartDate" class="text-danger" style="font-size: 0.7rem;"></span>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="datetime-local" class="form-control" id="endDate" name="endDate" 
-                           value="@Model.EndDate" required>
+                <div class="col-md-6">
+                    <label class="custom-label">NGÀY KẾT THÚC</label>
+                    <div class="dropdown-container">
+                        <input type="text" asp-for="EndDate" class="custom-input date-picker" required
+                               placeholder="Chọn ngày kết thúc"
+                               value="@Model.EndDate.ToString("yyyy-MM-dd")">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
+                    </div>
+                    <span asp-validation-for="EndDate" class="text-danger" style="font-size: 0.7rem;"></span>
                 </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="targetUnit" class="form-label">Target Unit</label>
-                <select class="form-control" id="targetUnit" name="targetUnit">
-                    <option value="">Select a unit...</option>
-                    @if (ViewBag.Units != null)
-                    {
-                        @foreach (var unit in ViewBag.Units)
-                        {
-                            <option value="@unit.Id" selected="@(unit.Id == Model.TargetUnit)">@unit.Name</option>
-                        }
-                    }
-                </select>
+            <div class="mb-4">
+                <label class="custom-label">MÔ TẢ NỘI DUNG</label>
+                <textarea asp-for="Description" class="custom-input custom-textarea" placeholder="Nội dung phong trào..."></textarea>
+                <span asp-validation-for="Description" class="text-danger" style="font-size: 0.7rem;"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select class="form-control" id="status" name="status" required>
-                    <option value="Active" selected="@(Model.Status == "Active")">Active</option>
-                    <option value="Completed" selected="@(Model.Status == "Completed")">Completed</option>
-                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelled</option>
-                </select>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="custom-label">ĐƠN VỊ MỤC TIÊU</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="TargetUnit" id="TargetUnitInput" />
+                        <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
+                            <span id="unitSelectedText">@(ViewBag.Units != null ? ((IEnumerable<QLDV.Models.Unit>)ViewBag.Units).FirstOrDefault(u => u.Id == Model.TargetUnit)?.Name ?? "Chọn đơn vị..." : "Chọn đơn vị...")</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="unitDropdownMenu">
+                            <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.TargetUnit) ? "selected" : "")" data-value="">
+                                Chọn đơn vị...
+                                <i class="fas fa-check"></i>
+                            </div>
+                            @if (ViewBag.Units != null)
+                            {
+                                @foreach (var unit in ViewBag.Units)
+                                {
+                                    <div class="dropdown-item-custom @(unit.Id == Model.TargetUnit ? "selected" : "")" data-value="@unit.Id">
+                                        @unit.Name
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="TargetUnit" class="text-danger" style="font-size: 0.7rem;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="custom-label">TRẠNG THÁI</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="Status" id="StatusInput" />
+                        <div class="custom-dropdown-trigger" id="statusDropdownTrigger">
+                            <span id="statusSelectedText">
+                                @(Model.Status switch {
+                                    "Active" => "Đang diễn ra",
+                                    "Completed" => "Đã hoàn thành",
+                                    "Cancelled" => "Đã hủy",
+                                    _ => "Đang diễn ra"
+                                })
+                            </span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="statusDropdownMenu">
+                            <div class="dropdown-item-custom @(Model.Status == "Active" ? "selected" : "")" data-value="Active">
+                                Đang diễn ra
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="dropdown-item-custom @(Model.Status == "Completed" ? "selected" : "")" data-value="Completed">
+                                Đã hoàn thành
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="dropdown-item-custom @(Model.Status == "Cancelled" ? "selected" : "")" data-value="Cancelled">
+                                Đã hủy
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Update Campaign
-                </button>
-                <a href="/movements" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
-            </div>
+            <button type="submit" class="submit-btn">
+                CẬP NHẬT PHONG TRÀO
+            </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        // Validate end date is after start date
-        const startInput = document.getElementById('startDate');
-        const endInput = document.getElementById('endDate');
-        
-        function validateDates() {
-            if (startInput.value && endInput.value) {
-                const start = new Date(startInput.value);
-                const end = new Date(endInput.value);
-                if (end <= start) {
-                    endInput.classList.add('is-invalid');
-                    return false;
-                } else {
-                    endInput.classList.remove('is-invalid');
+        // Initialize Flatpickr
+        flatpickr(".date-picker", {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+            disableMobile: true
+        });
+
+        function setupDropdown(triggerId, menuId, inputId, textId) {
+            const trigger = document.getElementById(triggerId);
+            const menu = document.getElementById(menuId);
+            const input = document.getElementById(inputId);
+            const text = document.getElementById(textId);
+            
+            if (!trigger || !menu) return;
+
+            const items = menu.querySelectorAll('.dropdown-item-custom');
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = menu.classList.contains('show');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.custom-dropdown-trigger').forEach(t => t.classList.remove('active'));
+
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    trigger.classList.add('active');
                 }
-            }
-            return true;
+            });
+
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const val = item.getAttribute('data-value');
+                    const label = item.textContent.trim();
+                    
+                    input.value = val;
+                    text.textContent = label;
+                    
+                    items.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    menu.classList.remove('show');
+                    trigger.classList.remove('active');
+                });
+            });
         }
-        
-        startInput.addEventListener('change', validateDates);
-        endInput.addEventListener('change', validateDates);
+
+        setupDropdown('unitDropdownTrigger', 'unitDropdownMenu', 'TargetUnitInput', 'unitSelectedText');
+        setupDropdown('statusDropdownTrigger', 'statusDropdownMenu', 'StatusInput', 'statusSelectedText');
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.custom-dropdown-trigger').forEach(t => t.classList.remove('active'));
+        });
     </script>
 }

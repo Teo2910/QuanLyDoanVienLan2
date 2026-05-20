@@ -76,10 +76,14 @@ namespace QLDV.Models
     public class Activity
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập tiêu đề hoạt động")]
         public string Title { get; set; } = string.Empty;
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn ngày tổ chức")]
         public string Date { get; set; } = string.Empty;
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập địa điểm")]
         public string Location { get; set; } = string.Empty;
         public string? Description { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn phân loại hoạt động")]
         public string Type { get; set; } = string.Empty;
         public long CreatedAt { get; set; }
     }
@@ -148,6 +152,25 @@ namespace QLDV.Models
         public string? AvatarUrl { get; set; }
         public string? Phone { get; set; }
         public string? UnitId { get; set; }
+    }
+
+    public class UnitStatisticsViewModel
+    {
+        public string UnitName { get; set; } = string.Empty;
+        public int Total { get; set; }
+        public int Male { get; set; }
+        public int Female { get; set; }
+        public int Kinh { get; set; }
+        public int OtherEthnic { get; set; }
+        public int HasReligion { get; set; }
+        public int NoReligion { get; set; }
+        public int Active { get; set; }
+        public int Transferred { get; set; }
+        public int Graduated { get; set; }
+        public int Excellent { get; set; }
+        public int Good { get; set; }
+        public int Average { get; set; }
+        public int Outstanding { get; set; }
     }
 
     public class Attachment

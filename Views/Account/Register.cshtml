@@ -1,51 +1,434 @@
 @model QLDV.Controllers.RegisterViewModel
 @{
-    ViewData["Title"] = "Register";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Đăng ký tài khoản";
+    Layout = null;
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white text-center">
-                <h3><i class="fas fa-user-plus"></i> Register</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - QLDV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: #fff;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            padding: 3.5rem;
+            position: relative;
+        }
+
+        .brand-logo-badge {
+            width: 50px;
+            height: 50px;
+            background: #28a745;
+            color: #fff;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+            margin: 0 auto 1.5rem;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header h2 {
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -1px;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .custom-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .custom-input {
+            background: #f8fbff;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        .custom-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .custom-input:focus {
+            background: #fff;
+            border-color: #28a745;
+            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.05);
+            outline: none;
+        }
+
+        /* Custom Dropdown Styles */
+        .dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-dropdown-trigger {
+            background: #f8fbff;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .custom-dropdown-trigger:hover {
+            background: #f0f7ff;
+        }
+
+        .custom-dropdown-trigger.active {
+            background: #fff;
+            border-color: #28a745;
+            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.05);
+        }
+
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+            z-index: 1000;
+            padding: 8px;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu-custom.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item-custom {
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #444;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item-custom:hover {
+            background: #f8fbff;
+            color: #28a745;
+        }
+
+        .dropdown-item-custom.selected {
+            background: #e8f5e9;
+            color: #28a745;
+        }
+
+        .submit-btn {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 1.1rem;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(40, 167,  green, 0.25);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(40, 167, 69, 0.35);
+            background: #218838;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .auth-footer a {
+            color: #28a745;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .avatar-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            background: #f8fbff;
+            border: 3px solid #eee;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ccc;
+            overflow: hidden;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .avatar-preview:hover {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .validation-summary-errors {
+            background: #fff5f5;
+            color: #e03131;
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="brand-logo-badge">QN</div>
+        <div class="auth-header">
+            <h2>Tạo tài khoản mới</h2>
+            <p>Tham gia cộng đồng quản lý đoàn viên hiện đại</p>
+        </div>
+
+        <form asp-controller="Account" asp-action="Register" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            
+            <div class="avatar-upload-container">
+                <div class="avatar-preview" onclick="document.getElementById('avatarInput').click()">
+                    <img id="previewImg" src="#" style="display: none;">
+                    <i id="previewIcon" class="fas fa-camera"></i>
+                </div>
+                <label class="custom-label">Ảnh đại diện (Không bắt buộc)</label>
+                <input asp-for="Avatar" type="file" id="avatarInput" class="form-control d-none" accept="image/*" onchange="previewFile(this)" />
             </div>
-            <div class="card-body">
-                <form asp-controller="Account" asp-action="Register" method="post" enctype="multipart/form-data">
-                    <div asp-validation-summary="All" class="text-danger"></div>
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label">Full Name</label>
-                        <input asp-for="FullName" class="form-control" placeholder="Full Name" required />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
+
+            <div class="mb-4">
+                <label class="custom-label">Loại tài khoản</label>
+                <div class="d-flex gap-3">
+                    <div class="flex-fill">
+                        <input type="radio" asp-for="Role" value="Secretary" id="roleSecretary" class="btn-check" checked onchange="toggleAdminCode(false)">
+                        <label class="btn btn-outline-success w-100 py-3" for="roleSecretary" style="border-radius: 15px; font-weight: 700;">BÍ THƯ</label>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
-                        <input asp-for="Email" class="form-control" placeholder="Email address" required />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+                    <div class="flex-fill">
+                        <input type="radio" asp-for="Role" value="Admin" id="roleAdmin" class="btn-check" onchange="toggleAdminCode(true)">
+                        <label class="btn btn-outline-danger w-100 py-3" for="roleAdmin" style="border-radius: 15px; font-weight: 700;">QUẢN TRỊ VIÊN</label>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Avatar" class="form-label">Avatar (Optional)</label>
-                        <input asp-for="Avatar" type="file" class="form-control" accept="image/*" />
-                        <span asp-validation-for="Avatar" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" placeholder="Password" required />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" required />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">Register</button>
-                    </div>
-                </form>
+                </div>
             </div>
-            <div class="card-footer text-center">
-                <p>Already have an account? <a href="/Account/Login">Log in here</a></p>
+
+            <div id="adminCodeSection" class="mb-4" style="display: none; animation: fadeIn 0.3s ease;">
+                <label class="custom-label" style="color: #fa5252;">Mã xác nhận Admin</label>
+                <input asp-for="AdminCode" type="password" class="custom-input" placeholder="Nhập mã bí mật..." style="border-color: rgba(250, 82, 82, 0.2);" />
+                <span asp-validation-for="AdminCode" class="text-danger" style="font-size: 0.75rem;"></span>
             </div>
+
+            <div id="unitSection" class="mb-4" style="animation: fadeIn 0.3s ease;">
+                <label class="custom-label">Đơn vị quản lý</label>
+                <div class="dropdown-container">
+                    <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
+                    <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
+                        <span id="unitSelectedText">-- Chọn đơn vị --</span>
+                        <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
+                    </div>
+                    <div class="dropdown-menu-custom" id="unitDropdownMenu">
+                        <div class="dropdown-item-custom" data-value="">-- Chọn đơn vị --</div>
+                        @if (ViewBag.Units != null)
+                        {
+                            foreach (var unit in (IEnumerable<QLDV.Models.Unit>)ViewBag.Units)
+                            {
+                                <div class="dropdown-item-custom" data-value="@unit.Id">@unit.Name</div>
+                            }
+                        }
+                    </div>
+                </div>
+                <span asp-validation-for="UnitId" class="text-danger" style="font-size: 0.75rem;"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <label class="custom-label">Họ và tên</label>
+                    <input asp-for="FullName" class="custom-input" placeholder="Nguyễn Văn A" required />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">Địa chỉ Email</label>
+                <input asp-for="Email" class="custom-input" placeholder="name@example.com" required />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">Mật khẩu</label>
+                    <input asp-for="Password" type="password" class="custom-input" placeholder="••••••••" required />
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">Xác nhận</label>
+                    <input asp-for="ConfirmPassword" type="password" class="custom-input" placeholder="••••••••" required />
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                ĐĂNG KÝ NGAY
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Đã có tài khoản? <a href="/Account/Login">Đăng nhập tại đây</a>
         </div>
     </div>
-</div>
+
+    <script>
+        function toggleAdminCode(showAdmin) {
+            const adminSection = document.getElementById('adminCodeSection');
+            const unitSection = document.getElementById('unitSection');
+            
+            if (showAdmin) {
+                adminSection.style.display = 'block';
+                unitSection.style.display = 'none';
+            } else {
+                adminSection.style.display = 'none';
+                unitSection.style.display = 'block';
+            }
+        }
+
+        // Custom Dropdown Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const trigger = document.getElementById('unitDropdownTrigger');
+            const menu = document.getElementById('unitDropdownMenu');
+            const input = document.getElementById('UnitIdInput');
+            const text = document.getElementById('unitSelectedText');
+
+            if (trigger && menu) {
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('show');
+                    trigger.classList.toggle('active');
+                });
+
+                const items = menu.querySelectorAll('.dropdown-item-custom');
+                items.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const val = this.getAttribute('data-value');
+                        const label = this.textContent.trim();
+                        
+                        input.value = val;
+                        text.textContent = label;
+                        
+                        items.forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        
+                        menu.classList.remove('show');
+                        trigger.classList.remove('active');
+                    });
+                });
+
+                document.addEventListener('click', function() {
+                    menu.classList.remove('show');
+                    trigger.classList.remove('active');
+                });
+            }
+        });
+
+        function previewFile(input) {
+            var file = input.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewImg').style.display = 'block';
+                    document.getElementById('previewIcon').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using QLDV.Services;
 using QLDV.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace QLDV.Controllers
 {
@@ -25,7 +26,8 @@ namespace QLDV.Controllers
         {
             try
             {
-                var response = await _aiService.GenerateResponseAsync(request.Message);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
+                var response = await _aiService.ProcessSmartCommandAsync(userId, request.Message);
                 return Json(new { response = response });
             }
             catch (Exception ex)
@@ -37,6 +39,6 @@ namespace QLDV.Controllers
 
     public class ChatRequest
     {
-        public string Message { get; set; } = string.Empty;
+        public required string Message { get; set; }
     }
 }

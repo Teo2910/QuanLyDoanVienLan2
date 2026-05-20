@@ -1,196 +1,392 @@
 @model QLDV.Models.Member
 @{
-    ViewData["Title"] = "Edit Member";
+    ViewData["Title"] = "Cập nhật hồ sơ đoàn viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-user-edit"></i> Edit Member</h1>
-    <p class="text-muted">Update member information</p>
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .form-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                Member Information
-            </div>
-            <div class="card-body">
-                <form method="post" action="/members/edit/@Model.Id">
-                    <input type="hidden" asp-for="Id" />
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Full Name *</label>
-                            <input type="text" asp-for="FullName" class="form-control" required>
-                            <span asp-validation-for="FullName" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Member ID *</label>
-                            <input type="text" asp-for="MemberId" class="form-control" required>
-                            <span asp-validation-for="MemberId" class="text-danger"></span>
-                        </div>
-                    </div>
+    .form-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 800px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3rem;
+        position: relative;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" asp-for="Email" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Phone</label>
-                            <input type="tel" asp-for="Phone" class="form-control">
-                        </div>
-                    </div>
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 36px;
+        height: 36px;
+        background: #f4f7fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Date of Birth *</label>
-                            <input type="date" asp-for="DOB" class="form-control" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Gender *</label>
-                            <select asp-for="Gender" class="form-select" required>
-                                <option value="Nam" selected="@(Model.Gender == "Nam")">Nam</option>
-                                <option value="Nữ" selected="@(Model.Gender == "Nữ")">Nữ</option>
-                                <option value="Khác" selected="@(Model.Gender == "Khác")">Khác</option>
-                            </select>
-                        </div>
-                    </div>
+    .close-form-btn:hover {
+        background: #eef2f7;
+        color: #1a1a1a;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label>
-                            <select asp-for="Status" class="form-select">
-                                <option value="Đang sinh hoạt" selected="@(Model.Status == "Đang sinh hoạt")">Active</option>
-                                <option value="Đã chuyển sinh hoạt" selected="@(Model.Status == "Đã chuyển sinh hoạt")">Transferred</option>
-                                <option value="Đã trưởng thành" selected="@(Model.Status == "Đã trưởng thành")">Graduated</option>
-                                <option value="Bị kỷ luật" selected="@(Model.Status == "Bị kỷ luật")">Disciplined</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Achievement Level</label>
-                            <select asp-for="AchievementLevel" class="form-select">
-                                <option value="Chưa xếp loại" selected="@(Model.AchievementLevel == "Chưa xếp loại")">Not Rated</option>
-                                <option value="Xuất sắc" selected="@(Model.AchievementLevel == "Xuất sắc")">Outstanding</option>
-                                <option value="Khá" selected="@(Model.AchievementLevel == "Khá")">Good</option>
-                                <option value="Trung bình" selected="@(Model.AchievementLevel == "Trung bình")">Average</option>
-                            </select>
-                        </div>
-                    </div>
+    .form-header {
+        margin-bottom: 3.5rem;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Academic Year</label>
-                            <input type="text" asp-for="AcademicYear" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Join Date</label>
-                            <input type="date" asp-for="JoinDate" class="form-control">
-                        </div>
-                    </div>
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Place of Birth</label>
-                            <input type="text" asp-for="PlaceOfBirth" class="form-control">
-                        </div>
-                    </div>
+    .form-header .subtext {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Hometown</label>
-                            <input type="text" asp-for="Hometown" class="form-control">
-                        </div>
-                    </div>
+    .custom-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Permanent Address</label>
-                            <textarea asp-for="PermanentAddress" class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
+    .custom-input {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.2s;
+        width: 100%;
+    }
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Position</label>
-                            <input type="text" asp-for="Position" class="form-control">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Professional Level</label>
-                            <input type="text" asp-for="ProfessionalLevel" class="form-control">
-                        </div>
-                    </div>
+    .custom-input::placeholder {
+        color: #ccc;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Ethnic</label>
-                            <input type="text" asp-for="Ethnic" class="form-control">
-                        </div>
-                    </div>
+    .custom-input:focus {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" asp-for="IsOutstanding" id="isOutstanding">
-                                <label class="form-check-label" for="isOutstanding">
-                                    Outstanding Member
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+    /* Custom Dropdown Styles */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+    }
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
-                            <a href="/members" class="btn btn-secondary btn-lg">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+    .custom-dropdown-trigger {
+        background: #f8fbff;
+        border: 1px solid transparent;
+        border-radius: 16px;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .custom-dropdown-trigger:hover {
+        background: #f0f7ff;
+    }
+
+    .custom-dropdown-trigger.active {
+        background: #fff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border: 1px solid #f0f0f0;
+        z-index: 120;
+        padding: 8px;
+        display: none;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .dropdown-menu-custom.show {
+        display: block;
+    }
+
+    .dropdown-item-custom {
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #444;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .dropdown-item-custom:hover {
+        background: #f8fbff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom.selected {
+        background: #f0f7ff;
+        color: var(--primary-color);
+    }
+
+    .dropdown-item-custom i {
+        display: none;
+        font-size: 0.8rem;
+    }
+
+    .dropdown-item-custom.selected i {
+        display: block;
+    }
+
+    .submit-btn {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 1.25rem;
+        font-weight: 800;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100%;
+        margin-top: 3rem;
+        transition: all 0.2s;
+        box-shadow: 0 10px 20px rgba(0, 86, 179, 0.2);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 86, 179, 0.3);
+    }
+
+    /* Flatpickr Custom Styling */
+    .flatpickr-calendar {
+        border-radius: 24px !important;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.1) !important;
+        border: 1px solid #f0f0f0 !important;
+        padding: 10px !important;
+    }
+
+    .flatpickr-day.selected {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        border-radius: 12px !important;
+    }
+</style>
+
+<div class="form-layout-container">
+    <div class="form-style-card">
+        <a href="/members/details/@Model.Id" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Cập nhật hồ sơ đoàn viên</h2>
+            <div class="subtext">THÔNG TIN CHI TIẾT VỀ ĐOÀN VIÊN THANH NIÊN</div>
         </div>
-    </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-info">
-                <i class="fas fa-history"></i> Status History
+        <form method="post" action="/members/edit/@Model.Id">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <input type="hidden" asp-for="JoinDate" />
+            <input type="hidden" asp-for="AcademicYear" />
+            <input type="hidden" asp-for="Status" />
+            <input type="hidden" asp-for="UnitId" />
+            <input type="hidden" asp-for="Position" />
+            <input type="hidden" asp-for="ProfessionalLevel" />
+            <input type="hidden" asp-for="IsOutstanding" />
+
+            <div class="mb-4">
+                <label class="custom-label">HỌ VÀ TÊN ĐẦY ĐỦ</label>
+                <input type="text" asp-for="FullName" class="custom-input" placeholder="VD: Nguyễn Hoàng Nam" required>
             </div>
-            <div class="card-body">
-                @if (Model.StatusHistory?.Any() ?? false)
-                {
-                    <div class="timeline">
-                        @foreach (var change in Model.StatusHistory.OrderByDescending(s => s.Date))
-                        {
-                            <div class="timeline-item mb-3">
-                                <small class="text-muted">@(new DateTime(change.Date, DateTimeKind.Utc).ToString("g"))</small>
-                                <div class="mt-1">
-                                    <span class="badge bg-warning">@change.OldStatus</span>
-                                    <i class="fas fa-arrow-right mx-1"></i>
-                                    <span class="badge bg-success">@change.NewStatus</span>
-                                </div>
-                                @if (!string.IsNullOrEmpty(change.Reason))
-                                {
-                                    <small class="text-muted d-block mt-2">Reason: @change.Reason</small>
-                                }
-                            </div>
-                        }
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">EMAIL</label>
+                    <input type="email" asp-for="Email" class="custom-input" placeholder="VD: name@domain.com">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">SỐ ĐIỆN THOẠI</label>
+                    <input type="tel" asp-for="Phone" class="custom-input" placeholder="VD: 090xxxxxxxx">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">GIỚI TÍNH</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="Gender" id="genderInput" />
+                        <div class="custom-dropdown-trigger" id="genderTrigger">
+                            <span id="genderText">@(string.IsNullOrEmpty(Model.Gender) ? "Chọn giới tính" : Model.Gender)</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: #ccc;"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="genderMenu">
+                            <div class="dropdown-item-custom @(Model.Gender == "Nam" ? "selected" : "")" data-value="Nam">Nam <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Gender == "Nữ" ? "selected" : "")" data-value="Nữ">Nữ <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Gender == "Khác" ? "selected" : "")" data-value="Khác">Khác <i class="fas fa-check"></i></div>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">No status changes recorded</p>
-                }
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">XẾP LOẠI ĐOÀN VIÊN</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="AchievementLevel" id="achievementInput" />
+                        <div class="custom-dropdown-trigger" id="achievementTrigger">
+                            <span id="achievementText">@(string.IsNullOrEmpty(Model.AchievementLevel) ? "Chưa xếp loại" : Model.AchievementLevel)</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: #ccc;"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="achievementMenu">
+                            <div class="dropdown-item-custom @(Model.AchievementLevel == "Xuất sắc" ? "selected" : "")" data-value="Xuất sắc">Xuất sắc <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.AchievementLevel == "Khá" ? "selected" : "")" data-value="Khá">Khá <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.AchievementLevel == "Trung bình" ? "selected" : "")" data-value="Trung bình">Trung bình <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.AchievementLevel) || Model.AchievementLevel == "Chưa xếp loại" ? "selected" : "")" data-value="Chưa xếp loại">Chưa xếp loại <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">NƠI SINH</label>
+                    <input type="text" asp-for="PlaceOfBirth" class="custom-input" placeholder="VD: Hải Phòng...">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">QUÊ QUÁN</label>
+                    <input type="text" asp-for="Hometown" class="custom-input" placeholder="Nhập quê quán (Tỉnh/Thành phố)">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">ĐỊA CHỈ THƯỜNG TRÚ</label>
+                <input type="text" asp-for="PermanentAddress" class="custom-input" placeholder="Nhập đầy đủ địa chỉ thường trú...">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">DÂN TỘC</label>
+                    <input type="text" asp-for="Ethnic" class="custom-input" placeholder="VD: Kinh...">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">TÔN GIÁO</label>
+                    <input type="text" asp-for="Religion" class="custom-input" placeholder="VD: Không, Phật giáo...">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">MSSV</label>
+                    <input type="text" asp-for="MemberId" class="custom-input" placeholder="VD: 2024001" required>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">NGÀY SINH</label>
+                    <div class="dropdown-container">
+                        <input type="text" asp-for="DOB" class="custom-input date-picker" required placeholder="mm/dd/yyyy">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                CẬP NHẬT HỒ SƠ
+            </button>
+        </form>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        $(document).ready(function() {
+            // Achievement Dropdown Logic
+            $("#achievementTrigger").on("click", function(e) {
+                e.stopPropagation();
+                $(".dropdown-menu-custom").not("#achievementMenu").removeClass("show");
+                $("#achievementMenu").toggleClass("show");
+                $(this).toggleClass("active");
+                $("#genderTrigger").removeClass("active");
+            });
+
+            $("#achievementMenu .dropdown-item-custom").on("click", function() {
+                const val = $(this).data("value");
+                $("#achievementInput").val(val);
+                $("#achievementText").text(val);
+                $(this).addClass("selected").siblings().removeClass("selected");
+                $("#achievementMenu").removeClass("show");
+                $("#achievementTrigger").removeClass("active");
+            });
+
+            // Gender Dropdown Logic
+            $("#genderTrigger").on("click", function(e) {
+                e.stopPropagation();
+                $(".dropdown-menu-custom").not("#genderMenu").removeClass("show");
+                $("#genderMenu").toggleClass("show");
+                $(this).toggleClass("active");
+                $("#achievementTrigger").removeClass("active");
+            });
+
+            $("#genderMenu .dropdown-item-custom").on("click", function() {
+                const val = $(this).data("value");
+                $("#genderInput").val(val);
+                $("#genderText").text(val);
+                $(this).addClass("selected").siblings().removeClass("selected");
+                $("#genderMenu").removeClass("show");
+                $("#genderTrigger").removeClass("active");
+            });
+
+            $(document).on("click", function() {
+                $(".dropdown-menu-custom").removeClass("show");
+                $(".custom-dropdown-trigger").removeClass("active");
+            });
+
+            // Initialize Flatpickr
+            flatpickr(".date-picker", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "m/d/Y",
+                allowInput: true,
+                disableMobile: true
+            });
+        });
+    </script>
 }

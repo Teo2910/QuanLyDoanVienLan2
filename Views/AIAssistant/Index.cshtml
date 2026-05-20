@@ -1,139 +1,108 @@
 @{
-    ViewData["Title"] = "AI Assistant";
+    ViewData["Title"] = "Trợ lý AI";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-robot"></i> AI Assistant</h1>
-    <p class="text-muted">Chat with our AI assistant powered by Google Generative AI</p>
-</div>
-
-<div class="row">
-    <div class="col-md-8">
-        <div class="card" style="height: 600px; display: flex; flex-direction: column;">
-            <div class="card-header">
-                <i class="fas fa-comments"></i> Chat
+<div class="ai-layout-container">
+    <div class="ai-style-card">
+        <div class="form-header">
+            <div>
+                <h2>Hệ thống Tri thức <span>AI</span></h2>
+                <div class="subtext">
+                    <div class="dot-blue"></div>
+                    DLU INTELLIGENT CORE V3.0 • ĐÃ ĐỒNG BỘ HÓA 100% DỮ LIỆU CHI ĐOÀN
+                </div>
             </div>
-            <div class="card-body flex-grow-1" id="chatBox" style="overflow-y: auto; background-color: #f0f2f5;">
-                <div class="text-center py-4">
-                    <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; color: var(--primary-color);">
-                        <i class="fas fa-robot fa-2x"></i>
+            <div class="status-badge">
+                STATUS: <div class="status-dot"></div> CORE ACTIVE
+            </div>
+        </div>
+
+        <div class="chat-container" id="chatBox">
+            <div class="message-ai chat-message">
+                <div class="avatar-box">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <div class="message-bubble">
+                        Xin chào! Tôi là Trợ lý AI của Đoàn thanh niên. Tôi đã sẵn sàng hỗ trợ bạn quản lý đoàn viên, phong trào và các báo cáo. Bạn cần giúp gì hôm nay?
                     </div>
-                    <h5 class="fw-bold">AI Assistant</h5>
-                    <p class="text-muted small">How can I help you today?</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="messageInput" placeholder="Ask me anything..." autocomplete="off">
-                    <button class="btn btn-primary" type="button" id="sendBtn">
-                        <i class="fas fa-paper-plane"></i> Send
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-lightbulb"></i> Quick Suggestions
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to manage members?')">
-                        <strong>Member Management</strong>
-                        <br><small class="text-muted">Learn about member operations</small>
-                    </button>
-                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to create a campaign?')">
-                        <strong>Create Campaign</strong>
-                        <br><small class="text-muted">Guide for creating campaigns</small>
-                    </button>
-                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('What are the statistics features?')">
-                        <strong>Statistics</strong>
-                        <br><small class="text-muted">Understand data analysis</small>
-                    </button>
-                    <button class="list-group-item list-group-item-action text-start" onclick="sendMessage('How to export data?')">
-                        <strong>Export Data</strong>
-                        <br><small class="text-muted">Learn data export options</small>
-                    </button>
+                    <span class="message-time">@DateTime.Now.ToString("HH:mm") • AI ASSISTANT</span>
                 </div>
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-header">
-                <i class="fas fa-info-circle"></i> About
-            </div>
-            <div class="card-body">
-                <p class="small">
-                    This AI Assistant is powered by Google Generative AI and is designed to help you navigate the system and answer your questions.
-                </p>
-                <p class="small text-muted">
-                    Responses are generated based on your queries and may not always be 100% accurate. Please verify important information.
-                </p>
+        <div class="input-section">
+            <div class="ai-input-wrapper">
+                <i class="fas fa-magic search-icon"></i>
+                <input type="text" id="messageInput" class="modern-input" placeholder="Điều lệnh hoặc câu hỏi của bạn? (VD: Tìm đoàn viên, Tạo sự kiện...)" autocomplete="off">
+                <button class="send-btn-circle" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
+
+        <div class="suggests-container">
+            <div class="suggests-header">LỆNH GỢI Ý THÔNG MINH</div>
+            <div class="suggests-grid">
+                <div class="suggest-item" onclick="sendMessage('Tìm đoàn viên xuất sắc')">TÌM ĐOÀN VIÊN</div>
+                <div class="suggest-item" onclick="sendMessage('Tạo phong trào mùa hè xanh')">TẠO PHONG TRÀO MÙA HÈ</div>
+                <div class="suggest-item" onclick="sendMessage('Lấy tài liệu thi đua 2026')">LẤY TÀI LIỆU THI ĐUA</div>
+                <div class="suggest-item" onclick="sendMessage('Check list báo cáo tháng 5')">CHECK LIST BÁO CÁO</div>
+            </div>
+        </div>
+
+        <div class="footer-note">• POWERED BY INTELLIGENT CORE TECHNOLOGY •</div>
     </div>
 </div>
-
-<style>
-    .chat-message {
-        margin-bottom: 20px;
-        padding: 12px 18px;
-        border-radius: 18px;
-        max-width: 80%;
-        word-wrap: break-word;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .user-message {
-        background: var(--primary-gradient);
-        color: white;
-        margin-left: auto;
-        border-bottom-right-radius: 4px;
-    }
-
-    .ai-message {
-        background-color: #fff;
-        color: #333;
-        border-bottom-left-radius: 4px;
-        border: 1px solid #eee;
-    }
-
-    #chatBox {
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem;
-    }
-</style>
 
 @section Scripts {
     <script>
         function sendMessage(message) {
             if (!message) {
-                message = document.getElementById('messageInput').value.trim();
+                message = $('#messageInput').val().trim();
             }
             if (!message) return;
 
-            // Display user message
-            const chatBox = document.getElementById('chatBox');
-            const userMsg = document.createElement('div');
-            userMsg.className = 'chat-message user-message';
-            userMsg.textContent = message;
-            chatBox.appendChild(userMsg);
+            const chatBox = $('#chatBox');
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Show loading indicator
-            const loadingMsg = document.createElement('div');
-            loadingMsg.className = 'chat-message ai-message';
-            loadingMsg.innerHTML = '<small><i class="fas fa-spinner fa-spin"></i> Thinking...</small>';
-            chatBox.appendChild(loadingMsg);
+            // User Message
+            const userMsgHtml = `
+                <div class="message-user chat-message">
+                    <div class="avatar-box" style="background: #0f172a; color: #fff;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="message-bubble">${message}</div>
+                        <span class="message-time">${timeStr} • BÍ THƯ TRỰC TUYẾN</span>
+                    </div>
+                </div>
+            `;
+            chatBox.append(userMsgHtml);
+            $('#messageInput').val('');
 
-            document.getElementById('messageInput').value = '';
+            // AI Typing
+            const typingId = 'typing-' + Date.now();
+            const aiTypingHtml = `
+                <div class="message-ai chat-message" id="${typingId}">
+                    <div class="avatar-box">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div class="message-bubble">
+                            <div class="typing">
+                                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                                <span class="status-text">ĐANG TRUY XUẤT LÕI TRI THỨC...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatBox.append(aiTypingHtml);
+            chatBox.scrollTop(chatBox[0].scrollHeight);
 
-            // Send to server
+            // Fetch Response
             fetch('/AIAssistant/Chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -141,26 +110,40 @@
             })
             .then(response => response.json())
             .then(data => {
-                loadingMsg.remove();
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'chat-message ai-message';
-                aiMsg.textContent = data.response || 'Sorry, I could not process your request.';
-                chatBox.appendChild(aiMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                $('#' + typingId).remove();
+                const aiMsgHtml = `
+                    <div class="message-ai chat-message">
+                        <div class="avatar-box">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <div class="message-bubble">${data.response || 'Xin lỗi, tôi không thể xử lý yêu cầu này.'}</div>
+                            <span class="message-time">${timeStr} • AI ASSISTANT</span>
+                        </div>
+                    </div>
+                `;
+                chatBox.append(aiMsgHtml);
+                chatBox.scrollTop(chatBox[0].scrollHeight);
             })
             .catch(error => {
-                loadingMsg.remove();
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'chat-message ai-message';
-                errorMsg.textContent = 'Error: ' + error.message;
-                chatBox.appendChild(errorMsg);
+                $('#' + typingId).remove();
+                const errorMsgHtml = `
+                    <div class="message-ai chat-message">
+                        <div class="avatar-box">
+                            <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                        </div>
+                        <div>
+                            <div class="message-bubble" style="color: #ef4444; border-color: #fef2f2;">Lỗi hệ thống: ${error.message}</div>
+                        </div>
+                    </div>
+                `;
+                chatBox.append(errorMsgHtml);
+                chatBox.scrollTop(chatBox[0].scrollHeight);
             });
-
-            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        document.getElementById('sendBtn').addEventListener('click', () => sendMessage());
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        $('#sendBtn').on('click', () => sendMessage());
+        $('#messageInput').on('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
     </script>

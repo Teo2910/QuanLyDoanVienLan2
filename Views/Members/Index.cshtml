@@ -1,218 +1,335 @@
 @model List<QLDV.Models.Member>
 @{
-    ViewData["Title"] = "Members";
+    ViewData["Title"] = "Quản lý đoàn viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1><i class="fas fa-users"></i> Members Management</h1>
-            <p class="text-muted">Manage all members in the system</p>
-        </div>
-        <a href="/members/create" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus"></i> Add New Member
-        </a>
+<div id="memberModal" class="modal-overlay">
+    <div class="modal-content-wrapper">
+        <div id="modalBody"></div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search by name, email, or member ID...">
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-users"></i>
             </div>
-            <div class="col-md-4">
-                <select id="statusFilter" class="form-select">
-                    <option value="">All Status</option>
-                    <option value="Đang sinh hoạt">Active</option>
-                    <option value="Đã chuyển sinh hoạt">Transferred</option>
-                    <option value="Đã trưởng thành">Graduated</option>
-                    <option value="Bị kỷ luật">Disciplined</option>
+            <div class="header-text-premium">
+                <h1>Quản lý đoàn viên</h1>
+                <p>CƠ SỞ DỮ LIỆU NHÂN SỰ SỐ HÓA 4.0</p>
+            </div>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="/members/exportexcel" class="btn-premium btn-premium-light">
+                <i class="fas fa-file-excel"></i> XUẤT EXCEL
+            </a>
+            <a href="javascript:void(0)" class="btn-premium btn-premium-light">
+                <i class="fas fa-file-import"></i> NHẬP DỮ LIỆU
+            </a>
+            <a href="javascript:void(0)" onclick="openMemberModal('/members/create')" class="btn-premium btn-premium-dark">
+                <i class="fas fa-plus"></i> THÊM ĐOÀN VIÊN
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card-premium mb-4">
+    <div class="d-flex flex-column flex-lg-row gap-4 align-items-lg-center">
+        <div class="search-box-premium flex-grow-1" style="max-width: none;">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..." id="advancedSearch">
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn-premium btn-premium-dark px-4" id="toggleAdvancedFilter">
+                <i class="fas fa-filter"></i> LỌC NÂNG CAO
+            </button>
+            <button class="btn-premium btn-premium-light p-3" id="resetFilters">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="btn-premium btn-premium-light px-4">
+                <i class="far fa-bookmark"></i> LƯU CẤU HÌNH
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse mt-4" id="filterPanel">
+        <div class="row g-4">
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">CHI ĐOÀN</label>
+                <select class="form-control-premium w-100" id="unitFilter">
+                    <option value="">Tất cả chi đoàn</option>
+                    @if (ViewBag.Units != null)
+                    {
+                        @foreach (var unit in ViewBag.Units)
+                        {
+                            <option value="@unit.Name">@unit.Name</option>
+                        }
+                    }
                 </select>
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-success w-100" id="exportBtn">
-                    <i class="fas fa-download"></i> Export
-                </button>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">NIÊN KHÓA / NĂM HỌC</label>
+                <select class="form-control-premium w-100" id="yearFilter">
+                    <option value="">Tất cả các khóa</option>
+                    <option value="K20">Khóa K20</option>
+                    <option value="K21">Khóa K21</option>
+                    <option value="K22">Khóa K22</option>
+                    <option value="K23">Khóa K23</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">XẾP LOẠI ĐOÀN VIÊN</label>
+                <select class="form-control-premium w-100" id="achievementFilter">
+                    <option value="">Tất cả xếp loại</option>
+                    <option value="Xuất sắc">Xuất sắc</option>
+                    <option value="Khá">Khá</option>
+                    <option value="Trung bình">Trung bình</option>
+                    <option value="Chưa xếp loại">Chưa xếp loại</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">TRẠNG THÁI</label>
+                <select class="form-control-premium w-100" id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Đang sinh hoạt">Đang sinh hoạt</option>
+                    <option value="Đã chuyển sinh hoạt">Đã chuyển sinh hoạt</option>
+                    <option value="Đã trưởng thành">Đã trưởng thành</option>
+                    <option value="Bị kỷ luật">Bị kỷ luật</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">GIỚI TÍNH</label>
+                <select class="form-control-premium w-100" id="genderFilter">
+                    <option value="">Tất cả giới tính</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label class="form-label-premium">QUÊ QUÁN</label>
+                <input type="text" class="form-control-premium w-100" placeholder="VD: Hà Nội, Nghệ An..." id="hometownFilter">
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover table-striped" id="membersTable">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Member ID</th>
-                        <th>Email</th>
-                        <th>Unit</th>
-                        <th>Status</th>
-                        <th>Achievement</th>
-                        <th>Gender</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var member in Model ?? new List<QLDV.Models.Member>())
-                    {
-                        <tr>
-                            <td>@member.FullName</td>
-                            <td>@member.MemberId</td>
-                            <td>@member.Email</td>
-                            <td>@member.Unit?.Name</td>
-                            <td>
-                                @{
-                                    var badgeColor = member.Status switch
-                                    {
-                                        "Đang sinh hoạt" => "success",
-                                        "Đã chuyển sinh hoạt" => "warning",
-                                        "Đã trưởng thành" => "info",
-                                        "Bị kỷ luật" => "danger",
-                                        _ => "secondary"
-                                    };
-                                }
-                                <span class="badge bg-@badgeColor">@member.Status</span>
-                            </td>
-                            <td>@member.AchievementLevel</td>
-                            <td>@member.Gender</td>
-                            <td>
-                                <a href="/members/details/@member.Id" class="btn btn-sm btn-info" title="Details">
-                                    <i class="fas fa-eye text-white"></i>
-                                </a>
-                                <a href="/members/edit/@member.Id" class="btn btn-sm btn-primary" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#statusModal" onclick="setMemberId('@member.Id', '@member.FullName')" title="Change Status">
-                                    <i class="fas fa-exchange-alt"></i>
-                                </button>
-                                <a href="/members/delete/@member.Id" class="btn btn-sm btn-danger" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-        @if ((Model?.Count ?? 0) == 0)
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="text-muted mt-3">No members found. <a href="/members/create">Create one</a></p>
-            </div>
-        }
     </div>
 </div>
 
-<!-- Status Change Modal -->
-<div class="modal fade" id="statusModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Change Member Status</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="card-premium">
+    <div class="section-header mb-4">
+        <div class="section-title">Danh sách hồ sơ</div>
+        <div class="status-pill status-pill-info">@ViewBag.TotalMembers TỔNG CỘNG</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-premium-new" id="membersTable">
+            <thead>
+                <tr>
+                    <th>THÀNH VIÊN</th>
+                    <th class="d-none d-md-table-cell">ĐỊNH DANH</th>
+                    <th>XẾP LOẠI</th>
+                    <th class="d-none d-lg-table-cell">CHI ĐOÀN</th>
+                    <th class="d-none d-sm-table-cell">TRẠNG THÁI</th>
+                    <th class="text-end">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr class="member-row" data-id="@m.Id" style="cursor: pointer;">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="member-avatar-circle">
+                                    @(m.FullName?.Length > 0 ? m.FullName.Substring(0, 1) : "?")
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">@m.FullName</div>
+                                    <small class="text-muted fw-bold">@m.Gender • K@(m.AcademicYear ?? "XX")</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="d-none d-md-table-cell">
+                            <div class="fw-black text-dark small">@m.MemberId</div>
+                            <small class="text-muted small fw-bold">THANH NIÊN</small>
+                        </td>
+                        <td>
+                            @{
+                                var achievementClass = m.AchievementLevel switch {
+                                    "Xuất sắc" => "status-pill-success",
+                                    "Khá" => "status-pill-info",
+                                    "Trung bình" => "status-pill-warning",
+                                    _ => ""
+                                };
+                            }
+                            <span class="status-pill @achievementClass" style="background: #f1f5f9; color: #64748b; font-weight: 800;">
+                                @(string.IsNullOrEmpty(m.AchievementLevel) ? "Chưa có" : m.AchievementLevel)
+                            </span>
+                        </td>
+                        <td class="d-none d-lg-table-cell">
+                            <div class="fw-bold text-dark small">@(m.Unit?.Name ?? "Trực thuộc")</div>
+                        </td>
+                        <td class="d-none d-sm-table-cell">
+                            @{
+                                var statusClass = m.Status switch {
+                                    "Đang sinh hoạt" => "status-pill-success",
+                                    "Đã chuyển sinh hoạt" => "status-pill-info",
+                                    "Đã trưởng thành" => "status-pill-warning",
+                                    "Bị kỷ luật" => "status-pill-danger",
+                                    _ => ""
+                                };
+                            }
+                            <span class="status-pill @statusClass">@m.Status</span>
+                        </td>
+                        <td class="text-end" onclick="event.stopPropagation();">
+                           <div class="d-flex justify-content-end gap-2">
+                               <button onclick="openMemberModal('/members/edit/@m.Id')" class="btn-premium btn-premium-light p-2 px-3"><i class="fas fa-pencil-alt"></i></button>
+                           </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+            <div class="text-muted small fw-bold text-uppercase">
+                Hiển thị <strong>@Model.Count</strong> hồ sơ
             </div>
-            <div class="modal-body">
-                <p>Member: <strong id="memberName"></strong></p>
-                <div class="mb-3">
-                    <label class="form-label">New Status</label>
-                    <select id="newStatus" class="form-select">
-                        <option value="">Select Status</option>
-                        <option value="Đang sinh hoạt">Active</option>
-                        <option value="Đã chuyển sinh hoạt">Transferred</option>
-                        <option value="Đã trưởng thành">Graduated</option>
-                        <option value="Bị kỷ luật">Disciplined</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Reason (Optional)</label>
-                    <textarea id="reason" class="form-control" rows="3"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveStatusChange()">Save Changes</button>
+            <div class="d-flex gap-2">
+                @for(int i=1; i<=ViewBag.TotalPages; i++) {
+                    <a href="/members?page=@i" class="status-pill @(i == ViewBag.CurrentPage ? "status-pill-info" : "")" style="text-decoration: none; min-width: 35px; text-align: center;">@i</a>
+                }
             </div>
         </div>
-    </div>
+    }
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <script>
-        // SignalR Live Sync
-        const presenceConnection = new signalR.HubConnectionBuilder()
-            .withUrl("/presenceHub?userId=" + currentMemberId)
-            .build();
-
-        presenceConnection.on("DataUpdated", (data) => {
-            if (data.entityType === 'Member') {
-                console.log('Data updated, reloading members list...');
-                location.reload();
-            }
-        });
-
-        presenceConnection.start().catch(err => console.error(err.toString()));
-
-        let currentMemberId = '';
-
-        function setMemberId(memberId, memberName) {
-            currentMemberId = memberId;
-            document.getElementById('memberName').textContent = memberName;
-        }
-
-        function saveStatusChange() {
-            const newStatus = document.getElementById('newStatus').value;
-            const reason = document.getElementById('reason').value;
-
-            if (!newStatus) {
-                toast.error('Please select a status');
-                return;
-            }
-
-            fetch(`/members/changestatus?id=${currentMemberId}&newStatus=${newStatus}&reason=${reason}`, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    toast.success('Status changed successfully');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    toast.error('Error: ' + data.message);
-                }
-            })
-            .catch(error => toast.error('Error: ' + error));
-        }
-
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('keyup', function() {
-            const filter = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#membersTable tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
+        $(document).ready(function() {
+            // Navigation
+            $(".member-row").on("click", function(e) {
+                const id = $(this).data("id");
+                openMemberModal(`/members/details/${id}`);
             });
-        });
 
-        // Filter functionality
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            const filter = this.value;
-            const rows = document.querySelectorAll('#membersTable tbody tr');
-            rows.forEach(row => {
-                if (!filter || row.textContent.includes(filter)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            $("#toggleAdvancedFilter").on("click", function() {
+                $("#filterPanel").collapse('toggle');
+                $(this).toggleClass('active');
             });
-        });
 
-        // Export functionality
-        document.getElementById('exportBtn').addEventListener('click', function() {
-            // TODO: Implement Excel export using EPPlus
-            alert('Export functionality coming soon');
+            // Filter logic
+            function applyFilters() {
+                const search = $("#advancedSearch").val().toLowerCase();
+                const unit = $("#unitFilter").val();
+                const year = $("#yearFilter").val();
+                const achievement = $("#achievementFilter").val();
+                const status = $("#statusFilter").val();
+                const gender = $("#genderFilter").val();
+                const hometown = $("#hometownFilter").val().toLowerCase();
+
+                $("#membersTable tbody tr").each(function() {
+                    const text = $(this).text().toLowerCase();
+                    const rowUnit = $(this).find("td:nth-child(4)").text();
+                    const rowStatus = $(this).find("td:nth-child(5)").text();
+                    const rowAchievement = $(this).find("td:nth-child(3)").text();
+
+                    const matchSearch = text.includes(search);
+                    const matchUnit = !unit || rowUnit.includes(unit);
+                    const matchStatus = !status || rowStatus.includes(status);
+                    const matchAchievement = !achievement || rowAchievement.includes(achievement);
+                    const matchYear = !year || text.includes(year);
+                    const matchGender = !gender || text.includes(gender.toLowerCase());
+                    const matchHometown = !hometown || text.includes(hometown);
+
+                    $(this).toggle(matchSearch && matchUnit && matchStatus && matchAchievement && matchYear && matchGender && matchHometown);
+                });
+            }
+
+            $("#advancedSearch, #hometownFilter, select").on("change keyup", applyFilters);
+
+            $("#resetFilters").on("click", function() {
+                $("#advancedSearch, #hometownFilter").val("");
+                $("select").val("");
+                applyFilters();
+            });
+
+            // Modal Event Listeners
+            const modal = document.getElementById('memberModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeMemberModal();
+                    }
+                });
+            }
+
+            window.openMemberModal = function(url) {
+                const body = document.getElementById('modalBody');
+                const modal = document.getElementById('memberModal');
+                
+                if (!body || !modal) return;
+
+                body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-dark">Đang tải hồ sơ...</p></div>';
+                modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        if (!doc || !doc.body) {
+                            throw new Error('Failed to parse response or response is empty');
+                        }
+
+                        const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
+                        if (!content) {
+                            throw new Error('Content not found in response');
+                        }
+
+                        body.innerHTML = '';
+                        if (doc.querySelectorAll) {
+                            doc.querySelectorAll('style').forEach(s => body.appendChild(s.cloneNode(true)));
+                        }
+                        body.insertAdjacentHTML('beforeend', content.outerHTML);
+
+                        // Execute scripts
+                        if (doc.querySelectorAll) {
+                            doc.querySelectorAll('script').forEach(oldScript => {
+                                // Skip common library scripts
+                                const src = oldScript.getAttribute('src') || '';
+                                if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) {
+                                    return;
+                                }
+
+                                const newScript = document.createElement('script');
+                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                                body.appendChild(newScript);
+                            });
+                        }
+
+                        // Re-initialize any member-specific modal scripts if needed
+                        // (Currently none specific, but following pattern)
+                    })
+                    .catch(error => {
+                        console.error('Modal error:', error);
+                        body.innerHTML = '<div class="alert alert-danger">Lỗi khi tải: ' + error.message + '</div>';
+                    });
+            };
+
+            window.closeMemberModal = function() {
+                const modal = document.getElementById('memberModal');
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    document.getElementById('modalBody').innerHTML = '';
+                }, 300);
+            };
         });
     </script>
 }
