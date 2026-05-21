@@ -1,380 +1,151 @@
 @model QLDV.Models.Unit
 @{
     ViewData["Title"] = Model.Name;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    .modal-layout-container {
-        display: flex;
-        justify-content: center;
-        padding-top: 2rem;
-        padding-bottom: 4rem;
-    }
-
-    .modal-style-card {
-        background: #fff;
-        width: 100%;
-        max-width: 1000px;
-        border-radius: 40px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-        padding: 3rem;
-        position: relative;
-    }
-
-    .close-modal-btn {
-        position: absolute;
-        top: 2rem;
-        right: 2rem;
-        width: 44px;
-        height: 44px;
-        background: #f4f7fa;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .close-modal-btn:hover {
-        background: #eef2f7;
-        color: #1a1a1a;
-    }
-
-    .details-header {
-        margin-bottom: 3rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .header-main-box {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .header-icon-box {
-        width: 64px;
-        height: 64px;
-        background: #f0f4f8;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: #1a1a1a;
-    }
-
-    .header-text h1 {
-        font-weight: 800;
-        font-size: 2.25rem;
-        letter-spacing: -1px;
-        margin-bottom: 0.25rem;
-        color: #1a1a1a;
-    }
-
-    .header-text .unit-code {
-        font-size: 0.85rem;
-        font-weight: 800;
-        color: #ccc;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 12px;
-    }
-
-    .action-link {
-        padding: 0.6rem 1.2rem;
-        border-radius: 12px;
-        font-weight: 800;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s;
-    }
-
-    .link-blue { background: #f0f7ff; color: var(--primary-color); }
-    .link-red { background: #fff5f5; color: #dc3545; }
-
-    .action-link:hover {
-        transform: translateY(-2px);
-    }
-
-    .details-grid {
-        display: grid;
-        grid-template-columns: 1fr 340px;
-        gap: 3rem;
-    }
-
-    /* Section Styles */
-    .section-label {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: var(--primary-color);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 1.5rem;
-    }
-
-    .section-label .dot {
-        width: 6px;
-        height: 6px;
-        background: var(--primary-color);
-        border-radius: 50%;
-    }
-
-    .info-box {
-        background: #f8fbff;
-        border-radius: 30px;
-        padding: 2.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .info-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 40px;
-        margin-bottom: 2rem;
-    }
-
-    .info-item label {
-        display: block;
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: #ccc;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
-    }
-
-    .info-item span {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1a1a1a;
-    }
-
-    /* Right Sidebar */
-    .stats-card {
-        background: #fff;
-        border: 1px solid #f0f0f0;
-        border-radius: 30px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .stats-card-title {
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: #ccc;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .stat-label {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        color: #666;
-        text-transform: uppercase;
-    }
-
-    .stat-value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #1a1a1a;
-    }
-
-    /* Members List */
-    .member-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8f9fa;
-        padding: 1rem 1.5rem;
-        border-radius: 20px;
-        margin-bottom: 1rem;
-        transition: all 0.2s;
-    }
-
-    .member-item:hover {
-        background: #f1f3f5;
-    }
-
-    .member-name {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1a1a1a;
-    }
-
-    .member-id {
-        font-size: 0.75rem;
-        font-weight: 800;
-        color: #ccc;
-        margin-left: 10px;
-    }
-
-    .status-badge {
-        background: #fff;
-        padding: 4px 12px;
-        border-radius: 8px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: var(--primary-color);
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-</style>
-
 <div class="modal-layout-container">
-    <div class="modal-style-card">
-        <a href="/units" class="close-modal-btn">
-            <i class="fas fa-times"></i>
-        </a>
+    <a href="/units" class="close-modal-btn">
+        <i class="fas fa-times"></i>
+    </a>
 
-        <div class="details-header">
-            <div class="header-main-box">
-                <div class="header-icon-box">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div class="header-text">
-                    <h1>@Model.Name</h1>
-                    <div class="unit-code">MÃ ĐƠN VỊ: @Model.Code</div>
+    <div class="details-header d-flex justify-content-between align-items-start" style="padding-right: 80px;">
+        <div class="header-main-box d-flex align-items-center gap-4">
+            <div class="header-icon-box" style="width: 64px; height: 64px; background: #f8fafc; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #1e293b; box-shadow: 0 5px 15px rgba(0,0,0,0.02);">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="fw-black m-0" style="font-size: 2.25rem; letter-spacing: -1px; color: #0f172a;">@Model.Name</h1>
+                <div class="unit-code" style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 5px;">MÃ ĐƠN VỊ: @Model.Code</div>
+            </div>
+        </div>
+        <div class="header-actions d-flex gap-3">
+            <a href="/units/edit/@Model.Id" class="btn-premium btn-premium-light" style="background: #eef2ff; color: #0061f2; white-space: nowrap;">
+                <i class="far fa-edit"></i> CHỈNH SỬA
+            </a>
+            <a href="/units/delete/@Model.Id" class="btn-premium" style="background: #fef2f2; color: #ef4444; white-space: nowrap;">
+                <i class="far fa-trash-alt"></i> XÓA
+            </a>
+        </div>
+    </div>
+
+    <div class="details-grid mt-5">
+        <div class="details-left">
+            <div class="section-label" style="font-size: 0.7rem; font-weight: 900; color: #0061f2; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
+                <div class="dot" style="width: 6px; height: 6px; background: #0061f2; border-radius: 50%;"></div>
+                THÔNG TIN CHI TIẾT
+            </div>
+            
+            <div class="info-box-premium" style="background: #f8fafc; border-radius: 30px; padding: 3rem; margin-bottom: 3rem;">
+                <div class="row g-5">
+                    <div class="col-md-6">
+                        <label style="display: block; font-size: 0.65rem; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">EMAIL LIÊN HỆ</label>
+                        <p class="fw-bold m-0" style="font-size: 1.1rem; color: #1e293b;">@(Model.Email ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label style="display: block; font-size: 0.65rem; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">SỐ ĐIỆN THOẠI</label>
+                        <p class="fw-bold m-0" style="font-size: 1.1rem; color: #1e293b;">@(Model.Phone ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label style="display: block; font-size: 0.65rem; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">ĐỊA CHỈ TRỤ SỞ</label>
+                        <p class="fw-bold m-0" style="font-size: 1.1rem; color: #1e293b;">@(Model.Address ?? "Chưa cập nhật")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label style="display: block; font-size: 0.65rem; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">NGÀY THIẾT LẬP</label>
+                        <p class="fw-bold m-0" style="font-size: 1.1rem; color: #1e293b;">@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("yyyy-MM-dd"))</p>
+                    </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <a href="/units/edit/@Model.Id" class="action-link link-blue">
-                    <i class="far fa-edit"></i> CHỈNH SỬA
-                </a>
-                <a href="/units/delete/@Model.Id" class="action-link link-red">
-                    <i class="far fa-trash-alt"></i> XÓA
-                </a>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="section-label m-0" style="font-size: 0.7rem; font-weight: 900; color: #0061f2; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px;">
+                    <div class="dot" style="width: 6px; height: 6px; background: #0061f2; border-radius: 50%;"></div>
+                    DANH SÁCH ĐOÀN VIÊN (@Model.Members.Count)
+                </div>
+                @if (Model.Members.Count > 6)
+                {
+                    <a href="/members?unitId=@Model.Id" style="font-size: 0.6rem; font-weight: 900; color: #0061f2; text-decoration: none; text-transform: uppercase; letter-spacing: 1px;">XEM TẤT CẢ —</a>
+                }
+            </div>
+            
+            <div class="members-list">
+                @if (Model.Members.Any())
+                {
+                    <div class="row g-3">
+                        @foreach (var member in Model.Members.Take(6))
+                        {
+                            <div class="col-md-6">
+                                <div class="member-pill" style="margin-bottom: 0;">
+                                    <div class="member-avatar" style="width: 44px; height: 44px; font-size: 1rem;">
+                                        @(member.FullName?.Length > 0 ? member.FullName.Substring(0, 1) : "?")
+                                    </div>
+                                    <div class="member-details">
+                                        <h6 style="font-size: 0.95rem;">@member.FullName</h6>
+                                        <p style="font-size: 0.6rem;">#@member.MemberId</p>
+                                    </div>
+                                    <div class="member-meta">
+                                        <span class="status-pill status-pill-info" style="font-size: 0.55rem; padding: 4px 10px;">@member.Status</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-5 fw-bold" style="font-size: 0.9rem; opacity: 0.5;">Chưa có đoàn viên nào trong đơn vị này.</p>
+                }
             </div>
         </div>
 
-        <div class="details-grid">
-            <div class="details-left">
-                <div class="section-label">
-                    <div class="dot"></div>
-                    THÔNG TIN CHI TIẾT
+        <div class="details-right">
+            <div class="stats-card" style="background: #fff; border: 1px solid #f1f5f9; border-radius: 30px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin-bottom: 3rem;">
+                <div class="stats-card-title" style="font-size: 0.75rem; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    THỐNG KÊ ĐƠN VỊ
+                    <i class="fas fa-chart-line" style="color: #f1f5f9; font-size: 1.2rem;"></i>
                 </div>
-                <div class="info-box">
-                    <div class="info-row">
-                        <div class="info-item">
-                            <label>EMAIL LIÊN HỆ</label>
-                            <span>@(Model.Email ?? "Chưa cập nhật")</span>
-                        </div>
-                        <div class="info-item">
-                            <label>SỐ ĐIỆN THOẠI</label>
-                            <span>@(Model.Phone ?? "Chưa cập nhật")</span>
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-item">
-                            <label>ĐỊA CHỈ TRỤ SỞ</label>
-                            <span>@(Model.Address ?? "Chưa cập nhật")</span>
-                        </div>
-                        <div class="info-item">
-                            <label>NGÀY THIẾT LẬP</label>
-                            <span>@(new DateTime(Model.CreatedAt, DateTimeKind.Utc).ToString("yyyy-MM-dd"))</span>
-                        </div>
-                    </div>
+                
+                <div class="stat-row d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: #f8fafc !important;">
+                    <div class="stat-label fw-bold text-muted small text-uppercase">TỔNG ĐOÀN VIÊN</div>
+                    <div class="stat-value fw-black" style="font-size: 1.5rem; color: #0f172a;">@Model.Members.Count</div>
                 </div>
 
-                <div class="section-label">
-                    <div class="dot"></div>
-                    DANH SÁCH ĐOÀN VIÊN (@Model.Members.Count)
-                </div>
-                <div class="members-list">
-                    @if (Model.Members.Any())
-                    {
-                        @foreach (var member in Model.Members)
-                        {
-                            <div class="member-item">
-                                <div>
-                                    <span class="member-name">@member.FullName</span>
-                                    <span class="member-id">#@member.MemberId</span>
-                                </div>
-                                <div class="status-badge">@member.Status</div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-4">Chưa có đoàn viên nào trong đơn vị này.</p>
-                    }
-                </div>
-            </div>
-
-            <div class="details-right">
-                <div class="stats-card">
-                    <div class="stats-card-title">
-                        THỐNG KÊ ĐƠN VỊ
-                        <i class="fas fa-chart-line" style="color: #eee;"></i>
-                    </div>
-                    
-                    <div class="stat-row">
-                        <div class="stat-label">TỔNG ĐOÀN VIÊN</div>
-                        <div class="stat-value">@Model.Members.Count</div>
-                    </div>
-
-                    <div class="stat-row">
-                        <div class="stat-label">ĐƠN VỊ CON</div>
-                        <div class="stat-value">@Model.Children.Count</div>
-                    </div>
-
-                    @if (Model.Parent != null)
-                    {
-                        <div class="stat-row" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px dashed #eee;">
-                            <div class="stat-label">ĐƠN VỊ CẤP TRÊN</div>
-                            <div class="stat-value" style="font-size: 0.9rem; text-align: right;">
-                                <a href="/units/details/@Model.Parent.Id" style="color: var(--primary-color); text-decoration: none;">@Model.Parent.Name</a>
-                            </div>
-                        </div>
-                    }
+                <div class="stat-row d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: #f8fafc !important;">
+                    <div class="stat-label fw-bold text-muted small text-uppercase">ĐƠN VỊ CON</div>
+                    <div class="stat-value fw-black" style="font-size: 1.5rem; color: #0f172a;">@Model.Children.Count</div>
                 </div>
 
-                @if (Model.Children.Any())
+                @if (Model.Parent != null)
                 {
-                    <div class="section-label">
-                        <div class="dot"></div>
-                        ĐƠN VỊ TRỰC THUỘC
+                    <div class="stat-row d-flex flex-column align-items-start gap-2 mt-4 pt-4 border-top" style="border-color: #f1f5f9 !important;">
+                        <div class="stat-label fw-bold text-muted small text-uppercase">ĐƠN VỊ CẤP TRÊN</div>
+                        <a href="/units/details/@Model.Parent.Id" class="fw-black" style="color: #0061f2; text-decoration: none; font-size: 1rem;">@Model.Parent.Name</a>
                     </div>
-                    @foreach (var child in Model.Children)
-                    {
-                        <a href="/units/details/@child.Id" style="text-decoration: none;">
-                            <div class="member-item">
-                                <span class="member-name" style="font-size: 0.85rem;">@child.Name</span>
-                                <div class="status-badge" style="font-size: 0.65rem;">@child.Members.Count ĐV</div>
-                            </div>
-                        </a>
-                    }
                 }
             </div>
+
+            @if (Model.Children.Any())
+            {
+                <div class="section-label" style="font-size: 0.7rem; font-weight: 900; color: #0061f2; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
+                    <div class="dot" style="width: 6px; height: 6px; background: #0061f2; border-radius: 50%;"></div>
+                     ĐƠN VỊ TRỰC THUỘC
+                </div>
+                @foreach (var child in Model.Children)
+                {
+                    <a href="/units/details/@child.Id" style="text-decoration: none;">
+                        <div class="item-row" style="padding: 1.25rem 1.5rem; border-radius: 18px; margin-bottom: 0.75rem;">
+                            <div class="item-body">
+                                <h6 style="font-size: 1rem; margin: 0;">@child.Name</h6>
+                            </div>
+                            <div class="item-date-side">
+                                <span style="font-size: 1rem;">@child.Members.Count</span>
+                                <small>ĐV</small>
+                            </div>
+                        </div>
+                    </a>
+                }
+            }
         </div>
     </div>
 </div>

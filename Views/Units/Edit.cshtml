@@ -1,7 +1,8 @@
 @model QLDV.Models.Unit
 @{
     ViewData["Title"] = "Cập nhật đơn vị";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>

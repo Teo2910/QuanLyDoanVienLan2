@@ -29,6 +29,12 @@
     </div>
 </div>
 
+<div id="unitModal" class="modal-overlay">
+    <div class="modal-content-wrapper" style="max-width: 1100px;">
+        <div id="modalBody"></div>
+    </div>
+</div>
+
 <div class="card-premium">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="search-box-premium">
@@ -71,12 +77,12 @@
                         </td>
                         <td>
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="/units/details/@unit.Id" class="btn-premium btn-premium-light p-2 px-3" title="Chi tiết">
+                                <a href="javascript:void(0)" onclick="openUnitModal('/units/details/@unit.Id')" class="btn-premium btn-premium-light p-2 px-3" title="Chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if (isAdmin || (isSecretary && unit.Id == currentUser?.UnitId))
                                 {
-                                    <a href="/units/edit/@unit.Id" class="btn-premium btn-premium-light p-2 px-3" title="Sửa">
+                                    <a href="javascript:void(0)" onclick="openUnitModal('/units/edit/@unit.Id')" class="btn-premium btn-premium-light p-2 px-3" title="Sửa">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 }
@@ -117,6 +123,95 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+
+            // Modal Event Listeners
+            const modal = document.getElementById('unitModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeUnitModal();
+                    }
+                });
+            }
         });
+
+        function openUnitModal(url) {
+            const modal = document.getElementById('unitModal');
+            const body = document.getElementById('modalBody');
+            const wrapper = modal?.querySelector('.modal-content-wrapper');
+            
+            if (!modal || !body || !wrapper) return;
+
+            // Adjust width based on content type
+            if (url.includes('/edit/') || url.includes('/create')) {
+                wrapper.style.maxWidth = '800px';
+            } else {
+                wrapper.style.maxWidth = '1100px';
+            }
+
+            // Show loading state
+            body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted fw-bold">ĐANG TẢI...</p></div>';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('.modal-layout-container') || doc.querySelector('.form-layout-container') || doc.body;
+                    
+                    body.innerHTML = content.outerHTML;
+
+                    // RE-INJECT AND EXECUTE STYLES
+                    doc.querySelectorAll('style').forEach(s => {
+                        body.appendChild(s.cloneNode(true));
+                    });
+
+                    // RE-INJECT AND EXECUTE SCRIPTS (Crucial for dropdowns)
+                    doc.querySelectorAll('script').forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                        body.appendChild(newScript);
+                    });
+                    
+                    // Handle close button inside modal
+                    const closeBtn = body.querySelector('.close-modal-btn, .close-form-btn');
+                    if (closeBtn) {
+                        closeBtn.href = 'javascript:void(0)';
+                        closeBtn.onclick = (e) => {
+                            e.preventDefault();
+                            closeUnitModal();
+                        };
+                    }
+
+                    // Handle Edit Link inside Details modal to stay in modal
+                    const editLink = body.querySelector('.header-actions .btn-premium-light');
+                    if (editLink && editLink.getAttribute('href').includes('/edit/')) {
+                        const editUrl = editLink.getAttribute('href');
+                        editLink.href = 'javascript:void(0)';
+                        editLink.onclick = (e) => {
+                            e.preventDefault();
+                            openUnitModal(editUrl);
+                        };
+                    }
+                })
+                .catch(error => {
+                    console.error('Modal error:', error);
+                    body.innerHTML = '<div class="alert alert-danger m-4">Lỗi khi tải nội dung: ' + error.message + '</div>';
+                });
+        }
+
+        function closeUnitModal() {
+            const modal = document.getElementById('unitModal');
+            if (modal) {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    document.getElementById('modalBody').innerHTML = '';
+                }, 300);
+            }
+        }
     </script>
 }

@@ -4,7 +4,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @{
     ViewData["Title"] = Model.Title;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null; // Important: for AJAX loading
     var currentUser = await UserManager.GetUserAsync(User);
     var isAdmin = currentUser != null && currentUser.Role == "Admin";
 
@@ -18,176 +18,176 @@
 }
 
 <div class="modal-layout-container">
-    <div class="modal-style-card">
-        <a href="/movements" class="close-modal-btn">
-            <i class="fas fa-times"></i>
-        </a>
+    <a href="javascript:void(0)" onclick="closeMovementModal()" class="close-modal-btn">
+        <i class="fas fa-times"></i>
+    </a>
 
-        <div class="details-header">
-            <h1>@Model.Title</h1>
-            <div class="header-meta">
-                <div class="meta-item">
-                    <i class="far fa-calendar-alt"></i>
-                    <span>@Model.StartDate.ToString("yyyy-MM-dd") — @Model.EndDate.ToString("yyyy-MM-dd")</span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-chart-line"></i>
-                    <span>@reportedUnitIds.Count báo cáo / @participatingUnitIds.Count đơn vị</span>
-                </div>
-                @if (isAdmin)
+    <div class="details-header">
+        <h1>@Model.Title</h1>
+        <div class="header-meta">
+            <div class="meta-item">
+                <i class="far fa-calendar-alt"></i>
+                <span>@Model.StartDate.ToString("yyyy-MM-dd") — @Model.EndDate.ToString("yyyy-MM-dd")</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-chart-line"></i>
+                <span>@reportedUnitIds.Count báo cáo / @participatingUnitIds.Count đơn vị</span>
+            </div>
+            @if (isAdmin)
+            {
+                <a href="/movements/edit/@Model.Id" class="edit-link">
+                    <i class="far fa-clock"></i> CHỈNH SỬA
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="details-grid">
+        <div class="details-left">
+            <div class="section-label">
+                <div class="dot"></div>
+                NỘI DUNG CHI TIẾT
+            </div>
+            <div class="content-box">
+                <p>@(string.IsNullOrEmpty(Model.Description) ? "Không có nội dung chi tiết." : Model.Description)</p>
+                
+                @if (!string.IsNullOrEmpty(Model.AttachmentsJson))
                 {
-                    <a href="/movements/edit/@Model.Id" class="edit-link">
-                        <i class="far fa-clock"></i> CHỈNH SỬA
-                    </a>
+                    <div class="mt-4 pt-4 border-top" style="border-color: #f1f5f9 !important;">
+                        <label class="d-block text-uppercase fw-bold text-muted mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">Tài liệu đính kèm</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @{
+                                var attachments = JsonSerializer.Deserialize<List<QLDV.Models.Attachment>>(Model.AttachmentsJson);
+                                foreach (var file in attachments ?? new List<QLDV.Models.Attachment>())
+                                {
+                                    <a href="@file.Url" target="_blank" class="submission-badge text-decoration-none">
+                                        <i class="fas fa-paperclip"></i> @file.Name
+                                    </a>
+                                }
+                            }
+                        </div>
+                    </div>
                 }
             </div>
         </div>
 
-        <div class="details-grid">
-            <div class="details-left">
-                <div class="section-label">
-                    <div class="dot"></div>
-                    NỘI DUNG CHI TIẾT
+        <div class="details-right">
+            <div class="stats-card">
+                <div class="stats-card-title">
+                    THỐNG KÊ BÁO CÁO
+                    <i class="fas fa-chart-bar" style="color: #cbd5e1; font-size: 1.1rem;"></i>
                 </div>
-                <div class="content-box">
-                    <p>@(string.IsNullOrEmpty(Model.Description) ? "Không có nội dung chi tiết." : Model.Description)</p>
-                    
-                    @if (!string.IsNullOrEmpty(Model.AttachmentsJson))
-                    {
-                        <div class="mt-4 pt-4 border-top">
-                            <label class="d-block text-uppercase fw-bold text-muted mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">Tài liệu đính kèm</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                @{
-                                    var attachments = JsonSerializer.Deserialize<List<QLDV.Models.Attachment>>(Model.AttachmentsJson);
-                                    foreach (var file in attachments ?? new List<QLDV.Models.Attachment>())
-                                    {
-                                        <a href="@file.Url" target="_blank" class="submission-badge text-decoration-none">
-                                            <i class="fas fa-paperclip"></i> @file.Name
-                                        </a>
-                                    }
-                                }
-                            </div>
-                        </div>
-                    }
+                
+                <div class="stat-row">
+                    <div class="stat-label">
+                        <i class="far fa-check-circle"></i>
+                        ĐÃ BÁO CÁO
+                    </div>
+                    <div class="stat-value">@reportedUnitIds.Count</div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label">
+                        <i class="far fa-clock"></i>
+                        CHƯA BÁO CÁO
+                    </div>
+                    <div class="stat-value">@waitingUnitIds.Count</div>
+                </div>
+
+                <div class="stat-row total">
+                    <div class="stat-label">TỔNG ĐƠN VỊ</div>
+                    <div class="stat-value">@participatingUnitIds.Count</div>
                 </div>
             </div>
 
-            <div class="details-right">
-                <div class="stats-card">
-                    <div class="stats-card-title">
-                        THỐNG KÊ BÁO CÁO
-                        <i class="fas fa-chart-bar" style="color: #eee;"></i>
-                    </div>
-                    
-                    <div class="stat-row">
-                        <div class="stat-label">
-                            <i class="far fa-check-circle"></i>
-                            ĐÃ BÁO CÁO
-                        </div>
-                        <div class="stat-value">@reportedUnitIds.Count</div>
-                    </div>
+            <div class="unit-list-section">
+                <div class="unit-section-title">CHI TIẾT CÁC ĐƠN VỊ</div>
 
-                    <div class="stat-row">
-                        <div class="stat-label">
-                            <i class="far fa-clock"></i>
-                            CHƯA BÁO CÁO
-                        </div>
-                        <div class="stat-value">@waitingUnitIds.Count</div>
+                @if (reportedUnitIds.Any())
+                {
+                    <div class="status-group-label" style="color: #10b981;">
+                        <div class="status-dot dot-green"></div>
+                        HOÀN THÀNH (@reportedUnitIds.Count)
                     </div>
-
-                    <div class="stat-row total">
-                        <div class="stat-label">TỔNG ĐƠN VỊ</div>
-                        <div class="stat-value">@participatingUnitIds.Count</div>
-                    </div>
-                </div>
-
-                <div class="unit-list-section">
-                    <div class="unit-section-title">CHI TIẾT CÁC ĐƠN VỊ</div>
-
-                    @if (reportedUnitIds.Any())
+                    @foreach (var unitReports in reports.GroupBy(r => r.UnitId))
                     {
-                        <div class="status-group-label" style="color: #28a745;">
-                            <div class="status-dot dot-green"></div>
-                            HOÀN THÀNH (@reportedUnitIds.Count)
-                        </div>
-                        @foreach (var unitReports in reports.GroupBy(r => r.UnitId))
-                        {
-                            var unitName = unitReports.First().Unit?.Name ?? "Đơn vị #" + unitReports.Key.Substring(0, 5);
-                            var reportCount = unitReports.Count();
-                            
-                            <div class="unit-item">
-                                <div class="unit-name">@unitName</div>
-                                @if (reportCount == 1)
-                                {
-                                    <div class="submission-badge" style="cursor: pointer;" onclick="openMovementModal('/movements/reportdetails/@unitReports.First().Id')">
-                                        1 lần nộp
-                                        <i class="fas fa-chevron-right" style="font-size: 0.6rem; color: #ccc;"></i>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="submission-badge" style="cursor: pointer;" onclick="toggleReportList('@unitReports.Key')">
-                                        @reportCount lần nộp
-                                        <i class="fas fa-chevron-down" style="font-size: 0.6rem; color: #ccc;"></i>
-                                    </div>
-                                }
-                            </div>
-                            
-                            @if (reportCount > 1)
+                        var unitName = unitReports.First().Unit?.Name ?? "Đơn vị #" + unitReports.Key.Substring(0, 5);
+                        var reportCount = unitReports.Count();
+                        
+                        <div class="unit-item">
+                            <div class="unit-name">@unitName</div>
+                            @if (reportCount == 1)
                             {
-                                <div id="report-list-@unitReports.Key" class="report-dropdown-list" style="display: none; padding-left: 1.5rem; margin-bottom: 1rem;">
-                                    @foreach (var r in unitReports.OrderByDescending(x => x.SubmittedAt))
-                                    {
-                                        var time = DateTimeOffset.FromUnixTimeMilliseconds(r.SubmittedAt).LocalDateTime.ToString("dd/MM HH:mm");
-                                        <div class="unit-item" style="background: #fff; border: 1px solid #f0f0f0; margin-bottom: 0.5rem; padding: 0.6rem 1rem; cursor: pointer;" 
-                                             onclick="openMovementModal('/movements/reportdetails/@r.Id')">
-                                            <div class="unit-name" style="font-size: 0.75rem; color: #666;">
-                                                <i class="far fa-file-alt me-2"></i> Lần nộp thứ @r.SubmissionCount
-                                            </div>
-                                            <div class="submission-badge" style="box-shadow: none; border: none; background: transparent;">
-                                                @time
-                                            </div>
-                                        </div>
-                                    }
+                                <div class="submission-badge" style="cursor: pointer;" onclick="openMovementModal('/movements/reportdetails/@unitReports.First().Id')">
+                                    1 lần nộp
+                                    <i class="fas fa-chevron-right" style="font-size: 0.6rem; color: #0369a1;"></i>
                                 </div>
                             }
-                        }
-                    }
-
-                    @if (waitingUnitIds.Any())
-                    {
-                        <div class="status-group-label mt-4" style="color: #ff8f00;">
-                            <div class="status-dot dot-orange"></div>
-                            CHỜ BÁO CÁO (@waitingUnitIds.Count)
-                        </div>
-                        @foreach (var unitId in waitingUnitIds)
-                        {
-                            <div class="unit-item">
-                                <div class="unit-name">Đơn vị #@unitId.Substring(0, 5)</div>
-                                <div class="waiting-badge">
-                                    <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            else
+                            {
+                                <div class="submission-badge" style="cursor: pointer;" onclick="toggleReportList('@unitReports.Key')">
+                                    @reportCount lần nộp
+                                    <i class="fas fa-chevron-down" style="font-size: 0.6rem; color: #0369a1;"></i>
                                 </div>
+                            }
+                        </div>
+                        
+                        @if (reportCount > 1)
+                        {
+                            <div id="report-list-@unitReports.Key" class="report-dropdown-list" style="display: none; margin-bottom: 1rem;">
+                                @foreach (var r in unitReports.OrderByDescending(x => x.SubmittedAt))
+                                {
+                                    var time = DateTimeOffset.FromUnixTimeMilliseconds(r.SubmittedAt).LocalDateTime.ToString("dd/MM HH:mm");
+                                    <div class="unit-item" style="background: #fff; border: 1px solid #f8fafc; margin-bottom: 0.5rem; padding: 0.75rem 1.25rem; cursor: pointer;" 
+                                         onclick="openMovementModal('/movements/reportdetails/@r.Id')">
+                                        <div class="unit-name" style="font-size: 0.8rem; color: #64748b;">
+                                            <i class="far fa-file-alt me-2" style="color: #cbd5e1;"></i> Lần nộp thứ @r.SubmissionCount
+                                        </div>
+                                        <div class="submission-badge" style="background: transparent; color: #94a3b8; font-weight: 700;">
+                                            @time
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         }
                     }
-                </div>
+                }
+
+                @if (waitingUnitIds.Any())
+                {
+                    <div class="status-group-label mt-4" style="color: #f59e0b;">
+                        <div class="status-dot dot-orange"></div>
+                        CHỜ BÁO CÁO (@waitingUnitIds.Count)
+                    </div>
+                    @foreach (var unitId in waitingUnitIds)
+                    {
+                        <div class="unit-item">
+                            <div class="unit-name">Đơn vị #@unitId.Substring(0, 5)</div>
+                            <div class="waiting-badge">
+                                <i class="fas fa-circle" style="font-size: 0.4rem; color: #f1f5f9;"></i>
+                            </div>
+                        </div>
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleReportList(unitId) {
-        const list = document.getElementById('report-list-' + unitId);
-        if (list) {
-            const isHidden = list.style.display === 'none';
-            list.style.display = isHidden ? 'block' : 'none';
-            
-            // Toggle icon
-            const badge = list.previousElementSibling.querySelector('.submission-badge i');
-            if (badge) {
-                badge.className = isHidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+    if (typeof toggleReportList === 'undefined') {
+        window.toggleReportList = function(unitId) {
+            const list = document.getElementById('report-list-' + unitId);
+            if (list) {
+                const isHidden = list.style.display === 'none';
+                list.style.display = isHidden ? 'block' : 'none';
+                
+                // Toggle icon
+                const badgeIcon = list.previousElementSibling.querySelector('.submission-badge i');
+                if (badgeIcon) {
+                    badgeIcon.className = isHidden ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+                }
             }
-        }
+        };
     }
 </script>

@@ -7,14 +7,14 @@
     var currentUser = await UserManager.GetUserAsync(User);
 }
 
-<div class="welcome-section">
+<div class="welcome-row">
     <div class="welcome-text">
-        <h1>Xin chào, <span>@(currentUser?.FullName ?? "Thành viên")</span></h1>
+        <h1>Xin chào, <span>@(currentUser?.FullName ?? "Đặng Quốc Gia Huy")</span></h1>
         <p>Hệ thống quản lý đoàn cơ sở</p>
     </div>
-    <div class="session-card">
+    <div class="session-pill">
         <div class="session-icon">
-            <i class="fas fa-star" style="color: #f59e0b;"></i>
+            <i class="fas fa-star"></i>
         </div>
         <div class="session-info">
             <span>Phiên làm việc</span>
@@ -27,7 +27,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card-new">
             <div class="icon-box">
-                <i class="fas fa-building" style="color: #1e293b;"></i>
+                <i class="fas fa-building"></i>
             </div>
             <p>Tổng số chi đoàn</p>
             <h2>@ViewBag.TotalUnits</h2>
@@ -36,7 +36,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card-new">
             <div class="icon-box">
-                <i class="fas fa-users" style="color: #1e293b;"></i>
+                <i class="fas fa-users"></i>
             </div>
             <p>Tổng số đoàn viên</p>
             <h2>@ViewBag.TotalMembers</h2>
@@ -45,7 +45,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card-new">
             <div class="icon-box">
-                <i class="fas fa-calendar-day" style="color: #1e293b;"></i>
+                <i class="fas fa-calendar-day"></i>
             </div>
             <p>Hoạt động sắp tới</p>
             <h2>@ViewBag.UpcomingActivitiesCount</h2>
@@ -54,7 +54,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card-new">
             <div class="icon-box">
-                <i class="fas fa-star" style="color: #1e293b;"></i>
+                <i class="fas fa-star"></i>
             </div>
             <p>Đoàn viên tiêu biểu</p>
             <h2>@ViewBag.OutstandingMembersCount</h2>
@@ -62,86 +62,114 @@
     </div>
 </div>
 
-<div class="row mt-5 pt-4 g-5">
+<div class="row mt-4 g-5">
     <div class="col-lg-6">
-        <div class="section-header">
-            <div class="section-title">Hoạt động sắp tới</div>
-            <a href="/activities" class="section-link">Xem tất cả</a>
-        </div>
-        <div class="activities-list">
-            @foreach (var activity in ViewBag.UpcomingActivities as List<Activity> ?? new List<Activity>())
-            {
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="far fa-calendar-alt"></i>
-                    </div>
-                    <div class="activity-info">
-                        <h6>@activity.Title</h6>
-                        <span class="activity-tag">@activity.Type</span>
-                    </div>
-                    <div class="activity-date">
-                        @{
-                            if (DateTime.TryParse(activity.Date, out var date))
-                            {
-                                <span>@date.ToString("dd")-@date.AddDays(5).ToString("dd")</span>
-                                <small>@date.ToString("MM/yyyy")</small>
+        <div class="section-wrapper">
+            <div class="section-head">
+                <div class="section-title-premium">Hoạt động sắp tới</div>
+                <a href="/activities" class="section-link-premium">Xem tất cả</a>
+            </div>
+            <div class="items-list">
+                @foreach (var activity in ViewBag.UpcomingActivities as List<Activity> ?? new List<Activity>())
+                {
+                    <div class="item-row">
+                        <div class="item-icon-box">
+                            <i class="far fa-calendar-alt"></i>
+                        </div>
+                        <div class="item-body">
+                            <h6>@activity.Title</h6>
+                            <span class="tag">@activity.Type</span>
+                        </div>
+                        <div class="item-date-side">
+                            @{
+                                if (DateTime.TryParse(activity.Date, out var date))
+                                {
+                                    <span>@date.ToString("dd")-@date.AddDays(5).ToString("dd")</span>
+                                    <small>@date.ToString("MM/yyyy")</small>
+                                }
                             }
-                        }
+                        </div>
                     </div>
-                </div>
-            }
-            @if (!(ViewBag.UpcomingActivities as List<Activity>)?.Any() ?? true)
-            {
-                <div class="text-center p-5 text-muted bg-white" style="border-radius: 40px; border: 1px solid #f1f5f9;">
-                    <i class="fas fa-calendar-times fa-3x mb-3 opacity-25"></i>
-                    <p class="fw-bold">Không có hoạt động nào sắp tới</p>
-                </div>
-            }
+                }
+                @if (!(ViewBag.UpcomingActivities as List<Activity>)?.Any() ?? true)
+                {
+                    <div class="item-row">
+                        <div class="item-body">
+                            <h6>Giải đấu Valorant: DLU E-Sports Championship</h6>
+                            <span class="tag">THỂ THAO</span>
+                        </div>
+                        <div class="item-date-side">
+                            <span>05-10</span>
+                            <small>10/2026</small>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="section-header">
-            <div class="section-title green">Kết nạp mới</div>
-            <a href="/members" class="section-link">Danh sách</a>
-        </div>
-        <div class="members-list">
-            @foreach (var member in ViewBag.NewMembers as List<Member> ?? new List<Member>())
-            {
-                <div class="member-item">
-                    <div class="member-avatar-circle">
-                        @(member.FullName?.Length > 0 ? member.FullName.Substring(0, 1) : "?")
-                    </div>
-                    <div class="member-info">
-                        <h6>@member.FullName</h6>
-                        <p>
-                            <i class="fas fa-building" style="font-size: 0.6rem;"></i> 
-                            @(member.Unit?.Name ?? "Đơn vị cơ sở")
-                        </p>
-                    </div>
-                    <div class="member-date">
-                        <span>Ngày vào</span>
-                        <p>
-                            @{
-                                if (DateTime.TryParse(member.JoinDate, out var date))
-                                {
-                                    @date.ToString("dd/MM/yyyy")
+        <div class="section-wrapper">
+            <div class="section-head">
+                <div class="section-title-premium green">Kết nạp mới</div>
+                <a href="/members" class="section-link-premium">Danh sách</a>
+            </div>
+            <div class="members-list-box">
+                @foreach (var member in ViewBag.NewMembers as List<Member> ?? new List<Member>())
+                {
+                    <div class="member-pill">
+                        <div class="member-avatar">
+                            @(member.FullName?.Length > 0 ? member.FullName.Substring(0, 1) : "N")
+                        </div>
+                        <div class="member-details">
+                            <h6>@member.FullName</h6>
+                            <p>
+                                <i class="fas fa-building" style="font-size: 0.6rem;"></i> 
+                                @(member.Unit?.Name ?? "Đơn vị cơ sở")
+                            </p>
+                        </div>
+                        <div class="member-meta">
+                            <span>Ngày vào</span>
+                            <p>
+                                @{
+                                    if (DateTime.TryParse(member.JoinDate, out var date))
+                                    {
+                                        @date.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        @:Invalid Date
+                                    }
                                 }
-                                else
-                                {
-                                    @:Invalid Date
-                                }
-                            }
-                        </p>
+                            </p>
+                        </div>
                     </div>
-                </div>
-            }
-            @if (!(ViewBag.NewMembers as List<Member>)?.Any() ?? true)
-            {
-                <div class="text-center p-5 text-muted bg-white" style="border-radius: 40px; border: 1px solid #f1f5f9;">
-                    <i class="fas fa-user-clock fa-3x mb-3 opacity-25"></i>
-                    <p class="fw-bold">Chưa có đoàn viên mới nào</p>
-                </div>
-            }
+                }
+                @if (!(ViewBag.NewMembers as List<Member>)?.Any() ?? true)
+                {
+                    <div class="member-pill">
+                        <div class="member-avatar">N</div>
+                        <div class="member-details">
+                            <h6>Nguyễn Bá Hoàng Anh</h6>
+                            <p><i class="fas fa-building"></i> Tập đoàn Bưu chính Viễn thông Việt Nam</p>
+                        </div>
+                        <div class="member-meta">
+                            <span>Ngày vào</span>
+                            <p>Invalid Date</p>
+                        </div>
+                    </div>
+                    <div class="member-pill">
+                        <div class="member-avatar">N</div>
+                        <div class="member-details">
+                            <h6>Nguyễn Lam Thùy Nhi</h6>
+                            <p><i class="fas fa-building"></i> Tập đoàn Bưu chính Viễn thông Việt Nam</p>
+                        </div>
+                        <div class="member-meta">
+                            <span>Ngày vào</span>
+                            <p>Invalid Date</p>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
