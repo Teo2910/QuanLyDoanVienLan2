@@ -1,48 +1,11 @@
 @model QLDV.Models.Member
 @{
     ViewData["Title"] = "Hồ sơ đoàn viên: " + Model.FullName;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
-    .modal-layout-container {
-        display: flex;
-        justify-content: center;
-        padding-top: 2rem;
-        padding-bottom: 4rem;
-    }
-
-    .modal-style-card {
-        background: #fff;
-        width: 100%;
-        max-width: 1000px;
-        border-radius: 40px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-        padding: 3.5rem;
-        position: relative;
-    }
-
-    .close-modal-btn {
-        position: absolute;
-        top: 2.5rem;
-        right: 2.5rem;
-        width: 44px;
-        height: 44px;
-        background: #f4f7fa;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .close-modal-btn:hover {
-        background: #eef2f7;
-        color: #1a1a1a;
-    }
-
     /* Profile Header */
     .profile-header {
         display: flex;
@@ -185,78 +148,6 @@
         color: #8a6d3b;
     }
 
-    /* Dark Position Box */
-    .position-dark-box {
-        background: #0f172a;
-        border-radius: 35px;
-        padding: 2.5rem;
-        color: #fff;
-        margin-bottom: 3.5rem;
-        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.2);
-    }
-
-    .pos-label {
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 12px;
-        display: block;
-    }
-
-    .pos-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        margin-bottom: 10px;
-    }
-
-    .pos-sub {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    /* Recent Activity */
-    .recent-activity-box {
-        margin-top: 1.5rem;
-    }
-
-    .activity-entry {
-        background: #fcfcfc;
-        border: 1px solid #f8f9fa;
-        border-radius: 25px;
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        gap: 25px;
-    }
-
-    .icon-circle {
-        width: 44px;
-        height: 44px;
-        background: #eef2f7;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-color);
-        font-size: 1.1rem;
-    }
-
-    .entry-meta {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #ccc;
-    }
-
-    .entry-meta span {
-        margin: 0 12px;
-    }
-
     /* Footer Buttons */
     .profile-actions-footer {
         display: grid;
@@ -309,130 +200,139 @@
 </style>
 
 <div class="modal-layout-container">
-    <div class="modal-style-card">
-        <a href="/members" class="close-modal-btn">
-            <i class="fas fa-times"></i>
-        </a>
+    <a href="/members" class="close-modal-btn">
+        <i class="fas fa-times"></i>
+    </a>
 
-        <div class="profile-header">
-            <div class="profile-avatar-box">
-                @Model.FullName[0]
-            </div>
-            <div class="profile-title-box">
-                <h1>
-                    @Model.FullName
-                    <span class="status-badge-header">@Model.Status</span>
-                </h1>
-                <div class="profile-meta-info">
-                    <div class="meta-item"># @Model.MemberId</div>
-                    <div class="meta-item"><i class="fas fa-venus-mars"></i> @Model.Gender</div>
-                    <div class="meta-item"><i class="fas fa-map-marker-alt"></i> @(Model.Hometown ?? "Chưa cập nhật")</div>
-                </div>
-            </div>
+    <div class="profile-header">
+        <div class="profile-avatar-box">
+            @Model.FullName[0]
         </div>
-
-        <div class="profile-main-grid">
-            <!-- Left Side: Học tập & Hoạt đoàn -->
-            <div class="grid-column">
-                <div class="section-column-title">HỌC TẬP & HOẠT ĐOÀN</div>
-                
-                <div class="info-card-box">
-                    <div class="info-card-label">CHI ĐOÀN & ĐƠN VỊ</div>
-                    <div class="info-card-value"><i>@(Model.Unit?.Name ?? "Chưa phân bổ")</i></div>
-                </div>
-
-                <div class="info-card-box">
-                    <div class="info-card-label">QUÊ QUÁN</div>
-                    <div class="info-card-value">@(Model.Hometown ?? "Chưa cập nhật")</div>
-                </div>
-
-                <div class="info-card-box">
-                    <div class="info-card-label">NƠI SINH & THƯỜNG TRÚ</div>
-                    <div class="info-card-value">@(Model.PlaceOfBirth ?? "Chưa cập nhật")</div>
-                </div>
-
-                <div class="info-card-box">
-                    <div class="info-card-label">ĐỊA CHỈ THƯỜNG TRÚ</div>
-                    <div class="info-card-value">@(Model.PermanentAddress ?? "Chưa cập nhật")</div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6">
-                        <div class="info-card-box">
-                            <div class="info-card-label">DÂN TỘC & TÔN GIÁO</div>
-                            <div class="info-card-value">@Model.Ethnic / @(Model.Religion ?? "Không")</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="info-card-box">
-                            <div class="info-card-label">GIỚI TÍNH</div>
-                            <div class="info-card-value">@Model.Gender</div>
-                        </div>
-                    </div>
-                </div>
+        <div class="profile-title-box">
+            <h1>
+                @Model.FullName
+                <span class="status-badge-header">@Model.Status</span>
+            </h1>
+            <div class="profile-meta-info">
+                <div class="meta-item"># @Model.MemberId</div>
+                <div class="meta-item"><i class="fas fa-venus-mars"></i> @Model.Gender</div>
+                <div class="meta-item"><i class="fas fa-map-marker-alt"></i> @(Model.Hometown ?? "Chưa cập nhật")</div>
             </div>
-
-            <!-- Right Side: Liên hệ & Xếp loại -->
-            <div class="grid-column">
-                <div class="section-column-title">LIÊN HỆ & XẾP LOẠI</div>
-
-                <div class="info-card-box d-flex align-items-center gap-3">
-                    <div class="icon-circle-small"><i class="far fa-envelope"></i></div>
-                    <div>
-                        <div class="info-card-label">EMAIL CHÍNH THỨC</div>
-                        <div class="info-card-value">@(Model.Email ?? "Chưa cập nhật")</div>
-                    </div>
-                </div>
-
-                <div class="info-card-box d-flex align-items-center gap-3">
-                    <div class="icon-circle-small"><i class="fas fa-phone-alt"></i></div>
-                    <div>
-                        <div class="info-card-label">SỐ ĐIỆN THOẠI</div>
-                        <div class="info-card-value">@(Model.Phone ?? "--")</div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6">
-                        <div class="info-card-box">
-                            <div class="info-card-label">NGÀY VÀO ĐOÀN</div>
-                            <div class="info-card-value">@(Model.JoinDate ?? "---")</div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="info-card-box">
-                            <div class="info-card-label">NIÊN KHÓA</div>
-                            <div class="info-card-value">@(Model.AcademicYear ?? "--")</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="achievement-card">
-                    <i class="fas fa-star star-bg" style="@(Model.IsOutstanding ? "opacity: 0.3;" : "")"></i>
-                    <span class="label">XẾP LOẠI & DANH HIỆU</span>
-                    <div class="value">
-                        @if (Model.IsOutstanding)
-                        {
-                            <div class="text-warning" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
-                                <i class="fas fa-star"></i> ĐOÀN VIÊN TIÊU BIỂU
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.AchievementLevel) && Model.AchievementLevel != "Chưa xếp loại")
-                            {
-                                <div style="font-size: 0.8rem; color: #8a6d3b; margin-top: 4px; opacity: 0.7;">XẾP LOẠI: @Model.AchievementLevel</div>
-                            }
-                        }
-                        else
-                        {
-                            @(string.IsNullOrEmpty(Model.AchievementLevel) ? "Chưa xếp loại" : Model.AchievementLevel)
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="profile-actions-footer">
-            <a href="/members/edit/@Model.Id" class="btn-main-action">CHỈNH SỬA HỒ SƠ</a>
-            <a href="/members" class="btn-secondary-action">ĐÓNG</a>
         </div>
     </div>
+
+    <div class="profile-main-grid">
+        <!-- Left Side: Học tập & Hoạt đoàn -->
+        <div class="grid-column">
+            <div class="section-column-title">HỌC TẬP & HOẠT ĐOÀN</div>
+            
+            <div class="info-card-box">
+                <div class="info-card-label">CHI ĐOÀN & ĐƠN VỊ</div>
+                <div class="info-card-value"><i>@(Model.Unit?.Name ?? "Chưa phân bổ")</i></div>
+            </div>
+
+            <div class="info-card-box">
+                <div class="info-card-label">QUÊ QUÁN</div>
+                <div class="info-card-value">@(Model.Hometown ?? "Chưa cập nhật")</div>
+            </div>
+
+            <div class="info-card-box">
+                <div class="info-card-label">NƠI SINH & THƯỜNG TRÚ</div>
+                <div class="info-card-value">@(Model.PlaceOfBirth ?? "Chưa cập nhật")</div>
+            </div>
+
+            <div class="info-card-box">
+                <div class="info-card-label">ĐỊA CHỈ THƯỜNG TRÚ</div>
+                <div class="info-card-value">@(Model.PermanentAddress ?? "Chưa cập nhật")</div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">DÂN TỘC & TÔN GIÁO</div>
+                        <div class="info-card-value">@Model.Ethnic / @(Model.Religion ?? "Không")</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">GIỚI TÍNH</div>
+                        <div class="info-card-value">@Model.Gender</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Liên hệ & Xếp loại -->
+        <div class="grid-column">
+            <div class="section-column-title">LIÊN HỆ & XẾP LOẠI</div>
+
+            <div class="info-card-box d-flex align-items-center gap-3">
+                <div class="icon-circle-small"><i class="far fa-envelope"></i></div>
+                <div>
+                    <div class="info-card-label">EMAIL CHÍNH THỨC</div>
+                    <div class="info-card-value">@(Model.Email ?? "Chưa cập nhật")</div>
+                </div>
+            </div>
+
+            <div class="info-card-box d-flex align-items-center gap-3">
+                <div class="icon-circle-small"><i class="fas fa-phone-alt"></i></div>
+                <div>
+                    <div class="info-card-label">SỐ ĐIỆN THOẠI</div>
+                    <div class="info-card-value">@(Model.Phone ?? "--")</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">NGÀY VÀO ĐOÀN</div>
+                        <div class="info-card-value">@(Model.JoinDate ?? "---")</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">NIÊN KHÓA</div>
+                        <div class="info-card-value">@(Model.AcademicYear ?? "--")</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="achievement-card">
+                <i class="fas fa-star star-bg" style="@(Model.IsOutstanding ? "opacity: 0.3;" : "")"></i>
+                <span class="label">XẾP LOẠI & DANH HIỆU</span>
+                <div class="value">
+                    @if (Model.IsOutstanding)
+                    {
+                        <div class="text-warning" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                            <i class="fas fa-star"></i> ĐOÀN VIÊN TIÊU BIỂU
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.AchievementLevel) && Model.AchievementLevel != "Chưa xếp loại")
+                        {
+                            <div style="font-size: 0.8rem; color: #8a6d3b; margin-top: 4px; opacity: 0.7;">XẾP LOẠI: @Model.AchievementLevel</div>
+                        }
+                    }
+                    else
+                    {
+                        @(string.IsNullOrEmpty(Model.AchievementLevel) ? "Chưa xếp loại" : Model.AchievementLevel)
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-actions-footer">
+        <a href="/members/edit/@Model.Id" class="btn-main-action" onclick="if(window.openMemberModal){ event.preventDefault(); openMemberModal('/members/edit/@Model.Id'); }">CHỈNH SỬA HỒ SƠ</a>
+        @if (isAjax)
+        {
+            <a href="javascript:void(0)" class="btn-secondary-action" onclick="closeMemberModal()">ĐÓNG</a>
+        }
+        else
+        {
+            <a href="/members" class="btn-secondary-action">ĐÓNG</a>
+        }
+    </div>
 </div>
+
+<script>
+    // Any Details-specific JS can go here and will be executed by openMemberModal
+</script>

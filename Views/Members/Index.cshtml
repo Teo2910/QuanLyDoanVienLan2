@@ -2,11 +2,60 @@
 @{
     ViewData["Title"] = "Quản lý đoàn viên";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    string currentSearch = ViewBag.Search ?? "";
+    string selectedUnit = ViewBag.SelectedUnit ?? "";
+    string selectedYear = ViewBag.SelectedYear ?? "";
+    string selectedAchievement = ViewBag.SelectedAchievement ?? "";
+    string selectedStatus = ViewBag.SelectedStatus ?? "";
+    string selectedGender = ViewBag.SelectedGender ?? "";
+    string selectedHometown = ViewBag.SelectedHometown ?? "";
 }
+
+<style>
+    #hometownFilterContainer {
+        background-color: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 14px !important;
+        height: 38px !important;
+        padding: 0 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+        transition: all 0.2s !important;
+    }
+    #hometownFilterContainer:hover {
+        background-color: #f0f7ff !important;
+    }
+    #hometownFilterInput {
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        width: 100% !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+        color: #1e293b !important;
+        padding: 0 !important;
+    }
+</style>
 
 <div id="memberModal" class="modal-overlay">
     <div class="modal-content-wrapper">
         <div id="modalBody"></div>
+    </div>
+</div>
+
+<div id="confirmModal" class="confirm-modal-overlay">
+    <div class="confirm-card">
+        <div class="confirm-icon-box">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <h3 id="confirmTitle">Xác nhận xóa</h3>
+        <p id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này? Dữ liệu sẽ không thể khôi phục.</p>
+        <div class="confirm-actions">
+            <button class="btn-confirm-no" onclick="closeConfirmModal()">HỦY BỎ</button>
+            <button class="btn-confirm-yes" id="confirmYesBtn">XÁC NHẬN XÓA</button>
+        </div>
     </div>
 </div>
 
@@ -22,195 +71,464 @@
             </div>
         </div>
         <div class="d-flex gap-3">
-            <a href="/members/exportexcel" class="btn-premium btn-premium-light">
-                <i class="fas fa-file-excel"></i> XUẤT EXCEL
+            <a href="/Members/ExportExcel" class="btn-premium btn-premium-light px-4">
+                <i class="fas fa-file-export"></i> XUẤT EXCEL
             </a>
-            <a href="javascript:void(0)" class="btn-premium btn-premium-light">
+            <form asp-action="ImportExcel" method="post" enctype="multipart/form-data" id="importForm" style="display:none;">
+                <input type="file" name="file" id="excelFile" onchange="document.getElementById('importForm').submit();" accept=".xlsx, .xls">
+            </form>
+            <button type="button" class="btn-premium btn-premium-light px-4" onclick="document.getElementById('excelFile').click();">
                 <i class="fas fa-file-import"></i> NHẬP DỮ LIỆU
-            </a>
-            <a href="javascript:void(0)" onclick="openMemberModal('/members/create')" class="btn-premium btn-premium-dark">
+            </button>
+            <a href="/members/create" class="btn-premium btn-launch-dark">
                 <i class="fas fa-plus"></i> THÊM ĐOÀN VIÊN
             </a>
         </div>
     </div>
 </div>
 
-<div class="card-premium mb-4">
-    <div class="d-flex flex-column flex-lg-row gap-4 align-items-lg-center">
-        <div class="search-box-premium flex-grow-1" style="max-width: none;">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..." id="advancedSearch">
+<div class="card-premium mb-5">
+    <form id="filterForm" method="get" action="/members">
+        <input type="hidden" name="sortOrder" value="@ViewBag.SortOrder" />
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+            <div class="search-box-premium flex-grow-1" style="max-width: 600px;">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..." id="advancedSearch" value="@currentSearch">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn-premium btn-premium-dark px-4" id="toggleAdvancedFilter">
+                    <i class="fas fa-filter"></i> LỌC NÂNG CAO
+                </button>
+                <button type="button" class="btn-premium btn-premium-light px-3" id="resetFilters" title="Làm mới">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button type="button" class="btn-premium btn-premium-light px-4">
+                    <i class="far fa-bookmark"></i> LƯU CẤU HÌNH
+                </button>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn-premium btn-premium-dark px-4" id="toggleAdvancedFilter">
-                <i class="fas fa-filter"></i> LỌC NÂNG CAO
-            </button>
-            <button class="btn-premium btn-premium-light p-3" id="resetFilters">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            <button class="btn-premium btn-premium-light px-4">
-                <i class="far fa-bookmark"></i> LƯU CẤU HÌNH
-            </button>
-        </div>
-    </div>
 
-    <div class="collapse mt-4" id="filterPanel">
-        <div class="row g-4">
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">CHI ĐOÀN</label>
-                <select class="form-control-premium w-100" id="unitFilter">
-                    <option value="">Tất cả chi đoàn</option>
-                    @if (ViewBag.Units != null)
-                    {
-                        @foreach (var unit in ViewBag.Units)
-                        {
-                            <option value="@unit.Name">@unit.Name</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">NIÊN KHÓA / NĂM HỌC</label>
-                <select class="form-control-premium w-100" id="yearFilter">
-                    <option value="">Tất cả các khóa</option>
-                    <option value="K20">Khóa K20</option>
-                    <option value="K21">Khóa K21</option>
-                    <option value="K22">Khóa K22</option>
-                    <option value="K23">Khóa K23</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">XẾP LOẠI ĐOÀN VIÊN</label>
-                <select class="form-control-premium w-100" id="achievementFilter">
-                    <option value="">Tất cả xếp loại</option>
-                    <option value="Xuất sắc">Xuất sắc</option>
-                    <option value="Khá">Khá</option>
-                    <option value="Trung bình">Trung bình</option>
-                    <option value="Chưa xếp loại">Chưa xếp loại</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">TRẠNG THÁI</label>
-                <select class="form-control-premium w-100" id="statusFilter">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="Đang sinh hoạt">Đang sinh hoạt</option>
-                    <option value="Đã chuyển sinh hoạt">Đã chuyển sinh hoạt</option>
-                    <option value="Đã trưởng thành">Đã trưởng thành</option>
-                    <option value="Bị kỷ luật">Bị kỷ luật</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">GIỚI TÍNH</label>
-                <select class="form-control-premium w-100" id="genderFilter">
-                    <option value="">Tất cả giới tính</option>
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                </select>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <label class="form-label-premium">QUÊ QUÁN</label>
-                <input type="text" class="form-control-premium w-100" placeholder="VD: Hà Nội, Nghệ An..." id="hometownFilter">
+        <div class="collapse @(!string.IsNullOrEmpty(selectedUnit) || !string.IsNullOrEmpty(selectedYear) || !string.IsNullOrEmpty(selectedAchievement) || !string.IsNullOrEmpty(selectedStatus) || !string.IsNullOrEmpty(selectedGender) || !string.IsNullOrEmpty(selectedHometown) ? "show" : "") mt-4" id="filterPanel">
+            <div class="row g-3">
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">CHI ĐOÀN</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="unit" id="unitFilterValue" value="@selectedUnit">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedUnit) ? "Tất cả chi đoàn" : selectedUnit)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedUnit) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'unit', 'Tất cả chi đoàn')">
+                                Tất cả chi đoàn <i class="fas fa-check"></i>
+                            </div>
+                            @if (ViewBag.Units != null)
+                            {
+                                @foreach (var unit in ViewBag.Units)
+                                {
+                                    <div class="filter-dropdown-item @(selectedUnit == unit.Name ? "selected" : "")" data-value="@unit.Name" onclick="selectFilterOption(this, 'unit', '@unit.Name')">
+                                        @unit.Name <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">NIÊN KHÓA / NĂM HỌC</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="year" id="yearFilterValue" value="@selectedYear">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedYear) ? "Tất cả các khóa" : selectedYear)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedYear) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'year', 'Tất cả các khóa')">
+                                Tất cả các khóa <i class="fas fa-check"></i>
+                            </div>
+                            <div class="filter-dropdown-item @(selectedYear == "K20" ? "selected" : "")" data-value="K20" onclick="selectFilterOption(this, 'year', 'Khóa K20')">Khóa K20 <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedYear == "K21" ? "selected" : "")" data-value="K21" onclick="selectFilterOption(this, 'year', 'Khóa K21')">Khóa K21 <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedYear == "K22" ? "selected" : "")" data-value="K22" onclick="selectFilterOption(this, 'year', 'Khóa K22')">Khóa K22 <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedYear == "K23" ? "selected" : "")" data-value="K23" onclick="selectFilterOption(this, 'year', 'Khóa K23')">Khóa K23 <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">XẾP LOẠI ĐOÀN VIÊN</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="achievement" id="achievementFilterValue" value="@selectedAchievement">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedAchievement) ? "Tất cả xếp loại" : selectedAchievement)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedAchievement) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'achievement', 'Tất cả xếp loại')">
+                                Tất cả xếp loại <i class="fas fa-check"></i>
+                            </div>
+                            <div class="filter-dropdown-item @(selectedAchievement == "Xuất sắc" ? "selected" : "")" data-value="Xuất sắc" onclick="selectFilterOption(this, 'achievement', 'Xuất sắc')">Xuất sắc <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAchievement == "Khá" ? "selected" : "")" data-value="Khá" onclick="selectFilterOption(this, 'achievement', 'Khá')">Khá <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAchievement == "Trung bình" ? "selected" : "")" data-value="Trung bình" onclick="selectFilterOption(this, 'achievement', 'Trung bình')">Trung bình <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAchievement == "Chưa xếp loại" ? "selected" : "")" data-value="Chưa xếp loại" onclick="selectFilterOption(this, 'achievement', 'Chưa xếp loại')">Chưa xếp loại <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">TRẠNG THÁI</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="status" id="statusFilterValue" value="@selectedStatus">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedStatus) ? "Tất cả trạng thái" : selectedStatus)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedStatus) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'status', 'Tất cả trạng thái')">
+                                Tất cả trạng thái <i class="fas fa-check"></i>
+                            </div>
+                            <div class="filter-dropdown-item @(selectedStatus == "Đang sinh hoạt" ? "selected" : "")" data-value="Đang sinh hoạt" onclick="selectFilterOption(this, 'status', 'Đang sinh hoạt')">Đang sinh hoạt <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedStatus == "Đã chuyển sinh hoạt" ? "selected" : "")" data-value="Đã chuyển sinh hoạt" onclick="selectFilterOption(this, 'status', 'Đã chuyển sinh hoạt')">Đã chuyển sinh hoạt <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedStatus == "Đã trưởng thành" ? "selected" : "")" data-value="Đã trưởng thành" onclick="selectFilterOption(this, 'status', 'Đã trưởng thành')">Đã trưởng thành <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedStatus == "Bị kỷ luật" ? "selected" : "")" data-value="Bị kỷ luật" onclick="selectFilterOption(this, 'status', 'Bị kỷ luật')">Bị kỷ luật <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">GIỚI TÍNH</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="gender" id="genderFilterValue" value="@selectedGender">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedGender) ? "Tất cả giới tính" : selectedGender)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedGender) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'gender', 'Tất cả giới tính')">
+                                Tất cả giới tính <i class="fas fa-check"></i>
+                            </div>
+                            <div class="filter-dropdown-item @(selectedGender == "Nam" ? "selected" : "")" data-value="Nam" onclick="selectFilterOption(this, 'gender', 'Nam')">Nam <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedGender == "Nữ" ? "selected" : "")" data-value="Nữ" onclick="selectFilterOption(this, 'gender', 'Nữ')">Nữ <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label-premium">QUÊ QUÁN</label>
+                    <div id="hometownFilterContainer">
+                        <input type="text" name="hometown" placeholder="VD: Hà Nội..." id="hometownFilterInput" value="@selectedHometown">
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
-<div class="card-premium">
-    <div class="section-header mb-4">
-        <div class="section-title">Danh sách hồ sơ</div>
-        <div class="status-pill status-pill-info">@ViewBag.TotalMembers TỔNG CỘNG</div>
+<div class="member-list-card-premium">
+    <div class="list-title-header">
+        <div class="list-title-box">
+            <h2>Danh sách hồ sơ</h2>
+            <p>QUẢN LÝ CƠ SỞ DỮ LIỆU TẬP TRUNG</p>
+        </div>
+        <div class="result-count-badge">@ViewBag.TotalMembers KẾT QUẢ</div>
+    </div>
+
+    <div class="selection-alert-bar">
+        <div class="selection-main-info">
+            <div class="trash-square">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <div class="selection-title-text">
+                <h4 id="selectedCountText">Lựa chọn đoàn viên (0)</h4>
+                <a href="javascript:void(0)" id="deselectAllLink">BỎ CHỌN TẤT CẢ <i class="fas fa-times"></i></a>
+            </div>
+        </div>
+        <div class="action-btns">
+            <button class="btn-red-action" id="bulkDeleteBtn">XÓA VĨNH VIỄN</button>
+            <button class="btn-outline-action" id="deleteFilteredBtn">XÓA KHỚP LỌC (@ViewBag.TotalMembers)</button>
+        </div>
     </div>
 
     <div class="table-responsive">
-        <table class="table-premium-new" id="membersTable">
+        <table class="table-members-v2" id="membersTable">
             <thead>
                 <tr>
-                    <th>THÀNH VIÊN</th>
-                    <th class="d-none d-md-table-cell">ĐỊNH DANH</th>
+                    <th style="width: 60px;">
+                        <label class="custom-checkbox-container">
+                            <input type="checkbox" id="selectAllMembers">
+                            <span class="checkbox-mark"></span>
+                        </label>
+                    </th>
+                    <th style="width: 80px;">#</th>
+                    <th>
+                        <a href="/members?sortOrder=@(ViewBag.SortOrder == "name_asc" ? "name_desc" : "name_asc")&page=@ViewBag.CurrentPage&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
+                           class="sort-header-link @(!string.IsNullOrEmpty(ViewBag.SortOrder) ? "active" : "")">
+                            THÔNG TIN CƠ BẢN 
+                            <i class="fas @(ViewBag.SortOrder == "name_asc" ? "fa-long-arrow-alt-up" : (ViewBag.SortOrder == "name_desc" ? "fa-long-arrow-alt-down" : "fa-sort")) ms-2" 
+                               style="opacity: @(string.IsNullOrEmpty(ViewBag.SortOrder) ? "0.2" : "1");"></i>
+                        </a>
+                    </th>
+                    <th>ĐỊNH DANH</th>
                     <th>XẾP LOẠI</th>
-                    <th class="d-none d-lg-table-cell">CHI ĐOÀN</th>
-                    <th class="d-none d-sm-table-cell">TRẠNG THÁI</th>
-                    <th class="text-end">THAO TÁC</th>
+                    <th>CHI ĐOÀN CÔNG TÁC</th>
+                    <th>KỶ NIỆM VÀO ĐOÀN</th>
+                    <th>TRẠNG THÁI</th>
+                    <th class="text-end">QUẢN LÝ</th>
                 </tr>
             </thead>
             <tbody>
+                @{ 
+                    int pageSize = 10;
+                    int i = (ViewBag.CurrentPage - 1) * pageSize + 1; 
+                }
                 @foreach (var m in Model)
                 {
-                    <tr class="member-row" data-id="@m.Id" style="cursor: pointer;">
+                    <tr class="member-row-v2" data-id="@m.Id">
                         <td>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="member-avatar-circle">
+                            <label class="custom-checkbox-container" onclick="event.stopPropagation()">
+                                <input type="checkbox" class="member-checkbox" data-id="@m.Id">
+                                <span class="checkbox-mark"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="row-index">@(i < 10 ? "0" + i : i.ToString())</span>
+                                <button class="star-toggle-btn @(m.IsOutstanding ? "active" : "")" onclick="toggleOutstanding('@m.Id', this, event)" title="Đoàn viên tiêu biểu">
+                                    <i class="@(m.IsOutstanding ? "fas" : "far") fa-star"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="member-core-info">
+                                <div class="avatar-circle-v2">
                                     @(m.FullName?.Length > 0 ? m.FullName.Substring(0, 1) : "?")
                                 </div>
-                                <div>
-                                    <div class="fw-bold text-dark">@m.FullName</div>
-                                    <small class="text-muted fw-bold">@m.Gender • K@(m.AcademicYear ?? "XX")</small>
+                                <div class="member-text-v2">
+                                    <b>@m.FullName</b>
+                                    <span>
+                                        <span class="meta-blue">@m.Gender</span>
+                                        <span class="meta-grey">— K@(m.AcademicYear ?? "XX")</span>
+                                    </span>
                                 </div>
                             </div>
                         </td>
-                        <td class="d-none d-md-table-cell">
-                            <div class="fw-black text-dark small">@m.MemberId</div>
-                            <small class="text-muted small fw-bold">THANH NIÊN</small>
+                        <td>
+                            <div class="id-badge-stack">
+                                <b>@m.MemberId</b>
+                                <span>SINH VIÊN</span>
+                            </div>
                         </td>
                         <td>
-                            @{
-                                var achievementClass = m.AchievementLevel switch {
-                                    "Xuất sắc" => "status-pill-success",
-                                    "Khá" => "status-pill-info",
-                                    "Trung bình" => "status-pill-warning",
-                                    _ => ""
-                                };
-                            }
-                            <span class="status-pill @achievementClass" style="background: #f1f5f9; color: #64748b; font-weight: 800;">
-                                @(string.IsNullOrEmpty(m.AchievementLevel) ? "Chưa có" : m.AchievementLevel)
-                            </span>
+                            <div class="achievement-pill-v2">@m.AchievementLevel</div>
                         </td>
-                        <td class="d-none d-lg-table-cell">
-                            <div class="fw-bold text-dark small">@(m.Unit?.Name ?? "Trực thuộc")</div>
+                        <td>
+                            <div class="unit-text-v2">@(m.Unit?.Name ?? "N/A")</div>
                         </td>
-                        <td class="d-none d-sm-table-cell">
-                            @{
-                                var statusClass = m.Status switch {
-                                    "Đang sinh hoạt" => "status-pill-success",
-                                    "Đã chuyển sinh hoạt" => "status-pill-info",
-                                    "Đã trưởng thành" => "status-pill-warning",
-                                    "Bị kỷ luật" => "status-pill-danger",
-                                    _ => ""
-                                };
-                            }
-                            <span class="status-pill @statusClass">@m.Status</span>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="far fa-calendar-alt text-muted" style="font-size: 0.8rem;"></i>
+                                <span class="text-muted fw-bold" style="font-size: 0.7rem;">...</span>
+                            </div>
                         </td>
-                        <td class="text-end" onclick="event.stopPropagation();">
-                           <div class="d-flex justify-content-end gap-2">
-                               <button onclick="openMemberModal('/members/edit/@m.Id')" class="btn-premium btn-premium-light p-2 px-3"><i class="fas fa-pencil-alt"></i></button>
-                           </div>
+                        <td>
+                            <div class="status-row-v2">
+                                <div class="dot-v2 @(m.Status == "Đang sinh hoạt" ? "green" : "")"></div>
+                                @m.Status
+                            </div>
                         </td>
+                        <td class="text-end">
+                            <i class="fas fa-ellipsis-h dots-menu-v2" onclick="openMemberModal('/members/details/@m.Id')"></i>
+                        </td>
+                    </tr>
+                    i++;
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted fw-bold">Không tìm thấy đoàn viên nào khớp với bộ lọc.</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 
-    @if (Model.Any())
-    {
-        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
-            <div class="text-muted small fw-bold text-uppercase">
-                Hiển thị <strong>@Model.Count</strong> hồ sơ
-            </div>
-            <div class="d-flex gap-2">
-                @for(int i=1; i<=ViewBag.TotalPages; i++) {
-                    <a href="/members?page=@i" class="status-pill @(i == ViewBag.CurrentPage ? "status-pill-info" : "")" style="text-decoration: none; min-width: 35px; text-align: center;">@i</a>
-                }
-            </div>
+    <div class="pagination-container-premium">
+        <div class="pagination-info-text">
+            HIỂN THỊ <b>@Model.Count</b> TRÊN TỔNG SỐ <b>@ViewBag.TotalMembers</b> ĐOÀN VIÊN
         </div>
-    }
+        <div class="pagination-btns-group">
+            <a href="/members?page=@(ViewBag.CurrentPage - 1)&sortOrder=@ViewBag.SortOrder&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
+               class="page-nav-btn @(ViewBag.CurrentPage <= 1 ? "disabled" : "")">
+                <i class="fas fa-chevron-left"></i> TRƯỚC
+            </a>
+            
+            @{
+                int totalPages = ViewBag.TotalPages;
+                int currentPage = ViewBag.CurrentPage;
+                string currentSort = ViewBag.SortOrder;
+                for (int p = 1; p <= totalPages; p++)
+                {
+                    if (p == 1 || p == totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
+                    {
+                        <a href="/members?page=@p&sortOrder=@currentSort&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
+                           class="page-link-premium @(p == currentPage ? "active" : "")">@p</a>
+                    }
+                    else if (p == currentPage - 2 || p == currentPage + 2)
+                    {
+                        <span class="page-link-premium disabled">...</span>
+                    }
+                }
+            }
+
+            <a href="/members?page=@(ViewBag.CurrentPage + 1)&sortOrder=@ViewBag.SortOrder&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
+               class="page-nav-btn @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
+                SAU <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // Navigation
-            $(".member-row").on("click", function(e) {
+            const alertBar = document.querySelector('.selection-alert-bar');
+            const selectAll = document.getElementById('selectAllMembers');
+            const checkboxes = document.querySelectorAll('.member-checkbox');
+            const selectionCountText = document.getElementById('selectedCountText');
+            const deselectAll = document.getElementById('deselectAllLink');
+            const filterForm = document.getElementById('filterForm');
+
+            // Global selection state
+            let isSelectAllGlobal = false;
+            const totalMembersGlobal = @ViewBag.TotalMembers;
+
+            function updateSelectionUI() {
+                const selectedOnes = document.querySelectorAll('.member-checkbox:checked');
+                let count = selectedOnes.length;
+                
+                if (isSelectAllGlobal) {
+                    count = totalMembersGlobal;
+                    alertBar.classList.add('active');
+                    selectionCountText.textContent = `Lựa chọn đoàn viên (${count})`;
+                } else if (count > 0) {
+                    alertBar.classList.add('active');
+                    selectionCountText.textContent = `Lựa chọn đoàn viên (${count})`;
+                } else {
+                    alertBar.classList.remove('active');
+                    if (selectAll) selectAll.checked = false;
+                }
+
+                document.querySelectorAll('.member-row-v2').forEach(row => {
+                    const cb = row.querySelector('.member-checkbox');
+                    if (cb && cb.checked) {
+                        row.classList.add('selected-row-active');
+                        row.style.backgroundColor = '#f0f7ff';
+                    } else {
+                        row.classList.remove('selected-row-active');
+                        row.style.backgroundColor = '#fff';
+                    }
+                });
+            }
+
+            if (selectAll) {
+                selectAll.addEventListener('change', function() {
+                    isSelectAllGlobal = this.checked;
+                    checkboxes.forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                    updateSelectionUI();
+                });
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
+                    if (!this.checked) {
+                        isSelectAllGlobal = false;
+                        if (selectAll) selectAll.checked = false;
+                    }
+                    updateSelectionUI();
+                });
+            });
+
+            if (deselectAll) {
+                deselectAll.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    isSelectAllGlobal = false;
+                    checkboxes.forEach(cb => cb.checked = false);
+                    if (selectAll) selectAll.checked = false;
+                    updateSelectionUI();
+                });
+            }
+
+            // Bulk Delete Logic
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const deleteFilteredBtn = document.getElementById('deleteFilteredBtn');
+
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.addEventListener('click', function() {
+                    let selectedIds = [];
+                    if (!isSelectAllGlobal) {
+                        selectedIds = Array.from(document.querySelectorAll('.member-checkbox:checked'))
+                                            .map(cb => cb.getAttribute('data-id'));
+                        if (selectedIds.length === 0) return;
+                    }
+                    
+                    const countToDelete = isSelectAllGlobal ? totalMembersGlobal : selectedIds.length;
+
+                    showConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${countToDelete} đoàn viên đã chọn? Hành động này không thể hoàn tác.`, function() {
+                        const requestData = {
+                            ids: isSelectAllGlobal ? null : selectedIds,
+                            selectAllGlobal: isSelectAllGlobal
+                        };
+                        performDelete(requestData);
+                    });
+                });
+            }
+
+            if (deleteFilteredBtn) {
+                deleteFilteredBtn.addEventListener('click', function() {
+                    const countToDelete = totalMembersGlobal;
+                    if (countToDelete === 0) {
+                        alert('Không có đoàn viên nào khớp với bộ lọc hiện tại.');
+                        return;
+                    }
+
+                    showConfirm(`Bạn có chắc chắn muốn xóa vĩnh viễn TẤT CẢ ${countToDelete} đoàn viên khớp với bộ lọc hiện tại? Hành động này không thể hoàn tác.`, function() {
+                        const requestData = {
+                            deleteFiltered: true,
+                            search: $("#advancedSearch").val(),
+                            unit: $("#unitFilterValue").val(),
+                            year: $("#yearFilterValue").val(),
+                            achievement: $("#achievementFilterValue").val(),
+                            status: $("#statusFilterValue").val(),
+                            gender: $("#genderFilterValue").val(),
+                            hometown: $("#hometownFilterInput").val()
+                        };
+                        performDelete(requestData);
+                    });
+                });
+            }
+
+            function performDelete(requestData) {
+                fetch('/Members/BulkDelete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + (data.message || 'Không thể xóa đoàn viên.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    alert('Lỗi kết nối máy chủ.');
+                });
+            }
+
+            $(".member-row-v2").on("click", function(e) {
+                if (e.target.closest('.custom-checkbox-container') || e.target.closest('.star-toggle-btn')) return;
                 const id = $(this).data("id");
                 openMemberModal(`/members/details/${id}`);
             });
@@ -220,43 +538,54 @@
                 $(this).toggleClass('active');
             });
 
-            // Filter logic
-            function applyFilters() {
-                const search = $("#advancedSearch").val().toLowerCase();
-                const unit = $("#unitFilter").val();
-                const year = $("#yearFilter").val();
-                const achievement = $("#achievementFilter").val();
-                const status = $("#statusFilter").val();
-                const gender = $("#genderFilter").val();
-                const hometown = $("#hometownFilter").val().toLowerCase();
+            // --- SERVER-SIDE FILTERING ---
+            window.toggleFilterDropdown = function(trigger) {
+                const menu = trigger.nextElementSibling;
+                const isOpen = menu.classList.contains('show');
+                document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    trigger.classList.add('active');
+                }
+            };
 
-                $("#membersTable tbody tr").each(function() {
-                    const text = $(this).text().toLowerCase();
-                    const rowUnit = $(this).find("td:nth-child(4)").text();
-                    const rowStatus = $(this).find("td:nth-child(5)").text();
-                    const rowAchievement = $(this).find("td:nth-child(3)").text();
+            window.selectFilterOption = function(option, name, label) {
+                const container = option.closest('.filter-dropdown-container');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+                hiddenInput.value = option.getAttribute('data-value');
+                filterForm.submit(); // Trigger server reload
+            };
 
-                    const matchSearch = text.includes(search);
-                    const matchUnit = !unit || rowUnit.includes(unit);
-                    const matchStatus = !status || rowStatus.includes(status);
-                    const matchAchievement = !achievement || rowAchievement.includes(achievement);
-                    const matchYear = !year || text.includes(year);
-                    const matchGender = !gender || text.includes(gender.toLowerCase());
-                    const matchHometown = !hometown || text.includes(hometown);
-
-                    $(this).toggle(matchSearch && matchUnit && matchStatus && matchAchievement && matchYear && matchGender && matchHometown);
-                });
-            }
-
-            $("#advancedSearch, #hometownFilter, select").on("change keyup", applyFilters);
-
-            $("#resetFilters").on("click", function() {
-                $("#advancedSearch, #hometownFilter").val("");
-                $("select").val("");
-                applyFilters();
+            $("#advancedSearch, #hometownFilterInput").on("keypress", function(e) {
+                if (e.which == 13) {
+                    filterForm.submit();
+                }
             });
 
-            // Modal Event Listeners
+            $("#resetFilters").on("click", function() {
+                location.href = "/members";
+            });
+
+            // Confirmation Modal Helpers
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmYesBtn = document.getElementById('confirmYesBtn');
+            const confirmMessage = document.getElementById('confirmMessage');
+
+            window.showConfirm = function(message, callback) {
+                if (!confirmModal || !confirmMessage || !confirmYesBtn) return;
+                confirmMessage.textContent = message;
+                confirmModal.classList.add('show');
+                confirmYesBtn.onclick = function() {
+                    confirmModal.classList.remove('show');
+                    callback();
+                };
+            };
+
+            window.closeConfirmModal = function() {
+                if (confirmModal) confirmModal.classList.remove('show');
+            };
+
             const modal = document.getElementById('memberModal');
             if (modal) {
                 modal.addEventListener('click', function(e) {
@@ -269,66 +598,59 @@
             window.openMemberModal = function(url) {
                 const body = document.getElementById('modalBody');
                 const modal = document.getElementById('memberModal');
-                
                 if (!body || !modal) return;
-
                 body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-dark">Đang tải hồ sơ...</p></div>';
                 modal.classList.add('show');
                 document.body.style.overflow = 'hidden';
-
-                fetch(url)
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(response => response.text())
                     .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        
-                        if (!doc || !doc.body) {
-                            throw new Error('Failed to parse response or response is empty');
-                        }
-
-                        const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
-                        if (!content) {
-                            throw new Error('Content not found in response');
-                        }
-
-                        body.innerHTML = '';
-                        if (doc.querySelectorAll) {
-                            doc.querySelectorAll('style').forEach(s => body.appendChild(s.cloneNode(true)));
-                        }
-                        body.insertAdjacentHTML('beforeend', content.outerHTML);
-
-                        // Execute scripts
-                        if (doc.querySelectorAll) {
-                            doc.querySelectorAll('script').forEach(oldScript => {
-                                // Skip common library scripts
-                                const src = oldScript.getAttribute('src') || '';
-                                if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) {
-                                    return;
-                                }
-
-                                const newScript = document.createElement('script');
-                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                                body.appendChild(newScript);
-                            });
-                        }
-
-                        // Re-initialize any member-specific modal scripts if needed
-                        // (Currently none specific, but following pattern)
-                    })
-                    .catch(error => {
-                        console.error('Modal error:', error);
-                        body.innerHTML = '<div class="alert alert-danger">Lỗi khi tải: ' + error.message + '</div>';
-                    });
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
+                    body.innerHTML = '';
+                    if (doc.querySelectorAll) { doc.querySelectorAll('style').forEach(s => body.appendChild(s.cloneNode(true))); }
+                    body.insertAdjacentHTML('beforeend', content.outerHTML);
+                    if (doc.querySelectorAll) {
+                        doc.querySelectorAll('script').forEach(oldScript => {
+                            const src = oldScript.getAttribute('src') || '';
+                            if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) return;
+                            const newScript = document.createElement('script');
+                            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                            body.appendChild(newScript);
+                        });
+                    }
+                }).catch(error => {
+                    console.error('Modal error:', error);
+                    body.innerHTML = '<div class="alert alert-danger">Lỗi khi tải: ' + error.message + '</div>';
+                });
             };
 
             window.closeMemberModal = function() {
                 const modal = document.getElementById('memberModal');
                 modal.classList.remove('show');
                 document.body.style.overflow = '';
-                setTimeout(() => {
-                    document.getElementById('modalBody').innerHTML = '';
-                }, 300);
+                setTimeout(() => { document.getElementById('modalBody').innerHTML = ''; }, 300);
+            };
+
+            window.toggleOutstanding = function(id, btn, event) {
+                event.stopPropagation();
+                fetch(`/Members/ToggleOutstanding/${id}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        const icon = btn.querySelector('i');
+                        if (data.isOutstanding) {
+                            btn.classList.add('active');
+                            icon.className = 'fas fa-star';
+                        } else {
+                            btn.classList.remove('active');
+                            icon.className = 'far fa-star';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Toggle error:', error);
+                    });
             };
         });
     </script>

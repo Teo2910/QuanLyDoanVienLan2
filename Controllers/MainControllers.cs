@@ -94,16 +94,41 @@ namespace QLDV.Controllers
             _logService = logService;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string sortOrder = "", string search = "", string unit = "", string year = "", string achievement = "", string status = "", string gender = "", string hometown = "")
         {
             int pageSize = 10;
             var allMembers = await _memberService.GetAllMembersAsync();
             
-            var totalMembers = allMembers.Count;
+            // Apply Filters (Server-side)
+            var filteredMembers = allMembers.Where(m => 
+                (string.IsNullOrEmpty(search) || m.FullName.Contains(search, StringComparison.OrdinalIgnoreCase) || m.MemberId.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(unit) || (m.Unit != null && m.Unit.Name.Equals(unit, StringComparison.OrdinalIgnoreCase))) &&
+                (string.IsNullOrEmpty(status) || m.Status.Equals(status, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(achievement) || m.AchievementLevel.Equals(achievement, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(year) || m.AcademicYear == year || (m.FullName != null && m.FullName.Contains(year))) &&
+                (string.IsNullOrEmpty(gender) || m.Gender.Equals(gender, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(hometown) || (m.FullName != null && m.FullName.Contains(hometown, StringComparison.OrdinalIgnoreCase)))
+            );
+
+            // Sorting Logic
+            IEnumerable<Models.Member> sortedMembers;
+            switch (sortOrder)
+            {
+                case "name_asc":
+                    sortedMembers = filteredMembers.OrderBy(m => m.FullName.Split(' ').Last());
+                    break;
+                case "name_desc":
+                    sortedMembers = filteredMembers.OrderByDescending(m => m.FullName.Split(' ').Last());
+                    break;
+                default:
+                    sortedMembers = filteredMembers.OrderByDescending(m => m.CreatedAt);
+                    break;
+            }
+
+            var totalMembers = sortedMembers.Count();
             var totalPages = (int)Math.Ceiling(totalMembers / (double)pageSize);
             
-            var paginatedMembers = allMembers
-                .OrderByDescending(m => m.CreatedAt)
+            var paginatedMembers = sortedMembers
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -114,6 +139,16 @@ namespace QLDV.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalMembers = totalMembers;
+            ViewBag.SortOrder = sortOrder;
+
+            // Preserve Filter State
+            ViewBag.Search = search;
+            ViewBag.SelectedUnit = unit;
+            ViewBag.SelectedYear = year;
+            ViewBag.SelectedAchievement = achievement;
+            ViewBag.SelectedStatus = status;
+            ViewBag.SelectedGender = gender;
+            ViewBag.SelectedHometown = hometown;
             
             return View(paginatedMembers);
         }
@@ -172,11 +207,19 @@ namespace QLDV.Controllers
             if (id != member.Id)
                 return BadRequest();
 
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _memberService.UpdateMemberAsync(member);
+                    
+                    if (isAjax)
+                    {
+                        return Ok(new { success = true, id = member.Id });
+                    }
+
                     TempData["Success"] = "Member updated successfully!";
                     return RedirectToAction(nameof(Details), new { id = member.Id });
                 }
@@ -185,6 +228,12 @@ namespace QLDV.Controllers
                     ModelState.AddModelError("", $"Error updating member: {ex.Message}");
                 }
             }
+
+            if (isAjax)
+            {
+                return BadRequest(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            }
+
             var units = await _unitService.GetAllUnitsAsync();
             ViewBag.Units = units;
             return View(member);
@@ -216,23 +265,70 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> BulkDelete([FromBody] List<string> ids)
+        public async Task<IActionResult> BulkDelete([FromBody] BulkDeleteRequest request)
         {
-            if (ids == null || !ids.Any())
-                return BadRequest(new { success = false, message = "No IDs provided" });
+            if (request == null)
+                return BadRequest(new { success = false, message = "Invalid request" });
 
             try
             {
-                foreach (var id in ids)
+                List<Models.Member> membersToDelete = new List<Models.Member>();
+
+                if (request.SelectAllGlobal)
                 {
-                    await _memberService.DeleteMemberAsync(id);
+                    membersToDelete = await _memberService.GetAllMembersAsync();
                 }
-                return Ok(new { success = true, count = ids.Count });
+                else if (request.DeleteFiltered)
+                {
+                    var allMembers = await _memberService.GetAllMembersAsync();
+                    membersToDelete = allMembers.Where(m => 
+                        (string.IsNullOrEmpty(request.Search) || m.FullName.Contains(request.Search, StringComparison.OrdinalIgnoreCase) || m.MemberId.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Unit) || (m.Unit != null && m.Unit.Name.Contains(request.Unit, StringComparison.OrdinalIgnoreCase))) &&
+                        (string.IsNullOrEmpty(request.Status) || m.Status.Contains(request.Status, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Achievement) || m.AchievementLevel.Contains(request.Achievement, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Year) || m.AcademicYear == request.Year || (m.FullName != null && m.FullName.Contains(request.Year))) &&
+                        (string.IsNullOrEmpty(request.Gender) || m.Gender.Equals(request.Gender, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Hometown) || (m.FullName != null && m.FullName.Contains(request.Hometown, StringComparison.OrdinalIgnoreCase))) // Simple heuristic for hometown if not in model
+                    ).ToList();
+                }
+                else if (request.Ids != null && request.Ids.Any())
+                {
+                    foreach (var id in request.Ids)
+                    {
+                        var member = await _memberService.GetMemberByIdAsync(id);
+                        if (member != null) membersToDelete.Add(member);
+                    }
+                }
+
+                int count = 0;
+                foreach (var m in membersToDelete)
+                {
+                    await _memberService.DeleteMemberAsync(m.Id);
+                    count++;
+                }
+
+                return Ok(new { success = true, count = count });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
+        }
+
+        public class BulkDeleteRequest
+        {
+            public List<string>? Ids { get; set; }
+            public bool SelectAllGlobal { get; set; }
+            public bool DeleteFiltered { get; set; }
+            
+            // Filter criteria
+            public string? Search { get; set; }
+            public string? Unit { get; set; }
+            public string? Year { get; set; }
+            public string? Achievement { get; set; }
+            public string? Status { get; set; }
+            public string? Gender { get; set; }
+            public string? Hometown { get; set; }
         }
 
         [HttpPost]

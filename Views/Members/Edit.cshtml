@@ -1,7 +1,8 @@
 @model QLDV.Models.Member
 @{
     ViewData["Title"] = "Cập nhật hồ sơ đoàn viên";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isAjax = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+    Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -216,29 +217,60 @@
 
 <div class="form-layout-container">
     <div class="form-style-card">
-        <a href="/members/details/@Model.Id" class="close-form-btn">
-            <i class="fas fa-times"></i>
-        </a>
+        @if (isAjax)
+        {
+            <a href="javascript:void(0)" class="close-form-btn" onclick="openMemberModal('/members/details/@Model.Id')">
+                <i class="fas fa-times"></i>
+            </a>
+        }
+        else
+        {
+            <a href="/members/details/@Model.Id" class="close-form-btn">
+                <i class="fas fa-times"></i>
+            </a>
+        }
 
         <div class="form-header">
             <h2>Cập nhật hồ sơ đoàn viên</h2>
             <div class="subtext">THÔNG TIN CHI TIẾT VỀ ĐOÀN VIÊN THANH NIÊN</div>
         </div>
 
-        <form method="post" action="/members/edit/@Model.Id">
+        <form id="editMemberForm" method="post" action="/members/edit/@Model.Id">
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreatedAt" />
             <input type="hidden" asp-for="JoinDate" />
             <input type="hidden" asp-for="AcademicYear" />
             <input type="hidden" asp-for="Status" />
-            <input type="hidden" asp-for="UnitId" />
             <input type="hidden" asp-for="Position" />
             <input type="hidden" asp-for="ProfessionalLevel" />
             <input type="hidden" asp-for="IsOutstanding" />
 
-            <div class="mb-4">
-                <label class="custom-label">HỌ VÀ TÊN ĐẦY ĐỦ</label>
-                <input type="text" asp-for="FullName" class="custom-input" placeholder="VD: Nguyễn Hoàng Nam" required>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">HỌ VÀ TÊN ĐẦY ĐỦ</label>
+                    <input type="text" asp-for="FullName" class="custom-input" placeholder="VD: Nguyễn Hoàng Nam" required>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">CHI ĐOÀN / ĐƠN VỊ</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="UnitId" id="unitInput" />
+                        <div class="custom-dropdown-trigger" id="unitTrigger">
+                            <span id="unitText">@(Model.Unit?.Name ?? "Chọn đơn vị")</span>
+                            <i class="fas fa-building" style="font-size: 0.7rem; color: #ccc;"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="unitMenu">
+                            @if (ViewBag.Units != null)
+                            {
+                                @foreach (var unit in (List<QLDV.Models.Unit>)ViewBag.Units)
+                                {
+                                    <div class="dropdown-item-custom @(Model.UnitId == unit.Id ? "selected" : "")" data-value="@unit.Id">
+                                        @unit.Name <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="row">
@@ -327,66 +359,142 @@
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">
+            <button type="submit" class="submit-btn" id="saveMemberBtn">
                 CẬP NHẬT HỒ SƠ
             </button>
         </form>
     </div>
 </div>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-        $(document).ready(function() {
-            // Achievement Dropdown Logic
-            $("#achievementTrigger").on("click", function(e) {
-                e.stopPropagation();
-                $(".dropdown-menu-custom").not("#achievementMenu").removeClass("show");
-                $("#achievementMenu").toggleClass("show");
-                $(this).toggleClass("active");
-                $("#genderTrigger").removeClass("active");
-            });
-
-            $("#achievementMenu .dropdown-item-custom").on("click", function() {
-                const val = $(this).data("value");
-                $("#achievementInput").val(val);
-                $("#achievementText").text(val);
-                $(this).addClass("selected").siblings().removeClass("selected");
-                $("#achievementMenu").removeClass("show");
-                $("#achievementTrigger").removeClass("active");
-            });
-
-            // Gender Dropdown Logic
-            $("#genderTrigger").on("click", function(e) {
-                e.stopPropagation();
-                $(".dropdown-menu-custom").not("#genderMenu").removeClass("show");
-                $("#genderMenu").toggleClass("show");
-                $(this).toggleClass("active");
-                $("#achievementTrigger").removeClass("active");
-            });
-
-            $("#genderMenu .dropdown-item-custom").on("click", function() {
-                const val = $(this).data("value");
-                $("#genderInput").val(val);
-                $("#genderText").text(val);
-                $(this).addClass("selected").siblings().removeClass("selected");
-                $("#genderMenu").removeClass("show");
-                $("#genderTrigger").removeClass("active");
-            });
-
-            $(document).on("click", function() {
-                $(".dropdown-menu-custom").removeClass("show");
-                $(".custom-dropdown-trigger").removeClass("active");
-            });
-
-            // Initialize Flatpickr
-            flatpickr(".date-picker", {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "m/d/Y",
-                allowInput: true,
-                disableMobile: true
-            });
-        });
-    </script>
+@if (!isAjax)
+{
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script>
+            // This will be called on full page load
+            initEditScripts();
+        </script>
+    }
 }
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    function initEditScripts() {
+        console.log("Initializing edit scripts...");
+        const form = document.getElementById('editMemberForm');
+        const isAjaxMode = @(isAjax ? "true" : "false");
+
+        if (isAjaxMode && form) {
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('saveMemberBtn');
+                if (!btn) return;
+
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> ĐANG LƯU...';
+
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof toast !== 'undefined') toast.success('Cập nhật hồ sơ thành công!');
+                        if (window.openMemberModal) {
+                            openMemberModal(`/members/details/${data.id}`);
+                        } else {
+                            location.href = `/members/details/${data.id}`;
+                        }
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        alert('Lỗi: ' + (data.errors ? data.errors.join('\n') : 'Không thể lưu hồ sơ.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Save error:', error);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    alert('Lỗi kết nối máy chủ.');
+                });
+            };
+        }
+
+        // Dropdown Logics
+        $("#achievementTrigger").on("click", function(e) {
+            e.stopPropagation();
+            $(".dropdown-menu-custom").not("#achievementMenu").removeClass("show");
+            $("#achievementMenu").toggleClass("show");
+            $(this).toggleClass("active");
+            $("#genderTrigger, #unitTrigger").removeClass("active");
+        });
+
+        $("#achievementMenu .dropdown-item-custom").on("click", function() {
+            const val = $(this).data("value");
+            $("#achievementInput").val(val);
+            $("#achievementText").text(val);
+            $(this).addClass("selected").siblings().removeClass("selected");
+            $("#achievementMenu").removeClass("show");
+            $("#achievementTrigger").removeClass("active");
+        });
+
+        $("#genderTrigger").on("click", function(e) {
+            e.stopPropagation();
+            $(".dropdown-menu-custom").not("#genderMenu").removeClass("show");
+            $("#genderMenu").toggleClass("show");
+            $(this).toggleClass("active");
+            $("#achievementTrigger, #unitTrigger").removeClass("active");
+        });
+
+        $("#genderMenu .dropdown-item-custom").on("click", function() {
+            const val = $(this).data("value");
+            $("#genderInput").val(val);
+            $("#genderText").text(val);
+            $(this).addClass("selected").siblings().removeClass("selected");
+            $("#genderMenu").removeClass("show");
+            $("#genderTrigger").removeClass("active");
+        });
+
+        $("#unitTrigger").on("click", function(e) {
+            e.stopPropagation();
+            $(".dropdown-menu-custom").not("#unitMenu").removeClass("show");
+            $("#unitMenu").toggleClass("show");
+            $(this).toggleClass("active");
+            $("#genderTrigger, #achievementTrigger").removeClass("active");
+        });
+
+        $("#unitMenu .dropdown-item-custom").on("click", function() {
+            const val = $(this).data("value");
+            const text = $(this).text().trim();
+            $("#unitInput").val(val);
+            $("#unitText").text(text);
+            $(this).addClass("selected").siblings().removeClass("selected");
+            $("#unitMenu").removeClass("show");
+            $("#unitTrigger").removeClass("active");
+        });
+
+        $(document).on("click", function() {
+            $(".dropdown-menu-custom").removeClass("show");
+            $(".custom-dropdown-trigger").removeClass("active");
+        });
+
+        flatpickr(".date-picker", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "m/d/Y",
+            allowInput: true,
+            disableMobile: true
+        });
+    }
+
+    // Auto-run if loaded via AJAX
+    if (typeof jQuery !== 'undefined') {
+        initEditScripts();
+    } else {
+        window.addEventListener('DOMContentLoaded', initEditScripts);
+    }
+</script>
