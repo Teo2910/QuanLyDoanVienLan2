@@ -18,9 +18,9 @@
                 <p style="color: #94a3b8; font-weight: 800; letter-spacing: 1px;">TỔNG HỢP DỮ LIỆU TOÀN HỆ THỐNG</p>
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 gap-sm-3 mt-3 mt-lg-0 align-items-center">
-            <div class="dropdown" style="position: relative; flex-grow: 1;">
-                <button class="btn-premium btn-premium-light px-3 px-sm-4 w-100" type="button" id="unitDropdownTrigger" style="min-width: 200px; justify-content: space-between; border: 1px solid #e2e8f0; background: #fff;">
+        <div class="d-flex flex-wrap gap-2 gap-sm-3 mt-3 mt-lg-0 align-items-center stats-header-actions">
+            <div class="dropdown stats-unit-dropdown" style="position: relative;">
+                <button class="btn-premium btn-premium-light px-3 px-sm-4" type="button" id="unitDropdownTrigger" style="justify-content: space-between; border: 1px solid #e2e8f0; background: #fff; width: 100%;">
                     <span id="selectedUnitText" class="fw-black" style="color: #1e293b; font-size: 0.8rem;">Toàn hệ thống (@totalMembers)</span>
                     <i class="fas fa-chevron-down ms-2" style="font-size: 0.7rem; color: var(--primary);"></i>
                 </button>
@@ -46,31 +46,31 @@
 </div>
 
 <!-- Banner Đoàn viên Tiêu biểu -->
-<div class="card-premium mb-5" style="background: var(--primary-gradient); border: none; overflow: hidden; position: relative; padding: 2.5rem; border-radius: 35px;">
-    <div style="position: absolute; top: -30px; right: -30px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+<div class="card-premium mb-5 stats-banner-card" style="background: var(--primary-gradient); border: none; overflow: hidden; position: relative; border-radius: 35px;">
+    <div class="banner-circle-decoration"></div>
     
     <div class="row align-items-center position-relative g-4">
         <div class="col-lg-8">
             <div class="d-flex align-items-center gap-3 mb-3">
-                <div style="width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff;">
-                    <i class="fas fa-star" style="font-size: 0.75rem; color: #ffb400;"></i>
+                <div class="banner-star-icon">
+                    <i class="fas fa-star"></i>
                 </div>
                 <span class="text-white small fw-black text-uppercase letter-spacing-1" style="font-size: 0.6rem;">Danh hiệu vinh dự</span>
             </div>
-            <h1 class="text-white fw-black mb-3" style="font-size: 2.2rem; letter-spacing: -1px; line-height: 1.1;">Đoàn viên Tiêu biểu</h1>
-            <p class="text-white opacity-85 fw-bold mb-0" style="max-width: 500px; line-height: 1.5; font-size: 0.85rem;">Những cá nhân xuất sắc có đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+            <h1 class="text-white fw-black mb-3 banner-title">Đoàn viên Tiêu biểu</h1>
+            <p class="text-white opacity-85 fw-bold mb-0 banner-desc">Những cá nhân xuất sắc có đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
         </div>
         <div class="col-lg-4 text-center">
-            <div class="rounded-pill p-3 px-4 d-inline-block border border-white border-opacity-20 shadow-2xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-width: 2px !important;">
-                <div class="d-flex align-items-center gap-4">
+            <div class="rounded-pill p-3 px-4 d-inline-block border border-white border-opacity-20 shadow-2xl stats-pill-container">
+                <div class="d-flex align-items-center gap-3 gap-sm-4">
                     <div class="text-center">
-                        <span class="d-block text-white fw-black" style="font-size: 1.8rem; line-height: 1; margin-bottom: 2px;" id="outstandingCount">@totalOutstanding</span>
-                        <span class="text-white small fw-black text-uppercase" style="letter-spacing: 1px; opacity: 0.6; font-size: 0.5rem;">Tổng số</span>
+                        <span class="d-block text-white fw-black stats-number" id="outstandingCount">@totalOutstanding</span>
+                        <span class="text-white small fw-black text-uppercase stats-label">Tổng số</span>
                     </div>
-                    <div style="width: 1px; height: 35px; background: rgba(255,255,255,0.2);"></div>
+                    <div class="stats-divider"></div>
                     <div class="text-center">
-                        <span class="d-block text-white fw-black" style="font-size: 1.8rem; line-height: 1; margin-bottom: 2px;" id="outstandingPercent">@((totalMembers > 0 ? (double)totalOutstanding * 100 / totalMembers : 0).ToString("F1"))%</span>
-                        <span class="text-white small fw-black text-uppercase" style="letter-spacing: 1px; opacity: 0.6; font-size: 0.5rem;">Tỷ lệ</span>
+                        <span class="d-block text-white fw-black stats-number" id="outstandingPercent">@((totalMembers > 0 ? (double)totalOutstanding * 100 / totalMembers : 0).ToString("F1"))%</span>
+                        <span class="text-white small fw-black text-uppercase stats-label">Tỷ lệ</span>
                     </div>
                 </div>
             </div>
@@ -140,8 +140,8 @@
 </div>
 
 <!-- Chi tiết cơ sở Table -->
-<div class="card-premium mb-5" style="border-top: 5px solid #10b981; border-radius: 40px; padding: 0; overflow: hidden;">
-    <div class="table-responsive p-5">
+<div class="card-premium mb-5 stats-table-card" style="border-top: 5px solid #10b981; border-radius: 40px; padding: 0; overflow: hidden;">
+    <div class="table-responsive p-3 p-sm-5">
         <table class="table-premium-new">
             <thead>
                 <tr>

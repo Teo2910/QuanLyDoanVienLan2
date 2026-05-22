@@ -942,9 +942,9 @@ html, body {
     left: var(--sidebar-width); 
     width: calc(100% - var(--sidebar-width)); 
     height: 100%; 
-    background: rgba(15, 23, 42, 0.4); 
-    backdrop-filter: blur(8px); 
-    z-index: 3000; 
+    background: rgba(15, 23, 42, 0.85); /* High opacity to focus on modal */
+    backdrop-filter: blur(10px); 
+    z-index: 9000; 
     display: none; 
     opacity: 0; 
     transition: 0.3s; 
@@ -958,7 +958,8 @@ html, body {
     .modal-overlay {
         left: 0;
         width: 100%;
-        padding: 1.5rem;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.92); /* Nearly solid on mobile */
     }
 }
 .modal-overlay.show { display: flex; opacity: 1; }
@@ -1495,4 +1496,11 @@ html, body {
     
     .unit-text-v2, .id-badge-stack, .status-row-v2 { text-align: right !important; justify-content: flex-end !important; font-size: 0.85rem !important; }
     .achievement-pill-v2 { padding: 4px 8px !important; font-size: 0.5rem !important; }
+}
+
+@media (max-width: 768px) {
+    .form-style-card { padding: 4rem 1.5rem 2rem 1.5rem !important; border-radius: 0 !important; min-height: 100vh !important; background: #fff !important; margin: 0 !important; max-width: 100% !important; z-index: 10000 !important; }
+    .modal-overlay { background: #fff !important; padding: 0 !important; }
+    .modal-content-wrapper { margin: 0 !important; max-width: 100% !important; }
+    .form-header h2 { font-size: 1.6rem !important; }
 }

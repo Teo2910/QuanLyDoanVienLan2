@@ -234,6 +234,46 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        @@media (max-width: 576px) {
+            .form-style-card {
+                padding: 2.5rem 1.5rem !important;
+                border-radius: 30px !important;
+            }
+
+            .form-header {
+                margin-bottom: 2rem;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .custom-input, .custom-dropdown-trigger {
+                padding: 0.9rem 1rem !important;
+                border-radius: 16px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .mb-4 {
+                margin-bottom: 1.25rem !important;
+            }
+
+            .submit-btn {
+                margin-top: 1.5rem !important;
+                padding: 1rem !important;
+                border-radius: 16px !important;
+            }
+
+            .close-form-btn {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .custom-textarea {
+                min-height: 120px;
+            }
+        }
     </style>
 
     <div class="form-style-card">
