@@ -197,6 +197,95 @@
         background: #f8f9fa;
         color: #1a1a1a;
     }
+
+    /* --- RESPONSIVE BREAKPOINTS --- */
+    @@media (max-width: 991px) {
+        .profile-main-grid {
+            gap: 30px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .profile-avatar-box {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            border-radius: 25px;
+            margin: 0 auto;
+        }
+
+        .profile-title-box h1 {
+            font-size: 1.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .profile-meta-info {
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 0.8rem;
+        }
+
+        .profile-main-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+
+        .section-column-title {
+            margin-bottom: 1.5rem;
+            font-size: 0.75rem;
+        }
+
+        .info-card-box {
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .achievement-card {
+            padding: 1.5rem;
+            border-radius: 25px;
+        }
+
+        .achievement-card .value {
+            font-size: 1.4rem;
+        }
+
+        .profile-actions-footer {
+            grid-template-columns: 1fr;
+            margin-top: 2rem;
+            gap: 12px;
+        }
+
+        .btn-main-action, .btn-secondary-action {
+            padding: 1.1rem;
+            font-size: 0.85rem;
+            border-radius: 16px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .profile-title-box h1 {
+            font-size: 1.5rem;
+        }
+
+        .info-card-value {
+            font-size: 0.85rem;
+        }
+
+        .row [class*="col-"] {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
 </style>
 
 <div class="modal-layout-container">

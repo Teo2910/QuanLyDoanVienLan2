@@ -90,12 +90,12 @@
 <div class="card-premium mb-5">
     <form id="filterForm" method="get" action="/members">
         <input type="hidden" name="sortOrder" value="@ViewBag.SortOrder" />
-        <div class="d-flex flex-wrap gap-4 align-items-center">
+        <div class="d-flex flex-wrap gap-4 align-items-center filter-row-premium">
             <div class="search-box-premium flex-grow-1" style="max-width: 600px;">
                 <i class="fas fa-search"></i>
                 <input type="text" name="search" placeholder="Tra cứu chuyên sâu: Tên, MSSV, Quê quán, Khóa học..." id="advancedSearch" value="@currentSearch">
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 filter-btns-group">
                 <button type="button" class="btn-premium btn-premium-dark px-4" id="toggleAdvancedFilter">
                     <i class="fas fa-filter"></i> LỌC NÂNG CAO
                 </button>

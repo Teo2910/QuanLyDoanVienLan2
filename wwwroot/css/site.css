@@ -811,71 +811,6 @@ html, body {
 }
 
 /* --- PREMIUM PAGINATION --- */
-/* --- MOBILE RESPONSIVE REFINEMENTS --- */
-@media (max-width: 768px) {
-    .page-header-premium .header-main {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: flex-start;
-    }
-    
-    .page-header-premium .header-main .d-flex {
-        flex-wrap: wrap;
-        width: 100%;
-        gap: 10px !important;
-    }
-    
-    .page-header-premium .header-main .btn-premium {
-        flex-grow: 1;
-        justify-content: center;
-    }
-
-    .welcome-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .welcome-text h1 {
-        font-size: 2rem;
-    }
-
-    .stat-card-new {
-        padding: 1.5rem;
-    }
-
-    .stat-card-new h2 {
-        font-size: 2.2rem;
-    }
-
-    .card-premium {
-        padding: 1.5rem;
-        border-radius: 25px;
-    }
-
-    .member-list-card-premium {
-        padding: 1.5rem;
-        border-radius: 30px;
-    }
-
-    .list-title-header {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .pagination-container-premium {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-
-    .pagination-btns-group {
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-}
-
 /* --- OFFICIAL COLORS REFINEMENT --- */
 .brand-logo-badge, .mobile-brand .logo {
     background: var(--primary-gradient) !important;
@@ -1411,4 +1346,153 @@ html, body {
     pointer-events: none;
     background: #f8fafc;
     border-color: #f1f5f9;
+}
+
+/* --- FINAL MOBILE RESPONSIVE FIXES (END OF FILE) --- */
+@media (max-width: 991px) {
+    .modal-overlay { padding: 0.5rem !important; }
+    .modal-layout-container { padding: 3rem 1rem 2rem 1rem !important; }
+}
+@media (max-width: 768px) {
+    .modal-layout-container { width: 100% !important; max-width: 100% !important; overflow-x: hidden !important; box-sizing: border-box !important; padding: 4rem 1rem 2rem 1rem !important; }
+    .details-grid { display: block !important; width: 100% !important; }
+    .content-box { padding: 1.25rem !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: break-word !important; width: 100% !important; box-sizing: border-box !important; }
+    .stats-card, .unit-item { width: 100% !important; box-sizing: border-box !important; }
+    .header-meta { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    .header-meta .edit-link { width: 100% !important; justify-content: center !important; }
+
+    .details-header h1 {
+        font-size: 1.25rem !important;
+        line-height: 1.4;
+        margin-bottom: 20px;
+        padding-right: 70px !important; /* Increased padding to clear close button completely */
+        word-wrap: break-word;
+        font-weight: 900;
+        color: #0f172a !important;
+    }
+
+    .close-modal-btn {
+        top: 1rem !important;
+        right: 1rem !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+        background: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        z-index: 1000 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    }
+
+    /* --- MEMBER LIST MOBILE OPTIMIZATION --- */
+    .member-list-card-premium, .card-premium {
+        padding: 1.25rem !important; /* Reduced padding on mobile to save space */
+        border-radius: 24px !important;
+    }
+
+    .filter-row-premium {
+        flex-direction: column;
+        gap: 15px !important;
+        align-items: stretch !important;
+    }
+
+    .filter-btns-group {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px !important;
+    }
+
+    .filter-btns-group .btn-premium {
+        padding: 10px 12px !important;
+        font-size: 0.65rem !important;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .list-title-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+
+    .list-title-header h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .result-count-badge {
+        padding: 6px 14px !important;
+        font-size: 0.55rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-members-v2 thead, .table-premium-new thead { 
+        display: none !important; 
+    }
+
+    .table-members-v2 tbody tr, .table-premium-new tbody tr { 
+        display: flex !important; 
+        flex-direction: column !important; 
+        padding: 1rem !important; /* Compact padding */
+        border: 1px solid #f1f5f9 !important; 
+        margin-bottom: 1rem !important; 
+        background: #fff !important; 
+        border-radius: 20px !important; 
+        position: relative !important; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.01) !important;
+        overflow: hidden !important;
+    }
+
+    .table-members-v2 tbody td, .table-premium-new tbody td { 
+        display: flex !important; 
+        justify-content: space-between !important; 
+        align-items: center !important; 
+        padding: 0.5rem 0 !important; 
+        border: none !important; 
+        width: 100% !important; 
+        font-size: 0.85rem !important;
+    }
+
+    .table-members-v2 tbody td:first-child { 
+        order: -1; 
+        border-bottom: 1px solid #f8fafc !important; 
+        padding-bottom: 0.75rem !important; 
+        margin-bottom: 0.4rem !important; 
+        justify-content: flex-start !important; 
+        gap: 10px !important; 
+    }
+
+    /* Labels with fixed widths to prevent overlapping */
+    .table-members-v2 tbody td::before {
+        font-size: 0.55rem; 
+        font-weight: 900; 
+        color: #94a3b8; 
+        letter-spacing: 0.5px;
+        min-width: 100px;
+        text-align: left;
+    }
+
+    .table-members-v2 tbody td:nth-child(3)::before { content: 'MÃ ĐỊNH DANH'; }
+    .table-members-v2 tbody td:nth-child(4)::before { content: 'XẾP LOẠI'; }
+    .table-members-v2 tbody td:nth-child(5)::before { content: 'ĐƠN VỊ'; }
+    .table-members-v2 tbody td:nth-child(6)::before { content: 'NGÀY VÀO'; }
+    .table-members-v2 tbody td:nth-child(7)::before { content: 'TRẠNG THÁI'; }
+
+    .table-members-v2 tbody td:last-child { 
+        position: absolute !important; 
+        top: 1rem !important; 
+        right: 1rem !important; 
+        width: auto !important; 
+        padding: 0 !important; 
+    }
+
+    .member-core-info { gap: 10px !important; max-width: 80%; }
+    .avatar-circle-v2 { width: 36px !important; height: 36px !important; font-size: 0.8rem !important; }
+    .member-text-v2 b { font-size: 0.95rem !important; white-space: normal !important; display: block !important; line-height: 1.2; }
+    .member-text-v2 span { font-size: 0.5rem !important; }
+    
+    .unit-text-v2, .id-badge-stack, .status-row-v2 { text-align: right !important; justify-content: flex-end !important; font-size: 0.85rem !important; }
+    .achievement-pill-v2 { padding: 4px 8px !important; font-size: 0.5rem !important; }
 }
