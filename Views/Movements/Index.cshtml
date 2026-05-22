@@ -54,42 +54,53 @@
         <table class="table-premium-new">
             <thead>
                 <tr>
-                    <th>PHONG TRÀO & CHIẾN DỊCH</th>
+                    <th width="300">PHONG TRÀO & CHIẾN DỊCH</th>
                     <th class="text-center">ĐƠN VỊ</th>
                     <th class="text-center">ĐÃ BÁO</th>
                     <th class="text-center">TỔNG NỘP</th>
-                    <th class="text-end" width="250">MỨC ĐỘ HOÀN THÀNH</th>
+                    <th class="text-center">TIẾN ĐỘ</th>
+                    @if (!isAdmin)
+                    {
+                        <th class="text-end" width="180">THAO TÁC</th>
+                    }
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 @foreach (var item in stats)
                 {
-                    <tr>
-                        <td>
-                            <a href="javascript:void(0)" onclick="openMovementModal('/movements/details/@item.Movement.Id')" class="text-decoration-none text-dark fw-bold hover-primary fs-5">
-                                @item.Movement.Title
+                <tr>
+                    <td>
+                        <a href="javascript:void(0)" onclick="openMovementModal('/movements/details/@item.Movement.Id')" class="text-decoration-none text-dark fw-bold hover-primary fs-5">
+                            @item.Movement.Title
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <span class="text-muted fw-bold">@item.TotalUnits</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="status-pill status-pill-success" style="background: #ecfdf5; color: #10b981; font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 50%; min-width: 32px; display: inline-flex; align-items: center; justify-content: center;">@item.ReportedCount</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="status-pill status-pill-info" style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 50%; min-width: 32px; display: inline-flex; align-items: center; justify-content: center;">@item.TotalSubmissions</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-3 justify-content-center">
+                            <div class="progress-premium" style="width: 80px;">
+                                <div class="progress-bar-premium" style="width: @item.CompletionPercentage%;"></div>
+                            </div>
+                            <span class="completion-text" style="font-size: 0.75rem;">@item.CompletionPercentage.ToString("F0")%</span>
+                        </div>
+                    </td>
+                    @if (!isAdmin)
+                    {
+                        <td class="text-end">
+                            <a href="javascript:void(0)" onclick="openMovementModal('/movements/submitreport?movementId=@item.Movement.Id')" class="btn-premium btn-premium-dark px-3 py-2" style="font-size: 0.65rem;">
+                                <i class="fas fa-file-upload"></i> NỘP BÁO CÁO
                             </a>
                         </td>
-                        <td class="text-center">
-                            <span class="text-muted fw-bold">@item.TotalUnits</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="status-pill status-pill-success" style="background: #ecfdf5; color: #10b981; font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 50%; min-width: 32px; display: inline-flex; align-items: center; justify-content: center;">@item.ReportedCount</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="status-pill status-pill-info" style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 0.8rem; padding: 4px 12px; border-radius: 50%; min-width: 32px; display: inline-flex; align-items: center; justify-content: center;">@item.TotalSubmissions</span>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-3 justify-content-end">
-                                <div class="progress-premium">
-                                    <div class="progress-bar-premium" style="width: @item.CompletionPercentage%;"></div>
-                                </div>
-                                <span class="completion-text">@item.CompletionPercentage.ToString("F1")%</span>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
+                    }
+                </tr>
+                }            </tbody>
         </table>
     </div>
 </div>
@@ -126,9 +137,16 @@
                         <span>Hoàn thành</span>
                         <b>@item.CompletionPercentage.ToString("F0")%</b>
                     </div>
-                    <div class="progress-container-new">
+                    <div class="progress-container-new mb-3">
                         <div class="progress-bar-new" style="width: @item.CompletionPercentage%;"></div>
                     </div>
+                    
+                    @if (!isAdmin)
+                    {
+                        <a href="javascript:void(0)" onclick="openMovementModal('/movements/submitreport?movementId=@item.Movement.Id'); event.stopPropagation();" class="btn-premium btn-premium-dark w-100 justify-content-center" style="border-radius: 12px; padding: 10px;">
+                            <i class="fas fa-file-upload"></i> NỘP BÁO CÁO NGAY
+                        </a>
+                    }
                 </div>
             </div>
         </div>

@@ -51,7 +51,7 @@
                 <li class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Movements" ? "active" : "")" href="/movements">
                         <i class="fas fa-bullhorn"></i>
-                        <span>Phong trào & Báo cáo</span>
+                        <span>@(isAdmin ? "Phong trào & Báo cáo" : "Báo cáo phong trào")</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -72,20 +72,20 @@
                         <span>Thống kê</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Activities" ? "active" : "")" href="/activities">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Hoạt động</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "KnowledgeBase" ? "active" : "")" href="/knowledgebase">
-                        <i class="fas fa-book"></i>
-                        <span>Tài liệu nghiệp vụ</span>
-                    </a>
-                </li>
                 @if (isAdmin)
                 {
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Activities" ? "active" : "")" href="/activities">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Hoạt động</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "KnowledgeBase" ? "active" : "")" href="/knowledgebase">
+                            <i class="fas fa-book"></i>
+                            <span>Tài liệu nghiệp vụ</span>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Logs" ? "active" : "")" href="/logs">
                             <i class="fas fa-history"></i>
