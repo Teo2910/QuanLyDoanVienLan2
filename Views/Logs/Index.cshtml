@@ -228,7 +228,118 @@
         @@media (max-width: 991px) {
             .modern-table th:nth-child(4),
             .modern-table td:nth-child(4) {
-                display: none;
+                display: table-cell; /* Re-enable for card conversion later */
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .log-style-card {
+                padding: 1.25rem 0.75rem !important;
+                border-radius: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+            }
+
+            .log-table-container {
+                border: none;
+                background: transparent;
+                padding: 0 !important;
+                width: 100% !important;
+                overflow: hidden !important;
+            }
+
+            .modern-table {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .modern-table thead {
+                display: none !important;
+            }
+
+            .modern-table tbody {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .modern-table tbody tr {
+                display: block !important;
+                background: #fff;
+                border-radius: 18px;
+                padding: 1.25rem !important;
+                margin-bottom: 1rem !important;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+                border: 1px solid #f1f5f9;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .modern-table tbody td {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                padding: 0.8rem 0 !important;
+                border-bottom: 1px solid #f8fafc;
+                width: 100% !important;
+                font-size: 0.85rem;
+                gap: 12px;
+                background: transparent !important;
+                box-sizing: border-box !important;
+            }
+
+            .modern-table tbody td:last-child {
+                border-bottom: none;
+                justify-content: center !important;
+                padding-top: 1rem !important;
+            }
+
+            /* Labels */
+            .modern-table tbody td::before {
+                font-size: 0.6rem;
+                font-weight: 850;
+                color: #94a3b8;
+                min-width: 85px;
+                text-align: left;
+                flex-shrink: 0;
+                padding-top: 2px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Values alignment and overflow handling */
+            .modern-table tbody td .time-text,
+            .modern-table tbody td > div,
+            .modern-table tbody td > span,
+            .modern-table tbody td .badge-modern {
+                text-align: right !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                word-break: break-word !important;
+                flex: 1;
+                margin: 0 !important;
+                min-width: 0 !important; /* Allow shrinking */
+            }
+
+            .modern-table tbody td .badge-modern {
+                display: inline-block;
+                width: auto;
+                flex: 0 0 auto;
+                max-width: 120px;
+            }
+            
+            .btn-view-details {
+                width: 100% !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+                margin: 0 !important;
+            }
+
+            .entity-code {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
 

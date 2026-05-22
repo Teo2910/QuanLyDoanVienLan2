@@ -116,7 +116,7 @@ html, body {
 
 @media (max-width: 768px) {
     .main-content {
-        padding: 0 1.5rem;
+        padding: 0 0.75rem !important;
     }
 }
 
@@ -1503,4 +1503,18 @@ html, body {
     .modal-overlay { background: #fff !important; padding: 0 !important; }
     .modal-content-wrapper { margin: 0 !important; max-width: 100% !important; }
     .form-header h2 { font-size: 1.6rem !important; }
+}
+
+@media (max-width: 576px) {
+    .table-premium-new tbody td:nth-child(2)::before { content: 'T?NG S?'; }
+    .table-premium-new tbody td:nth-child(3)::before { content: 'NAM'; }
+    .table-premium-new tbody td:nth-child(4)::before { content: 'N?'; }
+    .table-premium-new tbody td:nth-child(5)::before { content: 'ÐANG SINH HO?T'; }
+    .table-premium-new tbody td:nth-child(6)::before { content: 'CHUY?N ÐI'; }
+    .table-premium-new tbody td:nth-child(7)::before { content: 'TRU?NG THÀNH'; }
+    .table-premium-new tbody td:nth-child(8)::before { content: 'XU?T S?C'; }
+    .table-premium-new tbody td:nth-child(9)::before { content: 'KHÁ'; }
+    .table-premium-new tbody td:nth-child(10)::before { content: 'TRUNG BÌNH'; }
+    .table-premium-new tbody td:nth-child(11)::before { content: 'TIÊU BI?U'; }
+    .table-premium-new tbody td::before { min-width: 120px !important; }
 }

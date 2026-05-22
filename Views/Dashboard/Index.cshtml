@@ -7,6 +7,47 @@
     var currentUser = await UserManager.GetUserAsync(User);
 }
 
+<style>
+    @@media (max-width: 768px) {
+        .welcome-text h1 {
+            font-size: 1.8rem !important;
+            letter-spacing: -1px;
+        }
+
+        .welcome-text p {
+            font-size: 0.55rem !important;
+            letter-spacing: 1px;
+        }
+
+        .stat-card-new {
+            padding: 1.5rem 1rem !important;
+            border-radius: 25px !important;
+        }
+
+        .stat-card-new h2 {
+            font-size: 2.2rem !important;
+        }
+
+        .section-wrapper {
+            padding: 1.5rem !important;
+            border-radius: 25px !important;
+        }
+
+        .item-row, .member-pill {
+            padding: 1rem !important;
+            border-radius: 16px !important;
+        }
+
+        .item-body h6, .member-details h6 {
+            font-size: 0.9rem !important;
+        }
+
+        .item-date-side span {
+            font-size: 0.9rem !important;
+        }
+    }
+</style>
+
 <div class="welcome-row">
     <div class="welcome-text">
         <h1>Xin chào, <span style="color: var(--primary);">@(currentUser?.FullName ?? "Cán bộ Đoàn")</span></h1>

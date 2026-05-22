@@ -182,6 +182,74 @@
         font-size: 1.2rem;
     }
 
+    /* --- RESPONSIVE BREAKPOINTS --- */
+    @@media (max-width: 991px) {
+        .profile-card {
+            padding: 2.5rem 2rem;
+            border-radius: 35px;
+        }
+
+        .form-grid {
+            gap: 2rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .profile-header {
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .profile-header h2 {
+            font-size: 1.8rem;
+            justify-content: center;
+        }
+
+        .profile-header .subtext {
+            justify-content: center;
+            font-size: 0.65rem;
+        }
+
+        .avatar-upload-section {
+            margin-bottom: 3rem;
+        }
+
+        .avatar-preview-container {
+            width: 140px;
+            height: 140px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .input-premium {
+            padding: 1rem 1.25rem;
+            font-size: 0.9rem;
+            border-radius: 16px;
+        }
+
+        .save-btn-premium {
+            margin-top: 3rem;
+            padding: 1.25rem;
+            font-size: 0.8rem;
+            border-radius: 18px;
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .profile-card {
+            padding: 2rem 1.25rem;
+            border-radius: 25px;
+        }
+
+        .profile-header h2 {
+            font-size: 1.5rem;
+        }
+    }
+
     @@keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
