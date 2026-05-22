@@ -6,260 +6,320 @@
 
 @section Styles {
     <style>
+        .kb-layout-container {
+            padding: 0 1rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .kb-style-card {
+            background: #fff;
+            border-radius: 45px;
+            padding: 4rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.02);
+            border: 1px solid #f8fafc;
+            min-height: calc(100vh - 250px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        @@media (max-width: 991px) {
+            .kb-style-card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 30px;
+            }
+        }
+
         .kb-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: 3.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
+            border-bottom: 2px solid #f8fafc;
+            padding-bottom: 2.5rem;
+        }
+
+        @@media (max-width: 768px) {
+            .kb-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 25px;
+            }
         }
 
         .kb-title h2 {
-            font-weight: 800;
-            color: #1a1a1a;
-            margin-bottom: 5px;
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: #0f172a;
+            letter-spacing: -1.5px;
+            margin: 0;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .kb-title h2 i {
-            color: #1a1a1a;
-            font-size: 1.75rem;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 12px;
-            background: #fff;
+            color: var(--primary);
+            background: rgba(0, 86, 179, 0.05);
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        @@media (max-width: 576px) {
+            .kb-title h2 { font-size: 1.8rem; }
+            .kb-title h2 i { width: 48px; height: 48px; font-size: 1.2rem; }
         }
 
         .kb-title p {
-            color: #666;
-            font-size: 0.75rem;
-            font-weight: 700;
+            color: #cbd5e1;
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-            padding-left: 2px;
+            letter-spacing: 1.5px;
+            margin: 12px 0 0 0;
         }
 
         .kb-actions {
             display: flex;
             gap: 15px;
             align-items: center;
-            flex-grow: 1;
-            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        @@media (max-width: 768px) {
+            .kb-actions { width: 100%; }
+            .search-box { flex-grow: 1; }
         }
 
         .search-box {
             position: relative;
-            max-width: 350px;
-            width: 100%;
+            min-width: 280px;
         }
 
         .search-box i {
             position: absolute;
-            left: 18px;
+            left: 20px;
             top: 50%;
             transform: translateY(-50%);
-            color: #999;
+            color: #cbd5e1;
         }
 
         .search-box input {
-            padding-left: 48px;
-            border-radius: 16px;
-            border: 1px solid #eee;
-            height: 52px;
-            font-size: 0.95rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-            transition: all 0.2s;
+            padding: 0.9rem 1.25rem 0.9rem 3.5rem;
+            border-radius: 18px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            width: 100%;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
+            transition: all 0.3s;
+            outline: none;
         }
 
         .search-box input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 15px rgba(0, 86, 179, 0.1);
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 86, 179, 0.05);
         }
 
         .add-btn {
-            background: #0061f2;
+            background: #0f172a;
             color: white;
-            border: none;
-            padding: 0 28px;
-            height: 52px;
-            border-radius: 16px;
-            font-weight: 700;
+            padding: 0.9rem 2rem;
+            border-radius: 18px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: all 0.2s;
+            transition: all 0.3s;
             text-decoration: none;
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0, 97, 242, 0.2);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
         }
 
         .add-btn:hover {
-            background: #0052cc;
+            background: var(--primary);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 97, 242, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 86, 179, 0.3);
         }
 
+        @@media (max-width: 576px) {
+            .add-btn { width: 100%; justify-content: center; }
+        }
+
+        /* Card Grid */
         .kb-card {
-            background: white;
-            border-radius: 32px;
-            padding: 35px;
+            background: #fff;
+            border-radius: 35px;
+            padding: 2.5rem;
             height: 100%;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #f8fafc;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.02);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             position: relative;
             display: flex;
             flex-direction: column;
         }
 
         .kb-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 30px 70px rgba(0, 86, 179, 0.08);
         }
 
         .kb-card-icon {
-            width: 52px;
-            height: 52px;
-            background: #f0f4f9;
-            border-radius: 14px;
+            width: 56px;
+            height: 56px;
+            background: #f8fafc;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #0061f2;
+            color: #0f172a;
             font-size: 1.4rem;
-            margin-bottom: 25px;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .kb-card:hover .kb-card-icon {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.1) rotate(-5deg);
         }
 
         .kb-card-actions {
             position: absolute;
-            top: 35px;
-            right: 35px;
+            top: 2.5rem;
+            right: 2.5rem;
             display: flex;
-            gap: 12px;
+            gap: 10px;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s;
+        }
+
+        .kb-card:hover .kb-card-actions {
+            opacity: 1;
+            transform: translateX(0);
         }
 
         .kb-action-btn {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
             transition: all 0.2s;
-            border: none;
-            font-size: 0.9rem;
+            border: 1px solid #f1f5f9;
+            background: #fff;
+            color: #64748b;
         }
 
-        .btn-edit {
-            background: #f8f9fa;
-            color: #666;
+        .kb-action-btn:hover {
+            transform: scale(1.1);
         }
 
-        .btn-edit:hover {
-            background: #e9ecef;
-            color: #1a1a1a;
-        }
-
-        .btn-delete {
-            background: #fff5f5;
-            color: #fa5252;
-        }
-
-        .btn-delete:hover {
-            background: #ffe3e3;
-        }
+        .btn-edit:hover { background: #eff6ff; color: var(--primary); border-color: var(--primary); }
+        .btn-delete:hover { background: #fef2f2; color: #ef4444; border-color: #ef4444; }
 
         .kb-card-category {
-            color: #0061f2;
-            font-size: 0.75rem;
-            font-weight: 800;
+            color: var(--primary);
+            font-size: 0.65rem;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1.5px;
             margin-bottom: 12px;
             display: block;
         }
 
         .kb-card-title {
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: #1a1a1a;
-            margin-bottom: 18px;
-            line-height: 1.35;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin-bottom: 15px;
+            line-height: 1.3;
             display: block;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .kb-card-title:hover {
-            color: #0061f2;
+            text-decoration: none !important;
+            letter-spacing: -0.5px;
         }
 
         .kb-card-content {
-            color: #555;
-            font-size: 0.95rem;
+            color: #64748b;
+            font-size: 1rem;
             line-height: 1.7;
-            margin-bottom: 30px;
+            margin-bottom: 2.5rem;
             flex-grow: 1;
             display: -webkit-box;
-            -webkit-line-clamp: 4;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            font-weight: 500;
         }
 
         .kb-card-footer {
-            padding-top: 25px;
-            border-top: 1px solid #f8f9fa;
-            color: #aaa;
-            font-size: 0.7rem;
-            font-weight: 700;
+            padding-top: 20px;
+            border-top: 1px solid #f8fafc;
+            color: #cbd5e1;
+            font-size: 0.65rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        .kb-card-footer i { font-size: 0.9rem; }
+
         .empty-state {
-            background: white;
-            border-radius: 32px;
-            padding: 100px 40px;
+            background: #f8fafc;
+            border-radius: 40px;
+            padding: 8rem 2rem;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-            margin: 20px 0;
+            border: 2px dashed #e2e8f0;
         }
 
         .empty-state-icon {
             width: 100px;
             height: 100px;
-            background: #f8f9fa;
+            background: #fff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 30px;
-            color: #dee2e6;
-            font-size: 2.5rem;
+            margin: 0 auto 2.5rem;
+            color: #cbd5e1;
+            font-size: 3rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.03);
         }
 
         .empty-state h4 {
-            font-weight: 800;
-            color: #1a1a1a;
+            font-weight: 900;
+            color: #0f172a;
             margin-bottom: 12px;
+            font-size: 1.5rem;
         }
 
         .empty-state p {
             max-width: 400px;
             margin: 0 auto;
-            line-height: 1.6;
+            color: #94a3b8;
+            font-weight: 600;
         }
 
-        .modal-overlay .form-layout-container {
-            padding: 0 !important;
-            display: block !important;
-            width: 100%;
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 }
@@ -270,85 +330,83 @@
     </div>
 </div>
 
-<div class="kb-header">
-    <div class="kb-title">
-        <h2 style="color: var(--primary);">
-            <i class="fas fa-book-open" style="color: var(--primary); border-color: var(--primary-light); background: var(--primary-light);"></i>
-            Tài liệu Nghiệp vụ
-        </h2>
-        <p>HỆ THỐNG LƯU TRỮ VÀ ĐÀO TẠO KIẾN THỨC ĐOÀN</p>
-    </div>
-    
-    <div class="kb-actions d-flex flex-column flex-md-row gap-3 mt-3 mt-md-0 w-100 w-md-auto">
-        <div class="search-box w-100" style="max-width: 350px;">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm kiến thức...">
+<div class="kb-layout-container">
+    <div class="kb-style-card">
+        <div class="kb-header">
+            <div class="kb-title">
+                <h2>
+                    <i class="fas fa-layer-group"></i>
+                    Thư viện <span>Nghiệp vụ</span>
+                </h2>
+                <p>HỆ THỐNG QUẢN LÝ KIẾN THỨC VÀ ĐÀO TẠO ĐOÀN VIÊN</p>
+            </div>
+            
+            <div class="kb-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Tra cứu tài liệu...">
+                </div>
+                
+                <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/create')" class="add-btn">
+                    <i class="fas fa-plus"></i> THÊM MỚI
+                </a>
+            </div>
         </div>
-        
-        <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/create')" class="add-btn justify-content-center" style="background: var(--primary); box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);">
-            <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">Thêm tài liệu</span><span class="d-sm-none">Thêm</span>
-        </a>
-    </div>
-</div>
 
-@if ((Model?.Count ?? 0) > 0)
-{
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="knowledgeList">
-        @foreach (var item in (Model ?? new List<QLDV.Models.KnowledgeItem>()).OrderByDescending(k => k.UpdatedAt))
+        @if ((Model?.Count ?? 0) > 0)
         {
-            <div class="col knowledge-card-wrapper" data-category="@item.Category">
-                <div class="kb-card">
-                    <div class="kb-card-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    
-                    <div class="kb-card-actions">
-                        <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/edit/@item.Id')" class="kb-action-btn btn-edit" title="Chỉnh sửa">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                        <button class="kb-action-btn btn-delete" onclick="deleteItem('@item.Id')" title="Xóa">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+            <div class="row g-4" id="knowledgeList">
+                @foreach (var item in (Model ?? new List<QLDV.Models.KnowledgeItem>()).OrderByDescending(k => k.UpdatedAt))
+                {
+                    <div class="col-xl-4 col-md-6 knowledge-card-wrapper" data-category="@item.Category">
+                        <div class="kb-card">
+                            <div class="kb-card-icon">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            
+                            <div class="kb-card-actions">
+                                <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/edit/@item.Id')" class="kb-action-btn btn-edit" title="Chỉnh sửa">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <button class="kb-action-btn btn-delete" onclick="deleteItem('@item.Id')" title="Xóa">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
 
-                    @if (!string.IsNullOrEmpty(item.Category))
-                    {
-                        <span class="kb-card-category">@item.Category</span>
-                    }
-                    else
-                    {
-                        <span class="kb-card-category">NGHIỆP VỤ ĐOÀN</span>
-                    }
-                    
-                    <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/details/@item.Id')" class="kb-card-title">@item.Title</a>
-                    
-                    <div class="kb-card-content">
-                        @item.Content
+                            <span class="kb-card-category">@(string.IsNullOrEmpty(item.Category) ? "NGHIỆP VỤ ĐOÀN" : item.Category.ToUpper())</span>
+                            
+                            <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/details/@item.Id')" class="kb-card-title">@item.Title</a>
+                            
+                            <div class="kb-card-content">
+                                @item.Content
+                            </div>
+                            
+                            <div class="kb-card-footer">
+                                <i class="far fa-clock"></i>
+                                CẬP NHẬT: @(new DateTime(item.UpdatedAt, DateTimeKind.Utc).ToString("dd/MM/yyyy"))
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="kb-card-footer">
-                        CẬP NHẬT: @(new DateTime(item.UpdatedAt, DateTimeKind.Utc).ToString("dd/MM/yyyy"))
-                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h4>Chưa có tài liệu nào</h4>
+                <p>Bắt đầu xây dựng kho tri thức bằng cách thêm tài liệu nghiệp vụ đầu tiên.</p>
+                <div class="d-flex justify-content-center mt-5">
+                    <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/create')" class="add-btn">
+                        <i class="fas fa-plus"></i> THÊM TÀI LIỆU ĐẦU TIÊN
+                    </a>
                 </div>
             </div>
         }
     </div>
-}
-else
-{
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            <i class="fas fa-folder-open"></i>
-        </div>
-        <h4>Chưa có tài liệu nào</h4>
-        <p class="text-muted">Bắt đầu bằng cách thêm tài liệu mới vào hệ thống.</p>
-        <div class="d-flex justify-content-center mt-4">
-            <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/create')" class="add-btn">
-                <i class="fas fa-plus"></i> Thêm tài liệu đầu tiên
-            </a>
-        </div>
-    </div>
-}
+</div>
 
 @section Scripts {
     <script>
@@ -377,7 +435,7 @@ else
 
         window.openKBModal = function(url) {
             const body = document.getElementById('modalBody');
-            body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-white">Đang tải tài liệu...</p></div>';
+            body.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-3 fw-bold text-dark">ĐANG TRUY XUẤT...</p></div>';
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
 
@@ -388,14 +446,11 @@ else
                     const doc = parser.parseFromString(html, 'text/html');
                     
                     if (!doc || !doc.body) {
-                        throw new Error('Failed to parse response or response is empty');
+                        throw new Error('Response error');
                     }
 
                     const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
-                    if (!content) {
-                        throw new Error('Content not found in response');
-                    }
-
+                    
                     body.innerHTML = '';
                     if (doc.querySelectorAll) {
                         doc.querySelectorAll('style').forEach(s => body.appendChild(s.cloneNode(true)));
@@ -405,11 +460,8 @@ else
                     // Execute scripts
                     if (doc.querySelectorAll) {
                         doc.querySelectorAll('script').forEach(oldScript => {
-                            // Skip common library scripts
                             const src = oldScript.getAttribute('src') || '';
-                            if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) {
-                                return;
-                            }
+                            if (src.includes('jquery') || src.includes('bootstrap') || src.includes('signalr')) return;
 
                             const newScript = document.createElement('script');
                             Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
@@ -435,7 +487,6 @@ else
         };
 
         function initializeKBModalScripts() {
-            // 0. Handle Close Button / Back Button inside modal
             const closeBtn = document.querySelector('#modalBody .close-form-btn, #modalBody .close-modal-btn, #modalBody .btn-back, #modalBody .btn-cancel');
             if (closeBtn) {
                 closeBtn.href = 'javascript:void(0)';
@@ -445,7 +496,6 @@ else
                 };
             }
 
-            // 0.1 Handle Edit Link inside Details modal
             const editLink = document.querySelector('#modalBody .btn-edit-main');
             if (editLink) {
                 const url = editLink.getAttribute('href');
@@ -458,7 +508,6 @@ else
                 }
             }
 
-            // Handle Form Submit
             const form = document.querySelector('#modalBody form');
             if (form) {
                 form.onsubmit = function(e) {
@@ -473,8 +522,7 @@ else
                     })
                     .then(response => {
                         if (response.redirected) {
-                            if (typeof toast !== 'undefined') toast.success('Thao tác thành công!');
-                            setTimeout(() => location.reload(), 1000);
+                            location.reload();
                             return;
                         }
                         return response.text();
@@ -483,27 +531,15 @@ else
                         if (html) {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
-                            
-                            if (!doc || !doc.body) {
-                                console.error('Failed to parse validation errors');
-                                return;
-                            }
-
                             const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
                             if (content) {
                                 document.getElementById('modalBody').innerHTML = content.innerHTML;
-                                
-                                // Re-inject styles if any
                                 if (doc.querySelectorAll) {
                                     doc.querySelectorAll('style').forEach(s => document.getElementById('modalBody').appendChild(s.cloneNode(true)));
                                 }
-                                
                                 initializeKBModalScripts();
                             }
                         }
-                    })
-                    .catch(error => {
-                        if (typeof toast !== 'undefined') toast.error('Lỗi khi gửi dữ liệu: ' + error);
                     });
                 };
             }

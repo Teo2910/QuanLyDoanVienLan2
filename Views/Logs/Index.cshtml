@@ -4,277 +4,310 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    .log-layout-container {
-        display: flex;
-        justify-content: center;
-        padding-top: 1rem;
-        padding-bottom: 4rem;
-    }
+@section Styles {
+    <style>
+        .log-layout-container {
+            padding: 0 1rem;
+            animation: fadeIn 0.5s ease;
+        }
 
-    .log-style-card {
-        background: #fff;
-        width: 100%;
-        max-width: 1100px;
-        border-radius: 40px;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-        padding: 3rem;
-        position: relative;
-    }
+        .log-style-card {
+            background: #fff;
+            border-radius: 45px;
+            padding: 4rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.02);
+            border: 1px solid #f8fafc;
+            min-height: calc(100vh - 250px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
 
-    .form-header {
-        margin-bottom: 2.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
+        @@media (max-width: 768px) {
+            .log-style-card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 30px;
+            }
+        }
 
-    .form-header h2 {
-        font-weight: 800;
-        font-size: 1.75rem;
-        letter-spacing: -0.5px;
-        color: #1a1a1a;
-        margin-bottom: 0.5rem;
-    }
+        .form-header {
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 2px solid #f8fafc;
+            padding-bottom: 2rem;
+        }
 
-    .form-header .subtext {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        color: #ccc;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+        @@media (max-width: 576px) {
+            .form-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
 
-    .form-header .dot-blue {
-        width: 6px;
-        height: 6px;
-        background: var(--primary-color);
-        border-radius: 50%;
-    }
+        .form-header h2 {
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: #0f172a;
+            letter-spacing: -1.5px;
+            margin: 0;
+        }
 
-    /* Filters Styling */
-    .filter-row {
-        background: #f8fbff;
-        border-radius: 24px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 15px;
-    }
+        .form-header .subtext {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 10px;
+        }
 
-    .custom-input {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        color: #1a1a1a;
-        transition: all 0.2s;
-        width: 100%;
-        font-size: 0.85rem;
-    }
+        .form-header .dot-blue {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 86, 179, 0.4);
+        }
 
-    .custom-input:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
-        outline: none;
-    }
+        /* Filters Styling */
+        .filter-row {
+            background: #f8fafc;
+            border-radius: 25px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #f1f5f9;
+        }
 
-    .custom-select {
-        appearance: none;
-        background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ccc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") no-repeat right 1rem center/12px 10px;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        color: #1a1a1a;
-        width: 100%;
-        font-size: 0.85rem;
-        cursor: pointer;
-    }
+        .filter-row > div {
+            flex: 1;
+            min-width: 200px;
+        }
 
-    /* Custom Dropdown Styles */
-    .dropdown-container {
-        position: relative;
-        width: 100%;
-    }
+        @@media (max-width: 576px) {
+            .filter-row > div {
+                flex: 1 1 100%;
+            }
+        }
 
-    .custom-dropdown-trigger {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 14px;
-        padding: 0.75rem 1rem;
-        font-weight: 600;
-        color: #1a1a1a;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: all 0.2s;
-        font-size: 0.85rem;
-    }
+        .custom-input {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.9rem 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 0.85rem;
+            outline: none;
+        }
 
-    .custom-dropdown-trigger:hover {
-        background: #f0f7ff;
-    }
+        .custom-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        }
 
-    .custom-dropdown-trigger.active {
-        background: #fff;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
-    }
+        /* Custom Dropdown Styles */
+        .dropdown-container {
+            position: relative;
+            width: 100%;
+        }
 
-    .dropdown-menu-custom {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        width: 100%;
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-        border: 1px solid #f0f0f0;
-        z-index: 120;
-        padding: 8px;
-        display: none;
-        max-height: 250px;
-        overflow-y: auto;
-    }
+        .custom-dropdown-trigger {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.9rem 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
 
-    .dropdown-menu-custom.show {
-        display: block;
-    }
+        .custom-dropdown-trigger:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
 
-    .dropdown-item-custom {
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: #444;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background 0.2s;
-    }
+        .custom-dropdown-trigger.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        }
 
-    .dropdown-item-custom:hover {
-        background: #f8fbff;
-        color: var(--primary-color);
-    }
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+            border: 1px solid #f1f5f9;
+            z-index: 1000;
+            padding: 10px;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
 
-    .dropdown-item-custom.selected {
-        background: #f0f7ff;
-        color: var(--primary-color);
-    }
+        .dropdown-menu-custom.show {
+            display: block;
+        }
 
-    .dropdown-item-custom i {
-        display: none;
-        font-size: 0.8rem;
-    }
+        .dropdown-item-custom {
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
 
-    .dropdown-item-custom.selected i {
-        display: block;
-    }
+        .dropdown-item-custom:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
 
-    /* Table Styling */
-    .log-table-container {
-        border-radius: 20px;
-        overflow: hidden;
-        border: 1px solid #f0f0f0;
-    }
+        .dropdown-item-custom.selected {
+            background: rgba(0, 86, 179, 0.05);
+            color: var(--primary);
+        }
 
-    .modern-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
+        /* Table Styling */
+        .log-table-container {
+            border-radius: 25px;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+            background: #fff;
+        }
 
-    .modern-table th {
-        background: #f8fbff;
-        padding: 1.25rem 1rem;
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: #ccc;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid #f0f0f0;
-        text-align: left;
-    }
+        .modern-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-    .modern-table td {
-        padding: 1.25rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #444;
-        border-bottom: 1px solid #f8f9fa;
-        vertical-align: middle;
-    }
+        .modern-table th {
+            background: #f8fafc;
+            padding: 1.5rem 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid #f1f5f9;
+            text-align: left;
+        }
 
-    .modern-table tr:last-child td {
-        border-bottom: none;
-    }
+        .modern-table td {
+            padding: 1.5rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
+        }
 
-    .badge-modern {
-        font-size: 0.6rem;
-        font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+        @@media (max-width: 991px) {
+            .modern-table th:nth-child(4),
+            .modern-table td:nth-child(4) {
+                display: none;
+            }
+        }
 
-    .badge-create { background: #e8f5e9; color: #28a745; }
-    .badge-update { background: #f0f7ff; color: #1a73e8; }
-    .badge-delete { background: #fff5f5; color: #ff5252; }
-    .badge-status { background: #fff8e1; color: #f39c12; }
-    .badge-other { background: #f8f9fa; color: #999; }
+        .badge-modern {
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 6px 14px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
 
-    .time-text {
-        color: #999;
-        font-size: 0.75rem;
-    }
+        .badge-create { background: #ecfdf5; color: #10b981; }
+        .badge-update { background: #eff6ff; color: var(--primary); }
+        .badge-delete { background: #fef2f2; color: #ef4444; }
+        .badge-status { background: #fffbeb; color: #f59e0b; }
+        .badge-other { background: #f8fafc; color: #64748b; }
 
-    .btn-view-details {
-        width: 36px;
-        height: 36px;
-        background: #f8fbff;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-color);
-        text-decoration: none;
-        transition: all 0.2s;
-    }
+        .time-text {
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
 
-    .btn-view-details:hover {
-        background: var(--primary-color);
-        color: #fff;
-        transform: translateY(-2px);
-    }
+        .btn-view-details {
+            width: 44px;
+            height: 44px;
+            background: #f8fafc;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid #f1f5f9;
+        }
 
-    .entity-code {
-        background: #f4f7fa;
-        padding: 2px 6px;
-        border-radius: 6px;
-        font-family: monospace;
-        font-size: 0.75rem;
-        color: #666;
-    }
-</style>
+        .btn-view-details:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 86, 179, 0.2);
+        }
+
+        .entity-code {
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #64748b;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        @@keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+}
 
 <div class="log-layout-container">
     <div class="log-style-card">
         <div class="form-header">
             <div>
-                <h2>Nhật ký hệ thống</h2>
+                <h2>Nhật ký <span>Hệ thống</span></h2>
                 <div class="subtext">
                     <div class="dot-blue"></div>
-                    LỊCH SỬ HOẠT ĐỘNG VÀ THAO TÁC NGƯỜI DÙNG
+                    GIÁM SÁT THAO TÁC VÀ LỊCH SỬ DỮ LIỆU
                 </div>
             </div>
         </div>
@@ -287,10 +320,10 @@
                 <input type="hidden" id="actionFilterValue" />
                 <div class="custom-dropdown-trigger" id="actionDropdownTrigger">
                     <span id="actionSelectedText">Tất cả thao tác</span>
-                    <i class="fas fa-chevron-down" style="color: #ccc; font-size: 0.8rem;"></i>
+                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
                 </div>
                 <div class="dropdown-menu-custom" id="actionDropdownMenu">
-                    <div class="dropdown-item-custom" data-value="">Tất cả thao tác <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom selected" data-value="">Tất cả thao tác <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="CREATE">Thêm mới <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="UPDATE">Cập nhật <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="DELETE">Xóa <i class="fas fa-check"></i></div>
@@ -301,10 +334,10 @@
                 <input type="hidden" id="entityFilterValue" />
                 <div class="custom-dropdown-trigger" id="entityDropdownTrigger">
                     <span id="entitySelectedText">Tất cả đối tượng</span>
-                    <i class="fas fa-chevron-down" style="color: #ccc; font-size: 0.8rem;"></i>
+                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
                 </div>
                 <div class="dropdown-menu-custom" id="entityDropdownMenu">
-                    <div class="dropdown-item-custom" data-value="">Tất cả đối tượng <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom selected" data-value="">Tất cả đối tượng <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="Member">Đoàn viên <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="Unit">Đơn vị <i class="fas fa-check"></i></div>
                     <div class="dropdown-item-custom" data-value="Activity">Hoạt động <i class="fas fa-check"></i></div>
@@ -313,38 +346,37 @@
             </div>
         </div>
 
-        <div class="log-table-container">
+        <div class="table-responsive log-table-container">
             <table class="modern-table" id="logsTable">
                 <thead>
                     <tr>
-                        <th>THỜI GIAN</th>
+                        <th width="150">THỜI GIAN</th>
                         <th>NGƯỜI DÙNG</th>
                         <th>THAO TÁC</th>
                         <th>ĐỐI TƯỢNG</th>
                         <th>NỘI DUNG</th>
-                        <th></th>
+                        <th width="80"></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="logsTableBody">
                     @foreach (var log in Model?.OrderByDescending(l => l.Timestamp).ToList() ?? new List<QLDV.Models.SystemLog>())
                     {
-                        <tr>
+                        <tr class="log-row">
                             <td>
                                 <div class="time-text">
                                     @{
-                                        // Attempt to handle both unix seconds and milliseconds just in case
                                         DateTime dt;
-                                        if (log.Timestamp > 1000000000000) // Milliseconds
+                                        if (log.Timestamp > 1000000000000)
                                             dt = DateTimeOffset.FromUnixTimeMilliseconds(log.Timestamp).LocalDateTime;
-                                        else // Seconds
+                                        else
                                             dt = DateTimeOffset.FromUnixTimeSeconds(log.Timestamp).LocalDateTime;
                                     }
-                                    @dt.ToString("dd/MM/yyyy")<br>
-                                    @dt.ToString("HH:mm:ss")
+                                    <div class="fw-black text-dark" style="font-size: 0.9rem;">@dt.ToString("dd/MM/yyyy")</div>
+                                    <div>@dt.ToString("HH:mm:ss")</div>
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight: 700;">@log.UserName</div>
+                                <div style="font-weight: 800; color: #0f172a;">@log.UserName</div>
                             </td>
                             <td>
                                 @{
@@ -368,17 +400,17 @@
                                 <span class="badge-modern @badgeClass">@actionText</span>
                             </td>
                             <td>
-                                <div style="font-size: 0.8rem;">@log.EntityType</div>
-                                <span class="entity-code">@log.EntityId.Substring(0, Math.Min(8, log.EntityId.Length))...</span>
+                                <div class="fw-bold" style="font-size: 0.8rem; color: #64748b;">@log.EntityType</div>
+                                <span class="entity-code">@log.EntityId.Substring(0, Math.Min(8, log.EntityId.Length))</span>
                             </td>
                             <td style="max-width: 300px;">
-                                <div style="font-size: 0.85rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@log.Details">
+                                <div style="font-size: 0.9rem; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;" title="@log.Details">
                                     @log.Details
                                 </div>
                             </td>
                             <td>
                                 <a href="/logs/details/@log.Id" class="btn-view-details">
-                                    <i class="fas fa-chevron-right"></i>
+                                    <i class="fas fa-arrow-right"></i>
                                 </a>
                             </td>
                         </tr>
@@ -387,11 +419,21 @@
             </table>
         </div>
 
+        <!-- Pagination -->
+        <div id="paginationContainer" class="pagination-container-premium mt-5" style="display: none;">
+            <div class="pagination-info-text" id="paginationInfo">
+                HIỂN THỊ <span id="startRange">1</span> - <span id="endRange">10</span> TRONG <span id="totalLogs">0</span> NHẬT KÝ
+            </div>
+            <div class="pagination-btns-group" id="paginationButtons">
+                <!-- Buttons will be generated here -->
+            </div>
+        </div>
+
         @if ((Model?.Count ?? 0) == 0)
         {
             <div class="text-center py-5">
-                <i class="fas fa-history" style="font-size: 3rem; color: #f0f4f8; margin-bottom: 1rem;"></i>
-                <p style="font-weight: 700; color: #ccc; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Không có dữ liệu nhật ký</p>
+                <i class="fas fa-history" style="font-size: 4rem; color: #f1f5f9; margin-bottom: 1.5rem;"></i>
+                <p style="font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;">Dữ liệu nhật ký trống</p>
             </div>
         }
     </div>
@@ -400,12 +442,81 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            const pageSize = 10;
+            let currentPage = 1;
+            let visibleRows = [];
+
+            function initPagination() {
+                visibleRows = $('#logsTableBody tr:visible').toArray();
+                const totalLogs = visibleRows.length;
+                const totalPages = Math.ceil(totalLogs / pageSize);
+
+                if (totalLogs > pageSize) {
+                    $('#paginationContainer').show();
+                    renderPaginationButtons(totalPages);
+                    showPage(1);
+                } else {
+                    $('#paginationContainer').hide();
+                    $('#logsTableBody tr:visible').show();
+                }
+
+                $('#totalLogs').text(totalLogs);
+            }
+
+            function showPage(page) {
+                currentPage = page;
+                const start = (page - 1) * pageSize;
+                const end = Math.min(start + pageSize, visibleRows.length);
+
+                // Hide all rows first
+                $('#logsTableBody tr').hide();
+
+                // Show rows for current page
+                for (let i = start; i < end; i++) {
+                    $(visibleRows[i]).show();
+                }
+
+                $('#startRange').text(start + 1);
+                $('#endRange').text(end);
+                
+                // Update button active states
+                $('.pagination-btn').removeClass('active');
+                $(`.pagination-btn[data-page="${page}"]`).addClass('active');
+
+                // Scroll to top of table
+                $('html, body').animate({
+                    scrollTop: $(".log-table-container").offset().top - 100
+                }, 200);
+            }
+
+            function renderPaginationButtons(totalPages) {
+                const container = $('#paginationButtons');
+                container.empty();
+
+                // Previous Button
+                const prevBtn = $('<button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>');
+                prevBtn.on('click', () => { if (currentPage > 1) showPage(currentPage - 1); });
+                container.append(prevBtn);
+
+                // Page Numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = $(`<button class="pagination-btn" data-page="${i}">${i}</button>`);
+                    btn.on('click', () => showPage(i));
+                    container.append(btn);
+                }
+
+                // Next Button
+                const nextBtn = $('<button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>');
+                nextBtn.on('click', () => { if (currentPage < totalPages) showPage(currentPage + 1); });
+                container.append(nextBtn);
+            }
+
             function filterTable() {
                 const userFilter = $('#userFilter').val().toLowerCase();
                 const actionFilter = $('#actionFilterValue').val();
                 const entityFilter = $('#entityFilterValue').val();
 
-                $('#logsTable tbody tr').each(function() {
+                $('#logsTableBody tr').each(function() {
                     const user = $(this).find('td:eq(1)').text().toLowerCase();
                     const action = $(this).find('td:eq(2) .badge-modern').text();
                     const entity = $(this).find('td:eq(3)').text();
@@ -416,6 +527,9 @@
 
                     $(this).toggle(userMatch && actionMatch && entityMatch);
                 });
+
+                // Re-initialize pagination after filtering
+                initPagination();
             }
 
             function getActionText(val) {
@@ -465,6 +579,9 @@
             });
 
             $('#userFilter').on('keyup', filterTable);
+
+            // Initial call
+            initPagination();
         });
     </script>
 }

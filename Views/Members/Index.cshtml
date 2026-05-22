@@ -348,36 +348,43 @@
     </div>
 
     <div class="pagination-container-premium">
+        @{
+            int pSize = 10;
+            int currentPageNum = ViewBag.CurrentPage;
+            int startIdx = (currentPageNum - 1) * pSize + 1;
+            int endIdx = startIdx + Model.Count - 1;
+        }
         <div class="pagination-info-text">
-            HIỂN THỊ <b>@Model.Count</b> TRÊN TỔNG SỐ <b>@ViewBag.TotalMembers</b> ĐOÀN VIÊN
+            HIỂN THỊ <span>@startIdx - @endIdx</span> TRONG <span>@ViewBag.TotalMembers</span> ĐOÀN VIÊN
         </div>
         <div class="pagination-btns-group">
-            <a href="/members?page=@(ViewBag.CurrentPage - 1)&sortOrder=@ViewBag.SortOrder&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
-               class="page-nav-btn @(ViewBag.CurrentPage <= 1 ? "disabled" : "")">
-                <i class="fas fa-chevron-left"></i> TRƯỚC
-            </a>
-            
             @{
+                string commonParams = $"&sortOrder={ViewBag.SortOrder}&search={currentSearch}&unit={selectedUnit}&year={selectedYear}&achievement={selectedAchievement}&status={selectedStatus}&gender={selectedGender}&hometown={selectedHometown}";
                 int totalPages = ViewBag.TotalPages;
                 int currentPage = ViewBag.CurrentPage;
-                string currentSort = ViewBag.SortOrder;
-                for (int p = 1; p <= totalPages; p++)
+            }
+
+            <a href="/members?page=@(currentPage - 1)@commonParams" 
+               class="pagination-btn @(currentPage <= 1 ? "disabled" : "")" @(currentPage <= 1 ? "onclick=return(false)" : "")>
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                if (p == 1 || p == totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
                 {
-                    if (p == 1 || p == totalPages || (p >= currentPage - 1 && p <= currentPage + 1))
-                    {
-                        <a href="/members?page=@p&sortOrder=@currentSort&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
-                           class="page-link-premium @(p == currentPage ? "active" : "")">@p</a>
-                    }
-                    else if (p == currentPage - 2 || p == currentPage + 2)
-                    {
-                        <span class="page-link-premium disabled">...</span>
-                    }
+                    <a href="/members?page=@p@commonParams" 
+                       class="pagination-btn @(p == currentPage ? "active" : "")">@p</a>
+                }
+                else if (p == currentPage - 2 || p == currentPage + 2)
+                {
+                    <span class="pagination-btn disabled">...</span>
                 }
             }
 
-            <a href="/members?page=@(ViewBag.CurrentPage + 1)&sortOrder=@ViewBag.SortOrder&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
-               class="page-nav-btn @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "")">
-                SAU <i class="fas fa-chevron-right"></i>
+            <a href="/members?page=@(currentPage + 1)@commonParams" 
+               class="pagination-btn @(currentPage >= totalPages ? "disabled" : "")" @(currentPage >= totalPages ? "onclick=return(false)" : "")>
+                <i class="fas fa-chevron-right"></i>
             </a>
         </div>
     </div>
