@@ -15,14 +15,14 @@
             </div>
             <div class="header-text-premium">
                 <h1>Thống kê số liệu</h1>
-                <p>TỔNG HỢP DỮ LIỆU TOÀN HỆ THỐNG</p>
+                <p style="color: #94a3b8; font-weight: 800; letter-spacing: 1px;">TỔNG HỢP DỮ LIỆU TOÀN HỆ THỐNG</p>
             </div>
         </div>
         <div class="d-flex gap-3 align-items-center">
             <div class="dropdown" style="position: relative;">
-                <button class="btn-premium btn-premium-light px-4" type="button" id="unitDropdownTrigger" style="min-width: 240px; justify-content: space-between;">
-                    <span id="selectedUnitText">Toàn hệ thống (@totalMembers)</span>
-                    <i class="fas fa-chevron-down ms-3" style="font-size: 0.7rem; opacity: 0.5;"></i>
+                <button class="btn-premium btn-premium-light px-4" type="button" id="unitDropdownTrigger" style="min-width: 260px; justify-content: space-between; border: 1px solid #e2e8f0; background: #fff;">
+                    <span id="selectedUnitText" class="fw-black" style="color: #1e293b; font-size: 0.85rem;">Toàn hệ thống (@totalMembers)</span>
+                    <i class="fas fa-chevron-down ms-3" style="font-size: 0.7rem; color: var(--primary);"></i>
                 </button>
                 <div class="dropdown-menu-premium" id="unitDropdownMenu">
                     <div class="dropdown-item-premium active" data-unit="all">
@@ -38,39 +38,40 @@
                     }
                 </div>
             </div>
-            <a href="/Statistics/ExportExcel" class="btn-premium btn-premium-light">
-                <i class="fas fa-file-excel"></i> XUẤT EXCEL
+            <a href="/Statistics/ExportExcel" class="btn-premium btn-premium-light px-4" style="border: 1px solid #e2e8f0; background: #fff;">
+                <i class="fas fa-file-export me-2"></i> XUẤT EXCEL
             </a>
         </div>
     </div>
 </div>
 
-<div class="card-premium mb-4" style="background: var(--primary-gradient); border: none; overflow: hidden; position: relative; padding: 3rem;">
-    <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-    <div style="position: absolute; bottom: -80px; left: -80px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+<!-- Banner Đoàn viên Tiêu biểu -->
+<div class="card-premium mb-5" style="background: var(--primary-gradient); border: none; overflow: hidden; position: relative; padding: 2.5rem 3.5rem; border-radius: 35px;">
+    <div style="position: absolute; top: -30px; right: -30px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+    <div style="position: absolute; bottom: -50px; left: -50px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
     
     <div class="row align-items-center position-relative">
         <div class="col-lg-8">
             <div class="d-flex align-items-center gap-3 mb-3">
-                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff;">
-                    <i class="fas fa-star" style="font-size: 0.8rem;"></i>
+                <div style="width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff;">
+                    <i class="fas fa-star" style="font-size: 0.75rem; color: #ffb400;"></i>
                 </div>
-                <span class="text-white small fw-black text-uppercase letter-spacing-1">Danh hiệu vinh dự</span>
+                <span class="text-white small fw-black text-uppercase letter-spacing-1" style="font-size: 0.65rem;">Danh hiệu vinh dự</span>
             </div>
-            <h1 class="text-white fw-black mb-3" style="font-size: 3.5rem; letter-spacing: -2px; line-height: 1;">Đoàn viên Tiêu biểu</h1>
-            <p class="text-white opacity-75 fw-bold mb-0" style="max-width: 500px; line-height: 1.6;">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
+            <h1 class="text-white fw-black mb-2" style="font-size: 2.75rem; letter-spacing: -1.5px; line-height: 1;">Đoàn viên Tiêu biểu</h1>
+            <p class="text-white opacity-85 fw-bold mb-0" style="max-width: 500px; line-height: 1.6; font-size: 0.9rem;">Những cá nhân xuất sắc có thành tích vượt trội và đóng góp tích cực cho phong trào Thanh niên cơ sở.</p>
         </div>
         <div class="col-lg-4 text-center mt-4 mt-lg-0">
-            <div class="bg-white bg-opacity-10 rounded-pill p-4 px-5 d-inline-block border border-white border-opacity-10 shadow-lg" style="backdrop-filter: blur(10px);">
-                <div class="d-flex align-items-center gap-5">
+            <div class="rounded-pill p-3 px-4 d-inline-block border border-white border-opacity-20 shadow-2xl" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-width: 2px !important;">
+                <div class="d-flex align-items-center gap-4">
                     <div class="text-center">
-                        <span class="d-block text-white fw-black" style="font-size: 2.8rem; line-height: 1;" id="outstandingCount">@totalOutstanding</span>
-                        <span class="text-white opacity-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">Tổng số</span>
+                        <span class="d-block text-white fw-black" style="font-size: 2.25rem; line-height: 1; margin-bottom: 2px;" id="outstandingCount">@totalOutstanding</span>
+                        <span class="text-white small fw-black text-uppercase" style="letter-spacing: 1px; opacity: 0.6; font-size: 0.55rem;">Tổng số</span>
                     </div>
-                    <div style="width: 1px; height: 50px; background: rgba(255,255,255,0.15);"></div>
+                    <div style="width: 1px; height: 40px; background: rgba(255,255,255,0.2);"></div>
                     <div class="text-center">
-                        <span class="d-block text-white fw-black" style="font-size: 2.8rem; line-height: 1;" id="outstandingPercent">@((totalMembers > 0 ? (double)totalOutstanding * 100 / totalMembers : 0).ToString("F1"))%</span>
-                        <span class="text-white opacity-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">Tỷ lệ</span>
+                        <span class="d-block text-white fw-black" style="font-size: 2.25rem; line-height: 1; margin-bottom: 2px;" id="outstandingPercent">@((totalMembers > 0 ? (double)totalOutstanding * 100 / totalMembers : 0).ToString("F1"))%</span>
+                        <span class="text-white small fw-black text-uppercase" style="letter-spacing: 1px; opacity: 0.6; font-size: 0.55rem;">Tỷ lệ</span>
                     </div>
                 </div>
             </div>
@@ -78,57 +79,89 @@
     </div>
 </div>
 
-<div class="row mb-5">
+<!-- Row 1: Giới tính & Sinh hoạt -->
+<div class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card-premium h-100 p-4">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
             <div class="section-header mb-4">
-                <div class="section-title">Cơ cấu giới tính</div>
-                <i class="fas fa-venus-mars text-muted opacity-50"></i>
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;"><i class="far fa-clock me-2"></i>CƠ CẤU GIỚI TÍNH</div>
             </div>
-            <div style="height: 300px; position: relative;">
+            <div style="height: 220px; position: relative;">
                 <canvas id="genderChart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card-premium h-100 p-4">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
             <div class="section-header mb-4">
-                <div class="section-title">Tình trạng sinh hoạt</div>
-                <i class="fas fa-heartbeat text-muted opacity-50"></i>
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;"><i class="fas fa-wave-square me-2"></i>TÌNH TRẠNG SINH HOẠT</div>
             </div>
-            <div style="height: 300px; position: relative;">
+            <div style="height: 220px; position: relative;">
                 <canvas id="statusChart"></canvas>
             </div>
+            <div id="statusLegend" class="d-flex justify-content-center gap-3 mt-3"></div>
         </div>
     </div>
 </div>
 
-<div class="card-premium mb-5">
-    <div class="section-header mb-5">
-        <div class="section-title">Chi tiết cơ sở</div>
-        <div class="status-pill status-pill-info">@detailedStats.Count CHI ĐOÀN</div>
+<!-- Row 2: Dân tộc & Xếp loại -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
+            <div class="section-header mb-4">
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;"><i class="fas fa-users me-2"></i>CƠ CẤU DÂN TỘC</div>
+            </div>
+            <div style="height: 220px; position: relative;">
+                <canvas id="ethnicChart"></canvas>
+            </div>
+            <div id="ethnicLegend" class="d-flex justify-content-center gap-3 mt-3"></div>
+        </div>
     </div>
+    <div class="col-md-6">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
+            <div class="section-header mb-4">
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;"><i class="far fa-star me-2"></i>XẾP LOẠI ĐOÀN VIÊN</div>
+            </div>
+            <div style="height: 220px; position: relative;">
+                <canvas id="achievementChart"></canvas>
+            </div>
+            <div id="achievementLegend" class="d-flex justify-content-center gap-3 mt-3"></div>
+        </div>
+    </div>
+</div>
 
-    <div class="table-responsive">
-        <table class="table-premium-new" style="font-size: 0.85rem;">
+<!-- Row 3: Quy mô cơ sở -->
+<div class="card-premium mb-4 p-4" style="border-radius: 30px;">
+    <div class="section-header mb-4">
+        <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;"><i class="fas fa-building me-2"></i>QUY MÔ CƠ SỞ (THÀNH VIÊN/ĐƠN VỊ)</div>
+    </div>
+    <div style="height: 300px; position: relative;">
+        <canvas id="scaleChart"></canvas>
+    </div>
+</div>
+
+<!-- Chi tiết cơ sở Table -->
+<div class="card-premium mb-5" style="border-top: 5px solid #10b981; border-radius: 40px; padding: 0; overflow: hidden;">
+    <div class="table-responsive p-5">
+        <table class="table-premium-new">
             <thead>
                 <tr>
                     <th rowspan="2" class="align-middle">ĐƠN VỊ CHI ĐOÀN</th>
-                    <th colspan="3" class="text-center py-3" style="background: rgba(0, 97, 242, 0.02);">NHÂN KHẨU HỌC</th>
-                    <th colspan="3" class="text-center py-3" style="background: rgba(16, 185, 129, 0.02);">TRẠNG THÁI</th>
-                    <th colspan="3" class="text-center py-3" style="background: rgba(239, 68, 68, 0.02);">XẾP LOẠI</th>
+                    <th colspan="3" class="text-center group-header header-demographics">NHÂN KHẨU HỌC</th>
+                    <th colspan="3" class="text-center group-header header-status">TRẠNG THÁI</th>
+                    <th colspan="3" class="text-center group-header header-achievements">XẾP LOẠI</th>
                     <th rowspan="2" class="text-center align-middle">TIÊU BIỂU</th>
                 </tr>
                 <tr>
-                    <th class="text-center">TỔNG</th>
-                    <th class="text-center">NAM</th>
-                    <th class="text-center">NỮ</th>
-                    <th class="text-center">ĐANG SH</th>
-                    <th class="text-center">CHUYỂN</th>
-                    <th class="text-center">T. THÀNH</th>
-                    <th class="text-center">X. SẮC</th>
-                    <th class="text-center">KHÁ</th>
-                    <th class="text-center">T. BÌNH</th>
+                    <th class="text-center header-demographics">TỔNG</th>
+                    <th class="text-center header-demographics">NAM</th>
+                    <th class="text-center header-demographics">NỮ</th>
+                    <th class="text-center header-status">ĐANG SH</th>
+                    <th class="text-center header-status">CHUYỂN</th>
+                    <th class="text-center header-status">T. THÀNH</th>
+                    <th class="text-center header-achievements">X. SẮC</th>
+                    <th class="text-center header-achievements">KHÁ</th>
+                    <th class="text-center header-achievements">T. BÌNH</th>
                 </tr>
             </thead>
             <tbody>
@@ -138,24 +171,27 @@
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                <span class="text-muted small fw-bold">@((i+1).ToString("D2"))</span>
-                                <span class="fw-bold text-dark">@s.UnitName</span>
+                                <span class="text-muted small fw-black">@((i+1).ToString("D2"))</span>
+                                <span class="fw-black text-dark">@s.UnitName</span>
                             </div>
                         </td>
-                        <td class="text-center fw-black text-dark">@s.Total</td>
-                        <td class="text-center fw-bold text-primary">@s.Male</td>
-                        <td class="text-center fw-bold text-danger">@s.Female</td>
-                        <td class="text-center"><span class="status-pill status-pill-success">@s.Active</span></td>
-                        <td class="text-center"><span class="status-pill status-pill-info">@s.Transferred</span></td>
-                        <td class="text-center"><span class="status-pill status-pill-warning">@s.Graduated</span></td>
-                        <td class="text-center fw-bold">@s.Excellent</td>
-                        <td class="text-center fw-bold">@s.Good</td>
-                        <td class="text-center fw-bold">@s.Average</td>
+                        <td class="text-center col-group-demographics"><span class="text-emphasis">@s.Total</span></td>
+                        <td class="text-center col-group-demographics"><span class="text-primary-emphasis">@s.Male</span></td>
+                        <td class="text-center col-group-demographics"><span class="text-danger-emphasis">@s.Female</span></td>
+                        
+                        <td class="text-center col-group-status"><span class="text-success-emphasis">@s.Active</span></td>
+                        <td class="text-center col-group-status"><span class="text-primary-emphasis">@s.Transferred</span></td>
+                        <td class="text-center col-group-status"><span class="text-muted">@s.Graduated</span></td>
+                        
+                        <td class="text-center col-group-achievements"><span class="text-emphasis">@s.Excellent</span></td>
+                        <td class="text-center col-group-achievements"><span>@s.Good</span></td>
+                        <td class="text-center col-group-achievements"><span>@s.Average</span></td>
+                        
                         <td class="text-center">
                             @if(s.Outstanding > 0) {
-                                <div class="bg-warning bg-opacity-10 text-warning rounded-pill p-1 px-3 fw-black d-inline-block">@s.Outstanding</div>
+                                <div class="bg-outstanding-pill">@s.Outstanding</div>
                             } else {
-                                <span class="text-muted opacity-25">0</span>
+                                <span class="bg-zero-pill">0</span>
                             }
                         </td>
                     </tr>
@@ -170,13 +206,16 @@
     <script>
         $(document).ready(function() {
             const allStats = @Html.Raw(Json.Serialize(detailedStats));
+            const ethnicData = @Html.Raw(Json.Serialize(ViewBag.MembersByEthnic));
+            const achievementData = @Html.Raw(Json.Serialize(ViewBag.MembersByAchievement));
             const totalSystemMembers = @totalMembers;
             const totalSystemOutstanding = @totalOutstanding;
 
-            let genderChart, statusChart;
+            let genderChart, statusChart, ethnicChart, achievementChart, scaleChart;
 
             function initDashboard(data, isAll = false) {
                 let total, outstanding, male, female, active, graduated, transferred;
+                let ethnicGroups = {}, achievements = {};
                 
                 if (isAll) {
                     total = totalSystemMembers;
@@ -186,6 +225,8 @@
                     active = allStats.reduce((s, c) => s + c.active, 0);
                     graduated = allStats.reduce((s, c) => s + c.graduated, 0);
                     transferred = allStats.reduce((s, c) => s + c.transferred, 0);
+                    ethnicGroups = ethnicData;
+                    achievements = achievementData;
                 } else {
                     total = data.total;
                     outstanding = data.outstanding;
@@ -194,6 +235,9 @@
                     active = data.active;
                     graduated = data.graduated;
                     transferred = data.transferred;
+                    // For single unit, we'd need more granular data, but let's approximate or just show overall for now
+                    ethnicGroups = { "Kinh": data.kinh, "Khác": data.otherEthnic };
+                    achievements = { "Xuất sắc": data.excellent, "Khá": data.good, "Trung bình": data.average };
                 }
 
                 const percent = total > 0 ? (outstanding * 100 / total).toFixed(1) : 0;
@@ -202,6 +246,9 @@
 
                 updateGenderChart(male, female);
                 updateStatusBarChart(active, graduated, transferred);
+                updateEthnicChart(ethnicGroups);
+                updateAchievementChart(achievements);
+                updateScaleChart(allStats);
             }
 
             function updateGenderChart(male, female) {
@@ -213,7 +260,7 @@
                         labels: ['Nam', 'Nữ'],
                         datasets: [{
                             data: [male, female],
-                            backgroundColor: ['#0061f2', '#ef4444'],
+                            backgroundColor: ['#0061f2', '#a855f7'],
                             borderWidth: 0, cutout: '75%'
                         }]
                     },
@@ -226,7 +273,7 @@
                                     usePointStyle: true,
                                     pointStyle: 'circle',
                                     padding: 25,
-                                    font: { weight: '800', size: 12, family: "'Inter', sans-serif" } 
+                                    font: { weight: '800', size: 13, family: "'Inter', sans-serif" } 
                                 } 
                             } 
                         } 
@@ -240,11 +287,11 @@
                 statusChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: ['Đang sinh hoạt', 'Đã trưởng thành', 'Đã chuyển'],
+                        labels: ['Đang sinh hoạt', 'Đã trưởng thành', 'Đã chuyển sinh hoạt'],
                         datasets: [{
                             data: [active, graduated, transferred],
-                            backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
-                            borderRadius: 12, barThickness: 50
+                            backgroundColor: ['#3b82f6', '#a855f7', '#06b6d4'],
+                            borderRadius: 15, barThickness: 60
                         }]
                     },
                     options: {
@@ -252,10 +299,109 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: {
-                            x: { grid: { display: false }, ticks: { font: { weight: '800', size: 11 }, color: '#94a3b8' } },
-                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 11 }, color: '#94a3b8' } }
+                            x: { grid: { display: false }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } },
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } }
                         }
                     }
+                });
+                renderLegend('statusLegend', ['#3b82f6', '#a855f7', '#06b6d4'], ['ĐANG SINH HOẠT', 'ĐÃ TRƯỞNG THÀNH', 'ĐÃ CHUYỂN SINH HOẠT'], [active, graduated, transferred]);
+            }
+
+            function updateEthnicChart(groups) {
+                const ctx = document.getElementById('ethnicChart').getContext('2d');
+                if (ethnicChart) ethnicChart.destroy();
+                const labels = Object.keys(groups);
+                const values = Object.values(groups);
+                const colors = ['#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+
+                ethnicChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors,
+                            borderRadius: 15, barThickness: 60
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } },
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } }
+                        }
+                    }
+                });
+                renderLegend('ethnicLegend', colors, labels, values);
+            }
+
+            function updateAchievementChart(data) {
+                const ctx = document.getElementById('achievementChart').getContext('2d');
+                if (achievementChart) achievementChart.destroy();
+                const labels = Object.keys(data);
+                const values = Object.values(data);
+                const colors = ['#f59e0b', '#ef4444', '#3b82f6', '#a855f7'];
+
+                achievementChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors,
+                            borderRadius: 15, barThickness: 60
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } },
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } }
+                        }
+                    }
+                });
+                renderLegend('achievementLegend', colors, labels, values);
+            }
+
+            function updateScaleChart(stats) {
+                const ctx = document.getElementById('scaleChart').getContext('2d');
+                if (scaleChart) scaleChart.destroy();
+                const labels = stats.map(s => s.unitName);
+                const values = stats.map(s => s.total);
+
+                scaleChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 10, barThickness: 25
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' }, ticks: { font: { weight: '800', size: 10 }, color: '#94a3b8' } },
+                            y: { grid: { display: false }, ticks: { font: { weight: '800', size: 11 }, color: '#94a3b8' } }
+                        }
+                    }
+                });
+            }
+
+            function renderLegend(containerId, colors, labels, values) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                labels.forEach((label, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'd-flex align-items-center gap-2';
+                    item.innerHTML = `<div class="dot-v2" style="background: ${colors[i % colors.length]}; width: 8px; height: 8px;"></div>
+                                      <span style="font-size: 0.65rem; font-weight: 900; color: #94a3b8;">${label.toUpperCase()}: ${values[i]}</span>`;
+                    container.appendChild(item);
                 });
             }
 
@@ -292,7 +438,7 @@
         width: 100%;
         background: #fff;
         border-radius: 20px;
-        box-shadow: var(--shadow-premium);
+        box-shadow: 0 15px 45px rgba(15, 23, 42, 0.1);
         border: 1px solid #f1f5f9;
         margin-top: 10px;
         display: none;
@@ -307,14 +453,14 @@
     }
 
     .dropdown-item-premium {
-        padding: 12px 20px;
-        font-weight: 700;
+        padding: 15px 25px;
+        font-weight: 800;
         display: flex;
         align-items: center;
         cursor: pointer;
         transition: all 0.2s;
-        font-size: 0.9rem;
-        color: var(--text-main);
+        font-size: 0.85rem;
+        color: #64748b;
     }
 
     .dropdown-item-premium:hover {
@@ -323,8 +469,9 @@
     }
 
     .dropdown-item-premium.active {
-        background: #f0f7ff;
+        background: #eef2ff;
         color: var(--primary);
+        border-left: 4px solid var(--primary);
     }
 
     @@keyframes slideUp {

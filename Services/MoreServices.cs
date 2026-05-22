@@ -190,6 +190,14 @@ namespace QLDV.Services
                 .ToDictionaryAsync(x => x.Achievement, x => x.Count);
         }
 
+        public async Task<Dictionary<string, int>> GetMemberCountByEthnicAsync()
+        {
+            return await _context.Members
+                .GroupBy(m => m.Ethnic)
+                .Select(g => new { Ethnic = g.Key ?? "Chưa cập nhật", Count = g.Count() })
+                .ToDictionaryAsync(x => x.Ethnic, x => x.Count);
+        }
+
         public async Task<int> GetTotalMembersAsync()
         {
             return await _context.Members.CountAsync();

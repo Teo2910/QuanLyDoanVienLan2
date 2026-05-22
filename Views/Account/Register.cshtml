@@ -12,11 +12,28 @@
     <title>@ViewData["Title"] - QLDV</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #0061f2;
+            --primary-bold: #004ecc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-color: var(--slate-50);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 97, 242, 0.03) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0, transparent 50%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -25,125 +42,231 @@
             padding: 40px 20px;
         }
 
-        .auth-card {
-            background: #fff;
+        .auth-container {
             width: 100%;
-            max-width: 550px;
-            border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-            padding: 3.5rem;
-            position: relative;
+            max-width: 600px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .brand-logo-badge {
-            width: 50px;
-            height: 50px;
-            background: #28a745;
+        .auth-card {
+            background: #ffffff;
+            border-radius: 45px;
+            box-shadow: 0 40px 100px rgba(15, 23, 42, 0.08);
+            padding: 4rem;
+            position: relative;
+            border: 1px solid var(--slate-100);
+        }
+
+        @@media (max-width: 576px) {
+            .auth-card {
+                padding: 3rem 2rem;
+                border-radius: 30px;
+            }
+        }
+
+        .brand-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .brand-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--success);
             color: #fff;
-            border-radius: 15px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1.2rem;
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+            font-weight: 900;
+            font-size: 1.4rem;
             margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
         }
 
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .auth-header h2 {
-            font-weight: 800;
-            font-size: 1.8rem;
-            letter-spacing: -1px;
-            color: #1a1a1a;
+        .brand-section h2 {
+            font-weight: 900;
+            font-size: 2rem;
+            color: var(--slate-900);
+            letter-spacing: -1.5px;
             margin-bottom: 0.5rem;
         }
 
-        .auth-header p {
-            font-size: 0.85rem;
-            color: #888;
-            font-weight: 600;
+        .brand-section p {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
 
-        .custom-label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #cbd5e1;
+        /* Avatar Section */
+        .avatar-upload-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .avatar-preview-box {
+            width: 120px;
+            height: 120px;
+            background: var(--slate-50);
+            border: 3px solid var(--slate-100);
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--slate-200);
+            overflow: hidden;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .avatar-preview-box:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .avatar-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-hint {
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--slate-400);
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Form Grouping */
+        .form-row-premium {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @@media (max-width: 576px) {
+            .form-row-premium {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group-premium {
+            margin-bottom: 1.5rem;
+        }
+
+        .label-premium {
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             margin-bottom: 0.75rem;
             display: block;
         }
 
-        .custom-input {
-            background: #f8fbff;
-            border: 1px solid transparent;
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
-            font-weight: 600;
-            color: #1e293b;
-            transition: all 0.2s;
+        .input-premium {
+            background: var(--slate-50);
+            border: 2px solid transparent;
+            border-radius: 18px;
+            padding: 1rem 1.4rem;
+            font-weight: 700;
+            color: var(--slate-800);
+            transition: all 0.3s;
             width: 100%;
             font-size: 0.95rem;
         }
 
-        .custom-input::placeholder {
-            color: #cbd5e1;
-        }
-
-        .custom-input:focus {
+        .input-premium:focus {
             background: #fff;
-            border-color: #28a745;
-            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 97, 242, 0.08);
             outline: none;
         }
 
-        /* Custom Dropdown Styles */
+        /* Role Buttons */
+        .role-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 1.1rem;
+            border-radius: 20px;
+            border: 2px solid var(--slate-100);
+            background: var(--slate-50);
+            color: var(--slate-400);
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .role-btn.active[data-role="Secretary"] {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .role-btn.active[data-role="Admin"] {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.1);
+        }
+
+        /* Dropdown */
         .dropdown-container {
             position: relative;
-            width: 100%;
         }
 
         .custom-dropdown-trigger {
-            background: #f8fbff;
-            border: 1px solid transparent;
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
-            font-weight: 600;
-            color: #1e293b;
+            background: var(--slate-50);
+            border: 2px solid transparent;
+            border-radius: 18px;
+            padding: 1rem 1.4rem;
+            font-weight: 700;
+            color: var(--slate-800);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s;
+            transition: all 0.3s;
             font-size: 0.95rem;
-        }
-
-        .custom-dropdown-trigger:hover {
-            background: #f0f7ff;
         }
 
         .custom-dropdown-trigger.active {
             background: #fff;
-            border-color: #28a745;
-            box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 97, 242, 0.08);
         }
 
         .dropdown-menu-custom {
             position: absolute;
-            top: calc(100% + 8px);
+            top: calc(100% + 10px);
             left: 0;
             width: 100%;
             background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-            border: 1px solid #f0f0f0;
+            border-radius: 22px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--slate-100);
             z-index: 1000;
-            padding: 8px;
+            padding: 10px;
             display: none;
             max-height: 250px;
             overflow-y: auto;
@@ -154,228 +277,208 @@
             animation: slideUp 0.3s ease;
         }
 
-        @@keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .dropdown-item-custom {
-            padding: 12px 16px;
+            padding: 12px 18px;
             border-radius: 14px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.9rem;
-            color: #444;
+            color: var(--slate-800);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: 0.2s;
         }
 
         .dropdown-item-custom:hover {
-            background: #f8fbff;
-            color: #28a745;
+            background: var(--slate-50);
+            color: var(--primary);
         }
 
         .dropdown-item-custom.selected {
-            background: #e8f5e9;
-            color: #28a745;
+            background: rgba(0, 97, 242, 0.05);
+            color: var(--primary);
         }
 
-        .submit-btn {
-            background: #28a745;
+        .submit-btn-premium {
+            background: var(--slate-900);
             color: #fff;
             border: none;
-            border-radius: 16px;
-            padding: 1.1rem;
-            font-weight: 800;
+            border-radius: 20px;
+            padding: 1.25rem;
+            font-weight: 900;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             width: 100%;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(40, 167,  green, 0.25);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.2);
+            cursor: pointer;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(40, 167, 69, 0.35);
-            background: #218838;
+        .submit-btn-premium:hover {
+            transform: translateY(-3px);
+            background: var(--success);
+            box-shadow: 0 20px 45px rgba(16, 185, 129, 0.25);
         }
 
         .auth-footer {
             text-align: center;
-            margin-top: 2.5rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--slate-50);
             font-size: 0.85rem;
-            color: #666;
-            font-weight: 600;
+            color: var(--slate-400);
+            font-weight: 700;
         }
 
         .auth-footer a {
-            color: #28a745;
+            color: var(--slate-900);
             text-decoration: none;
-            font-weight: 800;
+            font-weight: 900;
+            margin-left: 5px;
+            transition: 0.2s;
         }
 
         .auth-footer a:hover {
-            text-decoration: underline;
+            color: var(--success);
         }
 
-        .avatar-upload-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .avatar-preview {
-            width: 100px;
-            height: 100px;
-            background: #f8fbff;
-            border: 3px solid #eee;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #ccc;
-            overflow: hidden;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .avatar-preview:hover {
-            border-color: #28a745;
-            color: #28a745;
-        }
-
-        .avatar-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .validation-summary-errors {
+        .validation-errors {
             background: #fff5f5;
-            color: #e03131;
-            padding: 1rem;
-            border-radius: 14px;
+            color: var(--danger);
+            padding: 1.25rem;
+            border-radius: 20px;
             font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            border: 1px solid #fee2e2;
         }
 
-        .validation-summary-errors ul {
+        .validation-errors ul {
             margin: 0;
-            padding-left: 1.5rem;
+            padding-left: 1.25rem;
+        }
+
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <div class="auth-card">
-        <div class="brand-logo-badge">QN</div>
-        <div class="auth-header">
-            <h2>Tạo tài khoản mới</h2>
-            <p>Tham gia cộng đồng quản lý đoàn viên hiện đại</p>
-        </div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="brand-section">
+                <div class="brand-logo">QN</div>
+                <h2>Tạo tài khoản <span>mới</span></h2>
+                <p>THAM GIA CỘNG ĐỒNG QUẢN LÝ THÔNG MINH</p>
+            </div>
 
-        <form asp-controller="Account" asp-action="Register" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            
-            <div class="avatar-upload-container">
-                <div class="avatar-preview" onclick="document.getElementById('avatarInput').click()">
-                    <img id="previewImg" src="#" style="display: none;">
-                    <i id="previewIcon" class="fas fa-camera"></i>
+            <form asp-controller="Account" asp-action="Register" method="post" enctype="multipart/form-data">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="validation-errors"></div>
+                }
+                
+                <div class="avatar-upload-wrapper">
+                    <div class="avatar-preview-box" onclick="document.getElementById('avatarInput').click()">
+                        <img id="previewImg" src="#" style="display: none;">
+                        <i id="previewIcon" class="fas fa-camera"></i>
+                    </div>
+                    <span class="avatar-hint">Ảnh đại diện (Tùy chọn)</span>
+                    <input asp-for="Avatar" type="file" id="avatarInput" class="d-none" accept="image/*" onchange="previewFile(this)" />
                 </div>
-                <label class="custom-label">Ảnh đại diện (Không bắt buộc)</label>
-                <input asp-for="Avatar" type="file" id="avatarInput" class="form-control d-none" accept="image/*" onchange="previewFile(this)" />
-            </div>
 
-            <div class="mb-4">
-                <label class="custom-label">Loại tài khoản</label>
-                <div class="d-flex gap-3">
-                    <div class="flex-fill">
-                        <input type="radio" asp-for="Role" value="Secretary" id="roleSecretary" class="btn-check" checked onchange="toggleAdminCode(false)">
-                        <label class="btn btn-outline-success w-100 py-3" for="roleSecretary" style="border-radius: 15px; font-weight: 700;">BÍ THƯ</label>
-                    </div>
-                    <div class="flex-fill">
-                        <input type="radio" asp-for="Role" value="Admin" id="roleAdmin" class="btn-check" onchange="toggleAdminCode(true)">
-                        <label class="btn btn-outline-danger w-100 py-3" for="roleAdmin" style="border-radius: 15px; font-weight: 700;">QUẢN TRỊ VIÊN</label>
+                <div class="form-group-premium">
+                    <label class="label-premium">VAI TRÒ HỆ THỐNG</label>
+                    <div class="role-selector">
+                        <input type="radio" asp-for="Role" value="Secretary" id="roleSecretary" class="d-none" checked onchange="handleRoleChange('Secretary')">
+                        <label for="roleSecretary" id="labelSecretary" class="role-btn active" data-role="Secretary">BÍ THƯ</label>
+
+                        <input type="radio" asp-for="Role" value="Admin" id="roleAdmin" class="d-none" onchange="handleRoleChange('Admin')">
+                        <label for="roleAdmin" id="labelAdmin" class="role-btn" data-role="Admin">QUẢN TRỊ VIÊN</label>
                     </div>
                 </div>
-            </div>
 
-            <div id="adminCodeSection" class="mb-4" style="display: none; animation: fadeIn 0.3s ease;">
-                <label class="custom-label" style="color: #fa5252;">Mã xác nhận Admin</label>
-                <input asp-for="AdminCode" type="password" class="custom-input" placeholder="Nhập mã bí mật..." style="border-color: rgba(250, 82, 82, 0.2);" />
-                <span asp-validation-for="AdminCode" class="text-danger" style="font-size: 0.75rem;"></span>
-            </div>
+                <div id="adminCodeSection" class="form-group-premium" style="display: none; animation: fadeIn 0.4s ease;">
+                    <label class="label-premium" style="color: var(--danger);">MÃ XÁC NHẬN QUẢN TRỊ</label>
+                    <input asp-for="AdminCode" type="password" class="input-premium" placeholder="Nhập mã bí mật cấp cao..." style="border-color: rgba(239, 68, 68, 0.1);" />
+                </div>
 
-            <div id="unitSection" class="mb-4" style="animation: fadeIn 0.3s ease;">
-                <label class="custom-label">Đơn vị quản lý</label>
-                <div class="dropdown-container">
-                    <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
-                    <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
-                        <span id="unitSelectedText">-- Chọn đơn vị --</span>
-                        <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
-                    </div>
-                    <div class="dropdown-menu-custom" id="unitDropdownMenu">
-                        <div class="dropdown-item-custom" data-value="">-- Chọn đơn vị --</div>
-                        @if (ViewBag.Units != null)
-                        {
-                            foreach (var unit in (IEnumerable<QLDV.Models.Unit>)ViewBag.Units)
+                <div id="unitSection" class="form-group-premium" style="animation: fadeIn 0.4s ease;">
+                    <label class="label-premium">ĐƠN VỊ CÔNG TÁC</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
+                        <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
+                            <span id="unitSelectedText">-- Chọn đơn vị chi đoàn --</span>
+                            <i class="fas fa-chevron-down" style="color: var(--slate-200); font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="dropdown-menu-custom" id="unitDropdownMenu">
+                            <div class="dropdown-item-custom" data-value="">-- Chọn đơn vị --</div>
+                            @if (ViewBag.Units != null)
                             {
-                                <div class="dropdown-item-custom" data-value="@unit.Id">@unit.Name</div>
+                                foreach (var unit in (IEnumerable<QLDV.Models.Unit>)ViewBag.Units)
+                                {
+                                    <div class="dropdown-item-custom" data-value="@unit.Id">@unit.Name</div>
+                                }
                             }
-                        }
+                        </div>
                     </div>
                 </div>
-                <span asp-validation-for="UnitId" class="text-danger" style="font-size: 0.75rem;"></span>
-            </div>
 
-            <div class="row">
-                <div class="col-md-12 mb-4">
-                    <label class="custom-label">Họ và tên</label>
-                    <input asp-for="FullName" class="custom-input" placeholder="Nguyễn Văn A" required />
+                <div class="form-group-premium">
+                    <label class="label-premium">HỌ VÀ TÊN</label>
+                    <input asp-for="FullName" class="input-premium" placeholder="VD: Nguyễn Quốc Gia Huy" required />
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <label class="custom-label">Địa chỉ Email</label>
-                <input asp-for="Email" class="custom-input" placeholder="name@example.com" required />
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label class="custom-label">Mật khẩu</label>
-                    <input asp-for="Password" type="password" class="custom-input" placeholder="••••••••" required />
+                <div class="form-group-premium">
+                    <label class="label-premium">ĐỊA CHỈ EMAIL</label>
+                    <input asp-for="Email" class="input-premium" placeholder="name@example.com" required />
                 </div>
-                <div class="col-md-6 mb-4">
-                    <label class="custom-label">Xác nhận</label>
-                    <input asp-for="ConfirmPassword" type="password" class="custom-input" placeholder="••••••••" required />
+
+                <div class="form-row-premium">
+                    <div>
+                        <label class="label-premium">MẬT KHẨU</label>
+                        <input asp-for="Password" type="password" class="input-premium" placeholder="••••••••" required />
+                    </div>
+                    <div>
+                        <label class="label-premium">XÁC NHẬN</label>
+                        <input asp-for="ConfirmPassword" type="password" class="input-premium" placeholder="••••••••" required />
+                    </div>
                 </div>
+
+                <button type="submit" class="submit-btn-premium">
+                    ĐĂNG KÝ TÀI KHOẢN <i class="fas fa-user-plus ms-2" style="font-size: 0.8rem;"></i>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Đã có tài khoản? <a href="/Account/Login">Đăng nhập tại đây</a>
             </div>
-
-            <button type="submit" class="submit-btn">
-                ĐĂNG KÝ NGAY
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            Đã có tài khoản? <a href="/Account/Login">Đăng nhập tại đây</a>
         </div>
     </div>
 
     <script>
-        function toggleAdminCode(showAdmin) {
+        function handleRoleChange(role) {
             const adminSection = document.getElementById('adminCodeSection');
             const unitSection = document.getElementById('unitSection');
-            
-            if (showAdmin) {
+            const lSec = document.getElementById('labelSecretary');
+            const lAdm = document.getElementById('labelAdmin');
+
+            if (role === 'Admin') {
                 adminSection.style.display = 'block';
                 unitSection.style.display = 'none';
+                lAdm.classList.add('active');
+                lSec.classList.remove('active');
             } else {
                 adminSection.style.display = 'none';
                 unitSection.style.display = 'block';
+                lSec.classList.add('active');
+                lAdm.classList.remove('active');
             }
         }
 
@@ -398,13 +501,10 @@
                     item.addEventListener('click', function() {
                         const val = this.getAttribute('data-value');
                         const label = this.textContent.trim();
-                        
                         input.value = val;
                         text.textContent = label;
-                        
                         items.forEach(i => i.classList.remove('selected'));
                         this.classList.add('selected');
-                        
                         menu.classList.remove('show');
                         trigger.classList.remove('active');
                     });

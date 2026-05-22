@@ -480,6 +480,7 @@ namespace QLDV.Controllers
             var membersByStatus = await _statisticsService.GetMemberCountByStatusAsync();
             var membersByGender = await _statisticsService.GetMemberCountByGenderAsync();
             var membersByAchievement = await _statisticsService.GetMemberCountByAchievementAsync();
+            var membersByEthnic = await _statisticsService.GetMemberCountByEthnicAsync();
             var membersByUnit = await _statisticsService.GetMembersByUnitAsync();
             var detailedStats = await _statisticsService.GetDetailedUnitStatisticsAsync();
             var totalOutstanding = await _statisticsService.GetTotalOutstandingCountAsync();
@@ -488,6 +489,7 @@ namespace QLDV.Controllers
             ViewBag.MembersByStatus = membersByStatus;
             ViewBag.MembersByGender = membersByGender;
             ViewBag.MembersByAchievement = membersByAchievement;
+            ViewBag.MembersByEthnic = membersByEthnic;
             ViewBag.MembersByUnit = membersByUnit;
             ViewBag.DetailedStats = detailedStats;
             ViewBag.TotalOutstanding = totalOutstanding;

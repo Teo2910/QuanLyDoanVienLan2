@@ -269,13 +269,13 @@
                 <div class="col-md-6">
                     <label class="custom-label">PHÂN LOẠI</label>
                     <div class="dropdown-container">
-                        <input type="hidden" asp-for="Type" id="TypeInput" />
+                        <input type="hidden" asp-for="Type" id="TypeInput" value="Meeting" />
                         <div class="custom-dropdown-trigger" id="typeDropdownTrigger">
                             <span id="typeSelectedText">Hội họp</span>
                             <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
                         </div>
                         <div class="dropdown-menu-custom" id="typeDropdownMenu">
-                            <div class="dropdown-item-custom" data-value="Meeting">Hội họp <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom selected" data-value="Meeting">Hội họp <i class="fas fa-check"></i></div>
                             <div class="dropdown-item-custom" data-value="Training">Tập huấn <i class="fas fa-check"></i></div>
                             <div class="dropdown-item-custom" data-value="Event">Sự kiện <i class="fas fa-check"></i></div>
                             <div class="dropdown-item-custom" data-value="Seminar">Hội thảo <i class="fas fa-check"></i></div>

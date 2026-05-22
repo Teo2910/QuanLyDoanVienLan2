@@ -70,6 +70,7 @@ namespace QLDV.Services
         Task<Dictionary<string, int>> GetMemberCountByStatusAsync();
         Task<Dictionary<string, int>> GetMemberCountByGenderAsync();
         Task<Dictionary<string, int>> GetMemberCountByAchievementAsync();
+        Task<Dictionary<string, int>> GetMemberCountByEthnicAsync();
         Task<int> GetTotalMembersAsync();
         Task<List<dynamic>> GetMembersByUnitAsync();
         Task<List<UnitStatisticsViewModel>> GetDetailedUnitStatisticsAsync();

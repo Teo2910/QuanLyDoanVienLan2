@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     @if (SignInManager.IsSignedIn(User))
@@ -89,13 +90,13 @@
             </ul>
 
             <div class="sidebar-footer">
-                <div class="user-profile-sidebar">
+                <a href="/Account/Profile" class="user-profile-sidebar" style="text-decoration: none; cursor: pointer; transition: 0.2s;">
                     <img src="@(string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl)" class="user-avatar-sidebar" alt="Avatar">
                     <div class="user-info-sidebar">
                         <h6>@(user?.FullName ?? "User Name")</h6>
                         <p class="@(isAdmin ? "role-admin" : "")">@(isAdmin ? "QUẢN TRỊ VIÊN" : "THÀNH VIÊN")</p>
                     </div>
-                </div>
+                </a>
                 <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
                     <a href="javascript:document.getElementById('logoutForm').submit()" class="logout-link">
                         <i class="fas fa-arrow-right-from-bracket"></i>

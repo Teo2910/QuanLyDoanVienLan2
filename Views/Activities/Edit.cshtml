@@ -272,16 +272,25 @@
                     <label class="custom-label">PHÂN LOẠI</label>
                     <div class="dropdown-container">
                         <input type="hidden" asp-for="Type" id="TypeInput" />
+                        @{
+                            var currentTypeLabel = Model.Type switch {
+                                "Meeting" => "Hội họp",
+                                "Training" => "Tập huấn",
+                                "Event" => "Sự kiện",
+                                "Seminar" => "Hội thảo",
+                                _ => "Khác"
+                            };
+                        }
                         <div class="custom-dropdown-trigger" id="typeDropdownTrigger">
-                            <span id="typeSelectedText">Hội họp</span>
+                            <span id="typeSelectedText">@currentTypeLabel</span>
                             <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem;"></i>
                         </div>
                         <div class="dropdown-menu-custom" id="typeDropdownMenu">
-                            <div class="dropdown-item-custom" data-value="Meeting">Hội họp <i class="fas fa-check"></i></div>
-                            <div class="dropdown-item-custom" data-value="Training">Tập huấn <i class="fas fa-check"></i></div>
-                            <div class="dropdown-item-custom" data-value="Event">Sự kiện <i class="fas fa-check"></i></div>
-                            <div class="dropdown-item-custom" data-value="Seminar">Hội thảo <i class="fas fa-check"></i></div>
-                            <div class="dropdown-item-custom" data-value="Other">Khác <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Type == "Meeting" ? "selected" : "")" data-value="Meeting">Hội họp <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Type == "Training" ? "selected" : "")" data-value="Training">Tập huấn <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Type == "Event" ? "selected" : "")" data-value="Event">Sự kiện <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Type == "Seminar" ? "selected" : "")" data-value="Seminar">Hội thảo <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom @(Model.Type == "Other" ? "selected" : "")" data-value="Other">Khác <i class="fas fa-check"></i></div>
                         </div>
                     </div>
                     <span asp-validation-for="Type" class="text-danger" style="font-size: 0.7rem; font-weight: 700; margin-top: 5px; display: block;"></span>

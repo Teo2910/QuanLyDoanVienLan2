@@ -3,66 +3,316 @@
 @inject UserManager<ApplicationUser> UserManager
 @{
     var user = await UserManager.GetUserAsync(User);
-    ViewData["Title"] = "User Profile";
+    ViewData["Title"] = "Hồ sơ cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="content-header">
-    <h1><i class="fas fa-id-badge"></i> User Profile</h1>
-    <p class="text-muted">Manage your account information</p>
+<style>
+    .profile-container {
+        padding: 0 1rem;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .profile-card {
+        background: #fff;
+        border-radius: 45px;
+        padding: 4rem;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.02);
+        border: 1px solid #f8fafc;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 4rem;
+        border-bottom: 2px solid #f8fafc;
+        padding-bottom: 2.5rem;
+    }
+
+    .profile-header h2 {
+        font-weight: 900;
+        font-size: 2.4rem;
+        color: #0f172a;
+        letter-spacing: -1.5px;
+        margin: 0;
+    }
+
+    .profile-header .subtext {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 10px;
+    }
+
+    .profile-header .dot-primary {
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(0, 97, 242, 0.4);
+    }
+
+    /* Avatar Section */
+    .avatar-upload-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 4rem;
+    }
+
+    .avatar-preview-container {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-preview {
+        width: 100%;
+        height: 100%;
+        border-radius: 60px;
+        object-fit: cover;
+        border: 8px solid #f8fafc;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    }
+
+    .avatar-edit-btn {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 48px;
+        height: 48px;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 4px solid #fff;
+        box-shadow: 0 10px 20px rgba(0, 97, 242, 0.3);
+    }
+
+    .avatar-edit-btn:hover {
+        transform: scale(1.1);
+        background: var(--primary-bold);
+    }
+
+    /* Form Styles */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+
+    .input-group-premium {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .label-premium {
+        font-size: 0.65rem;
+        font-weight: 900;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .input-premium {
+        background: #f8fafc;
+        border: 2px solid transparent;
+        border-radius: 22px;
+        padding: 1.25rem 1.75rem;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .input-premium:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 15px 40px rgba(0, 97, 242, 0.08);
+    }
+
+    .input-premium:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .save-btn-premium {
+        margin-top: 4rem;
+        background: #0f172a;
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        padding: 1.5rem;
+        font-weight: 900;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+    }
+
+    .save-btn-premium:hover {
+        background: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 97, 242, 0.3);
+    }
+
+    .save-btn-premium i {
+        font-size: 1.2rem;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div>
+                <h2>Hồ sơ <span>Cá nhân</span></h2>
+                <div class="subtext">
+                    <div class="dot-primary"></div>
+                    QUẢN LÝ THÔNG TIN TÀI KHOẢN VÀ BẢO MẬT
+                </div>
+            </div>
+        </div>
+
+        <form id="profileForm" enctype="multipart/form-data">
+            <div class="avatar-upload-section">
+                <div class="avatar-preview-container">
+                    <img id="avatarPreview" src="@(string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl)" class="avatar-preview" alt="Avatar">
+                    <label for="avatarInput" class="avatar-edit-btn">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarInput" name="Avatar" hidden accept="image/*">
+                </div>
+                <div class="text-center">
+                    <h4 class="fw-black mb-1">@user?.FullName</h4>
+                    <span class="badge bg-soft-primary text-primary fw-black px-3 py-2 rounded-pill">@user?.Role?.ToUpper()</span>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group-premium">
+                    <label class="label-premium">HỌ VÀ TÊN</label>
+                    <input type="text" name="FullName" value="@user?.FullName" class="input-premium" placeholder="Nhập họ và tên...">
+                </div>
+
+                <div class="input-group-premium">
+                    <label class="label-premium">EMAIL ĐĂNG NHẬP</label>
+                    <input type="email" value="@user?.Email" class="input-premium" disabled>
+                </div>
+
+                <div class="input-group-premium">
+                    <label class="label-premium">SỐ ĐIỆN THOẠI</label>
+                    <input type="text" name="PhoneNumber" value="@user?.PhoneNumber" class="input-premium" placeholder="Chưa cập nhật số điện thoại...">
+                </div>
+
+                <div class="input-group-premium">
+                    <label class="label-premium">VAI TRÒ HỆ THỐNG</label>
+                    <input type="text" value="@user?.Role" class="input-premium" disabled>
+                </div>
+            </div>
+
+            <button type="submit" class="save-btn-premium">
+                <i class="fas fa-check-circle"></i> CẬP NHẬT THÔNG TIN
+            </button>
+        </form>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-body text-center">
-                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px; font-size: 3rem; color: #0056b3;">
-                    @if (!string.IsNullOrEmpty(user?.AvatarUrl))
-                    {
-                        <img src="@user.AvatarUrl" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Preview Avatar
+            $('#avatarInput').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#avatarPreview').attr('src', e.target.result);
                     }
-                    else
-                    {
-                        <i class="fas fa-user"></i>
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Submit Form
+            $('#profileForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const btn = $('.save-btn-premium');
+                const originalText = btn.html();
+                btn.html('<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...').prop('disabled', true);
+
+                const formData = new FormData(this);
+
+                $.ajax({
+                    url: '/Account/UpdateProfile',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            if (typeof toast !== 'undefined') {
+                                toast.success(response.message);
+                            } else {
+                                alert(response.message);
+                            }
+                            
+                            // Update sidebar sync
+                            if (response.user) {
+                                $('.user-info-sidebar h6').text(response.user.fullName);
+                                if (response.user.avatarUrl) {
+                                    $('.user-avatar-sidebar, .user-nav-pill img').attr('src', response.user.avatarUrl);
+                                }
+                            }
+
+                            setTimeout(() => {
+                                btn.html(originalText).prop('disabled', false);
+                            }, 500);
+                        } else {
+                            if (typeof toast !== 'undefined') {
+                                toast.error(response.message);
+                            } else {
+                                alert(response.message);
+                            }
+                            btn.html(originalText).prop('disabled', false);
+                        }
+                    },
+                    error: function() {
+                        if (typeof toast !== 'undefined') {
+                            toast.error('Có lỗi xảy ra khi kết nối máy chủ.');
+                        } else {
+                            alert('Có lỗi xảy ra khi kết nối máy chủ.');
+                        }
+                        btn.html(originalText).prop('disabled', false);
                     }
-                </div>
-                <h3>@user?.FullName</h3>
-                <p class="text-muted">@user?.Email</p>
-                <span class="badge bg-primary">@user?.Role</span>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Account Details</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-sm-3 font-weight-bold">Username:</div>
-                    <div class="col-sm-9">@user?.UserName</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-3 font-weight-bold">Email:</div>
-                    <div class="col-sm-9">@user?.Email</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-3 font-weight-bold">Full Name:</div>
-                    <div class="col-sm-9">@user?.FullName</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-3 font-weight-bold">Role:</div>
-                    <div class="col-sm-9">@user?.Role</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-3 font-weight-bold">Joined:</div>
-                    <div class="col-sm-9">@(user?.CreatedAt > 0 ? DateTimeOffset.FromUnixTimeSeconds(user.CreatedAt).ToString("dd/MM/yyyy") : "N/A")</div>
-                </div>
-            </div>
-            <div class="card-footer bg-white">
-                <button class="btn btn-outline-primary" disabled>Edit Profile (Coming Soon)</button>
-                <button class="btn btn-outline-secondary" disabled>Change Password (Coming Soon)</button>
-            </div>
-        </div>
-    </div>
-</div>
+                });
+            });
+        });
+    </script>
+}
