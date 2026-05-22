@@ -63,25 +63,25 @@
     <div class="header-main">
         <div class="header-left-box">
             <div class="header-icon-premium">
-                <i class="fas fa-users"></i>
+                <i class="fas fa-users" style="color: var(--primary);"></i>
             </div>
             <div class="header-text-premium">
                 <h1>Quản lý đoàn viên</h1>
                 <p>CƠ SỞ DỮ LIỆU NHÂN SỰ SỐ HÓA 4.0</p>
             </div>
         </div>
-        <div class="d-flex gap-3">
-            <a href="/Members/ExportExcel" class="btn-premium btn-premium-light px-4">
-                <i class="fas fa-file-export"></i> XUẤT EXCEL
+        <div class="d-flex flex-wrap gap-2 gap-sm-3 mt-3 mt-lg-0">
+            <a href="/Members/ExportExcel" class="btn-premium btn-premium-light px-3 px-sm-4">
+                <i class="fas fa-file-export"></i> <span class="d-none d-sm-inline">XUẤT EXCEL</span><span class="d-sm-none">XUẤT</span>
             </a>
             <form asp-action="ImportExcel" method="post" enctype="multipart/form-data" id="importForm" style="display:none;">
                 <input type="file" name="file" id="excelFile" onchange="document.getElementById('importForm').submit();" accept=".xlsx, .xls">
             </form>
-            <button type="button" class="btn-premium btn-premium-light px-4" onclick="document.getElementById('excelFile').click();">
-                <i class="fas fa-file-import"></i> NHẬP DỮ LIỆU
+            <button type="button" class="btn-premium btn-premium-light px-3 px-sm-4" onclick="document.getElementById('excelFile').click();">
+                <i class="fas fa-file-import"></i> <span class="d-none d-sm-inline">NHẬP DỮ LIỆU</span><span class="d-sm-none">NHẬP</span>
             </button>
-            <a href="/members/create" class="btn-premium btn-launch-dark">
-                <i class="fas fa-plus"></i> THÊM ĐOÀN VIÊN
+            <a href="/members/create" class="btn-premium btn-launch-dark px-3 px-sm-4">
+                <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">THÊM ĐOÀN VIÊN</span><span class="d-sm-none">THÊM</span>
             </a>
         </div>
     </div>

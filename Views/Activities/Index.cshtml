@@ -262,16 +262,16 @@
 
 <div class="page-header-new">
     <div class="header-title-box">
-        <h1>Hoạt động sắp tới</h1>
+        <h1 style="color: var(--primary);">Hoạt động sắp tới</h1>
         <p>LỊCH TRÌNH VÀ SỰ KIỆN ĐOÀN THANH NIÊN CƠ SỞ</p>
     </div>
-    <div class="header-right">
-        <div class="search-input-wrapper">
+    <div class="header-right d-flex flex-column flex-md-row gap-3 mt-3 mt-md-0 w-100 w-md-auto">
+        <div class="search-input-wrapper w-100" style="max-width: 300px;">
             <i class="fas fa-search"></i>
             <input type="text" id="activitySearch" class="search-input-modern" placeholder="Tìm kiếm hoạt động...">
         </div>
-        <a href="javascript:void(0)" onclick="openActivityModal('/activities/create')" class="btn-add-activity">
-            <i class="fas fa-plus"></i> THÊM HOẠT ĐỘNG
+        <a href="javascript:void(0)" onclick="openActivityModal('/activities/create')" class="btn-add-activity justify-content-center" style="background: var(--primary); box-shadow: 0 6px 15px rgba(0, 86, 179, 0.2);">
+            <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">THÊM HOẠT ĐỘNG</span><span class="d-sm-none">THÊM</span>
         </a>
     </div>
 </div>

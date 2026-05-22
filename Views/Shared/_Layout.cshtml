@@ -20,7 +20,19 @@
         var user = await UserManager.GetUserAsync(User);
         bool isAdmin = user?.Role == "Admin" || User.IsInRole("Admin");
 
-        <div class="sidebar">
+        <div class="mobile-header">
+            <a href="/" class="mobile-brand">
+                <div class="logo">QN</div>
+                <span>Quản lý Đoàn</span>
+            </a>
+            <div class="menu-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <div class="sidebar" id="sidebar">
             <a href="/" class="sidebar-brand">
                 <div class="brand-logo-badge">QN</div>
                 <div class="brand-text">
@@ -109,18 +121,18 @@
         <div class="main-wrapper">
             <header class="top-bar">
                 <div class="top-bar-left">
-                    <a href="javascript:history.back()" class="close-btn">
+                    <a href="javascript:history.back()" class="close-btn d-none d-md-flex">
                         <i class="fas fa-times"></i>
                     </a>
                     <div class="page-info">
-                        <h5>Bảng điều khiển</h5>
-                        <span>Phiên bản 2.5</span>
+                        <h5>@ViewData["Title"]</h5>
+                        <span>Dự án Quản lý Đoàn</span>
                     </div>
                 </div>
-                <div class="user-nav-pill">
+                <div class="user-nav-pill d-none d-sm-flex">
                     <div class="info">
-                        <h6>@(user?.FullName ?? "User Name")</h6>
-                        <p>@(isAdmin ? "BÍ THƯ TRỰC TUYẾN" : "THÀNH VIÊN TRỰC TUYẾN")</p>
+                        <h6>@(user?.FullName ?? "User")</h6>
+                        <p>@(isAdmin ? "QUẢN TRỊ VIÊN" : "BÍ THƯ")</p>
                     </div>
                     <img src="@(string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl)" alt="Avatar">
                 </div>
@@ -137,6 +149,31 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const toggle = $('#sidebarToggle');
+            const sidebar = $('#sidebar');
+            const overlay = $('#sidebarOverlay');
+
+            function toggleSidebar() {
+                sidebar.toggleClass('active');
+                overlay.toggleClass('active');
+                $('body').toggleClass('sidebar-open');
+            }
+
+            toggle.on('click', toggleSidebar);
+            overlay.on('click', toggleSidebar);
+
+            // Close sidebar on link click (for mobile)
+            $('.nav-link').on('click', function() {
+                if (window.innerWidth <= 991) {
+                    sidebar.removeClass('active');
+                    overlay.removeClass('active');
+                    $('body').removeClass('sidebar-open');
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
