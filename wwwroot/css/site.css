@@ -1024,6 +1024,9 @@ html, body {
 .meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
 .meta-item i { font-size: 1rem; color: #cbd5e1; }
 .edit-link { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 700; color: var(--primary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; }
+.delete-link { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 700; color: #ef4444; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; background: transparent; border: none; padding: 0; cursor: pointer; transition: 0.2s; }
+.delete-link:hover { color: #dc2626; transform: translateY(-1px); }
+.header-actions { display: flex; align-items: center; gap: 20px; padding-right: 60px; }
 
 .details-grid { display: grid; grid-template-columns: 1fr 340px; gap: 4rem; }
 .section-label { font-size: 0.7rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
@@ -1201,12 +1204,63 @@ html, body {
     display: inline-block;
 }
 
-.bg-zero-pill {
+.btn-zero-pill {
     color: #cbd5e1;
     font-weight: 600;
     opacity: 0.5;
     font-size: 1rem;
 }
+
+/* Small Action Buttons for Cards/Tables */
+.btn-action-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 1px solid #f1f5f9;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-edit-sm:hover {
+    background: #eef2ff;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-delete-sm:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.btn-action-pill {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #f1f5f9;
+    background: #fff;
+    color: #64748b;
+    text-decoration: none !important;
+    transition: 0.2s;
+}
+
+.btn-action-pill:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+}
+
+.btn-action-pill.edit:hover { color: var(--primary); border-color: var(--primary); }
+.btn-action-pill.delete:hover { color: #ef4444; border-color: #ef4444; }
 
 /* Custom Confirmation Modal */
 .confirm-modal-overlay {

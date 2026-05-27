@@ -39,6 +39,20 @@
     </div>
 </div>
 
+<div id="confirmModal" class="confirm-modal-overlay">
+    <div class="confirm-card">
+        <div class="confirm-icon-box">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <h3 id="confirmTitle">Xác nhận xóa</h3>
+        <p id="confirmMessage">Bạn có chắc chắn muốn xóa phong trào này? Thao tác này sẽ xóa tất cả báo cáo liên quan và không thể hoàn tác.</p>
+        <div class="confirm-actions">
+            <button class="btn-confirm-no" onclick="closeConfirmModal()">HỦY BỎ</button>
+            <button class="btn-confirm-yes" id="confirmYesBtn">XÁC NHẬN XÓA</button>
+        </div>
+    </div>
+</div>
+
 <div class="card-premium mb-5">
     <div class="d-flex align-items-center gap-4 mb-5">
         <div class="header-icon-premium m-0" style="background: #f8fafc; border: none; box-shadow: none;">
@@ -59,10 +73,7 @@
                     <th class="text-center">ĐÃ BÁO</th>
                     <th class="text-center">TỔNG NỘP</th>
                     <th class="text-center">TIẾN ĐỘ</th>
-                    @if (!isAdmin)
-                    {
-                        <th class="text-end" width="180">THAO TÁC</th>
-                    }
+                    <th class="text-end" width="180">THAO TÁC</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -91,14 +102,25 @@
                             <span class="completion-text" style="font-size: 0.75rem;">@item.CompletionPercentage.ToString("F0")%</span>
                         </div>
                     </td>
-                    @if (!isAdmin)
-                    {
-                        <td class="text-end">
-                            <a href="javascript:void(0)" onclick="openMovementModal('/movements/submitreport?movementId=@item.Movement.Id')" class="btn-premium btn-premium-dark px-3 py-2" style="font-size: 0.65rem;">
-                                <i class="fas fa-file-upload"></i> NỘP BÁO CÁO
-                            </a>
-                        </td>
-                    }
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            @if (isAdmin)
+                            {
+                                <a href="javascript:void(0)" onclick="openMovementModal('/movements/edit/@item.Movement.Id')" class="btn-action-pill edit">
+                                    <i class="fas fa-edit"></i> SỬA
+                                </a>
+                                <a href="javascript:void(0)" onclick="deleteMovement('@item.Movement.Id', '@item.Movement.Title')" class="btn-action-pill delete">
+                                    <i class="fas fa-trash-alt"></i> XÓA
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="javascript:void(0)" onclick="openMovementModal('/movements/submitreport?movementId=@item.Movement.Id')" class="btn-premium btn-premium-dark px-3 py-2" style="font-size: 0.65rem;">
+                                    <i class="fas fa-file-upload"></i> NỘP BÁO CÁO
+                                </a>
+                            }
+                        </div>
+                    </td>
                 </tr>
                 }            </tbody>
         </table>
@@ -114,8 +136,21 @@
                     <div class="stat-icon-box">
                         <i class="fas fa-medal"></i>
                     </div>
-                    <div class="stat-count-pill">
-                        @item.ReportedCount/@item.TotalUnits BÁO CÁO
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        <div class="stat-count-pill">
+                            @item.ReportedCount/@item.TotalUnits BÁO CÁO
+                        </div>
+                        @if (isAdmin)
+                        {
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn-action-sm btn-edit-sm" onclick="openMovementModal('/movements/edit/@item.Movement.Id'); event.stopPropagation();" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="btn-action-sm btn-delete-sm" onclick="deleteMovement('@item.Movement.Id', '@item.Movement.Title'); event.stopPropagation();" title="Xóa bỏ">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        }
                     </div>
                 </div>
                 
@@ -404,26 +439,60 @@
         });
 
         function deleteMovement(id, title) {
-            if (confirm(`Bạn có chắc chắn muốn xóa phong trào "${title}"? Thao tác này không thể hoàn tác.`)) {
+            const modal = document.getElementById('confirmModal');
+            const confirmBtn = document.getElementById('confirmYesBtn');
+            const titleElem = document.getElementById('confirmTitle');
+            const msgElem = document.getElementById('confirmMessage');
+
+            if (!modal || !confirmBtn) return;
+
+            titleElem.innerText = 'Xác nhận xóa';
+            msgElem.innerText = `Bạn có chắc chắn muốn xóa phong trào "${title}"? Thao tác này sẽ xóa tất cả báo cáo liên quan và không thể hoàn tác.`;
+            
+            modal.classList.add('show');
+
+            confirmBtn.onclick = function() {
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XÓA...';
+
                 $.ajax({
                     url: '/Movements/Delete',
                     type: 'POST',
                     data: { id: id },
                     success: function (response) {
                         if (response.success) {
-                            toast.success(`Đã xóa phong trào "${title}" thành công!`);
+                            if (typeof toast !== 'undefined') {
+                                toast.success(`Đã xóa phong trào "${title}" thành công!`);
+                            }
                             setTimeout(() => {
                                 location.reload();
                             }, 1000);
                         } else {
-                            toast.error("Lỗi: " + response.message);
+                            if (typeof toast !== 'undefined') {
+                                toast.error("Lỗi: " + response.message);
+                            } else {
+                                alert("Lỗi: " + response.message);
+                            }
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = 'XÁC NHẬN XÓA';
                         }
                     },
                     error: function () {
-                        toast.error("Lỗi kết nối máy chủ");
+                        if (typeof toast !== 'undefined') {
+                            toast.error("Lỗi kết nối máy chủ");
+                        } else {
+                            alert("Lỗi kết nối máy chủ");
+                        }
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = 'XÁC NHẬN XÓA';
                     }
                 });
-            }
+            };
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            if (modal) modal.classList.remove('show');
         }
     </script>
 }

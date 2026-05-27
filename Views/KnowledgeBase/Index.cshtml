@@ -384,9 +384,26 @@
     </style>
 }
 
+<partial name="_Toast" />
+
 <div id="kbModal" class="modal-overlay">
     <div class="modal-content-wrapper" style="max-width: 900px;">
         <div id="modalBody"></div>
+    </div>
+</div>
+
+<!-- Custom Delete Confirmation Modal -->
+<div class="confirm-modal-overlay" id="deleteConfirmModal">
+    <div class="confirm-card">
+        <div class="confirm-icon-box">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Xác nhận xóa</h3>
+        <p id="deleteConfirmMessage">Bạn có chắc chắn muốn xóa tài liệu này không? Hành động này không thể hoàn tác.</p>
+        <div class="confirm-actions">
+            <button type="button" class="btn-confirm-no" onclick="closeDeleteModal()">HỦY BỎ</button>
+            <button type="button" class="btn-confirm-yes" id="btnConfirmDelete">XÁC NHẬN XÓA</button>
+        </div>
     </div>
 </div>
 
@@ -428,7 +445,7 @@
                                 <a href="javascript:void(0)" onclick="openKBModal('/knowledgebase/edit/@item.Id')" class="kb-action-btn btn-edit" title="Chỉnh sửa">
                                     <i class="fas fa-pen"></i>
                                 </a>
-                                <button class="kb-action-btn btn-delete" onclick="deleteItem('@item.Id')" title="Xóa">
+                                <button class="kb-action-btn btn-delete" onclick="deleteItem('@item.Id', '@item.Title')" title="Xóa">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
@@ -470,12 +487,54 @@
 
 @section Scripts {
     <script>
-        function deleteItem(itemId) {
-            if (confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
-                fetch(`/knowledgebase/delete?id=${itemId}`, { method: 'POST' })
-                    .then(response => response.ok ? location.reload() : alert('Lỗi khi xóa tài liệu'));
-            }
+        let itemIdToDelete = null;
+
+        function deleteItem(itemId, title) {
+            itemIdToDelete = itemId;
+            document.getElementById('deleteConfirmMessage').innerHTML = `Bạn có chắc chắn muốn xóa tài liệu <b>${title}</b> không?<br>Hành động này không thể hoàn tác.`;
+            
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                itemIdToDelete = null;
+            }, 300);
+        }
+
+        document.getElementById('btnConfirmDelete').addEventListener('click', function() {
+            if (!itemIdToDelete) return;
+
+            const btn = this;
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XÓA...';
+            btn.disabled = true;
+
+            fetch(`/knowledgebase/delete?id=${itemIdToDelete}`, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        toast.success('Đã xóa tài liệu thành công');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toast.error('Lỗi khi xóa tài liệu');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        closeDeleteModal();
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    toast.error('Đã xảy ra lỗi kết nối');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    closeDeleteModal();
+                });
+        });
 
         document.getElementById('searchInput').addEventListener('keyup', function() {
             const filter = this.value.toLowerCase();

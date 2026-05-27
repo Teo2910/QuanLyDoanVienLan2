@@ -179,7 +179,9 @@ namespace QLDV.Controllers
                 return NotFound();
 
             var reports = await _movementService.GetReportsByMovementAsync(id);
+            var allUnits = await _unitService.GetAllUnitsAsync();
             ViewBag.Reports = reports;
+            ViewBag.AllUnits = allUnits;
             return View(movement);
         }
 

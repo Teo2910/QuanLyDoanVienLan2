@@ -15,6 +15,7 @@
     
     var reportedUnitIds = reports.Select(r => r.UnitId).Distinct().ToList();
     var waitingUnitIds = participatingUnitIds.Where(id => !reportedUnitIds.Contains(id)).ToList();
+    var allUnits = ViewBag.AllUnits as List<QLDV.Models.Unit> ?? new List<QLDV.Models.Unit>();
 }
 
 <div class="modal-layout-container">
@@ -23,21 +24,30 @@
     </a>
 
     <div class="details-header">
-        <h1>@Model.Title</h1>
-        <div class="header-meta">
-            <div class="meta-item">
-                <i class="far fa-calendar-alt"></i>
-                <span>@Model.StartDate.ToString("yyyy-MM-dd") — @Model.EndDate.ToString("yyyy-MM-dd")</span>
-            </div>
-            <div class="meta-item">
-                <i class="fas fa-chart-line"></i>
-                <span>@reportedUnitIds.Count báo cáo / @participatingUnitIds.Count đơn vị</span>
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1>@Model.Title</h1>
+                <div class="header-meta">
+                    <div class="meta-item">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>@Model.StartDate.ToString("dd/MM/yyyy") — @Model.EndDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>@reportedUnitIds.Count báo cáo / @participatingUnitIds.Count đơn vị</span>
+                    </div>
+                </div>
             </div>
             @if (isAdmin)
             {
-                <a href="/movements/edit/@Model.Id" class="edit-link">
-                    <i class="far fa-clock"></i> CHỈNH SỬA
-                </a>
+                <div class="header-actions">
+                    <a href="/movements/edit/@Model.Id" class="edit-link">
+                        <i class="fas fa-edit"></i> CHỈNH SỬA
+                    </a>
+                    <button type="button" onclick="deleteMovement('@Model.Id', '@Model.Title')" class="delete-link">
+                        <i class="fas fa-trash-alt"></i> XÓA BỎ
+                    </button>
+                </div>
             }
         </div>
     </div>
@@ -161,8 +171,9 @@
                     </div>
                     @foreach (var unitId in waitingUnitIds)
                     {
+                        var unitName = allUnits.FirstOrDefault(u => u.Id == unitId)?.Name ?? "Đơn vị #" + unitId.Substring(0, 5);
                         <div class="unit-item">
-                            <div class="unit-name">Đơn vị #@unitId.Substring(0, 5)</div>
+                            <div class="unit-name">@unitName</div>
                             <div class="waiting-badge">
                                 <i class="fas fa-circle" style="font-size: 0.4rem; color: #f1f5f9;"></i>
                             </div>
