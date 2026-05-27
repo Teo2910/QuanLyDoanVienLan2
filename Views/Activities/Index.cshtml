@@ -314,7 +314,18 @@
                     </div>
                     <div class="meta-info-text">
                         <label>THỜI GIAN</label>
-                        <span>@activity.Date</span>
+                        <span>
+                            @{
+                                if (DateTime.TryParse(activity.Date, out var date))
+                                {
+                                    @date.ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    @activity.Date
+                                }
+                            }
+                        </span>
                     </div>
                 </div>
 

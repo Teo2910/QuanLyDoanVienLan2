@@ -353,7 +353,7 @@
                 <div class="col-md-6 mb-4">
                     <label class="custom-label">NGÀY SINH</label>
                     <div class="dropdown-container">
-                        <input type="text" asp-for="DOB" class="custom-input date-picker" required placeholder="mm/dd/yyyy">
+                        <input type="text" asp-for="DOB" class="custom-input date-picker" required placeholder="dd/mm/yyyy">
                         <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
                     </div>
                 </div>
@@ -485,7 +485,7 @@
         flatpickr(".date-picker", {
             dateFormat: "Y-m-d",
             altInput: true,
-            altFormat: "m/d/Y",
+            altFormat: "d/m/Y",
             allowInput: true,
             disableMobile: true
         });

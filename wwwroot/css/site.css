@@ -9,7 +9,7 @@
     --primary-bold: #004085;
     --primary-dark: var(--primary-bold);
     --primary-light: #e0f2fe;
-    --bg-main: #f8fafc;
+    --bg-main: #f0f4f8; /* Darkened for more depth contrast */
     --bg-sidebar: #ffffff;
     --text-dark: #0f172a; 
     --text-name: var(--primary); 
@@ -18,7 +18,7 @@
     --sidebar-width: 280px;
     --radius-premium: 40px;
     --primary-gradient: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
-    --shadow-premium: 0 15px 50px rgba(0,0,0,0.02);
+    --shadow-premium: 0 20px 40px rgba(0,0,0,0.04);
 }
 
 * { box-sizing: border-box; }
@@ -312,10 +312,12 @@ html, body {
 /* --- DASHBOARD COMPONENTS --- */
 .welcome-row {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    justify-content: flex-start; /* Elements closer to each other */
+    align-items: center;
+    gap: 40px; /* Controlled gap */
     margin-bottom: 3.5rem;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .welcome-text h1 {
@@ -343,28 +345,35 @@ html, body {
 
 .session-pill {
     background: #fff;
-    border-radius: 25px;
-    padding: 1rem 2rem;
+    border-radius: 20px;
+    padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
-    gap: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
-    border: 1px solid #f8fafc;
+    gap: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+    border: 1px solid rgba(255,255,255,0.8);
+    transition: 0.3s;
 }
+
+.session-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+}
+
 .session-icon {
-    width: 44px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
     background: #f1f5f9;
-    border-radius: 14px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
-    color: #64748b; /* Soft blue-grey icon */
+    font-size: 1rem;
+    color: var(--primary);
 }
 
-.session-info span { font-size: 0.6rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
-.session-info h6 { margin: 0; font-weight: 700; font-size: 0.95rem; color: #0f172a; }
+.session-info span { font-size: 0.55rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0px; }
+.session-info h6 { margin: 0; font-weight: 700; font-size: 0.85rem; color: #0f172a; }
 
 /* Stat Cards */
 .stat-card-new {
@@ -376,8 +385,31 @@ html, body {
     align-items: center;
     text-align: center;
     height: 100%;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.02);
-    border: 1px solid #fcfcfc;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    border: 1px solid rgba(255,255,255,0.7);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-new::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: transparent;
+}
+
+.stat-card-new.accent-blue::after { background: var(--primary); }
+.stat-card-new.accent-green::after { background: #10b981; }
+.stat-card-new.accent-amber::after { background: #f59e0b; }
+.stat-card-new.accent-red::after { background: #ef4444; }
+
+.stat-card-new:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.06);
 }
 
 .stat-card-new .icon-box {
@@ -392,7 +424,17 @@ html, body {
     color: #64748b; /* Soft blue-grey icon */
     margin-bottom: 2rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+    transition: 0.3s;
 }
+
+.stat-card-new:hover .icon-box {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.stat-card-new.accent-blue .icon-box { color: var(--primary); background: rgba(0, 86, 179, 0.08); }
+.stat-card-new.accent-green .icon-box { color: #10b981; background: rgba(16, 185, 129, 0.08); }
+.stat-card-new.accent-amber .icon-box { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+.stat-card-new.accent-red .icon-box { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
 
 .stat-card-new p {
     font-size: 0.6rem;

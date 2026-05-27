@@ -375,7 +375,18 @@
                 <div class="col-6">
                     <div class="info-card-box">
                         <div class="info-card-label">NGÀY VÀO ĐOÀN</div>
-                        <div class="info-card-value">@(Model.JoinDate ?? "---")</div>
+                        <div class="info-card-value">
+                            @{
+                                if (DateTime.TryParse(Model.JoinDate, out var joinDate))
+                                {
+                                    @joinDate.ToString("dd/MM/yyyy")
+                                }
+                                else
+                                {
+                                    @:Chưa cập nhật
+                                }
+                            }
+                        </div>
                     </div>
                 </div>
                 <div class="col-6">
