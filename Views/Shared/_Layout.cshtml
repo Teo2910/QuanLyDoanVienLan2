@@ -87,6 +87,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")" href="/admin/users">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Quản lý tài khoản</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Logs" ? "active" : "")" href="/logs">
                             <i class="fas fa-history"></i>
                             <span>Nhật ký hệ thống</span>

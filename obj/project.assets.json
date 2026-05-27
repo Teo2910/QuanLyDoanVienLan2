@@ -7896,11 +7896,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\QLDV\\QLDV.csproj",
+      "projectUniqueName": "C:\\QuanLyDoanVienLan2\\QLDV.csproj",
       "projectName": "QLDV",
-      "projectPath": "C:\\QLDV\\QLDV.csproj",
+      "projectPath": "C:\\QuanLyDoanVienLan2\\QLDV.csproj",
       "packagesPath": "C:\\Users\\teong\\.nuget\\packages\\",
-      "outputPath": "C:\\QLDV\\obj\\",
+      "outputPath": "C:\\QuanLyDoanVienLan2\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

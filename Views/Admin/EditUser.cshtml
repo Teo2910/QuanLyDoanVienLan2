@@ -1,0 +1,445 @@
+@model QLDV.Controllers.EditUserViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var units = ViewBag.Units as List<QLDV.Models.Unit> ?? new List<QLDV.Models.Unit>();
+}
+
+<style>
+    .page-overlay-premium {
+        position: fixed;
+        top: 0;
+        left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        height: 100%;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        overflow-y: auto;
+        padding: 3rem 2rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @@media (max-width: 991px) {
+        .page-overlay-premium {
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.8);
+        }
+    }
+
+    .form-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 650px;
+        border-radius: 40px;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.2);
+        padding: 3.5rem;
+        position: relative;
+        margin-bottom: 2rem;
+        animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 44px;
+        height: 44px;
+        background: #f8fafc;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .close-form-btn:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        transform: rotate(90deg);
+    }
+
+    .form-header {
+        margin-bottom: 3.5rem;
+    }
+
+    .form-header h2 {
+        font-weight: 700;
+        font-size: 1.8rem;
+        letter-spacing: -0.5px;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header .subtext {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-header .subtext::before {
+        content: "";
+        width: 20px;
+        height: 1px;
+        background: #cbd5e1;
+    }
+
+    .custom-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 1.75rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #cbd5e1;
+        font-size: 1rem;
+        transition: 0.2s;
+    }
+
+    .custom-input {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 18px;
+        padding: 0.9rem 1.25rem 0.9rem 3.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        transition: all 0.2s;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .custom-input:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+        outline: none;
+    }
+
+    .custom-input:focus + .input-icon {
+        color: var(--primary);
+    }
+
+    /* File Input Styling */
+    .file-input-wrapper {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: 0.2s;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .file-input-wrapper:hover {
+        border-color: var(--primary);
+        background: #f0f7ff;
+    }
+
+    .file-input-wrapper input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-label-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+    }
+
+    .file-label-box i {
+        font-size: 1.5rem;
+        color: #cbd5e1;
+    }
+
+    .file-label-box span {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Custom Dropdown Styles */
+    .dropdown-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 1.75rem;
+    }
+
+    .custom-dropdown-trigger {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 18px;
+        padding: 0.9rem 1.25rem 0.9rem 3.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+
+    .custom-dropdown-trigger:hover {
+        background: #f1f5f9;
+    }
+
+    .custom-dropdown-trigger.active {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
+    }
+
+    .dropdown-menu-custom {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+        border: 1px solid #f1f5f9;
+        z-index: 1000;
+        padding: 10px;
+        display: none;
+        max-height: 280px;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+
+    .dropdown-menu-custom.show {
+        display: block;
+    }
+
+    .dropdown-item-custom {
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #475569;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.2s;
+    }
+
+    .dropdown-item-custom:hover {
+        background: #f8fafc;
+        color: var(--primary);
+    }
+
+    .dropdown-item-custom.selected {
+        background: rgba(0, 86, 179, 0.05);
+        color: var(--primary);
+    }
+
+    .dropdown-item-custom i {
+        display: none;
+        font-size: 0.8rem;
+    }
+
+    .dropdown-item-custom.selected i {
+        display: block;
+    }
+
+    .submit-btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 1.25rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        width: 100%;
+        margin-top: 2rem;
+        transition: all 0.3s;
+        box-shadow: 0 10px 30px rgba(0, 86, 179, 0.2);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 86, 179, 0.3);
+        background: #004494;
+    }
+
+    @@keyframes slideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+
+<div class="page-overlay-premium">
+    <div class="form-style-card">
+        <a href="/Admin/Users" class="close-form-btn">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Chỉnh sửa tài khoản</h2>
+            <div class="subtext">CẬP NHẬT THÔNG TIN TÀI KHOẢN HỆ THỐNG</div>
+        </div>
+
+        <form asp-action="EditUser" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <label class="custom-label">HỌ VÀ TÊN</label>
+            <div class="input-wrapper">
+                <input type="text" asp-for="FullName" class="custom-input" placeholder="VD: Nguyễn Văn A" required>
+                <i class="fas fa-user input-icon"></i>
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="custom-label">EMAIL ĐĂNG NHẬP</label>
+                    <div class="input-wrapper">
+                        <input type="email" asp-for="Email" class="custom-input" placeholder="VD: secretary@domain.com" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="custom-label">SỐ ĐIỆN THOẠI</label>
+                    <div class="input-wrapper">
+                        <input type="tel" asp-for="PhoneNumber" class="custom-input" placeholder="090xxxxxxxx">
+                        <i class="fas fa-phone input-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <label class="custom-label">CHI ĐOÀN QUẢN LÝ</label>
+            <div class="dropdown-container">
+                <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
+                <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
+                    <span id="unitSelectedText">@(units.FirstOrDefault(u => u.Id == Model.UnitId)?.Name ?? "-- Chọn chi đoàn --")</span>
+                    <i class="fas fa-building input-icon"></i>
+                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem; margin-left: auto;"></i>
+                </div>
+                <div class="dropdown-menu-custom" id="unitDropdownMenu">
+                    <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.UnitId) ? "selected" : "")" data-value="">-- Chọn chi đoàn -- <i class="fas fa-check"></i></div>
+                    @foreach (var unit in units)
+                    {
+                        <div class="dropdown-item-custom @(Model.UnitId == unit.Id ? "selected" : "")" data-value="@unit.Id">@unit.Name <i class="fas fa-check"></i></div>
+                    }
+                </div>
+                <span asp-validation-for="UnitId" class="text-danger small"></span>
+            </div>
+
+            <label class="custom-label">MẬT KHẨU MỚI (BỎ TRỐNG NẾU KHÔNG ĐỔI)</label>
+            <div class="input-wrapper">
+                <input type="password" asp-for="NewPassword" class="custom-input" placeholder="********">
+                <i class="fas fa-lock input-icon"></i>
+                <span asp-validation-for="NewPassword" class="text-danger small"></span>
+            </div>
+
+            <label class="custom-label">AVATAR MỚI (TÙY CHỌN)</label>
+            <div class="file-input-wrapper mb-4">
+                <input type="file" asp-for="Avatar" id="AvatarInput" accept="image/*">
+                <div class="file-label-box" id="fileLabelBox">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span id="fileNameDisplay">Nhấp để chọn hoặc kéo thả ảnh vào đây</span>
+                    <small style="font-size: 0.65rem; color: #94a3b8;">PNG, JPG hoặc WEBP (Tối đa 2MB)</small>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                LƯU THAY ĐỔI
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            function setupDropdown(triggerId, menuId, inputId, textId) {
+                const trigger = $('#' + triggerId);
+                const menu = $('#' + menuId);
+                const input = $('#' + inputId);
+                const text = $('#' + textId);
+
+                trigger.on('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = menu.hasClass('show');
+                    $('.dropdown-menu-custom').not(menu).removeClass('show');
+                    $('.custom-dropdown-trigger').not(trigger).removeClass('active');
+                    if (!isOpen) {
+                        menu.addClass('show');
+                        trigger.addClass('active');
+                    }
+                });
+
+                menu.on('click', '.dropdown-item-custom', function() {
+                    const val = $(this).data('value');
+                    const label = $(this).text().trim();
+                    input.val(val);
+                    text.text(label);
+                    menu.find('.dropdown-item-custom').removeClass('selected');
+                    $(this).addClass('selected');
+                    menu.removeClass('show');
+                    trigger.removeClass('active');
+                });
+            }
+
+            setupDropdown('unitDropdownTrigger', 'unitDropdownMenu', 'UnitIdInput', 'unitSelectedText');
+
+            $(document).on('click', function() {
+                $('.dropdown-menu-custom').removeClass('show');
+                $('.custom-dropdown-trigger').removeClass('active');
+            });
+
+            // File input preview
+            $('#AvatarInput').on('change', function() {
+                const fileName = $(this).val().split('\\').pop();
+                if (fileName) {
+                    $('#fileNameDisplay').text(fileName);
+                    $('#fileLabelBox i').removeClass('fa-cloud-upload-alt').addClass('fa-image').css('color', 'var(--primary)');
+                } else {
+                    $('#fileNameDisplay').text('Nhấp để chọn hoặc kéo thả ảnh vào đây');
+                    $('#fileLabelBox i').removeClass('fa-image').addClass('fa-cloud-upload-alt').css('color', '#cbd5e1');
+                }
+            });
+        });
+    </script>
+}

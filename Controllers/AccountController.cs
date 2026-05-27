@@ -115,11 +115,13 @@ namespace QLDV.Controllers
                     {
                         await _userManager.AddToRoleAsync(user, "Admin");
                         user.Role = "Admin";
+                        user.IsSecretary = false;
                     }
                     else
                     {
                         await _userManager.AddToRoleAsync(user, "Secretary");
                         user.Role = "Secretary";
+                        user.IsSecretary = true;
                     }
                     await _userManager.UpdateAsync(user);
 
@@ -190,6 +192,16 @@ namespace QLDV.Controllers
                     }
                 }
 
+                // Handle password change if requested
+                if (!string.IsNullOrEmpty(model.CurrentPassword) && !string.IsNullOrEmpty(model.NewPassword))
+                {
+                    var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                    if (!changePasswordResult.Succeeded)
+                    {
+                        return Json(new { success = false, message = "Mật khẩu hiện tại không chính xác hoặc mật khẩu mới không hợp lệ." });
+                    }
+                }
+
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
@@ -238,5 +250,8 @@ namespace QLDV.Controllers
         public string FullName { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public IFormFile? Avatar { get; set; }
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmNewPassword { get; set; }
     }
 }

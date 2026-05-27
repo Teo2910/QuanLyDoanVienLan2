@@ -1,0 +1,286 @@
+@model List<QLDV.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Quản lý tài khoản Bí thư";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var units = ViewBag.Units as List<QLDV.Models.Unit> ?? new List<QLDV.Models.Unit>();
+}
+
+<style>
+    .action-pill-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .action-btn-premium {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        text-decoration: none !important;
+        font-size: 0.9rem;
+    }
+
+    .btn-edit-soft {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .btn-edit-soft:hover {
+        background: #2563eb;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-delete-soft {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .btn-delete-soft:hover {
+        background: #ef4444;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-reset-soft {
+        background: #fffbeb;
+        color: #d97706;
+    }
+
+    .btn-reset-soft:hover {
+        background: #d97706;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(217, 119, 6, 0.2);
+    }
+
+    .member-row-v2 {
+        transition: all 0.2s;
+    }
+
+    .member-row-v2:hover {
+        background: #f8fafc !important;
+    }
+</style>
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-user-shield" style="color: var(--primary);"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Quản lý tài khoản</h1>
+                <p>DANH SÁCH BÍ THƯ VÀ QUẢN TRỊ VIÊN HỆ THỐNG</p>
+            </div>
+        </div>
+        <div>
+            <a href="/Admin/CreateSecretary" class="btn-premium btn-launch-dark px-4">
+                <i class="fas fa-plus"></i> THÊM TÀI KHOẢN MỚI
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="member-list-card-premium">
+    <div class="list-title-header">
+        <div class="list-title-box">
+            <h2>Danh sách tài khoản</h2>
+            <p>HỆ THỐNG PHÂN QUYỀN TRUY CẬP</p>
+        </div>
+        <div class="result-count-badge">@Model.Count TÀI KHOẢN</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-members-v2">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">#</th>
+                    <th>THÔNG TIN CƠ BẢN</th>
+                    <th>EMAIL / TÊN ĐĂNG NHẬP</th>
+                    <th>CHI ĐOÀN QUẢN LÝ</th>
+                    <th>VAI TRÒ</th>
+                    <th>NGÀY TẠO</th>
+                    <th class="text-end">THAO TÁC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var user in Model.OrderByDescending(u => u.CreatedAt))
+                {
+                    <tr class="member-row-v2">
+                        <td>
+                            <span class="row-index">@(i < 10 ? "0" + i : i.ToString())</span>
+                        </td>
+                        <td>
+                            <div class="member-core-info">
+                                @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                {
+                                    <img src="@user.AvatarUrl" class="avatar-circle-v2" style="object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="avatar-circle-v2">
+                                        @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1) : "U")
+                                    </div>
+                                }
+                                <div class="member-text-v2">
+                                    <b>@user.FullName</b>
+                                    <span>
+                                        <span class="meta-blue">@user.PhoneNumber</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="id-badge-stack">
+                                <b>@user.Email</b>
+                                <span>ONLINE</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="unit-text-v2">
+                                @(units.FirstOrDefault(u => u.Id == user.UnitId)?.Name ?? "---")
+                            </div>
+                        </td>
+                        <td>
+                            <div class="achievement-pill-v2 @(user.Role == "Admin" ? "bg-danger text-white" : "")">
+                                @user.Role
+                            </div>
+                        </td>
+                        <td>
+                            <div class="status-row-v2">
+                                <div class="dot-v2"></div>
+                                @(DateTimeOffset.FromUnixTimeSeconds(user.CreatedAt).LocalDateTime.ToString("dd/MM/yyyy"))
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <div class="action-pill-group">
+                                <button class="action-btn-premium btn-reset-soft" onclick="resetPassword('@user.Id', '@user.FullName')" title="Đặt lại mật khẩu">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                <a href="/Admin/EditUser/@user.Id" class="action-btn-premium btn-edit-soft" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn-premium btn-delete-soft" onclick="deleteUser('@user.Id', '@user.FullName')" title="Xóa tài khoản">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Custom Deletion Modal -->
+<div class="confirm-modal-overlay" id="deleteConfirmModal">
+    <div class="confirm-card">
+        <div class="confirm-icon-box">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 id="confirmTitle">Xác nhận xóa</h3>
+        <p id="confirmMessage">Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác.</p>
+        <div class="confirm-actions">
+            <button type="button" class="btn-confirm-no" onclick="closeDeleteModal()">HỦY BỎ</button>
+            <button type="button" class="btn-confirm-yes" id="btnConfirmDelete">XÁC NHẬN XÓA</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let userIdToProcess = null;
+        let actionType = 'delete'; // 'delete' or 'reset'
+
+        function deleteUser(id, name) {
+            userIdToProcess = id;
+            actionType = 'delete';
+            document.getElementById('confirmTitle').innerText = 'Xác nhận xóa';
+            document.getElementById('confirmMessage').innerHTML = `Bạn có chắc chắn muốn xóa tài khoản của <b>${name}</b>?<br>Hành động này không thể hoàn tác.`;
+            document.getElementById('btnConfirmDelete').className = 'btn-confirm-yes';
+            document.getElementById('btnConfirmDelete').innerText = 'XÁC NHẬN XÓA';
+            
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function resetPassword(id, name) {
+            userIdToProcess = id;
+            actionType = 'reset';
+            document.getElementById('confirmTitle').innerText = 'Đặt lại mật khẩu';
+            document.getElementById('confirmMessage').innerHTML = `Bạn có chắc chắn muốn đặt lại mật khẩu của <b>${name}</b> về mặc định?<br>Mật khẩu mới sẽ là: <b class="text-primary">123456</b>`;
+            document.getElementById('btnConfirmDelete').className = 'btn-confirm-yes bg-warning text-white';
+            document.getElementById('btnConfirmDelete').innerText = 'XÁC NHẬN RESET';
+
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                userIdToProcess = null;
+            }, 300);
+        }
+
+        document.getElementById('btnConfirmDelete').addEventListener('click', function() {
+            if (!userIdToProcess) return;
+
+            const url = actionType === 'delete' ? `/Admin/DeleteUser/${userIdToProcess}` : `/Admin/ResetPassword/${userIdToProcess}`;
+            const originalText = this.innerText;
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (actionType === 'reset') {
+                        if (typeof toast !== 'undefined') toast.success(data.message);
+                        else alert(data.message);
+                        closeDeleteModal();
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra');
+                    closeDeleteModal();
+                }
+            })
+            .catch(err => {
+                console.error('Action error:', err);
+                alert('Có lỗi hệ thống xảy ra.');
+                closeDeleteModal();
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerText = originalText;
+            });
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
+    </script>
+}

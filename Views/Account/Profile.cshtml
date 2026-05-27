@@ -305,8 +305,39 @@
                 </div>
             </div>
 
+            <div class="profile-header mt-5">
+                <div>
+                    <h2>Bảo mật <span>Tài khoản</span></h2>
+                    <div class="subtext">
+                        <div class="dot-primary"></div>
+                        THAY ĐỔI MẬT KHẨU ĐĂNG NHẬP
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="input-group-premium">
+                    <label class="label-premium">MẬT KHẨU HIỆN TẠI</label>
+                    <input type="password" name="CurrentPassword" class="input-premium" placeholder="********">
+                </div>
+
+                <div class="input-group-premium">
+                    <!-- Placeholder to keep grid aligned -->
+                </div>
+
+                <div class="input-group-premium">
+                    <label class="label-premium">MẬT KHẨU MỚI</label>
+                    <input type="password" name="NewPassword" id="NewPassword" class="input-premium" placeholder="********">
+                </div>
+
+                <div class="input-group-premium">
+                    <label class="label-premium">XÁC NHẬN MẬT KHẨU MỚI</label>
+                    <input type="password" name="ConfirmNewPassword" id="ConfirmNewPassword" class="input-premium" placeholder="********">
+                </div>
+            </div>
+
             <button type="submit" class="save-btn-premium">
-                <i class="fas fa-check-circle"></i> CẬP NHẬT THÔNG TIN
+                <i class="fas fa-check-circle"></i> CẬP NHẬT HỒ SƠ & BẢO MẬT
             </button>
         </form>
     </div>
@@ -331,6 +362,18 @@
             $('#profileForm').on('submit', function(e) {
                 e.preventDefault();
                 
+                const newPass = $('#NewPassword').val();
+                const confirmPass = $('#ConfirmNewPassword').val();
+
+                if (newPass !== confirmPass) {
+                    if (typeof toast !== 'undefined') {
+                        toast.error('Mật khẩu xác nhận không khớp.');
+                    } else {
+                        alert('Mật khẩu xác nhận không khớp.');
+                    }
+                    return;
+                }
+
                 const btn = $('.save-btn-premium');
                 const originalText = btn.html();
                 btn.html('<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...').prop('disabled', true);
@@ -351,6 +394,9 @@
                                 alert(response.message);
                             }
                             
+                            // Clear password fields
+                            $('input[type="password"]').val('');
+
                             // Update sidebar sync
                             if (response.user) {
                                 $('.user-info-sidebar h6').text(response.user.fullName);
