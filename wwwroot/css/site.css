@@ -129,65 +129,136 @@ html, body {
     left: 0;
     top: 0;
     background: var(--bg-sidebar);
-    padding: 2.5rem 1.5rem;
+    padding: 1.5rem 1.5rem 2.5rem 1.5rem;
     display: flex;
     flex-direction: column;
     z-index: 6000;
     border-right: 1px solid #edf2f7;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 991px) {
-    .sidebar { 
-        transform: translateX(-100%);
+.sidebar-brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
+}
+
+.sidebar-brand-new {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    flex-grow: 1;
+}
+
+.sidebar-toggle-btn-new {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-decoration: none !important;
+    transition: all 0.2s;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.sidebar-toggle-btn-new:hover {
+    background: #f1f5f9;
+    color: var(--primary);
+    border-color: #e2e8f0;
+}
+
+/* --- SIDEBAR COLLAPSE (DESKTOP) --- */
+@media (min-width: 992px) {
+    body.sidebar-collapsed .sidebar {
+        width: 100px;
+        padding: 1.5rem 0.75rem;
+        align-items: center;
     }
-    .sidebar.active {
-        transform: translateX(0);
-        box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+
+    body.sidebar-collapsed .sidebar-brand-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 0;
+        width: 100%;
+        align-items: center;
     }
-}
 
-.sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(4px);
-    z-index: 5500;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+    body.sidebar-collapsed .sidebar-brand-new {
+        justify-content: center;
+        width: 100%;
+    }
 
-.sidebar-overlay.active {
-    display: block;
-    opacity: 1;
-}
+    body.sidebar-collapsed .sidebar-toggle-btn-new {
+        order: -1; /* Toggle button on top when collapsed */
+    }
 
+    body.sidebar-collapsed .brand-text,
+    body.sidebar-collapsed .nav-link span,
+    body.sidebar-collapsed .sidebar-footer .user-info-sidebar,
+    body.sidebar-collapsed .sidebar-footer .logout-link span {
+        display: none;
+    }
+
+    body.sidebar-collapsed .nav-link {
+        justify-content: center;
+        padding: 0.9rem;
+        border-radius: 12px;
+    }
+
+    body.sidebar-collapsed .main-wrapper {
+        margin-left: 100px;
+        width: calc(100% - 100px);
+    }
+
+    body.sidebar-collapsed .modal-overlay {
+        left: 100px;
+        width: calc(100% - 100px);
+    }
+
+    body.sidebar-collapsed .sidebar-footer .user-profile-sidebar {
+        padding: 0.5rem;
+        justify-content: center;
+    }
 .sidebar-brand {
     display: flex;
     align-items: center;
     gap: 15px;
-    margin-bottom: 3.5rem;
+    margin-bottom: 2.5rem;
     text-decoration: none;
-    padding-left: 0.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s;
+}
+
+.sidebar-brand:hover {
+    background: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.02);
 }
 
 .brand-logo-badge {
-    width: 44px;
-    height: 44px;
-    background: var(--primary);
+    width: 42px;
+    height: 42px;
+    background: var(--primary-gradient);
     color: #fff;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.1rem;
-    box-shadow: 0 8px 15px rgba(0, 97, 242, 0.25);
+    font-size: 1rem;
+    flex-shrink: 0;
 }
+
 
 .brand-text h4 { margin: 0; font-weight: 700; font-size: 1.05rem; color: #1e293b; letter-spacing: -0.5px; }
 .brand-text small { font-size: 0.55rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }

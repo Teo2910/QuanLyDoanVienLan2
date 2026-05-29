@@ -33,13 +33,18 @@
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <div class="sidebar" id="sidebar">
-            <a href="/" class="sidebar-brand">
-                <div class="brand-logo-badge">QN</div>
-                <div class="brand-text">
-                    <h4>Quản lý Đoàn</h4>
-                    <small>HỆ THỐNG THÔNG MINH</small>
-                </div>
-            </a>
+            <div class="sidebar-brand-header">
+                <a href="/" class="sidebar-brand-new">
+                    <div class="brand-logo-badge">QN</div>
+                    <div class="brand-text">
+                        <h4>Quản lý Đoàn</h4>
+                        <small>HỆ THỐNG THÔNG MINH</small>
+                    </div>
+                </a>
+                <a href="javascript:void(0)" id="desktopSidebarToggle" class="sidebar-toggle-btn-new d-none d-md-flex">
+                    <i class="fas fa-outdent"></i>
+                </a>
+            </div>
 
             <ul class="nav-menu">
                 <li class="nav-item">
@@ -128,7 +133,7 @@
             <header class="top-bar">
                 <div class="top-bar-left">
                     <a href="javascript:history.back()" class="close-btn d-none d-md-flex">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-chevron-left"></i>
                     </a>
                     <div class="page-info">
                         <h5>@ViewData["Title"]</h5>
@@ -171,6 +176,29 @@
 
             toggle.on('click', toggleSidebar);
             overlay.on('click', toggleSidebar);
+
+            // Desktop Sidebar Toggle
+            const desktopToggle = $('#desktopSidebarToggle');
+            desktopToggle.on('click', function() {
+                $('body').toggleClass('sidebar-collapsed');
+                
+                // Toggle icon
+                const icon = $(this).find('i');
+                if ($('body').hasClass('sidebar-collapsed')) {
+                    icon.removeClass('fa-indent').addClass('fa-bars');
+                } else {
+                    icon.removeClass('fa-bars').addClass('fa-indent');
+                }
+
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', $('body').hasClass('sidebar-collapsed'));
+            });
+
+            // Restore sidebar state
+            if (localStorage.getItem('sidebarCollapsed') === 'true' && window.innerWidth > 991) {
+                $('body').addClass('sidebar-collapsed');
+                $('#desktopSidebarToggle i').removeClass('fa-indent').addClass('fa-bars');
+            }
 
             // Close sidebar on link click (for mobile)
             $('.nav-link').on('click', function() {
