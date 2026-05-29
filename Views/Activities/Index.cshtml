@@ -136,7 +136,7 @@
     .type-seminar { background: #fef9e7; color: #f39c12; }
     .type-other { background: #f8f9fa; color: #999; }
 
-    .btn-edit-small {
+    .btn-edit-small, .btn-delete-small {
         width: 36px;
         height: 36px;
         background: #f8f9fa;
@@ -154,6 +154,12 @@
         background: #fff;
         color: var(--primary-color);
         border-color: var(--primary-color);
+    }
+
+    .btn-delete-small:hover {
+        background: #fff5f5;
+        color: #ff5252;
+        border-color: #ff5252;
     }
 
     .activity-card h3 {
@@ -260,7 +266,24 @@
     </div>
 </div>
 
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-content-wrapper" style="max-width: 450px;">
+        <div class="form-style-card text-center p-5" style="border-radius: 30px;">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5252;"></i>
+            </div>
+            <h4 class="fw-bold mb-3" style="color: #1a1a1a;">Xác nhận xóa</h4>
+            <p id="confirmMessage" class="text-muted mb-4" style="font-weight: 500;"></p>
+            <div class="d-flex gap-3 justify-content-center">
+                <button type="button" onclick="closeConfirmModal()" class="btn btn-light px-4 py-2" style="border-radius: 12px; font-weight: 600;">Hủy bỏ</button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger px-4 py-2" style="border-radius: 12px; font-weight: 600; background: #ff5252; border: none;">Xác nhận xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="page-header-new">
+    @Html.AntiForgeryToken()
     <div class="header-title-box">
         <h1 style="color: var(--primary);">Hoạt động sắp tới</h1>
         <p>LỊCH TRÌNH VÀ SỰ KIỆN ĐOÀN THANH NIÊN CƠ SỞ</p>
@@ -298,10 +321,14 @@
                             _ => activity.Type?.ToUpper() ?? "KHÁC"
                         };
                     }
-                    <span class="activity-type-badge @typeClass">@typeLabel</span>
-                    <a href="javascript:void(0)" onclick="openActivityModal('/activities/edit/@activity.Id')" class="btn-edit-small">
-                        <i class="fas fa-pencil-alt"></i>
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="javascript:void(0)" onclick="openActivityModal('/activities/edit/@activity.Id')" class="btn-edit-small">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <a href="javascript:void(0)" onclick="deleteActivity('@activity.Id', '@activity.Title')" class="btn-delete-small">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
                 </div>
 
 
@@ -431,6 +458,58 @@
                     document.getElementById('modalBody').innerHTML = '';
                 }, 300);
             };
+
+            const confirmModal = document.getElementById('confirmModal');
+            window.closeConfirmModal = function() {
+                confirmModal.classList.remove('show');
+                document.body.style.overflow = '';
+            };
+
+            window.deleteActivity = function(id, title) {
+                document.getElementById('confirmMessage').innerText = `Bạn có chắc chắn muốn xóa hoạt động "${title}"? Thao tác này không thể hoàn tác.`;
+                confirmModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                document.getElementById('confirmDeleteBtn').onclick = function() {
+                    closeConfirmModal();
+                    fetch(`/activities/delete/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            if (typeof toast !== 'undefined') toast.success('Đã xóa hoạt động thành công!');
+                        } else {
+                            throw new Error('Lỗi khi xóa hoạt động');
+                        }
+                    })
+                    .catch(error => {
+                        if (typeof toast !== 'undefined') toast.error(error.message);
+                    });
+                };
+            };
+
+            // SignalR Listener for Real-time Updates
+            if (typeof signalR !== 'undefined') {
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/chatHub")
+                    .build();
+
+                connection.on("DataUpdated", function (type) {
+                    console.log("Received DataUpdated signal for:", type);
+                    if (type === "Activity") {
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
+                    }
+                });
+
+                connection.start()
+                    .then(() => console.log("SignalR connected successfully"))
+                    .catch(err => console.error("SignalR Connection Error: ", err));
+            }
 
             function initializeActivityModalScripts() {
                 // 0. Handle Close Button inside modal
