@@ -10,7 +10,7 @@ bin/
 obj/
 .vs/
 .fake
-
+logs/
 # Playwright
 /test-results/
 /playwright-report/

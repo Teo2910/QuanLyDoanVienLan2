@@ -212,7 +212,19 @@ namespace QLDV.Services
         public async Task DeleteUnitAsync(string id)
         {
             var unit = await GetUnitByIdAsync(id);
-            if (unit == null) throw new Exception("Unit not found");
+            if (unit == null) throw new Exception("Không tìm thấy đơn vị.");
+
+            if (unit.Children.Any())
+            {
+                throw new Exception($"Không thể xóa đơn vị '{unit.Name}' vì vẫn còn {unit.Children.Count} đơn vị trực thuộc. Vui lòng xóa hoặc chuyển các đơn vị con trước.");
+            }
+
+            // Handle reports - if any reports exist, delete them first to avoid FK constraint
+            var reports = await _context.MovementReports.Where(r => r.UnitId == id).ToListAsync();
+            if (reports.Any())
+            {
+                _context.MovementReports.RemoveRange(reports);
+            }
 
             _context.Units.Remove(unit);
             await _context.SaveChangesAsync();

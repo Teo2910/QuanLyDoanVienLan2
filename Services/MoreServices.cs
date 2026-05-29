@@ -343,17 +343,20 @@ namespace QLDV.Services
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogService _logService;
         private readonly Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> _hubContext;
 
         public GoogleAIService(
             IConfiguration configuration, 
             HttpClient httpClient, 
             IServiceProvider serviceProvider,
+            ILogService logService,
             Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> hubContext)
         {
             _configuration = configuration;
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
+            _logService = logService;
             _hubContext = hubContext;
         }
 
@@ -463,8 +466,9 @@ THÔNG TIN SCHEMA DỮ LIỆU:
   + StartDate (string, YYYY-MM-DD)
   + EndDate (string, YYYY-MM-DD)
 
-- XÓA DỮ LIỆU (DELETE_MEMBER / DELETE_UNIT / DELETE_ACTIVITY / DELETE_MOVEMENT):
+- XÓA DỮ LIỆU (DELETE_MEMBER / DELETE_UNIT / DELETE_ACTIVITY / DELETE_MOVEMENT / DELETE_USER):
   + Name (string, Tên hoặc tiêu đề chính xác của đối tượng cần xóa)
+  + LƯU Ý: 'DELETE_MEMBER' dùng cho đoàn viên, 'DELETE_USER' dùng cho tài khoản bí thư/hệ thống.
 
 - KIẾN THỨC (KNOWLEDGE_QUERY):
   + SearchTerm (string, từ khóa để tìm trong tài liệu nghiệp vụ)
@@ -480,14 +484,19 @@ VÍ DỤ HÀNH ĐỘNG:
   {""action"": ""CREATE_MOVEMENT"", ""data"": {""Title"": ""Chi chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}
 - 'Xóa phong trào 285':
   {""action"": ""DELETE_MOVEMENT"", ""data"": {""Name"": ""Phong trào 285""}, ""reply"": ""Đang thực hiện xóa phong trào 285 khỏi hệ thống quản lý...""}
+- 'Xóa tài khoản Quá dơ':
+  {""action"": ""DELETE_USER"", ""data"": {""Name"": ""Quá dơ""}, ""reply"": ""Đang thực hiện xóa tài khoản hệ thống của người dùng này...""}
 
 LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
 
                 var fullPrompt = $"{systemPrompt}\n\nNgười dùng: {message}";
                 var aiRawResponse = await GenerateResponseAsync(fullPrompt);
                 
+                // Log raw response for debugging
+                Console.WriteLine($"[AI Assistant] Raw Response: {aiRawResponse}");
+
                 // Try to extract JSON from the response
-                string jsonString = aiRawResponse;
+                string jsonString = "";
                 if (aiRawResponse.Contains("```json"))
                 {
                     jsonString = aiRawResponse.Split("```json")[1].Split("```")[0].Trim();
@@ -498,10 +507,23 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
                     jsonString = jsonString.Substring(0, jsonString.LastIndexOf("}") + 1);
                 }
 
+                // If no JSON found, treat as a normal reply
+                if (string.IsNullOrEmpty(jsonString) || !jsonString.TrimStart().StartsWith("{"))
+                {
+                    return aiRawResponse;
+                }
+
                 try
                 {
                     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    var command = JsonSerializer.Deserialize<SmartCommand>(jsonString, options);
+                    SmartCommand? command = null;
+                    
+                    try {
+                        command = JsonSerializer.Deserialize<SmartCommand>(jsonString, options);
+                    } catch (JsonException jex) {
+                        Console.WriteLine($"[AI Assistant] JSON Parse Error: {jex.Message}. Content: {jsonString}");
+                        return aiRawResponse; // Fallback to raw text if JSON is malformed
+                    }
                     
                     if (command == null || string.IsNullOrEmpty(command.Action)) return aiRawResponse;
 
@@ -710,7 +732,12 @@ YÊU CẦU TRẢ LỜI:
                             if (command.Data is JsonElement d3 && d3.ValueKind == JsonValueKind.Object && d3.TryGetProperty("Name", out var p3)) uName = p3.GetString() ?? "";
                             if (string.IsNullOrEmpty(uName)) return "⚠️ Thiếu tên đơn vị cần xóa.";
                             var allUnitsD = await unitService.GetAllUnitsAsync();
-                            var unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Contains(uName, StringComparison.OrdinalIgnoreCase) || u.Code.Equals(uName, StringComparison.OrdinalIgnoreCase));
+                            // Try exact match first, then partial match
+                            var unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Equals(uName, StringComparison.OrdinalIgnoreCase) || u.Code.Equals(uName, StringComparison.OrdinalIgnoreCase));
+                            if (unitToDelete == null) {
+                                unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Contains(uName, StringComparison.OrdinalIgnoreCase));
+                            }
+                            
                             if (unitToDelete != null) {
                                 await unitService.DeleteUnitAsync(unitToDelete.Id);
                                 return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công đơn vị: **{unitToDelete.Name}**)";
@@ -741,6 +768,30 @@ YÊU CẦU TRẢ LỜI:
                                 return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công tài liệu: **{kToDelete.Title}**)";
                             }
                             return $"❌ Không tìm thấy tài liệu: {kTitle}";
+
+                        case "DELETE_USER":
+                            if (isSecretary) return "⚠️ Bạn không có quyền xóa tài khoản hệ thống.";
+                            string accountName = "";
+                            if (command.Data is JsonElement d6 && d6.ValueKind == JsonValueKind.Object && d6.TryGetProperty("Name", out var p6)) accountName = p6.GetString() ?? "";
+                            if (string.IsNullOrEmpty(accountName)) return "⚠️ Thiếu tên người dùng hoặc email tài khoản cần xóa.";
+                            
+                            var allUsers = await userManager.Users.ToListAsync();
+                            var userToDelete = allUsers.FirstOrDefault(u => 
+                                (u.FullName != null && u.FullName.Contains(accountName, StringComparison.OrdinalIgnoreCase)) || 
+                                (u.Email != null && u.Email.Equals(accountName, StringComparison.OrdinalIgnoreCase)) ||
+                                (u.UserName != null && u.UserName.Equals(accountName, StringComparison.OrdinalIgnoreCase)));
+                            
+                            if (userToDelete != null) {
+                                if (userToDelete.Id == userId) return "⚠️ Bạn không thể tự xóa tài khoản của chính mình.";
+                                
+                                var delResult = await userManager.DeleteAsync(userToDelete);
+                                if (delResult.Succeeded) {
+                                    await _logService.LogActivityAsync(userId, "System", "DELETE", "User", userToDelete.Id, $"Xóa tài khoản: {userToDelete.FullName} ({userToDelete.Email})");
+                                    return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công tài khoản: **{userToDelete.FullName}**)";
+                                }
+                                return $"❌ Lỗi khi xóa tài khoản: {string.Join(", ", delResult.Errors.Select(e => e.Description))}";
+                            }
+                            return $"❌ Không tìm thấy tài khoản người dùng: {accountName}";
                             
                         default:
                             return command.Reply;

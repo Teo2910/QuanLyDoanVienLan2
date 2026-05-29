@@ -43,7 +43,7 @@ namespace QLDV.Data
                 .HasMany(u => u.Members)
                 .WithOne(m => m.Unit)
                 .HasForeignKey(m => m.UnitId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Unit>()
                 .HasMany(u => u.Children)
