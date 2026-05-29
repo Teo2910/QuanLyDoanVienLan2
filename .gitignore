@@ -10,3 +10,10 @@ bin/
 obj/
 .vs/
 .fake
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

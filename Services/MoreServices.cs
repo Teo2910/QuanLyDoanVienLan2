@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using QLDV.Data;
 using QLDV.Models;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using Microsoft.AspNetCore.SignalR;
 
 namespace QLDV.Services
 {
@@ -61,11 +63,13 @@ namespace QLDV.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogService _logService;
+        private readonly IHubContext<QLDV.Hubs.ChatHub> _hubContext;
 
-        public MovementService(ApplicationDbContext context, ILogService logService)
+        public MovementService(ApplicationDbContext context, ILogService logService, IHubContext<QLDV.Hubs.ChatHub> hubContext)
         {
             _context = context;
             _logService = logService;
+            _hubContext = hubContext;
         }
 
         public async Task<List<Movement>> GetAllMovementsAsync()
@@ -93,6 +97,8 @@ namespace QLDV.Services
                 movement.CreatorId, "System", "CREATE", "Movement", movement.Id,
                 $"Tạo phong trào: {movement.Title}");
 
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Movement");
+
             return movement;
         }
 
@@ -104,6 +110,8 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 movement.CreatorId, "System", "UPDATE", "Movement", movement.Id,
                 $"Cập nhật phong trào: {movement.Title}");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Movement");
         }
 
         public async Task DeleteMovementAsync(string id)
@@ -117,6 +125,8 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 movement.CreatorId, "System", "DELETE", "Movement", id,
                 $"Xóa phong trào: {movement.Title}");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Movement");
         }
 
         public async Task<List<MovementReport>> GetReportsByMovementAsync(string movementId)
@@ -146,6 +156,8 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 report.UnitId, "System", "SUBMIT_REPORT", "MovementReport", report.Id,
                 $"Gửi báo cáo cho phong trào");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Movement");
 
             return report;
         }
@@ -331,12 +343,18 @@ namespace QLDV.Services
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly IServiceProvider _serviceProvider;
+        private readonly Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> _hubContext;
 
-        public GoogleAIService(IConfiguration configuration, HttpClient httpClient, IServiceProvider serviceProvider)
+        public GoogleAIService(
+            IConfiguration configuration, 
+            HttpClient httpClient, 
+            IServiceProvider serviceProvider,
+            Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> hubContext)
         {
             _configuration = configuration;
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
+            _hubContext = hubContext;
         }
 
         public async Task<string> GenerateResponseAsync(string prompt)
@@ -445,6 +463,9 @@ THÔNG TIN SCHEMA DỮ LIỆU:
   + StartDate (string, YYYY-MM-DD)
   + EndDate (string, YYYY-MM-DD)
 
+- XÓA DỮ LIỆU (DELETE_MEMBER / DELETE_UNIT / DELETE_ACTIVITY / DELETE_MOVEMENT):
+  + Name (string, Tên hoặc tiêu đề chính xác của đối tượng cần xóa)
+
 - KIẾN THỨC (KNOWLEDGE_QUERY):
   + SearchTerm (string, từ khóa để tìm trong tài liệu nghiệp vụ)
 
@@ -456,7 +477,9 @@ VÍ DỤ HÀNH ĐỘNG:
 - 'Quy định kết nạp Đoàn là gì?':
   {""action"": ""KNOWLEDGE_QUERY"", ""data"": {""SearchTerm"": ""kết nạp Đoàn""}, ""reply"": ""Để tôi kiểm tra tài liệu nghiệp vụ về việc kết nạp Đoàn...""}
 - 'Phát động phong trào Mùa hè xanh':
-  {""action"": ""CREATE_MOVEMENT"", ""data"": {""Title"": ""Chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}
+  {""action"": ""CREATE_MOVEMENT"", ""data"": {""Title"": ""Chi chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}
+- 'Xóa phong trào 285':
+  {""action"": ""DELETE_MOVEMENT"", ""data"": {""Name"": ""Phong trào 285""}, ""reply"": ""Đang thực hiện xóa phong trào 285 khỏi hệ thống quản lý...""}
 
 LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
 
@@ -655,6 +678,69 @@ YÊU CẦU TRẢ LỜI:
                                 return await GenerateResponseAsync(groundedPrompt);
                             }
                             return "🔍 Tôi đã tìm trong Tài liệu nghiệp vụ nhưng không thấy thông tin liên quan đến yêu cầu của bạn. Bạn có thể thử với từ khóa khác hoặc liên hệ Ban Chấp hành để được hướng dẫn.";
+
+                        case "DELETE_MOVEMENT":
+                            if (isSecretary) return "⚠️ Bạn không có quyền xóa phong trào. Chức năng này chỉ dành cho Quản trị viên.";
+                            string movName = "";
+                            if (command.Data is JsonElement d1 && d1.ValueKind == JsonValueKind.Object && d1.TryGetProperty("Name", out var p1)) movName = p1.GetString() ?? "";
+                            if (string.IsNullOrEmpty(movName)) return "⚠️ Thiếu tên phong trào cần xóa.";
+                            var allMovs = await movementService.GetAllMovementsAsync();
+                            var movToDelete = allMovs.FirstOrDefault(m => m.Title.Contains(movName, StringComparison.OrdinalIgnoreCase));
+                            if (movToDelete != null) {
+                                await movementService.DeleteMovementAsync(movToDelete.Id);
+                                return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công phong trào: **{movToDelete.Title}**)";
+                            }
+                            return $"❌ Không tìm thấy phong trào có tên '{movName}'";
+
+                        case "DELETE_MEMBER":
+                            string memName = "";
+                            if (command.Data is JsonElement d2 && d2.ValueKind == JsonValueKind.Object && d2.TryGetProperty("Name", out var p2)) memName = p2.GetString() ?? "";
+                            if (string.IsNullOrEmpty(memName)) return "⚠️ Thiếu tên đoàn viên hoặc mã đoàn viên cần xóa.";
+                            var allMems = await memberService.GetAllMembersAsync();
+                            var memToDelete = allMems.FirstOrDefault(m => m.FullName.Contains(memName, StringComparison.OrdinalIgnoreCase) || m.MemberId.Equals(memName, StringComparison.OrdinalIgnoreCase));
+                            if (memToDelete != null) {
+                                await memberService.DeleteMemberAsync(memToDelete.Id);
+                                return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công đoàn viên: **{memToDelete.FullName}**)";
+                            }
+                            return $"❌ Không tìm thấy đoàn viên: {memName}";
+
+                        case "DELETE_UNIT":
+                            if (isSecretary) return "⚠️ Bạn không có quyền xóa đơn vị.";
+                            string uName = "";
+                            if (command.Data is JsonElement d3 && d3.ValueKind == JsonValueKind.Object && d3.TryGetProperty("Name", out var p3)) uName = p3.GetString() ?? "";
+                            if (string.IsNullOrEmpty(uName)) return "⚠️ Thiếu tên đơn vị cần xóa.";
+                            var allUnitsD = await unitService.GetAllUnitsAsync();
+                            var unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Contains(uName, StringComparison.OrdinalIgnoreCase) || u.Code.Equals(uName, StringComparison.OrdinalIgnoreCase));
+                            if (unitToDelete != null) {
+                                await unitService.DeleteUnitAsync(unitToDelete.Id);
+                                return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công đơn vị: **{unitToDelete.Name}**)";
+                            }
+                            return $"❌ Không tìm thấy đơn vị: {uName}";
+
+                        case "DELETE_ACTIVITY":
+                            string actName = "";
+                            if (command.Data is JsonElement d4 && d4.ValueKind == JsonValueKind.Object && d4.TryGetProperty("Name", out var p4)) actName = p4.GetString() ?? "";
+                            if (string.IsNullOrEmpty(actName)) return "⚠️ Thiếu tên hoạt động cần xóa.";
+                            var allActs = await activityService.GetAllActivitiesAsync();
+                            var actToDelete = allActs.FirstOrDefault(a => a.Title.Contains(actName, StringComparison.OrdinalIgnoreCase));
+                            if (actToDelete != null) {
+                                await activityService.DeleteActivityAsync(actToDelete.Id);
+                                return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công hoạt động: **{actToDelete.Title}**)";
+                            }
+                            return $"❌ Không tìm thấy hoạt động: {actName}";
+
+                        case "DELETE_KNOWLEDGE":
+                            if (isSecretary) return "⚠️ Bạn không có quyền xóa tài liệu nghiệp vụ.";
+                            string kTitle = "";
+                            if (command.Data is JsonElement d5 && d5.ValueKind == JsonValueKind.Object && d5.TryGetProperty("Name", out var p5)) kTitle = p5.GetString() ?? "";
+                            if (string.IsNullOrEmpty(kTitle)) return "⚠️ Thiếu tiêu đề tài liệu cần xóa.";
+                            var allKItems = await kbService.GetAllItemsAsync();
+                            var kToDelete = allKItems.FirstOrDefault(k => k.Title.Contains(kTitle, StringComparison.OrdinalIgnoreCase));
+                            if (kToDelete != null) {
+                                await kbService.DeleteItemAsync(kToDelete.Id);
+                                return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công tài liệu: **{kToDelete.Title}**)";
+                            }
+                            return $"❌ Không tìm thấy tài liệu: {kTitle}";
                             
                         default:
                             return command.Reply;

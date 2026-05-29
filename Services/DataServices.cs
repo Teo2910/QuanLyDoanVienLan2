@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using QLDV.Data;
 using QLDV.Models;
+using Microsoft.AspNetCore.SignalR;
+using QLDV.Hubs;
 
 namespace QLDV.Services
 {
@@ -8,11 +10,13 @@ namespace QLDV.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogService _logService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MemberService(ApplicationDbContext context, ILogService logService)
+        public MemberService(ApplicationDbContext context, ILogService logService, IHubContext<ChatHub> hubContext)
         {
             _context = context;
             _logService = logService;
+            _hubContext = hubContext;
         }
 
         public async Task<List<Member>> GetAllMembersAsync()
@@ -52,6 +56,8 @@ namespace QLDV.Services
                 member.Id, "System", "CREATE", "Member", member.Id,
                 $"Tạo thành viên mới: {member.FullName}");
 
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
+
             return member;
         }
 
@@ -63,6 +69,8 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 member.Id, "System", "UPDATE", "Member", member.Id,
                 $"Cập nhật thành viên: {member.FullName}");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
         }
 
         public async Task DeleteMemberAsync(string id)
@@ -76,6 +84,8 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 id, "System", "DELETE", "Member", id,
                 $"Xóa thành viên: {member.FullName}");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
         }
 
         public async Task<List<Member>> SearchMembersAsync(string searchTerm, string? unitId = null, string? status = null)
@@ -132,16 +142,20 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(
                 memberId, "System", "STATUS_CHANGE", "Member", memberId,
                 $"Thay đổi trạng thái từ '{oldStatus}' sang '{newStatus}'. Lý do: {reason}");
+
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
         }
     }
 
     public class UnitService : IUnitService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public UnitService(ApplicationDbContext context)
+        public UnitService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public async Task<List<Unit>> GetAllUnitsAsync()
@@ -184,6 +198,7 @@ namespace QLDV.Services
             unit.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.Units.Add(unit);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
             return unit;
         }
 
@@ -191,6 +206,7 @@ namespace QLDV.Services
         {
             _context.Units.Update(unit);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
         }
 
         public async Task DeleteUnitAsync(string id)
@@ -200,16 +216,19 @@ namespace QLDV.Services
 
             _context.Units.Remove(unit);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
         }
     }
 
     public class ActivityService : IActivityService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ActivityService(ApplicationDbContext context)
+        public ActivityService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public async Task<List<Activity>> GetAllActivitiesAsync()
@@ -230,6 +249,7 @@ namespace QLDV.Services
             activity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
             return activity;
         }
 
@@ -237,6 +257,7 @@ namespace QLDV.Services
         {
             _context.Activities.Update(activity);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
         }
 
         public async Task DeleteActivityAsync(string id)
@@ -246,16 +267,19 @@ namespace QLDV.Services
 
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
         }
     }
 
     public class KnowledgeBaseService : IKnowledgeBaseService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public KnowledgeBaseService(ApplicationDbContext context)
+        public KnowledgeBaseService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public async Task<List<KnowledgeItem>> GetAllItemsAsync()
@@ -284,6 +308,7 @@ namespace QLDV.Services
             item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.KnowledgeItems.Add(item);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
             return item;
         }
 
@@ -292,6 +317,7 @@ namespace QLDV.Services
             item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.KnowledgeItems.Update(item);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
         }
 
         public async Task DeleteItemAsync(string id)
@@ -301,6 +327,7 @@ namespace QLDV.Services
 
             _context.KnowledgeItems.Remove(item);
             await _context.SaveChangesAsync();
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
         }
     }
 }

@@ -59,7 +59,7 @@
             <i class="fas fa-chart-bar" style="color: #64748b;"></i>
         </div>
         <div>
-            <h2 class="fw-black text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Tổng cục phong trào</h2>
+            <h2 class="fw-black text-dark m-0" style="font-size: 1.5rem; letter-spacing: -0.5px;">Tổng cục phong trào (@stats.Count)</h2>
             <p class="text-muted small fw-bold m-0 mt-1" style="letter-spacing: 1px; text-transform: uppercase;">DỮ LIỆU THỜI GIAN THỰC</p>
         </div>
     </div>
@@ -494,5 +494,34 @@
             const modal = document.getElementById('confirmModal');
             if (modal) modal.classList.remove('show');
         }
+
+        // Real-time Update Listener
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof signalR !== 'undefined') {
+                console.log("SignalR detected, initializing listener...");
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/chatHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                connection.on("DataUpdated", function (type) {
+                    console.log("Received DataUpdated signal for:", type);
+                    if (type === "Movement") {
+                        if (typeof toast !== 'undefined') {
+                            toast.info("Dữ liệu phong trào đã được cập nhật!");
+                        }
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                });
+
+                connection.start()
+                    .then(() => console.log("SignalR connected successfully"))
+                    .catch(err => console.error("SignalR Connection Error: ", err));
+            } else {
+                console.warn("SignalR library not found!");
+            }
+        });
     </script>
 }
