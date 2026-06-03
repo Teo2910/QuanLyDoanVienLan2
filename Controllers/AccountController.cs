@@ -66,23 +66,14 @@ namespace QLDV.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Verify Admin Code if Admin role is selected
-                if (model.Role == "Admin")
-                {
-                    if (model.AdminCode != "kiemchutdinh29")
-                    {
-                        ModelState.AddModelError("AdminCode", "Mã xác nhận Admin không chính xác. Bạn không có quyền tạo tài khoản Quản trị viên.");
-                        await FetchUnitsForViewBag();
-                        return View(model);
-                    }
-                }
-
                 var user = new ApplicationUser 
                 { 
                     UserName = model.Email, 
                     Email = model.Email,
                     FullName = model.FullName,
-                    UnitId = model.Role == "Secretary" ? model.UnitId : null,
+                    UnitId = model.UnitId,
+                    Role = "Secretary",
+                    IsSecretary = true,
                     CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
 
@@ -104,25 +95,11 @@ namespace QLDV.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // Ensure roles exist
-                    if (!await _roleManager.RoleExistsAsync("Admin"))
-                        await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                    // Ensure Secretary role exists
                     if (!await _roleManager.RoleExistsAsync("Secretary"))
                         await _roleManager.CreateAsync(new IdentityRole("Secretary"));
 
-                    // Assign requested role
-                    if (model.Role == "Admin")
-                    {
-                        await _userManager.AddToRoleAsync(user, "Admin");
-                        user.Role = "Admin";
-                        user.IsSecretary = false;
-                    }
-                    else
-                    {
-                        await _userManager.AddToRoleAsync(user, "Secretary");
-                        user.Role = "Secretary";
-                        user.IsSecretary = true;
-                    }
+                    await _userManager.AddToRoleAsync(user, "Secretary");
                     await _userManager.UpdateAsync(user);
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
@@ -239,8 +216,6 @@ namespace QLDV.Controllers
         public string Password { get; set; } = string.Empty;
         public string ConfirmPassword { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string Role { get; set; } = "Secretary"; // Default to Secretary
-        public string? AdminCode { get; set; }
         public string? UnitId { get; set; }
         public IFormFile? Avatar { get; set; }
     }

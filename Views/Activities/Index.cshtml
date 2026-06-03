@@ -266,18 +266,16 @@
     </div>
 </div>
 
-<div id="confirmModal" class="modal-overlay">
-    <div class="modal-content-wrapper" style="max-width: 450px;">
-        <div class="form-style-card text-center p-5" style="border-radius: 30px;">
-            <div class="mb-4">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff5252;"></i>
-            </div>
-            <h4 class="fw-bold mb-3" style="color: #1a1a1a;">Xác nhận xóa</h4>
-            <p id="confirmMessage" class="text-muted mb-4" style="font-weight: 500;"></p>
-            <div class="d-flex gap-3 justify-content-center">
-                <button type="button" onclick="closeConfirmModal()" class="btn btn-light px-4 py-2" style="border-radius: 12px; font-weight: 600;">Hủy bỏ</button>
-                <button type="button" id="confirmDeleteBtn" class="btn btn-danger px-4 py-2" style="border-radius: 12px; font-weight: 600; background: #ff5252; border: none;">Xác nhận xóa</button>
-            </div>
+<div id="confirmModal" class="confirm-modal-overlay">
+    <div class="confirm-card">
+        <div class="confirm-icon-box" id="confirmIconBox">
+            <i class="fas fa-exclamation-triangle" id="confirmIcon"></i>
+        </div>
+        <h3 id="confirmTitle">Xác nhận</h3>
+        <p id="confirmMessage"></p>
+        <div class="confirm-actions">
+            <button type="button" onclick="closeConfirmModal()" class="btn-confirm-no">Hủy bỏ</button>
+            <button type="button" id="confirmActionBtn" class="btn-confirm-yes">Xác nhận</button>
         </div>
     </div>
 </div>
@@ -366,7 +364,7 @@
                     </div>
                 </div>
 
-                <button class="btn-upgrade">
+                <button class="btn-upgrade" onclick="upgradeToMovement('@activity.Id', '@activity.Title')">
                     <i class="fas fa-medal"></i> NÂNG CẤP THÀNH PHONG TRÀO
                 </button>
             </div>
@@ -466,11 +464,23 @@
             };
 
             window.deleteActivity = function(id, title) {
+                document.getElementById('confirmTitle').innerText = 'Xác nhận xóa';
                 document.getElementById('confirmMessage').innerText = `Bạn có chắc chắn muốn xóa hoạt động "${title}"? Thao tác này không thể hoàn tác.`;
+                
+                const iconBox = document.getElementById('confirmIconBox');
+                const icon = document.getElementById('confirmIcon');
+                icon.className = 'fas fa-trash-alt';
+                iconBox.style.background = '#fef2f2';
+                iconBox.style.color = '#ef4444';
+                
+                const actionBtn = document.getElementById('confirmActionBtn');
+                actionBtn.innerText = 'Xác nhận xóa';
+                actionBtn.style.background = '#ef4444';
+
                 confirmModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
 
-                document.getElementById('confirmDeleteBtn').onclick = function() {
+                actionBtn.onclick = function() {
                     closeConfirmModal();
                     fetch(`/activities/delete/${id}`, {
                         method: 'POST',
@@ -483,6 +493,46 @@
                             if (typeof toast !== 'undefined') toast.success('Đã xóa hoạt động thành công!');
                         } else {
                             throw new Error('Lỗi khi xóa hoạt động');
+                        }
+                    })
+                    .catch(error => {
+                        if (typeof toast !== 'undefined') toast.error(error.message);
+                    });
+                };
+            };
+
+            window.upgradeToMovement = function(id, title) {
+                document.getElementById('confirmTitle').innerText = 'Nâng cấp phong trào';
+                document.getElementById('confirmMessage').innerText = `Bạn có muốn nâng cấp hoạt động "${title}" thành phong trào không? Hoạt động cũ sẽ được chuyển đổi.`;
+                
+                const iconBox = document.getElementById('confirmIconBox');
+                const icon = document.getElementById('confirmIcon');
+                icon.className = 'fas fa-medal';
+                iconBox.style.background = '#e0f2fe';
+                iconBox.style.color = '#0066ff';
+                
+                const actionBtn = document.getElementById('confirmActionBtn');
+                actionBtn.innerText = 'Nâng cấp ngay';
+                actionBtn.style.background = '#0066ff';
+
+                confirmModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                actionBtn.onclick = function() {
+                    closeConfirmModal();
+                    fetch(`/activities/upgradeToMovement/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (typeof toast !== 'undefined') toast.success('Đã nâng cấp thành phong trào thành công!');
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            throw new Error(data.message || 'Lỗi khi nâng cấp');
                         }
                     })
                     .catch(error => {

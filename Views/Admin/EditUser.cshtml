@@ -337,6 +337,21 @@
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+            <label class="custom-label">VAI TRÒ TÀI KHOẢN</label>
+            <div class="dropdown-container">
+                <input type="hidden" asp-for="Role" id="RoleInput" value="@Model.Role" required />
+                <div class="custom-dropdown-trigger" id="roleDropdownTrigger">
+                    <span id="roleSelectedText">@(Model.Role == "Admin" ? "Quản trị viên (Admin)" : "Bí thư (Secretary)")</span>
+                    <i class="fas fa-user-shield input-icon"></i>
+                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem; margin-left: auto;"></i>
+                </div>
+                <div class="dropdown-menu-custom" id="roleDropdownMenu">
+                    <div class="dropdown-item-custom @(Model.Role == "Secretary" ? "selected" : "")" data-value="Secretary">Bí thư (Secretary) <i class="fas fa-check"></i></div>
+                    <div class="dropdown-item-custom @(Model.Role == "Admin" ? "selected" : "")" data-value="Admin">Quản trị viên (Admin) <i class="fas fa-check"></i></div>
+                </div>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
             <label class="custom-label">HỌ VÀ TÊN</label>
             <div class="input-wrapper">
                 <input type="text" asp-for="FullName" class="custom-input" placeholder="VD: Nguyễn Văn A" required>
@@ -348,7 +363,7 @@
                 <div class="col-md-6">
                     <label class="custom-label">EMAIL ĐĂNG NHẬP</label>
                     <div class="input-wrapper">
-                        <input type="email" asp-for="Email" class="custom-input" placeholder="VD: secretary@domain.com" required>
+                        <input type="email" asp-for="Email" class="custom-input" placeholder="VD: user@domain.com" required>
                         <i class="fas fa-envelope input-icon"></i>
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
@@ -362,22 +377,24 @@
                 </div>
             </div>
 
-            <label class="custom-label">CHI ĐOÀN QUẢN LÝ</label>
-            <div class="dropdown-container">
-                <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
-                <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
-                    <span id="unitSelectedText">@(units.FirstOrDefault(u => u.Id == Model.UnitId)?.Name ?? "-- Chọn chi đoàn --")</span>
-                    <i class="fas fa-building input-icon"></i>
-                    <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem; margin-left: auto;"></i>
+            <div id="unitSection" style="@(Model.Role == "Admin" ? "display:none;" : "")">
+                <label class="custom-label">CHI ĐOÀN QUẢN LÝ</label>
+                <div class="dropdown-container">
+                    <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
+                    <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
+                        <span id="unitSelectedText">@(units.FirstOrDefault(u => u.Id == Model.UnitId)?.Name ?? "-- Chọn chi đoàn --")</span>
+                        <i class="fas fa-building input-icon"></i>
+                        <i class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 0.8rem; margin-left: auto;"></i>
+                    </div>
+                    <div class="dropdown-menu-custom" id="unitDropdownMenu">
+                        <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.UnitId) ? "selected" : "")" data-value="">-- Chọn chi đoàn -- <i class="fas fa-check"></i></div>
+                        @foreach (var unit in units)
+                        {
+                            <div class="dropdown-item-custom @(Model.UnitId == unit.Id ? "selected" : "")" data-value="@unit.Id">@unit.Name <i class="fas fa-check"></i></div>
+                        }
+                    </div>
+                    <span asp-validation-for="UnitId" class="text-danger small"></span>
                 </div>
-                <div class="dropdown-menu-custom" id="unitDropdownMenu">
-                    <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.UnitId) ? "selected" : "")" data-value="">-- Chọn chi đoàn -- <i class="fas fa-check"></i></div>
-                    @foreach (var unit in units)
-                    {
-                        <div class="dropdown-item-custom @(Model.UnitId == unit.Id ? "selected" : "")" data-value="@unit.Id">@unit.Name <i class="fas fa-check"></i></div>
-                    }
-                </div>
-                <span asp-validation-for="UnitId" class="text-danger small"></span>
             </div>
 
             <label class="custom-label">MẬT KHẨU MỚI (BỎ TRỐNG NẾU KHÔNG ĐỔI)</label>
@@ -407,7 +424,7 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            function setupDropdown(triggerId, menuId, inputId, textId) {
+            function setupDropdown(triggerId, menuId, inputId, textId, callback) {
                 const trigger = $('#' + triggerId);
                 const menu = $('#' + menuId);
                 const input = $('#' + inputId);
@@ -433,8 +450,17 @@
                     $(this).addClass('selected');
                     menu.removeClass('show');
                     trigger.removeClass('active');
+                    if (callback) callback(val);
                 });
             }
+
+            setupDropdown('roleDropdownTrigger', 'roleDropdownMenu', 'RoleInput', 'roleSelectedText', function(role) {
+                if (role === 'Admin') {
+                    $('#unitSection').slideUp();
+                } else {
+                    $('#unitSection').slideDown();
+                }
+            });
 
             setupDropdown('unitDropdownTrigger', 'unitDropdownMenu', 'UnitIdInput', 'unitSelectedText');
 

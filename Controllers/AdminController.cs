@@ -33,18 +33,16 @@ namespace QLDV.Controllers
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users.ToListAsync();
-            var secretaryUsers = new List<ApplicationUser>();
             
+            // Populate the Role property for each user if not already set or to ensure it's correct from Identity
             foreach (var user in users)
             {
-                if (await _userManager.IsInRoleAsync(user, "Secretary"))
-                {
-                    secretaryUsers.Add(user);
-                }
+                var roles = await _userManager.GetRolesAsync(user);
+                user.Role = roles.FirstOrDefault() ?? "User";
             }
 
             ViewBag.Units = await _unitService.GetAllUnitsAsync();
-            return View(secretaryUsers);
+            return View(users);
         }
 
         [HttpGet]
@@ -65,9 +63,9 @@ namespace QLDV.Controllers
                     UserName = model.Email,
                     Email = model.Email,
                     FullName = model.FullName,
-                    UnitId = model.UnitId,
-                    Role = "Secretary",
-                    IsSecretary = true,
+                    UnitId = model.Role == "Admin" ? null : model.UnitId,
+                    Role = model.Role,
+                    IsSecretary = model.Role == "Secretary",
                     CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
 
@@ -80,12 +78,12 @@ namespace QLDV.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    if (!await _roleManager.RoleExistsAsync("Secretary"))
+                    if (!await _roleManager.RoleExistsAsync(model.Role))
                     {
-                        await _roleManager.CreateAsync(new IdentityRole("Secretary"));
+                        await _roleManager.CreateAsync(new IdentityRole(model.Role));
                     }
 
-                    await _userManager.AddToRoleAsync(user, "Secretary");
+                    await _userManager.AddToRoleAsync(user, model.Role);
                     
                     var currentUser = await _userManager.GetUserAsync(User);
                     await _logService.LogActivityAsync(
@@ -94,10 +92,10 @@ namespace QLDV.Controllers
                         "CREATE",
                         "User",
                         user.Id,
-                        $"Created secretary account for {user.FullName} ({user.Email})"
+                        $"Created {model.Role.ToLower()} account for {user.FullName} ({user.Email})"
                     );
 
-                    TempData["Success"] = "Đã tạo tài khoản Bí thư thành công!";
+                    TempData["Success"] = $"Đã tạo tài khoản {model.Role} thành công!";
                     return RedirectToAction(nameof(Users));
                 }
 
@@ -117,13 +115,15 @@ namespace QLDV.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
+            var roles = await _userManager.GetRolesAsync(user);
             var model = new EditUserViewModel
             {
                 Id = user.Id,
                 Email = user.Email!,
                 FullName = user.FullName ?? "",
                 UnitId = user.UnitId,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                Role = roles.FirstOrDefault() ?? "User"
             };
 
             ViewBag.Units = await _unitService.GetAllUnitsAsync();
@@ -140,8 +140,10 @@ namespace QLDV.Controllers
                 if (user == null) return NotFound();
 
                 user.FullName = model.FullName;
-                user.UnitId = model.UnitId;
+                user.UnitId = model.Role == "Admin" ? null : model.UnitId;
                 user.PhoneNumber = model.PhoneNumber;
+                user.Role = model.Role;
+                user.IsSecretary = model.Role == "Secretary";
                 
                 if (user.Email != model.Email)
                 {
@@ -158,6 +160,18 @@ namespace QLDV.Controllers
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
+                    // Update Role
+                    var currentRoles = await _userManager.GetRolesAsync(user);
+                    if (!currentRoles.Contains(model.Role))
+                    {
+                        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                        if (!await _roleManager.RoleExistsAsync(model.Role))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole(model.Role));
+                        }
+                        await _userManager.AddToRoleAsync(user, model.Role);
+                    }
+
                     if (!string.IsNullOrEmpty(model.NewPassword))
                     {
                         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -171,7 +185,7 @@ namespace QLDV.Controllers
                         "UPDATE",
                         "User",
                         user.Id,
-                        $"Updated account for {user.FullName} ({user.Email})"
+                        $"Updated account for {user.FullName} ({user.Email}) - Role: {model.Role}"
                     );
 
                     TempData["Success"] = "Cập nhật tài khoản thành công!";
@@ -254,7 +268,8 @@ namespace QLDV.Controllers
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
-        public string UnitId { get; set; } = string.Empty;
+        public string Role { get; set; } = "Secretary";
+        public string? UnitId { get; set; }
         public IFormFile? Avatar { get; set; }
     }
 
@@ -263,6 +278,7 @@ namespace QLDV.Controllers
         public string Id { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
+        public string Role { get; set; } = "Secretary";
         public string? UnitId { get; set; }
         public string? PhoneNumber { get; set; }
         public string? NewPassword { get; set; }

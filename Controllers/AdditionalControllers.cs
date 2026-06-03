@@ -14,10 +14,14 @@ namespace QLDV.Controllers
     public class ActivitiesController : Controller
     {
         private readonly IActivityService _activityService;
+        private readonly IMovementService _movementService;
+        private readonly ILogService _logService;
 
-        public ActivitiesController(IActivityService activityService)
+        public ActivitiesController(IActivityService activityService, IMovementService movementService, ILogService logService)
         {
             _activityService = activityService;
+            _movementService = movementService;
+            _logService = logService;
         }
 
         public async Task<IActionResult> Index()
@@ -99,6 +103,56 @@ namespace QLDV.Controllers
             {
                 await _activityService.DeleteActivityAsync(id);
                 return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpgradeToMovement(string id)
+        {
+            try
+            {
+                var activity = await _activityService.GetActivityByIdAsync(id);
+                if (activity == null) return NotFound(new { success = false, message = "Không tìm thấy hoạt động" });
+
+                var movement = new Movement
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = activity.Title,
+                    Description = activity.Description,
+                    Status = "Active",
+                    CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                    CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                    TargetUnit = "Tất cả các chi đoàn"
+                };
+
+                if (DateTime.TryParse(activity.Date, out var date))
+                {
+                    movement.StartDate = date;
+                    movement.EndDate = date.AddDays(7);
+                }
+                else
+                {
+                    movement.StartDate = DateTime.Now;
+                    movement.EndDate = DateTime.Now.AddDays(7);
+                }
+
+                await _movementService.CreateMovementAsync(movement);
+                await _activityService.DeleteActivityAsync(id);
+
+                await _logService.LogActivityAsync(
+                    User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                    User.Identity?.Name ?? "Unknown",
+                    "Upgrade Activity to Movement",
+                    "Activity",
+                    id,
+                    $"Converted activity '{activity.Title}' to movement '{movement.Id}'"
+                );
+
+                return Json(new { success = true, movementId = movement.Id });
             }
             catch (Exception ex)
             {

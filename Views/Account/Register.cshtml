@@ -193,43 +193,6 @@
             outline: none;
         }
 
-        /* Role Buttons */
-        .role-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 2rem;
-        }
-
-        .role-btn {
-            flex: 1;
-            padding: 1.1rem;
-            border-radius: 20px;
-            border: 2px solid var(--slate-100);
-            background: var(--slate-50);
-            color: var(--slate-400);
-            font-weight: 700;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .role-btn.active[data-role="Secretary"] {
-            border-color: var(--success);
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.05);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
-        }
-
-        .role-btn.active[data-role="Admin"] {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.05);
-            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.1);
-        }
-
         /* Dropdown */
         .dropdown-container {
             position: relative;
@@ -394,22 +357,16 @@
                 </div>
 
                 <div class="form-group-premium">
-                    <label class="label-premium">VAI TRÒ HỆ THỐNG</label>
-                    <div class="role-selector">
-                        <input type="radio" asp-for="Role" value="Secretary" id="roleSecretary" class="d-none" checked onchange="handleRoleChange('Secretary')">
-                        <label for="roleSecretary" id="labelSecretary" class="role-btn active" data-role="Secretary">BÍ THƯ</label>
-
-                        <input type="radio" asp-for="Role" value="Admin" id="roleAdmin" class="d-none" onchange="handleRoleChange('Admin')">
-                        <label for="roleAdmin" id="labelAdmin" class="role-btn" data-role="Admin">QUẢN TRỊ VIÊN</label>
-                    </div>
+                    <label class="label-premium">HỌ VÀ TÊN</label>
+                    <input asp-for="FullName" class="input-premium" placeholder="VD: Nguyễn Quốc Gia Huy" required />
                 </div>
 
-                <div id="adminCodeSection" class="form-group-premium" style="display: none; animation: fadeIn 0.4s ease;">
-                    <label class="label-premium" style="color: var(--danger);">MÃ XÁC NHẬN QUẢN TRỊ</label>
-                    <input asp-for="AdminCode" type="password" class="input-premium" placeholder="Nhập mã bí mật cấp cao..." style="border-color: rgba(239, 68, 68, 0.1);" />
+                <div class="form-group-premium">
+                    <label class="label-premium">ĐỊA CHỈ EMAIL</label>
+                    <input asp-for="Email" class="input-premium" placeholder="name@example.com" required />
                 </div>
 
-                <div id="unitSection" class="form-group-premium" style="animation: fadeIn 0.4s ease;">
+                <div class="form-group-premium">
                     <label class="label-premium">ĐƠN VỊ CÔNG TÁC</label>
                     <div class="dropdown-container">
                         <input type="hidden" asp-for="UnitId" id="UnitIdInput" />
@@ -428,16 +385,6 @@
                             }
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group-premium">
-                    <label class="label-premium">HỌ VÀ TÊN</label>
-                    <input asp-for="FullName" class="input-premium" placeholder="VD: Nguyễn Quốc Gia Huy" required />
-                </div>
-
-                <div class="form-group-premium">
-                    <label class="label-premium">ĐỊA CHỈ EMAIL</label>
-                    <input asp-for="Email" class="input-premium" placeholder="name@example.com" required />
                 </div>
 
                 <div class="form-row-premium">
@@ -463,25 +410,6 @@
     </div>
 
     <script>
-        function handleRoleChange(role) {
-            const adminSection = document.getElementById('adminCodeSection');
-            const unitSection = document.getElementById('unitSection');
-            const lSec = document.getElementById('labelSecretary');
-            const lAdm = document.getElementById('labelAdmin');
-
-            if (role === 'Admin') {
-                adminSection.style.display = 'block';
-                unitSection.style.display = 'none';
-                lAdm.classList.add('active');
-                lSec.classList.remove('active');
-            } else {
-                adminSection.style.display = 'none';
-                unitSection.style.display = 'block';
-                lSec.classList.add('active');
-                lAdm.classList.remove('active');
-            }
-        }
-
         // Custom Dropdown Logic
         document.addEventListener('DOMContentLoaded', function() {
             const trigger = document.getElementById('unitDropdownTrigger');
