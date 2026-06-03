@@ -115,7 +115,7 @@
                 @{ int i = 1; }
                 @foreach (var user in Model.OrderByDescending(u => u.CreatedAt))
                 {
-                    <tr class="member-row-v2">
+                    <tr class="member-row-v2 admin-row">
                         <td>
                             <span class="row-index">@(i < 10 ? "0" + i : i.ToString())</span>
                         </td>

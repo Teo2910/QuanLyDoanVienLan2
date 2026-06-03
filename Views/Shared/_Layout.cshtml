@@ -140,7 +140,7 @@
                         <span>Dự án Quản lý Đoàn</span>
                     </div>
                 </div>
-                <div class="user-nav-pill d-none d-sm-flex">
+                <div class="user-nav-pill d-none d-lg-flex">
                     <div class="info">
                         <h6>@(user?.FullName ?? "User")</h6>
                         <p>@(isAdmin ? "QUẢN TRỊ VIÊN" : "BÍ THƯ")</p>
@@ -185,9 +185,9 @@
                 // Toggle icon
                 const icon = $(this).find('i');
                 if ($('body').hasClass('sidebar-collapsed')) {
-                    icon.removeClass('fa-indent').addClass('fa-bars');
+                    icon.removeClass('fa-outdent').addClass('fa-indent');
                 } else {
-                    icon.removeClass('fa-bars').addClass('fa-indent');
+                    icon.removeClass('fa-indent').addClass('fa-outdent');
                 }
 
                 // Save state to localStorage
@@ -197,7 +197,7 @@
             // Restore sidebar state
             if (localStorage.getItem('sidebarCollapsed') === 'true' && window.innerWidth > 991) {
                 $('body').addClass('sidebar-collapsed');
-                $('#desktopSidebarToggle i').removeClass('fa-indent').addClass('fa-bars');
+                $('#desktopSidebarToggle i').removeClass('fa-outdent').addClass('fa-indent');
             }
 
             // Close sidebar on link click (for mobile)

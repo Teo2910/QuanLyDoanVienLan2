@@ -115,6 +115,10 @@ html, body {
     max-width: 100%;
 }
 
+@media (max-width: 1200px) {
+    .main-content { padding: 0 2rem; }
+}
+
 @media (max-width: 768px) {
     .main-content {
         padding: 0 0.75rem !important;
@@ -226,6 +230,8 @@ html, body {
         padding: 0.5rem;
         justify-content: center;
     }
+}
+
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -263,20 +269,62 @@ html, body {
 .brand-text h4 { margin: 0; font-weight: 700; font-size: 1.05rem; color: #1e293b; letter-spacing: -0.5px; }
 .brand-text small { font-size: 0.55rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
 
-.nav-menu { 
-    list-style: none; 
-    padding: 0; 
-    margin: 0; 
+.nav-menu, ul.nav-menu { 
+    list-style: none !important; 
+    list-style-type: none !important;
+    padding: 0 !important; 
+    margin: 0 !important; 
     flex-grow: 1; 
     overflow-y: auto;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 
+@media (max-width: 991px) {
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: -300px !important;
+        width: 280px !important;
+        height: 100vh !important;
+        z-index: 10001 !important;
+        background: #fff !important;
+        box-shadow: 20px 0 60px rgba(15, 23, 42, 0.1) !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: flex !important;
+        padding-top: 1rem !important;
+        will-change: left;
+    }
+    .sidebar.active {
+        left: 0 !important;
+    }
+    .sidebar-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: rgba(15, 23, 42, 0.5) !important;
+        backdrop-filter: blur(4px) !important;
+        z-index: 10000 !important;
+        display: block !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: all 0.3s ease !important;
+    }
+    .sidebar-overlay.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
 .nav-menu::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
 }
-.nav-item { margin-bottom: 0.75rem; }
+.nav-item, li.nav-item { margin-bottom: 0.75rem; list-style-type: none !important; list-style: none !important; }
 .nav-link {
     display: flex;
     align-items: center;
@@ -340,6 +388,19 @@ html, body {
     padding: 0 4rem;
     background: transparent;
     width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .top-bar { padding: 0 2rem; }
+}
+
+@media (max-width: 991px) {
+    .top-bar { 
+        height: 70px;
+        padding: 0 1.5rem;
+        background: #fff;
+        border-bottom: 1px solid #edf2f7;
+    }
 }
 
 .top-bar-left { display: flex; align-items: center; gap: 20px; }
@@ -754,6 +815,7 @@ html, body {
     cursor: pointer;
     height: 0;
     width: 0;
+    z-index: 1;
 }
 
 .checkbox-mark {
@@ -1316,8 +1378,7 @@ html, body {
     font-weight: 700;
     text-transform: uppercase;
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    align-items: center; gap: 8px;
     border: 1px solid #f1f5f9;
     background: #fff;
     color: #64748b;
@@ -1520,7 +1581,6 @@ html, body {
 /* --- FINAL MOBILE RESPONSIVE FIXES (END OF FILE) --- */
 @media (max-width: 991px) {
     .modal-overlay { padding: 0.5rem !important; }
-    .modal-layout-container { padding: 3rem 1rem 2rem 1rem !important; }
 }
 @media (max-width: 768px) {
     .modal-layout-container { width: 100% !important; max-width: 100% !important; overflow-x: hidden !important; box-sizing: border-box !important; padding: 4rem 1rem 2rem 1rem !important; }
@@ -1674,15 +1734,46 @@ html, body {
 }
 
 @media (max-width: 576px) {
-    .table-premium-new tbody td:nth-child(2)::before { content: 'T?NG S?'; }
+    .table-premium-new tbody td:nth-child(2)::before { content: 'TỔNG SỐ'; }
     .table-premium-new tbody td:nth-child(3)::before { content: 'NAM'; }
-    .table-premium-new tbody td:nth-child(4)::before { content: 'N?'; }
-    .table-premium-new tbody td:nth-child(5)::before { content: '�ANG SINH HO?T'; }
-    .table-premium-new tbody td:nth-child(6)::before { content: 'CHUY?N �I'; }
-    .table-premium-new tbody td:nth-child(7)::before { content: 'TRU?NG TH�NH'; }
-    .table-premium-new tbody td:nth-child(8)::before { content: 'XU?T S?C'; }
-    .table-premium-new tbody td:nth-child(9)::before { content: 'KH�'; }
-    .table-premium-new tbody td:nth-child(10)::before { content: 'TRUNG B�NH'; }
-    .table-premium-new tbody td:nth-child(11)::before { content: 'TI�U BI?U'; }
+    .table-premium-new tbody td:nth-child(4)::before { content: 'NỮ'; }
+    .table-premium-new tbody td:nth-child(5)::before { content: 'ĐANG SINH HOẠT'; }
+    .table-premium-new tbody td:nth-child(6)::before { content: 'CHUYỂN ĐI'; }
+    .table-premium-new tbody td:nth-child(7)::before { content: 'TRƯỞNG THÀNH'; }
+    .table-premium-new tbody td:nth-child(8)::before { content: 'XUẤT SẮC'; }
+    .table-premium-new tbody td:nth-child(9)::before { content: 'KHÁ'; }
+    .table-premium-new tbody td:nth-child(10)::before { content: 'TRUNG BÌNH'; }
+    .table-premium-new tbody td:nth-child(11)::before { content: 'TIÊU BIỂU'; }
     .table-premium-new tbody td::before { min-width: 120px !important; }
+}
+
+/* --- ADDITIONAL RESPONSIVE FIXES --- */
+@media (max-width: 991px) {
+    .stats-header-actions { width: 100%; margin-top: 1rem; }
+    .stats-unit-dropdown { width: 100%; }
+}
+@media (max-width: 768px) {
+    .stats-banner-card { padding: 2rem !important; }
+    .banner-title { font-size: 1.8rem !important; }
+    .stats-pill-container { padding: 1rem !important; width: 100%; }
+    .stats-number { font-size: 1.5rem !important; }
+    .stats-table-card .table-premium-new tbody td { justify-content: space-between !important; }
+}
+@media (max-width: 576px) {
+    .unit-row td:nth-child(1)::before { content: 'MÃ ĐƠN VỊ'; }
+    .unit-row td:nth-child(2)::before { content: 'TÊN ĐƠN VỊ'; }
+    .unit-row td:nth-child(3)::before { content: 'LIÊN HỆ'; }
+}
+
+
+/* --- ADMIN TABLE LABELS --- */
+@media (max-width: 576px) {
+    .table-members-v2 tbody tr.admin-row td:nth-child(3)::before { content: 'TÀI KHOẢN'; }
+    .table-members-v2 tbody tr.admin-row td:nth-child(4)::before { content: 'QUẢN LÝ'; }
+    .table-members-v2 tbody tr.admin-row td:nth-child(5)::before { content: 'VAI TRÒ'; }
+    .table-members-v2 tbody tr.admin-row td:nth-child(6)::before { content: 'NGÀY TẠO'; }
+}
+
+    .table-members-v2 tbody tr.admin-row td:nth-child(5)::before { content: 'VAI TRÒ'; }
+    .table-members-v2 tbody tr.admin-row td:nth-child(6)::before { content: 'NGÀY TẠO'; }
 }
