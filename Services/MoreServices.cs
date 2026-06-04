@@ -473,9 +473,15 @@ THÔNG TIN SCHEMA DỮ LIỆU:
 - KIẾN THỨC (KNOWLEDGE_QUERY):
   + SearchTerm (string, từ khóa để tìm trong tài liệu nghiệp vụ)
 
+- CẬP NHẬT QUYỀN (UPDATE_USER_ROLE):
+  + Email (string, Email của tài khoản cần đổi quyền)
+  + Role (string: 'Admin', 'Secretary', 'User')
+
 VÍ DỤ HÀNH ĐỘNG:
 - 'Tạo đoàn viên tên Huy':
   {""action"": ""CREATE_MEMBER"", ""data"": {""FullName"": ""Nguyễn Quốc Huy"", ""MemberId"": ""DV009"", ""DOB"": ""2005-01-01"", ""Gender"": ""Nam"", ""UnitId"": ""U001"", ""Status"": ""Đang sinh hoạt""}, ""reply"": ""Đang tạo hồ sơ đoàn viên cho Huy...""}
+- 'Đổi quyền tài khoản teongu2910@gmail.com thành quản trị viên':
+  {""action"": ""UPDATE_USER_ROLE"", ""data"": {""Email"": ""teongu2910@gmail.com"", ""Role"": ""Admin""}, ""reply"": ""Đang cập nhật quyền quản trị viên cho tài khoản teongu2910@gmail.com trên hệ thống...""}
 - 'Tạo đơn vị Chi đoàn 10A1':
   {""action"": ""CREATE_UNIT"", ""data"": {""Name"": ""Chi đoàn 10A1"", ""Code"": ""CD10A1""}, ""reply"": ""Đang khởi tạo đơn vị mới trên hệ thống...""}
 - 'Quy định kết nạp Đoàn là gì?':
@@ -792,6 +798,52 @@ YÊU CẦU TRẢ LỜI:
                                 return $"❌ Lỗi khi xóa tài khoản: {string.Join(", ", delResult.Errors.Select(e => e.Description))}";
                             }
                             return $"❌ Không tìm thấy tài khoản người dùng: {accountName}";
+
+                        case "UPDATE_USER_ROLE":
+                            if (isSecretary) return "⚠️ Bạn không có quyền thay đổi quyền hạn tài khoản. Chức năng này chỉ dành cho Quản trị viên.";
+                            string targetEmail = "";
+                            string targetRole = "";
+                            
+                            if (command.Data is JsonElement dRole && dRole.ValueKind == JsonValueKind.Object)
+                            {
+                                if (dRole.TryGetProperty("Email", out var pEmail)) targetEmail = pEmail.GetString() ?? "";
+                                if (dRole.TryGetProperty("Role", out var pRole)) targetRole = pRole.GetString() ?? "";
+                            }
+                            
+                            if (string.IsNullOrEmpty(targetEmail)) return "⚠️ Thiếu email tài khoản cần cập nhật.";
+                            if (string.IsNullOrEmpty(targetRole)) return "⚠️ Thiếu vai trò mới cần cập nhật.";
+
+                            // Normalize role name
+                            if (targetRole.Contains("quản trị", StringComparison.OrdinalIgnoreCase) || targetRole.Equals("Admin", StringComparison.OrdinalIgnoreCase)) targetRole = "Admin";
+                            else if (targetRole.Contains("bí thư", StringComparison.OrdinalIgnoreCase) || targetRole.Equals("Secretary", StringComparison.OrdinalIgnoreCase)) targetRole = "Secretary";
+                            else targetRole = "User";
+
+                            var userToUpdate = await userManager.FindByEmailAsync(targetEmail);
+                            if (userToUpdate == null) {
+                                userToUpdate = await userManager.FindByNameAsync(targetEmail);
+                            }
+
+                            if (userToUpdate != null) {
+                                var currentRoles = await userManager.GetRolesAsync(userToUpdate);
+                                if (!currentRoles.Contains(targetRole)) {
+                                    await userManager.RemoveFromRolesAsync(userToUpdate, currentRoles);
+                                    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                                    if (!await roleManager.RoleExistsAsync(targetRole)) {
+                                        await roleManager.CreateAsync(new IdentityRole(targetRole));
+                                    }
+                                    await userManager.AddToRoleAsync(userToUpdate, targetRole);
+                                    
+                                    // Update the Role property in ApplicationUser for convenience
+                                    userToUpdate.Role = targetRole;
+                                    userToUpdate.IsSecretary = targetRole == "Secretary";
+                                    await userManager.UpdateAsync(userToUpdate);
+
+                                    await _logService.LogActivityAsync(userId, "System", "UPDATE", "User", userToUpdate.Id, $"Cập nhật quyền thành {targetRole} cho tài khoản: {userToUpdate.Email}");
+                                    return $"✅ {command.Reply}\n(Hệ thống đã cập nhật quyền **{targetRole}** cho tài khoản **{userToUpdate.Email}** thành công)";
+                                }
+                                return $"ℹ️ Tài khoản **{userToUpdate.Email}** đã có quyền **{targetRole}** rồi.";
+                            }
+                            return $"❌ Không tìm thấy tài khoản người dùng với email: {targetEmail}";
                             
                         default:
                             return command.Reply;
