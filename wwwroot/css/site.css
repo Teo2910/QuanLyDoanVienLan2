@@ -1770,6 +1770,8 @@ html, body {
 @media (max-width: 576px) {
     .table-members-v2 tbody tr.admin-row td:nth-child(3)::before { content: 'TÀI KHOẢN'; }
     .table-members-v2 tbody tr.admin-row td:nth-child(4)::before { content: 'QUẢN LÝ'; }
+}
+
 /* Toast Notifications */
 .toast-container {
     position: fixed;

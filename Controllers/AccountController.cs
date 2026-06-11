@@ -146,7 +146,7 @@ namespace QLDV.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(UpdateProfileViewModel model)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -165,7 +165,7 @@ namespace QLDV.Controllers
                     }
                     catch (Exception ex)
                     {
-                        return Json(new { success = false, message = "Error uploading avatar: " + ex.Message });
+                        return Json(new { success = false, message = "Lỗi khi tải ảnh đại diện: " + ex.Message });
                     }
                 }
 
@@ -175,19 +175,28 @@ namespace QLDV.Controllers
                     var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
                     if (!changePasswordResult.Succeeded)
                     {
-                        return Json(new { success = false, message = "Mật khẩu hiện tại không chính xác hoặc mật khẩu mới không hợp lệ." });
+                        var errors = string.Join(", ", changePasswordResult.Errors.Select(e => e.Description));
+                        return Json(new { success = false, message = "Lỗi đổi mật khẩu: " + errors });
                     }
                 }
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
+                    // Refresh sign-in to update claims in cookie
+                    await _signInManager.RefreshSignInAsync(user);
+                    
                     return Json(new { success = true, message = "Cập nhật thông tin thành công!", user = new { fullName = user.FullName, avatarUrl = user.AvatarUrl, phoneNumber = user.PhoneNumber } });
                 }
                 
-                return Json(new { success = false, message = string.Join(", ", result.Errors.Select(e => e.Description)) });
+                return Json(new { success = false, message = "Lỗi DB: " + string.Join(", ", result.Errors.Select(e => e.Description)) });
             }
-            return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+
+            var modelErrors = string.Join(" | ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage));
+
+            return Json(new { success = false, message = "Dữ liệu không hợp lệ: " + modelErrors });
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)

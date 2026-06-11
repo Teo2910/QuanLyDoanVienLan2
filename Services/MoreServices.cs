@@ -313,16 +313,21 @@ namespace QLDV.Services
 
         public async Task LogActivityAsync(string userId, string userName, string action, string entityType, string entityId, string details)
         {
-            if (string.IsNullOrEmpty(userId) || userId == "System")
+            // Prioritize current authenticated user from HttpContext
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.User?.Identity?.IsAuthenticated == true)
             {
-                var user = _httpContextAccessor.HttpContext?.User;
-                if (user?.Identity?.IsAuthenticated == true)
+                var sessionUserId = httpContext.User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(sessionUserId))
                 {
-                    userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? userId;
-                    var appUser = await _userManager.GetUserAsync(user);
-                    userName = appUser?.FullName ?? user.Identity.Name ?? userName;
+                    userId = sessionUserId;
+                    var appUser = await _userManager.GetUserAsync(httpContext.User);
+                    userName = appUser?.FullName ?? httpContext.User.Identity.Name ?? (string.IsNullOrEmpty(userName) || userName == "System" ? "User" : userName);
                 }
             }
+
+            if (string.IsNullOrEmpty(userId)) userId = "System";
+            if (string.IsNullOrEmpty(userName)) userName = "System";
 
             var log = new SystemLog
             {

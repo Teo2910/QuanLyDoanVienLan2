@@ -2,7 +2,7 @@
 @model QLDV.Models.Movement
 @{
     ViewData["Title"] = "Chỉnh sửa phong trào";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -298,12 +298,12 @@
                     <div class="dropdown-container">
                         <input type="hidden" asp-for="TargetUnit" id="TargetUnitInput" />
                         <div class="custom-dropdown-trigger" id="unitDropdownTrigger">
-                            <span id="unitSelectedText">@(ViewBag.Units != null ? ((IEnumerable<QLDV.Models.Unit>)ViewBag.Units).FirstOrDefault(u => u.Id == Model.TargetUnit)?.Name ?? "Chọn đơn vị..." : "Chọn đơn vị...")</span>
+                            <span id="unitSelectedText">@(ViewBag.Units != null && !string.IsNullOrEmpty(Model.TargetUnit) ? ((IEnumerable<QLDV.Models.Unit>)ViewBag.Units).FirstOrDefault(u => u.Id == Model.TargetUnit)?.Name ?? "Tất cả đơn vị (Không bắt buộc)" : "Tất cả đơn vị (Không bắt buộc)")</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="dropdown-menu-custom" id="unitDropdownMenu">
                             <div class="dropdown-item-custom @(string.IsNullOrEmpty(Model.TargetUnit) ? "selected" : "")" data-value="">
-                                Chọn đơn vị...
+                                Tất cả đơn vị (Không bắt buộc)
                                 <i class="fas fa-check"></i>
                             </div>
                             @if (ViewBag.Units != null)

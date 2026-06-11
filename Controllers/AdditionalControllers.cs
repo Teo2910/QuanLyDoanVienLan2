@@ -180,22 +180,39 @@ namespace QLDV.Controllers
         public async Task<IActionResult> Index()
         {
             var movements = await _movementService.GetAllMovementsAsync();
+            var allUnits = await _unitService.GetAllUnitsAsync();
+            var totalSystemUnits = allUnits.Count;
+
             var stats = new List<MovementStatsViewModel>();
 
             foreach (var m in movements)
             {
                 var targetUnitIds = new List<string>();
+                bool isAllUnits = false;
+
                 if (!string.IsNullOrEmpty(m.ParticipatingUnitIdsJson))
                 {
                     try { targetUnitIds = System.Text.Json.JsonSerializer.Deserialize<List<string>>(m.ParticipatingUnitIdsJson) ?? new List<string>(); } catch { }
                 }
                 else if (!string.IsNullOrEmpty(m.TargetUnit))
                 {
-                    targetUnitIds.Add(m.TargetUnit);
+                    if (m.TargetUnit == "Tất cả các chi đoàn" || m.TargetUnit == "Toàn hệ thống")
+                    {
+                        isAllUnits = true;
+                    }
+                    else
+                    {
+                        targetUnitIds.Add(m.TargetUnit);
+                    }
+                }
+                else
+                {
+                    // TargetUnit empty means "All units"
+                    isAllUnits = true;
                 }
 
                 var reportedUnitIds = m.Reports.Select(r => r.UnitId).Distinct().Count();
-                var totalTargetUnits = targetUnitIds.Count;
+                var totalTargetUnits = isAllUnits ? (totalSystemUnits > 0 ? totalSystemUnits : 1) : targetUnitIds.Count;
                 if (totalTargetUnits == 0) totalTargetUnits = 1; // Default to 1 if not specified
 
                 stats.Add(new MovementStatsViewModel
@@ -247,13 +264,25 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Movement movement, List<IFormFile> attachments)
+        public async Task<IActionResult> Create(Movement movement, List<IFormFile> attachments, List<string> participatingUnitIds)
         {
+            // TargetUnit is not used in Create form, ParticipatingUnitIds are used instead
+            ModelState.Remove("TargetUnit");
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     movement.CreatorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
+                    movement.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+                    // Ensure TargetUnit is not null (DB column is NOT NULL)
+                    if (string.IsNullOrEmpty(movement.TargetUnit)) movement.TargetUnit = "";
+
+                    if (participatingUnitIds != null && participatingUnitIds.Count > 0)
+                    {
+                        movement.ParticipatingUnitIdsJson = System.Text.Json.JsonSerializer.Serialize(participatingUnitIds);
+                    }
                     
                     if (attachments != null && attachments.Count > 0)
                     {
@@ -319,16 +348,20 @@ namespace QLDV.Controllers
                     existingMovement.StartDate = movement.StartDate;
                     existingMovement.EndDate = movement.EndDate;
                     existingMovement.Description = movement.Description;
-                    existingMovement.TargetUnit = movement.TargetUnit;
+                    
+                    // Ensure TargetUnit is not null (DB column is NOT NULL)
+                    existingMovement.TargetUnit = string.IsNullOrEmpty(movement.TargetUnit) ? "" : movement.TargetUnit;
+                    
                     existingMovement.Status = movement.Status;
                     // Keep CreatorId and CreatedAt from the original entity
 
                     await _movementService.UpdateMovementAsync(existingMovement);
+                    TempData["Success"] = "Cập nhật phong trào thành công!";
                     return RedirectToAction(nameof(Details), new { id = existingMovement.Id });
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", $"Error updating movement: {ex.Message}");
+                    ModelState.AddModelError("", $"Lỗi khi cập nhật phong trào: {ex.Message}");
                 }
             }
             var units = await _unitService.GetAllUnitsAsync();

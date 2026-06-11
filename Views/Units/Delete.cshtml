@@ -5,65 +5,26 @@
     Layout = isAjax ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="modal-layout-container">
-    <a href="/units" class="close-modal-btn">
-        <i class="fas fa-times"></i>
-    </a>
-
-    <div class="details-header d-flex justify-content-between align-items-start" style="padding-right: 80px;">
-        <div class="header-main-box d-flex align-items-center gap-4">
-            <div class="header-icon-box" style="width: 64px; height: 64px; background: #fef2f2; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #ef4444; box-shadow: 0 5px 15px rgba(0,0,0,0.02);">
-                <i class="fas fa-trash-alt"></i>
-            </div>
-            <div class="header-text">
-                <h1 class="fw-black m-0" style="font-size: 2.25rem; letter-spacing: -1px; color: #0f172a;">Xóa đơn vị?</h1>
-                <div class="unit-code" style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 5px;">@Model.Name (@Model.Code)</div>
-            </div>
-        </div>
+<div class="confirm-card">
+    <div class="confirm-icon-box">
+        <i class="fas fa-trash-alt"></i>
     </div>
+    
+    <h3>Xác nhận xóa</h3>
+    
+    <p>
+        Bạn có chắc chắn muốn xóa đơn vị "@Model.Name"? <br/>
+        Thao tác này sẽ xóa tất cả báo cáo liên quan và không thể hoàn tác.
+    </p>
 
-    <div class="info-box-premium mt-5" style="background: #fef2f2; border-radius: 30px; padding: 3rem; border: 1px solid #fee2e2;">
-        <div class="d-flex align-items-start gap-4 mb-4">
-            <div style="background: #ef4444; color: #fff; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div>
-                <h4 class="fw-black text-danger mb-2">HÀNH ĐỘNG KHÔNG THỂ HOÀN TÁC</h4>
-                <p class="text-muted fw-bold m-0">Bạn đang yêu cầu xóa đơn vị <strong>@Model.Name</strong>. Tất cả dữ liệu liên quan bao gồm đoàn viên, báo cáo và thông tin liên hệ sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
-            </div>
-        </div>
-
-        <div class="row g-4 mt-2">
-            <div class="col-md-6">
-                <div class="p-4" style="background: rgba(255,255,255,0.5); border-radius: 20px;">
-                    <div class="text-muted small fw-black text-uppercase letter-spacing-1 mb-1">ĐOÀN VIÊN ẢNH HƯỞNG</div>
-                    <div class="fs-4 fw-black text-dark">@Model.Members.Count Thành viên</div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="p-4" style="background: rgba(255,255,255,0.5); border-radius: 20px;">
-                    <div class="text-muted small fw-black text-uppercase letter-spacing-1 mb-1">ĐƠN VỊ TRỰC THUỘC</div>
-                    <div class="fs-4 fw-black text-dark">@Model.Children.Count Đơn vị con</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <form method="post" action="/units/delete/@Model.Id" class="mt-5">
-        <div class="form-check custom-checkbox-premium mb-4 p-4" style="background: #f8fafc; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center;">
-            <input class="form-check-input ms-0" type="checkbox" id="confirmDelete" required style="width: 20px; height: 20px; cursor: pointer; float: none;">
-            <label class="form-check-label fw-bold text-dark ms-3" for="confirmDelete" style="cursor: pointer; padding-top: 2px;">
-                Tôi xác nhận rằng tôi hiểu rõ việc xóa đơn vị này là vĩnh viễn và không thể khôi phục.
-            </label>
-        </div>
-
-        <div class="d-flex gap-3 mt-5">
-            <button type="submit" class="btn-premium w-100" style="background: #ef4444; color: #fff; padding: 1.25rem; font-size: 1rem; border: none; border-radius: 20px; font-weight: 800; transition: 0.3s;">
-                <i class="fas fa-trash-alt me-2"></i> XÁC NHẬN XÓA VĨNH VIỄN
-            </button>
-            <a href="/units" class="btn-premium w-100 text-center close-modal-btn" style="background: #f1f5f9; color: #475569; padding: 1.25rem; font-size: 1rem; text-decoration: none; border-radius: 20px; font-weight: 800; transition: 0.3s;">
+    <form method="post" action="/units/delete/@Model.Id">
+        <div class="confirm-actions">
+            <button type="button" class="btn-confirm-no" onclick="closeUnitModal()">
                 HỦY BỎ
-            </a>
+            </button>
+            <button type="submit" class="btn-confirm-yes">
+                XÁC NHẬN XÓA
+            </button>
         </div>
     </form>
 </div>

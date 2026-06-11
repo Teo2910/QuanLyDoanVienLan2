@@ -22,7 +22,7 @@
         </div>
         @if (isAdmin)
         {
-            <a href="/units/create" class="btn-premium btn-launch-dark mt-3 mt-lg-0">
+            <a href="javascript:void(0)" onclick="openUnitModal('/units/create')" class="btn-premium btn-launch-dark mt-3 mt-lg-0">
                 <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">THÊM ĐƠN VỊ MỚI</span><span class="d-sm-none">THÊM</span>
             </a>
         }
@@ -148,11 +148,16 @@
             
             if (!modal || !body || !wrapper) return;
 
-            // Adjust width based on content type
-            if (url.includes('/edit/') || url.includes('/create') || url.includes('/delete/')) {
+            // Adjust width and alignment based on content type
+            if (url.includes('/edit/') || url.includes('/create')) {
                 wrapper.style.maxWidth = '800px';
+                modal.style.alignItems = 'flex-start';
+            } else if (url.includes('/delete/')) {
+                wrapper.style.maxWidth = '550px';
+                modal.style.alignItems = 'center';
             } else {
                 wrapper.style.maxWidth = '1100px';
+                modal.style.alignItems = 'flex-start';
             }
 
             // Show loading state
@@ -161,8 +166,16 @@
             document.body.style.overflow = 'hidden';
 
             fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(response => response.text())
+                .then(response => {
+                    if (response.redirected) {
+                        toast.success('Thao tác thành công!');
+                        setTimeout(() => { location.reload(); }, 1000);
+                        return;
+                    }
+                    return response.text();
+                })
                 .then(html => {
+                    if (!html) return;
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const content = doc.querySelector('.modal-layout-container') || doc.querySelector('.form-layout-container') || doc.body;
@@ -182,37 +195,7 @@
                         body.appendChild(newScript);
                     });
                     
-                    // Handle close button inside modal
-                    const closeBtn = body.querySelector('.close-modal-btn, .close-form-btn');
-                    if (closeBtn) {
-                        closeBtn.href = 'javascript:void(0)';
-                        closeBtn.onclick = (e) => {
-                            e.preventDefault();
-                            closeUnitModal();
-                        };
-                    }
-
-                    // Handle Edit Link inside Details modal to stay in modal
-                    const editLink = body.querySelector('.header-actions .btn-premium-light');
-                    if (editLink && editLink.getAttribute('href').includes('/edit/')) {
-                        const editUrl = editLink.getAttribute('href');
-                        editLink.href = 'javascript:void(0)';
-                        editLink.onclick = (e) => {
-                            e.preventDefault();
-                            openUnitModal(editUrl);
-                        };
-                    }
-
-                    // Handle Delete Link inside Details modal to stay in modal
-                    const deleteLink = body.querySelector('.header-actions .btn-premium[style*="background: #fef2f2"]');
-                    if (deleteLink && deleteLink.getAttribute('href').includes('/delete/')) {
-                        const deleteUrl = deleteLink.getAttribute('href');
-                        deleteLink.href = 'javascript:void(0)';
-                        deleteLink.onclick = (e) => {
-                            e.preventDefault();
-                            openUnitModal(deleteUrl);
-                        };
-                    }
+                    initializeUnitModalScripts(body);
                 })
                 .catch(error => {
                     console.error('Modal error:', error);
@@ -228,6 +211,67 @@
                 setTimeout(() => {
                     document.getElementById('modalBody').innerHTML = '';
                 }, 300);
+            }
+        }
+
+        function initializeUnitModalScripts(container) {
+            // Handle close buttons
+            container.querySelectorAll('.close-modal-btn, .close-form-btn').forEach(btn => {
+                btn.href = 'javascript:void(0)';
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    closeUnitModal();
+                };
+            });
+
+            // Handle navigation links to stay in modal
+            container.querySelectorAll('a[href*="/units/edit/"], a[href*="/units/delete/"], a[href*="/units/details/"]').forEach(link => {
+                const url = link.getAttribute('href');
+                link.href = 'javascript:void(0)';
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    openUnitModal(url);
+                };
+            });
+
+            // Handle form submission via AJAX
+            const form = container.querySelector('form');
+            if (form) {
+                form.onsubmit = function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const url = form.getAttribute('action');
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            if (typeof toast !== 'undefined') toast.success('Thao tác thành công!');
+                            setTimeout(() => { location.reload(); }, 1000);
+                            return;
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        if (html) {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const content = doc.querySelector('.form-layout-container') || doc.querySelector('.modal-layout-container') || doc.body;
+                            if (content) {
+                                container.innerHTML = content.outerHTML;
+                                doc.querySelectorAll('style').forEach(s => container.appendChild(s.cloneNode(true)));
+                                initializeUnitModalScripts(container);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        if (typeof toast !== 'undefined') toast.error('Lỗi khi gửi dữ liệu');
+                        console.error(err);
+                    });
+                };
             }
         }
     </script>

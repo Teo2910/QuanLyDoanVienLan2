@@ -97,7 +97,7 @@
                     <td>
                         <div class="d-flex align-items-center gap-3 justify-content-center">
                             <div class="progress-premium" style="width: 80px;">
-                                <div class="progress-bar-premium" style="width: @item.CompletionPercentage%;"></div>
+                                <div class="progress-bar-premium" style="width: @item.CompletionPercentage.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)%;"></div>
                             </div>
                             <span class="completion-text" style="font-size: 0.75rem;">@item.CompletionPercentage.ToString("F0")%</span>
                         </div>
@@ -173,7 +173,7 @@
                         <b>@item.CompletionPercentage.ToString("F0")%</b>
                     </div>
                     <div class="progress-container-new mb-3">
-                        <div class="progress-bar-new" style="width: @item.CompletionPercentage%;"></div>
+                        <div class="progress-bar-new" style="width: @item.CompletionPercentage.ToString("F0", System.Globalization.CultureInfo.InvariantCulture)%;"></div>
                     </div>
                     
                     @if (!isAdmin)
@@ -234,7 +234,11 @@
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
 
-            fetch(url)
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();

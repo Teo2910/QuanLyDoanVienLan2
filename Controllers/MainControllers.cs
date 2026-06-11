@@ -83,21 +83,36 @@ namespace QLDV.Controllers
         private readonly IMemberService _memberService;
         private readonly IUnitService _unitService;
         private readonly ILogService _logService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public MembersController(
             IMemberService memberService,
             IUnitService unitService,
-            ILogService logService)
+            ILogService logService,
+            UserManager<ApplicationUser> userManager)
         {
             _memberService = memberService;
             _unitService = unitService;
             _logService = logService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int page = 1, string sortOrder = "", string search = "", string unit = "", string year = "", string achievement = "", string status = "", string gender = "", string hometown = "")
         {
             int pageSize = 10;
-            var allMembers = await _memberService.GetAllMembersAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            List<Models.Member> allMembers;
+            if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
+            {
+                allMembers = await _memberService.GetMembersByUnitAsync(currentUser.UnitId);
+            }
+            else
+            {
+                allMembers = await _memberService.GetAllMembersAsync();
+            }
             
             // Apply Filters (Server-side)
             var filteredMembers = allMembers.Where(m => 
@@ -133,13 +148,24 @@ namespace QLDV.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            var units = await _unitService.GetAllUnitsAsync();
+            List<Models.Unit> units;
+            if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
+            {
+                var userUnit = await _unitService.GetUnitByIdAsync(currentUser.UnitId);
+                units = userUnit != null ? new List<Models.Unit> { userUnit } : new List<Models.Unit>();
+            }
+            else
+            {
+                units = await _unitService.GetAllUnitsAsync();
+            }
             ViewBag.Units = units;
             
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalMembers = totalMembers;
             ViewBag.SortOrder = sortOrder;
+            ViewBag.IsAdmin = isAdmin;
+            ViewBag.IsSecretary = isSecretary;
 
             // Preserve Filter State
             ViewBag.Search = search;
@@ -159,12 +185,34 @@ namespace QLDV.Controllers
             if (member == null)
                 return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
+            {
+                return Forbid();
+            }
+
             return View(member);
         }
 
         public async Task<IActionResult> Create()
         {
-            var units = await _unitService.GetAllUnitsAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            List<Models.Unit> units;
+            if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
+            {
+                var userUnit = await _unitService.GetUnitByIdAsync(currentUser.UnitId);
+                units = userUnit != null ? new List<Models.Unit> { userUnit } : new List<Models.Unit>();
+            }
+            else
+            {
+                units = await _unitService.GetAllUnitsAsync();
+            }
             ViewBag.Units = units;
             return View();
         }
@@ -196,6 +244,15 @@ namespace QLDV.Controllers
             if (member == null)
                 return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
+            {
+                return Forbid();
+            }
+
             var units = await _unitService.GetAllUnitsAsync();
             ViewBag.Units = units;
             return View(member);
@@ -208,6 +265,16 @@ namespace QLDV.Controllers
                 return BadRequest();
 
             bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
+            {
+                if (isAjax) return Forbid();
+                return Forbid();
+            }
 
             if (ModelState.IsValid)
             {
@@ -245,12 +312,34 @@ namespace QLDV.Controllers
             if (member == null)
                 return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
+            {
+                return Forbid();
+            }
+
             return View(member);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            var member = await _memberService.GetMemberByIdAsync(id);
+            if (member == null)
+                return NotFound();
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
+            if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
+            {
+                return Forbid();
+            }
+
             try
             {
                 await _memberService.DeleteMemberAsync(id);
@@ -259,7 +348,6 @@ namespace QLDV.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error deleting member: {ex.Message}");
-                var member = await _memberService.GetMemberByIdAsync(id);
                 return View(member);
             }
         }
@@ -272,23 +360,36 @@ namespace QLDV.Controllers
 
             try
             {
+                var currentUser = await _userManager.GetUserAsync(User);
+                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+                var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+
                 List<Models.Member> membersToDelete = new List<Models.Member>();
+                List<Models.Member> allowedMembers;
+
+                if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
+                {
+                    allowedMembers = await _memberService.GetMembersByUnitAsync(currentUser.UnitId);
+                }
+                else
+                {
+                    allowedMembers = await _memberService.GetAllMembersAsync();
+                }
 
                 if (request.SelectAllGlobal)
                 {
-                    membersToDelete = await _memberService.GetAllMembersAsync();
+                    membersToDelete = allowedMembers;
                 }
                 else if (request.DeleteFiltered)
                 {
-                    var allMembers = await _memberService.GetAllMembersAsync();
-                    membersToDelete = allMembers.Where(m => 
+                    membersToDelete = allowedMembers.Where(m => 
                         (string.IsNullOrEmpty(request.Search) || m.FullName.Contains(request.Search, StringComparison.OrdinalIgnoreCase) || m.MemberId.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) &&
                         (string.IsNullOrEmpty(request.Unit) || (m.Unit != null && m.Unit.Name.Contains(request.Unit, StringComparison.OrdinalIgnoreCase))) &&
                         (string.IsNullOrEmpty(request.Status) || m.Status.Contains(request.Status, StringComparison.OrdinalIgnoreCase)) &&
                         (string.IsNullOrEmpty(request.Achievement) || m.AchievementLevel.Contains(request.Achievement, StringComparison.OrdinalIgnoreCase)) &&
                         (string.IsNullOrEmpty(request.Year) || m.AcademicYear == request.Year || (m.FullName != null && m.FullName.Contains(request.Year))) &&
                         (string.IsNullOrEmpty(request.Gender) || m.Gender.Equals(request.Gender, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(request.Hometown) || (m.FullName != null && m.FullName.Contains(request.Hometown, StringComparison.OrdinalIgnoreCase))) // Simple heuristic for hometown if not in model
+                        (string.IsNullOrEmpty(request.Hometown) || (m.FullName != null && m.FullName.Contains(request.Hometown, StringComparison.OrdinalIgnoreCase)))
                     ).ToList();
                 }
                 else if (request.Ids != null && request.Ids.Any())
@@ -296,7 +397,10 @@ namespace QLDV.Controllers
                     foreach (var id in request.Ids)
                     {
                         var member = await _memberService.GetMemberByIdAsync(id);
-                        if (member != null) membersToDelete.Add(member);
+                        if (member != null && (isAdmin || (isSecretary && member.UnitId == currentUser?.UnitId)))
+                        {
+                            membersToDelete.Add(member);
+                        }
                     }
                 }
 

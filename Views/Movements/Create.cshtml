@@ -1,7 +1,7 @@
 @model QLDV.Models.Movement
 @{
     ViewData["Title"] = "Thiết lập phong trào mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest" ? null : "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
@@ -228,22 +228,26 @@
 
         <div class="form-header">
             <h2>Thiết lập phong trào mới</h2>
+            <div asp-validation-summary="All" class="text-danger mt-3" style="font-size: 0.8rem; font-weight: 600;"></div>
         </div>
 
         <form method="post" action="/movements/create" enctype="multipart/form-data">
             <div class="mb-4">
                 <label class="custom-label">TIÊU ĐỀ PHONG TRÀO</label>
                 <input type="text" asp-for="Title" class="custom-input" placeholder="VD: Phong trào Thanh niên tình nguyện mùa hè xanh 2024" required>
+                <span asp-validation-for="Title" class="text-danger" style="font-size: 0.7rem;"></span>
             </div>
 
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="custom-label">NGÀY BẮT ĐẦU</label>
                     <input type="date" asp-for="StartDate" class="custom-input" required>
+                    <span asp-validation-for="StartDate" class="text-danger" style="font-size: 0.7rem;"></span>
                 </div>
                 <div class="col-md-6">
                     <label class="custom-label">NGÀY KẾT THÚC</label>
                     <input type="date" asp-for="EndDate" class="custom-input" required>
+                    <span asp-validation-for="EndDate" class="text-danger" style="font-size: 0.7rem;"></span>
                 </div>
             </div>
 

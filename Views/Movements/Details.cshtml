@@ -9,13 +9,29 @@
     var isAdmin = currentUser != null && currentUser.Role == "Admin";
 
     var reports = ViewBag.Reports as List<QLDV.Models.MovementReport> ?? new List<QLDV.Models.MovementReport>();
-    var participatingUnitIds = string.IsNullOrEmpty(Model.ParticipatingUnitIdsJson) 
+    var allUnits = ViewBag.AllUnits as List<QLDV.Models.Unit> ?? new List<QLDV.Models.Unit>();
+
+    var jsonTargetIds = string.IsNullOrEmpty(Model.ParticipatingUnitIdsJson) 
         ? new List<string>() 
         : JsonSerializer.Deserialize<List<string>>(Model.ParticipatingUnitIdsJson) ?? new List<string>();
     
+    var participatingUnitIds = new List<string>();
+    if (jsonTargetIds.Any()) 
+    {
+        participatingUnitIds = jsonTargetIds;
+    }
+    else if (!string.IsNullOrEmpty(Model.TargetUnit) && Model.TargetUnit != "Tất cả các chi đoàn" && Model.TargetUnit != "Toàn hệ thống")
+    {
+        participatingUnitIds.Add(Model.TargetUnit);
+    }
+    else
+    {
+        // All units case
+        participatingUnitIds = allUnits.Select(u => u.Id).ToList();
+    }
+    
     var reportedUnitIds = reports.Select(r => r.UnitId).Distinct().ToList();
     var waitingUnitIds = participatingUnitIds.Where(id => !reportedUnitIds.Contains(id)).ToList();
-    var allUnits = ViewBag.AllUnits as List<QLDV.Models.Unit> ?? new List<QLDV.Models.Unit>();
 }
 
 <div class="modal-layout-container">

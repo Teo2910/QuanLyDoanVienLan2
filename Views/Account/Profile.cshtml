@@ -268,7 +268,8 @@
             </div>
         </div>
 
-        <form id="profileForm" enctype="multipart/form-data">
+        <form id="profileForm" enctype="multipart/form-data" method="post">
+            @Html.AntiForgeryToken()
             <div class="avatar-upload-section">
                 <div class="avatar-preview-container">
                     <img id="avatarPreview" src="@(string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl)" class="avatar-preview" alt="Avatar">
@@ -397,17 +398,26 @@
                             // Clear password fields
                             $('input[type="password"]').val('');
 
-                            // Update sidebar sync
+                            // Update UI elements immediately
                             if (response.user) {
+                                // Update sidebar
                                 $('.user-info-sidebar h6').text(response.user.fullName);
+                                $('.user-avatar-sidebar').attr('src', response.user.avatarUrl);
+                                
+                                // Update navbar
+                                $('.user-nav-pill h6').text(response.user.fullName);
+                                $('.user-nav-pill img').attr('src', response.user.avatarUrl);
+                                
+                                // Update profile page elements
+                                $('.avatar-upload-section h4').text(response.user.fullName);
                                 if (response.user.avatarUrl) {
-                                    $('.user-avatar-sidebar, .user-nav-pill img').attr('src', response.user.avatarUrl);
+                                    $('#avatarPreview').attr('src', response.user.avatarUrl);
                                 }
                             }
 
                             setTimeout(() => {
-                                btn.html(originalText).prop('disabled', false);
-                            }, 500);
+                                location.reload();
+                            }, 1000);
                         } else {
                             if (typeof toast !== 'undefined') {
                                 toast.error(response.message);

@@ -53,7 +53,7 @@ namespace QLDV.Services
             await _context.SaveChangesAsync();
 
             await _logService.LogActivityAsync(
-                member.Id, "System", "CREATE", "Member", member.Id,
+                "", "", "CREATE", "Member", member.Id,
                 $"Tạo thành viên mới: {member.FullName}");
 
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
@@ -67,7 +67,7 @@ namespace QLDV.Services
             await _context.SaveChangesAsync();
 
             await _logService.LogActivityAsync(
-                member.Id, "System", "UPDATE", "Member", member.Id,
+                "", "", "UPDATE", "Member", member.Id,
                 $"Cập nhật thành viên: {member.FullName}");
 
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
@@ -82,7 +82,7 @@ namespace QLDV.Services
             await _context.SaveChangesAsync();
 
             await _logService.LogActivityAsync(
-                id, "System", "DELETE", "Member", id,
+                "", "", "DELETE", "Member", id,
                 $"Xóa thành viên: {member.FullName}");
 
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
@@ -140,7 +140,7 @@ namespace QLDV.Services
             await _context.SaveChangesAsync();
 
             await _logService.LogActivityAsync(
-                memberId, "System", "STATUS_CHANGE", "Member", memberId,
+                "", "", "STATUS_CHANGE", "Member", memberId,
                 $"Thay đổi trạng thái từ '{oldStatus}' sang '{newStatus}'. Lý do: {reason}");
 
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
@@ -150,11 +150,13 @@ namespace QLDV.Services
     public class UnitService : IUnitService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public UnitService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        public UnitService(ApplicationDbContext context, ILogService logService, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _logService = logService;
             _hubContext = hubContext;
         }
 
@@ -198,6 +200,9 @@ namespace QLDV.Services
             unit.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.Units.Add(unit);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "CREATE", "Unit", unit.Id, $"Thiết lập đơn vị mới: {unit.Name} ({unit.Code})");
+            
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
             return unit;
         }
@@ -206,6 +211,9 @@ namespace QLDV.Services
         {
             _context.Units.Update(unit);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "UPDATE", "Unit", unit.Id, $"Cập nhật thông tin đơn vị: {unit.Name}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
         }
 
@@ -226,8 +234,12 @@ namespace QLDV.Services
                 _context.MovementReports.RemoveRange(reports);
             }
 
+            var unitName = unit.Name;
             _context.Units.Remove(unit);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "DELETE", "Unit", id, $"Xóa đơn vị: {unitName}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Unit");
         }
     }
@@ -235,11 +247,13 @@ namespace QLDV.Services
     public class ActivityService : IActivityService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public ActivityService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        public ActivityService(ApplicationDbContext context, ILogService logService, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _logService = logService;
             _hubContext = hubContext;
         }
 
@@ -261,6 +275,9 @@ namespace QLDV.Services
             activity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "CREATE", "Activity", activity.Id, $"Tạo hoạt động mới: {activity.Title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
             return activity;
         }
@@ -269,6 +286,9 @@ namespace QLDV.Services
         {
             _context.Activities.Update(activity);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "UPDATE", "Activity", activity.Id, $"Cập nhật hoạt động: {activity.Title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
         }
 
@@ -277,8 +297,12 @@ namespace QLDV.Services
             var activity = await GetActivityByIdAsync(id);
             if (activity == null) throw new Exception("Activity not found");
 
+            var title = activity.Title;
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "DELETE", "Activity", id, $"Xóa hoạt động: {title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Activity");
         }
     }
@@ -286,11 +310,13 @@ namespace QLDV.Services
     public class KnowledgeBaseService : IKnowledgeBaseService
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public KnowledgeBaseService(ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        public KnowledgeBaseService(ApplicationDbContext context, ILogService logService, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _logService = logService;
             _hubContext = hubContext;
         }
 
@@ -344,6 +370,9 @@ namespace QLDV.Services
             item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.KnowledgeItems.Add(item);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "CREATE", "Knowledge", item.Id, $"Tạo tài liệu mới: {item.Title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
             return item;
         }
@@ -353,6 +382,9 @@ namespace QLDV.Services
             item.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             _context.KnowledgeItems.Update(item);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "UPDATE", "Knowledge", item.Id, $"Cập nhật tài liệu: {item.Title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
         }
 
@@ -361,8 +393,12 @@ namespace QLDV.Services
             var item = await GetItemByIdAsync(id);
             if (item == null) throw new Exception("Knowledge item not found");
 
+            var title = item.Title;
             _context.KnowledgeItems.Remove(item);
             await _context.SaveChangesAsync();
+
+            await _logService.LogActivityAsync("", "", "DELETE", "Knowledge", id, $"Xóa tài liệu: {title}");
+
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
         }
     }

@@ -91,11 +91,12 @@ namespace QLDV.Models
     public class Movement
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập tiêu đề phong trào")]
         public string Title { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string? Description { get; set; }
-        public string TargetUnit { get; set; } = string.Empty;
+        public string? TargetUnit { get; set; }
         public string Status { get; set; } = "Active"; // Active, Completed, Cancelled
         public string? AttachmentsJson { get; set; } // JSON stored as string
         public string? ParticipatingUnitIdsJson { get; set; } // JSON stored as string
