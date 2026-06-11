@@ -127,6 +127,8 @@ namespace QLDV.Models
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public string? Category { get; set; }
+        public string? AttachmentUrl { get; set; }
+        public string? AttachmentName { get; set; }
         public long UpdatedAt { get; set; }
     }
 

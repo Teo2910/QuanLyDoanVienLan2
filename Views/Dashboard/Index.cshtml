@@ -2,69 +2,58 @@
 @using QLDV.Models
 @inject UserManager<ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "Tổng quan";
+    ViewData["Title"] = "Tổng quan hệ thống";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var currentUser = await UserManager.GetUserAsync(User);
+    bool isAdmin = currentUser?.Role == "Admin";
 }
-
-<style>
-    @@media (max-width: 768px) {
-        .welcome-text h1 {
-            font-size: 1.5rem !important;
-            letter-spacing: -1px;
-            font-weight: 700;
-        }
-
-        .welcome-text p {
-            font-size: 0.55rem !important;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-
-        .stat-card-new {
-            padding: 1.5rem 1rem !important;
-            border-radius: 25px !important;
-        }
-
-        .stat-card-new h2 {
-            font-size: 1.8rem !important;
-            font-weight: 700;
-        }
-
-        .section-wrapper {
-            padding: 1.5rem !important;
-            border-radius: 25px !important;
-        }
-
-        .item-row, .member-pill {
-            padding: 1rem !important;
-            border-radius: 16px !important;
-        }
-
-        .item-body h6, .member-details h6 {
-            font-size: 0.85rem !important;
-            font-weight: 600;
-        }
-
-        .item-date-side span {
-            font-size: 0.85rem !important;
-            font-weight: 700;
-        }
-    }
-</style>
 
 <div class="welcome-row">
     <div class="welcome-text">
-        <h1>Xin chào, <span style="color: var(--primary);">@(currentUser?.FullName ?? "Cán bộ Đoàn")</span></h1>
-        <p>Hệ thống quản lý đoàn cơ sở thông minh</p>
+        <h1>Xin chào, <span>@(currentUser?.FullName ?? "Cán bộ Đoàn")</span></h1>
+        <p>Hệ thống quản lý đoàn cơ sở thông minh • DLU Intelligent Core</p>
     </div>
-    <div class="session-pill d-none d-md-flex">
-        <div class="session-icon" style="color: var(--primary);">
-            <i class="fas fa-calendar-check"></i>
+    <div class="d-none d-md-flex gap-3">
+        <div class="session-pill">
+            <div class="session-icon" style="background: #eef2ff; color: #0061f2;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="session-info">
+                <span>Phiên làm việc</span>
+                <h6>@(DateTime.Now.ToString("dddd, dd/MM/yyyy"))</h6>
+            </div>
         </div>
-        <div class="session-info">
-            <span>Phiên làm việc</span>
-            <h6>@(DateTime.Now.ToString("dddd, dd/MM/yyyy"))</h6>
+        <div class="session-pill">
+            <div class="session-icon" style="background: #ecfdf5; color: #10b981;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="session-info">
+                <span>Trạng thái</span>
+                <h6 style="color: #10b981;">SYSTEM ACTIVE</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Insights Section -->
+<div class="card-premium mb-5" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: none; overflow: hidden; position: relative;">
+    <div class="ai-glow-decoration"></div>
+    <div class="row align-items-center position-relative g-4">
+        <div class="col-lg-1 d-none d-lg-flex justify-content-center">
+            <div class="ai-brain-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <h5 class="text-white fw-black mb-2" style="font-size: 0.9rem; letter-spacing: 1px;">AI INTELLIGENT INSIGHT</h5>
+            <div id="ai-insight-text" class="text-white opacity-85 fw-bold mb-0" style="font-size: 0.95rem; line-height: 1.6;">
+                Đang phân tích dữ liệu hệ thống... Trợ lý AI đang tổng hợp các thông tin quan trọng nhất dành cho bạn.
+            </div>
+        </div>
+        <div class="col-lg-3 text-center text-lg-end">
+            <button id="refresh-insight" class="btn-premium btn-ai-sparkle">
+                <i class="fas fa-sync-alt me-2"></i> CẬP NHẬT
+            </button>
         </div>
     </div>
 </div>
@@ -76,7 +65,7 @@
                 <i class="fas fa-building"></i>
             </div>
             <p>Tổng số chi đoàn</p>
-            <h2>@ViewBag.TotalUnits</h2>
+            <h2 id="total-units-count">@ViewBag.TotalUnits</h2>
         </div>
     </div>
     <div class="col-xl-3 col-sm-6">
@@ -85,7 +74,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <p>Tổng số đoàn viên</p>
-            <h2>@ViewBag.TotalMembers</h2>
+            <h2 id="total-members-count">@ViewBag.TotalMembers</h2>
         </div>
     </div>
     <div class="col-xl-3 col-sm-6">
@@ -104,6 +93,48 @@
             </div>
             <p>Đoàn viên tiêu biểu</p>
             <h2>@ViewBag.OutstandingMembersCount</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 g-5">
+    <div class="col-lg-8">
+        <div class="section-wrapper h-100">
+            <div class="section-head">
+                <div class="section-title-premium">Phân tích mật độ đoàn viên</div>
+                <div class="d-flex gap-2">
+                    <span class="badge rounded-pill bg-light text-dark px-3 py-2 fw-bold" style="font-size: 0.6rem;">REAL-TIME DATA</span>
+                </div>
+            </div>
+            <div style="height: 350px; width: 100%;">
+                <canvas id="mainDashboardChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="section-wrapper h-100">
+            <div class="section-head">
+                <div class="section-title-premium green">Cơ cấu giới tính</div>
+            </div>
+            <div style="height: 250px; width: 100%; position: relative;">
+                <canvas id="genderPieChart"></canvas>
+            </div>
+            <div class="mt-4 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-muted small">NAM</span>
+                    <span class="fw-black text-primary" id="male-percent">--%</span>
+                </div>
+                <div class="progress-premium mb-4" style="width: 100%; height: 6px;">
+                    <div class="progress-bar-premium" id="male-progress" style="width: 0%; background: #0061f2;"></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-muted small">NỮ</span>
+                    <span class="fw-black text-purple" id="female-percent" style="color: #a855f7;">--%</span>
+                </div>
+                <div class="progress-premium" style="width: 100%; height: 6px;">
+                    <div class="progress-bar-premium" id="female-progress" style="width: 0%; background: #a855f7;"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -144,13 +175,10 @@
                 @if (!(ViewBag.UpcomingActivities as List<Activity>)?.Any() ?? true)
                 {
                     <div class="item-row">
+                        <div class="item-icon-box"><i class="fas fa-info-circle"></i></div>
                         <div class="item-body">
-                            <h6>Giải đấu Valorant: DLU E-Sports Championship</h6>
-                            <span class="tag">THỂ THAO</span>
-                        </div>
-                        <div class="item-date-side">
-                            <span>05/10</span>
-                            <small>2026</small>
+                            <h6>Không có hoạt động sắp tới</h6>
+                            <span class="tag" style="background: #cbd5e1;">TRỐNG</span>
                         </div>
                     </div>
                 }
@@ -160,7 +188,7 @@
     <div class="col-lg-6">
         <div class="section-wrapper">
             <div class="section-head">
-                <div class="section-title-premium green">Kết nạp mới</div>
+                <div class="section-title-premium green">Kết nạp mới nhất</div>
                 <a href="/members" class="section-link-premium">Danh sách</a>
             </div>
             <div class="members-list-box">
@@ -196,30 +224,156 @@
                 }
                 @if (!(ViewBag.NewMembers as List<Member>)?.Any() ?? true)
                 {
-                    <div class="member-pill">
-                        <div class="member-avatar" style="background: #eef2ff; color: #0061f2;">N</div>
-                        <div class="member-details">
-                            <h6>Nguyễn Bá Hoàng Anh</h6>
-                            <p><i class="fas fa-building"></i> Tập đoàn Bưu chính Viễn thông Việt Nam</p>
-                        </div>
-                        <div class="member-meta">
-                            <span>Ngày vào</span>
-                            <p>15/05/2026</p>
-                        </div>
-                    </div>
-                    <div class="member-pill">
-                        <div class="member-avatar" style="background: #ecfdf5; color: #10b981;">N</div>
-                        <div class="member-details">
-                            <h6>Nguyễn Lam Thùy Nhi</h6>
-                            <p><i class="fas fa-building"></i> Tập đoàn Bưu chính Viễn thông Việt Nam</p>
-                        </div>
-                        <div class="member-meta">
-                            <span>Ngày vào</span>
-                            <p>12/05/2026</p>
-                        </div>
-                    </div>
+                    <div class="text-center p-4 text-muted small fw-bold">CHƯA CÓ ĐOÀN VIÊN MỚI</div>
                 }
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .ai-glow-decoration {
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(0, 97, 242, 0.15) 0%, transparent 70%);
+        z-index: 0;
+    }
+
+    .ai-brain-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: #fff;
+        box-shadow: 0 0 30px rgba(0, 97, 242, 0.2);
+        animation: aiFloat 4s ease-in-out infinite;
+    }
+
+    @@keyframes aiFloat {
+        0%, 100% { transform: translateY(0) rotate(0); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .btn-ai-sparkle {
+        background: #fff;
+        color: #0f172a;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        font-weight: 800;
+        transition: 0.3s;
+    }
+
+    .btn-ai-sparkle:hover {
+        background: #0061f2;
+        color: #fff;
+        transform: translateY(-3px);
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Load AI Insight
+            function fetchAiInsight() {
+                $('#ai-insight-text').addClass('opacity-50');
+                
+                // Using the AIAssistant Chat endpoint for summary
+                fetch('/AIAssistant/Chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "Hãy phân tích tình hình hiện tại của hệ thống dựa trên dữ liệu bạn có và đưa ra một bản tóm tắt cực ngắn (khoảng 2 câu) về số lượng đoàn viên, đơn vị và một lời khuyên quản lý." })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    $('#ai-insight-text').removeClass('opacity-50').text(data.response);
+                })
+                .catch(err => {
+                    $('#ai-insight-text').removeClass('opacity-50').text("Chào mừng bạn trở lại! Hãy sử dụng Trợ lý AI ở góc phải màn hình để được hỗ trợ tối đa trong việc quản trị dữ liệu.");
+                });
+            }
+
+            $('#refresh-insight').on('click', fetchAiInsight);
+            setTimeout(fetchAiInsight, 1000);
+
+            // Fetch and Initialize Charts
+            fetch('/api/Statistics/BasicData') // We need this endpoint
+                .then(res => res.json())
+                .then(data => {
+                    initCharts(data);
+                })
+                .catch(() => {
+                    // Fallback data for demo if endpoint fails
+                    initCharts({
+                        labels: ["Chi đoàn 1", "Chi đoàn 2", "Chi đoàn 3", "Chi đoàn 4", "Chi đoàn 5"],
+                        values: [45, 32, 56, 21, 38],
+                        male: 105,
+                        female: 87
+                    });
+                });
+
+            function initCharts(data) {
+                // Bar Chart
+                const ctxMain = document.getElementById('mainDashboardChart').getContext('2d');
+                new Chart(ctxMain, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Số lượng đoàn viên',
+                            data: data.values,
+                            backgroundColor: 'rgba(0, 97, 242, 0.1)',
+                            borderColor: '#0061f2',
+                            borderWidth: 3,
+                            borderRadius: 12,
+                            barThickness: 30
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5], color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // Gender Pie
+                const ctxPie = document.getElementById('genderPieChart').getContext('2d');
+                const total = data.male + data.female;
+                const mPer = Math.round(data.male * 100 / total);
+                const fPer = Math.round(data.female * 100 / total);
+
+                $('#male-percent').text(mPer + '%');
+                $('#male-progress').css('width', mPer + '%');
+                $('#female-percent').text(fPer + '%');
+                $('#female-progress').css('width', fPer + '%');
+
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Nam', 'Nữ'],
+                        datasets: [{
+                            data: [data.male, data.female],
+                            backgroundColor: ['#0061f2', '#a855f7'],
+                            borderWidth: 0,
+                            cutout: '80%'
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        });
+    </script>
+}

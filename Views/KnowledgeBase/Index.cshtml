@@ -339,6 +339,29 @@
             gap: 10px;
         }
 
+        .kb-card-file-indicator {
+            position: absolute;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            color: #16a34a;
+            font-size: 1.1rem;
+            background: #f0fdf4;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #bbf7d0;
+            transition: all 0.3s;
+        }
+
+        .kb-card:hover .kb-card-file-indicator {
+            background: #16a34a;
+            color: #fff;
+            transform: scale(1.1);
+        }
+
         .kb-card-footer i { font-size: 0.9rem; }
 
         .empty-state {
@@ -457,6 +480,13 @@
                             <div class="kb-card-content">
                                 @item.Content
                             </div>
+
+                            @if (!string.IsNullOrEmpty(item.AttachmentUrl))
+                            {
+                                <div class="kb-card-file-indicator" title="Có tài liệu đính kèm">
+                                    <i class="fas fa-paperclip"></i>
+                                </div>
+                            }
                             
                             <div class="kb-card-footer">
                                 <i class="far fa-clock"></i>

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using System.IO.Compression;
+using System.Xml;
 using Microsoft.AspNetCore.SignalR;
 
 namespace QLDV.Services
@@ -345,19 +347,118 @@ namespace QLDV.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogService _logService;
         private readonly Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> _hubContext;
+        private readonly IWebHostEnvironment _environment;
 
         public GoogleAIService(
             IConfiguration configuration, 
             HttpClient httpClient, 
             IServiceProvider serviceProvider,
             ILogService logService,
-            Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> hubContext)
+            Microsoft.AspNetCore.SignalR.IHubContext<QLDV.Hubs.ChatHub> hubContext,
+            IWebHostEnvironment environment)
         {
             _configuration = configuration;
             _httpClient = httpClient;
             _serviceProvider = serviceProvider;
             _logService = logService;
             _hubContext = hubContext;
+            _environment = environment;
+        }
+
+        private async Task<string> ExtractTextFromFileAsync(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath)) return string.Empty;
+
+            try
+            {
+                // Normalize path for Windows/Linux and ensure it's relative to WebRootPath
+                var cleanPath = filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var fullPath = Path.GetFullPath(Path.Combine(_environment.WebRootPath, cleanPath));
+                
+                if (!File.Exists(fullPath))
+                {
+                    Console.WriteLine($"[AI Assistant] File not found at: {fullPath}");
+                    return $"[LỖI]: Không tìm thấy tệp tin tại đường dẫn hệ thống: {fullPath}";
+                }
+
+                var extension = Path.GetExtension(fullPath).ToLower();
+                if (extension == ".docx")
+                {
+                    try
+                    {
+                        // License-free extraction using native .NET ZipArchive and XmlDocument
+                        using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var archive = new ZipArchive(stream))
+                        {
+                            var entry = archive.GetEntry("word/document.xml");
+                            if (entry == null) return "[LỖI]: Tệp DocX không hợp lệ (thiếu thành phần chính document.xml).";
+
+                            using (var entryStream = entry.Open())
+                            using (var reader = new StreamReader(entryStream))
+                            {
+                                var xml = await reader.ReadToEndAsync();
+                                var doc = new XmlDocument();
+                                doc.LoadXml(xml);
+                                
+                                var nsmgr = new XmlNamespaceManager(doc.NameTable);
+                                nsmgr.AddNamespace("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
+                                
+                                var sb = new StringBuilder();
+                                var pNodes = doc.SelectNodes("//w:p", nsmgr);
+                                if (pNodes != null && pNodes.Count > 0)
+                                {
+                                    foreach (XmlNode pNode in pNodes)
+                                    {
+                                        var tNodes = pNode.SelectNodes(".//w:t", nsmgr);
+                                        if (tNodes != null)
+                                        {
+                                            foreach (XmlNode tNode in tNodes)
+                                            {
+                                                sb.Append(tNode.InnerText);
+                                            }
+                                        }
+                                        sb.AppendLine();
+                                    }
+                                }
+                                else
+                                {
+                                    // Fallback: just get all text nodes if no paragraphs found
+                                    var tNodes = doc.SelectNodes("//w:t", nsmgr);
+                                    if (tNodes != null)
+                                    {
+                                        foreach (XmlNode tNode in tNodes)
+                                        {
+                                            sb.Append(tNode.InnerText);
+                                        }
+                                    }
+                                }
+
+                                var result = sb.ToString().Trim();
+                                if (string.IsNullOrWhiteSpace(result))
+                                {
+                                    return "[LỖI]: Tệp DocX không chứa nội dung văn bản (có thể tệp chỉ chứa hình ảnh).";
+                                }
+                                return result;
+                            }
+                        }
+                    }
+                    catch (Exception docxEx)
+                    {
+                        return $"[LỖI]: Lỗi khi xử lý tệp DocX (OpenXML method): {docxEx.Message}";
+                    }
+                }
+                else if (extension == ".txt")
+                {
+                    return await File.ReadAllTextAsync(fullPath, Encoding.UTF8);
+                }
+                
+                return $"[LỖI]: Định dạng tệp '{extension}' chưa được hỗ trợ trích xuất nội dung.";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[AI Assistant] File extraction error for {filePath}: {ex.Message}");
+                return $"[LỖI]: Lỗi hệ thống khi trích xuất tệp: {ex.Message}";
+            }
         }
 
         public async Task<string> GenerateResponseAsync(string prompt)
@@ -434,7 +535,8 @@ DƯỚI ĐÂY LÀ QUY TẮC CỰC KỲ QUAN TRỌNG:
 1. LUÔN TRẢ VỀ JSON theo cấu trúc: {""action"": ""..."", ""data"": { ... }, ""reply"": ""...""}
 2. Nếu người dùng yêu cầu tạo/thêm (ví dụ: 'Tạo đoàn viên tên Huy'), hãy tự tạo các dữ liệu còn thiếu một cách hợp lý.
 3. Nếu người dùng chỉ hỏi bình thường, action là ""REPLY"".
-4. Nếu người dùng hỏi về quy định, hướng dẫn, nghiệp vụ Đoàn, hoặc cách thực hiện các thủ tục, hãy sử dụng action ""KNOWLEDGE_QUERY"".
+4. Nếu người dùng hỏi về quy định, hướng dẫn, nghiệp vụ Đoàn, hoặc yêu cầu đọc/tra cứu nội dung từ tệp/tài liệu trong hệ thống, hãy sử dụng action ""KNOWLEDGE_QUERY"".
+5. BẠN CÓ KHẢ NĂNG đọc nội dung từ các tệp đính kèm (DocX, TXT) trong Tài liệu nghiệp vụ. Khi người dùng yêu cầu đọc file, hãy dùng action ""KNOWLEDGE_QUERY"".
 
 THÔNG TIN SCHEMA DỮ LIỆU:
 - ĐOÀN VIÊN (CREATE_MEMBER / UPDATE_MEMBER):
@@ -471,7 +573,7 @@ THÔNG TIN SCHEMA DỮ LIỆU:
   + LƯU Ý: 'DELETE_MEMBER' dùng cho đoàn viên, 'DELETE_USER' dùng cho tài khoản bí thư/hệ thống.
 
 - KIẾN THỨC (KNOWLEDGE_QUERY):
-  + SearchTerm (string, từ khóa để tìm trong tài liệu nghiệp vụ)
+  + SearchTerm (string, từ khóa để tìm tài liệu. Nếu người dùng nhắc đến tên tài liệu cụ thể như 'test', hãy dùng 'test' làm SearchTerm. Nếu nhắc đến file đính kèm, hãy dùng tên file hoặc từ khóa liên quan).
 
 - CẬP NHẬT QUYỀN (UPDATE_USER_ROLE):
   + Email (string, Email của tài khoản cần đổi quyền)
@@ -486,6 +588,8 @@ VÍ DỤ HÀNH ĐỘNG:
   {""action"": ""CREATE_UNIT"", ""data"": {""Name"": ""Chi đoàn 10A1"", ""Code"": ""CD10A1""}, ""reply"": ""Đang khởi tạo đơn vị mới trên hệ thống...""}
 - 'Quy định kết nạp Đoàn là gì?':
   {""action"": ""KNOWLEDGE_QUERY"", ""data"": {""SearchTerm"": ""kết nạp Đoàn""}, ""reply"": ""Để tôi kiểm tra tài liệu nghiệp vụ về việc kết nạp Đoàn...""}
+- 'Đọc nội dung file trong tài liệu nghiệp vụ Test':
+  {""action"": ""KNOWLEDGE_QUERY"", ""data"": {""SearchTerm"": ""Test""}, ""reply"": ""Để tôi đọc nội dung tệp đính kèm trong tài liệu 'Test' cho bạn...""}
 - 'Phát động phong trào Mùa hè xanh':
   {""action"": ""CREATE_MOVEMENT"", ""data"": {""Title"": ""Chi chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}
 - 'Xóa phong trào 285':
@@ -493,7 +597,14 @@ VÍ DỤ HÀNH ĐỘNG:
 - 'Xóa tài khoản Quá dơ':
   {""action"": ""DELETE_USER"", ""data"": {""Name"": ""Quá dơ""}, ""reply"": ""Đang thực hiện xóa tài khoản hệ thống của người dùng này...""}
 
-LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
+LƯU Ý QUAN TRỌNG VỀ TRÌNH BÀY:
+1. LUÔN TRÌNH BÀY thông tin một cách rõ ràng, dễ nhìn.
+2. SỬ DỤNG các dấu gạch đầu dòng (-, *) cho danh sách.
+3. SỬ DỤNG xuống dòng kép giữa các đoạn văn hoặc các mục lớn.
+4. SỬ DỤNG viết hoa hoặc in đậm (Markdown **) cho các tiêu đề hoặc thông tin quan trọng.
+5. TRÁNH viết các đoạn văn quá dài và dính lẹo vào nhau.
+
+LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH, KHÔNG CHÈN VĂN BẢN NGOÀI JSON.";
 
                 var fullPrompt = $"{systemPrompt}\n\nNgười dùng: {message}";
                 var aiRawResponse = await GenerateResponseAsync(fullPrompt);
@@ -501,20 +612,18 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
                 // Log raw response for debugging
                 Console.WriteLine($"[AI Assistant] Raw Response: {aiRawResponse}");
 
-                // Try to extract JSON from the response
+                // Improved JSON extraction logic
                 string jsonString = "";
-                if (aiRawResponse.Contains("```json"))
+                int firstBrace = aiRawResponse.IndexOf("{");
+                int lastBrace = aiRawResponse.LastIndexOf("}");
+                
+                if (firstBrace >= 0 && lastBrace > firstBrace)
                 {
-                    jsonString = aiRawResponse.Split("```json")[1].Split("```")[0].Trim();
-                }
-                else if (aiRawResponse.Contains("{"))
-                {
-                    jsonString = aiRawResponse.Substring(aiRawResponse.IndexOf("{"));
-                    jsonString = jsonString.Substring(0, jsonString.LastIndexOf("}") + 1);
+                    jsonString = aiRawResponse.Substring(firstBrace, lastBrace - firstBrace + 1);
                 }
 
                 // If no JSON found, treat as a normal reply
-                if (string.IsNullOrEmpty(jsonString) || !jsonString.TrimStart().StartsWith("{"))
+                if (string.IsNullOrEmpty(jsonString))
                 {
                     return aiRawResponse;
                 }
@@ -689,11 +798,33 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH.";
                             
                             var items = await kbService.SearchItemsAsync(searchTerm);
                             if (items.Any()) {
-                                var context = string.Join("\n\n", items.Take(3).Select(i => $"--- TIÊU ĐỀ: {i.Title} ---\n{i.Content}"));
+                                var contextBuilder = new StringBuilder();
+                                foreach (var item in items.Take(3))
+                                {
+                                    contextBuilder.AppendLine($"--- TIÊU ĐỀ: {item.Title} ---");
+                                    contextBuilder.AppendLine($"[MÔ TẢ]: {item.Content}");
+                                    
+                                    if (!string.IsNullOrEmpty(item.AttachmentUrl))
+                                    {
+                                        contextBuilder.AppendLine($"[TỆP ĐÍNH KÈM]: {item.AttachmentName}");
+                                        var fileContent = await ExtractTextFromFileAsync(item.AttachmentUrl);
+                                        if (!string.IsNullOrEmpty(fileContent))
+                                        {
+                                            contextBuilder.AppendLine($"[NỘI DUNG TRÍCH XUẤT TỪ TỆP]:");
+                                            contextBuilder.AppendLine(fileContent);
+                                        }
+                                        else
+                                        {
+                                            contextBuilder.AppendLine("[THÔNG BÁO]: Tài liệu này có tệp đính kèm nhưng không thể trích xuất nội dung văn bản (có thể là tệp hình ảnh hoặc định dạng không hỗ trợ).");
+                                        }
+                                    }
+                                    contextBuilder.AppendLine();
+                                }
+
                                 var groundedPrompt = @$"Bạn là một chuyên gia về nghiệp vụ Đoàn. Hãy trả lời câu hỏi của người dùng dựa trên thông tin từ Tài liệu nghiệp vụ được cung cấp dưới đây.
 
 DƯỚI ĐÂY LÀ CÁC TÀI LIỆU LIÊN QUAN:
-{context}
+{contextBuilder}
 
 CÂU HỎI CỦA NGƯỜI DÙNG: {message}
 
@@ -701,7 +832,8 @@ YÊU CẦU TRẢ LỜI:
 1. Trình bày rõ ràng, chuyên nghiệp, sử dụng ngôn từ phù hợp với môi trường Đoàn - Hội.
 2. Chỉ trả lời dựa trên thông tin có trong tài liệu trên. 
 3. Nếu tài liệu không chứa đủ thông tin để trả lời, hãy lịch sự thông báo là bạn không tìm thấy hướng dẫn chi tiết cho vấn đề này trong hệ thống hiện tại.
-4. Trích dẫn tiêu đề tài liệu nếu cần thiết.";
+4. Trích dẫn tiêu đề tài liệu nếu cần thiết.
+5. SỬ DỤNG Markdown để trình bày đẹp mắt: In đậm (**), danh sách có thứ tự (1, 2, 3) hoặc không thứ tự (-, *), và sử dụng nhiều xuống dòng để tách bạch các ý.";
                                 
                                 return await GenerateResponseAsync(groundedPrompt);
                             }

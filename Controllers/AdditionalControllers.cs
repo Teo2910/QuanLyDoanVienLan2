@@ -420,10 +420,12 @@ namespace QLDV.Controllers
     public class KnowledgeBaseController : Controller
     {
         private readonly IKnowledgeBaseService _knowledgeService;
+        private readonly IFileService _fileService;
 
-        public KnowledgeBaseController(IKnowledgeBaseService knowledgeService)
+        public KnowledgeBaseController(IKnowledgeBaseService knowledgeService, IFileService fileService)
         {
             _knowledgeService = knowledgeService;
+            _fileService = fileService;
         }
 
         public async Task<IActionResult> Index()
@@ -454,12 +456,18 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(KnowledgeItem item)
+        public async Task<IActionResult> Create(KnowledgeItem item, IFormFile? attachment)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if (attachment != null && attachment.Length > 0)
+                    {
+                        var fileName = await _fileService.SaveFileAsync(attachment, "knowledge");
+                        item.AttachmentUrl = _fileService.GetFileUrl(fileName, "knowledge");
+                        item.AttachmentName = attachment.FileName;
+                    }
                     await _knowledgeService.CreateItemAsync(item);
                     return RedirectToAction(nameof(Details), new { id = item.Id });
                 }
@@ -481,7 +489,7 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(string id, KnowledgeItem item)
+        public async Task<IActionResult> Edit(string id, KnowledgeItem item, IFormFile? attachment)
         {
             if (id != item.Id)
                 return BadRequest();
@@ -490,6 +498,18 @@ namespace QLDV.Controllers
             {
                 try
                 {
+                    if (attachment != null && attachment.Length > 0)
+                    {
+                        // Delete old file if exists
+                        if (!string.IsNullOrEmpty(item.AttachmentUrl))
+                        {
+                            _fileService.DeleteFile(item.AttachmentUrl);
+                        }
+
+                        var fileName = await _fileService.SaveFileAsync(attachment, "knowledge");
+                        item.AttachmentUrl = _fileService.GetFileUrl(fileName, "knowledge");
+                        item.AttachmentName = attachment.FileName;
+                    }
                     await _knowledgeService.UpdateItemAsync(item);
                     return RedirectToAction(nameof(Details), new { id = item.Id });
                 }
@@ -506,6 +526,12 @@ namespace QLDV.Controllers
         {
             try
             {
+                var item = await _knowledgeService.GetItemByIdAsync(id);
+                if (item != null && !string.IsNullOrEmpty(item.AttachmentUrl))
+                {
+                    _fileService.DeleteFile(item.AttachmentUrl);
+                }
+
                 await _knowledgeService.DeleteItemAsync(id);
                 return RedirectToAction(nameof(Index));
             }
@@ -551,6 +577,21 @@ namespace QLDV.Controllers
             ViewBag.TotalOutstanding = totalOutstanding;
 
             return View();
+        }
+
+        [HttpGet("api/Statistics/BasicData")]
+        public async Task<IActionResult> GetBasicData()
+        {
+            var units = await _unitService.GetAllUnitsAsync();
+            var members = await _memberService.GetAllMembersAsync();
+
+            var labels = units.Select(u => u.Name).Take(7).ToList();
+            var values = units.Select(u => u.Members?.Count ?? 0).Take(7).ToList();
+
+            var male = members.Count(m => m.Gender == "Nam");
+            var female = members.Count(m => m.Gender == "Nữ");
+
+            return Json(new { labels, values, male, female });
         }
 
         [HttpGet]

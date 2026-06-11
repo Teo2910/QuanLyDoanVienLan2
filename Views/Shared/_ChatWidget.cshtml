@@ -7,20 +7,28 @@
 
 <div id="chat-widget-container">
     <button id="chat-toggle" class="chat-toggle-btn shadow-lg">
-        <i class="fas fa-comment-dots"></i>
+        <div class="toggle-icon-wrapper">
+            <i class="fas fa-comment-dots main-icon"></i>
+            <i class="fas fa-magic spark-icon"></i>
+        </div>
         <span id="unread-badge" class="badge-unread d-none">0</span>
     </button>
 
     <div id="chat-window" class="chat-window-card d-none">
         <div class="chat-header">
             <div class="header-info">
-                <div class="status-indicator"></div>
+                <div class="status-indicator-wrapper">
+                    <div class="status-indicator"></div>
+                </div>
                 <div class="title-group">
-                    <h5 id="chat-header-title">Trợ giúp trực tuyến</h5>
+                    <h5 id="chat-header-title">Hệ thống Trợ giúp</h5>
                     <small id="chat-header-subtitle">DLU Support Team</small>
                 </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="header-actions">
+                <button type="button" class="btn-chat-mode-toggle" id="toggle-ai-mode" title="Chuyển sang Trợ lý AI">
+                    <i class="fas fa-magic"></i>
+                </button>
                 <button type="button" class="btn-chat-action d-none" id="chat-back-list" title="Quay lại danh sách">
                     <i class="fas fa-list"></i>
                 </button>
@@ -33,7 +41,7 @@
         <div id="chat-messages" class="chat-body">
             <div class="chat-welcome">
                 <div class="spinner-border spinner-border-sm text-primary"></div>
-                <p class="mt-2">Đang tải...</p>
+                <p class="mt-2">Đang kết nối...</p>
             </div>
         </div>
 
@@ -43,6 +51,10 @@
                 <button id="chat-send">
                     <i class="fas fa-paper-plane"></i>
                 </button>
+            </div>
+            <div class="ai-typing-indicator d-none" id="ai-typing">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <small>AI đang xử lý...</small>
             </div>
         </div>
     </div>
@@ -54,17 +66,17 @@
         position: fixed;
         bottom: 30px;
         right: 30px;
-        width: 68px;
-        height: 68px;
+        width: 72px;
+        height: 72px;
         z-index: 10000;
-        border-radius: 22px;
+        border-radius: 24px;
         background: linear-gradient(135deg, #0061f2 0%, #0052cc 100%);
         border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 15px 35px rgba(0, 97, 242, 0.35);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 15px 35px rgba(0, 97, 242, 0.3);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .chat-toggle-btn:hover {
@@ -72,10 +84,9 @@
         box-shadow: 0 20px 45px rgba(0, 97, 242, 0.45);
     }
 
-    .chat-toggle-btn i {
-        color: white;
-        font-size: 1.6rem;
-    }
+    .toggle-icon-wrapper { position: relative; }
+    .chat-toggle-btn i { color: white; font-size: 1.6rem; transition: 0.3s; }
+    .spark-icon { position: absolute; top: -10px; right: -10px; font-size: 0.9rem !important; opacity: 0.8; }
 
     .badge-unread {
         position: absolute;
@@ -93,79 +104,71 @@
     /* Chat Window */
     .chat-window-card {
         position: fixed;
-        bottom: 110px;
+        bottom: 115px;
         right: 30px;
-        width: 380px;
-        height: 600px;
+        width: 400px;
+        height: 620px;
         z-index: 10000;
         background: #fff;
-        border-radius: 35px;
+        border-radius: 40px;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 25px 80px rgba(0,0,0,0.15);
-        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 30px 90px rgba(0,0,0,0.12);
+        border: 1px solid rgba(0,0,0,0.03);
         overflow: hidden;
-        animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        animation: chatWindowOpen 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
-    @@keyframes slideUp {
-        from { transform: translateY(50px) scale(0.9); opacity: 0; }
+    @@keyframes chatWindowOpen {
+        from { transform: translateY(30px) scale(0.95); opacity: 0; }
         to { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     /* Header */
     .chat-header {
-        background: linear-gradient(135deg, #0061f2 0%, #0046af 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         padding: 1.75rem 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: white;
+        position: relative;
     }
 
-    .header-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
+    .chat-header.ai-active {
+        background: linear-gradient(135deg, #0061f2 0%, #0046af 100%);
     }
 
-    .status-indicator {
-        width: 10px;
-        height: 10px;
-        background: #10b981;
-        border-radius: 50%;
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-    }
-
-    .title-group h5 {
-        margin: 0;
-        font-weight: 800;
-        font-size: 1.1rem;
-        letter-spacing: -0.5px;
-    }
-
-    .title-group small {
-        font-size: 0.75rem;
-        opacity: 0.8;
-        font-weight: 500;
-    }
-
-    .btn-chat-close, .btn-chat-action {
-        background: rgba(255,255,255,0.15);
-        border: none;
-        color: white;
+    .header-info { display: flex; align-items: center; gap: 15px; }
+    .status-indicator-wrapper {
         width: 32px;
         height: 32px;
+        background: rgba(255,255,255,0.1);
         border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .status-indicator { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
+
+    .title-group h5 { margin: 0; font-weight: 800; font-size: 1rem; letter-spacing: -0.3px; }
+    .title-group small { font-size: 0.7rem; opacity: 0.7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .header-actions { display: flex; gap: 10px; }
+    .btn-chat-close, .btn-chat-action, .btn-chat-mode-toggle {
+        background: rgba(255,255,255,0.08);
+        border: none;
+        color: white;
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
     }
-
-    .btn-chat-close:hover, .btn-chat-action:hover {
-        background: rgba(255,255,255,0.25);
-    }
+    .btn-chat-close:hover, .btn-chat-action:hover, .btn-chat-mode-toggle:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .btn-chat-mode-toggle.active { background: #fff; color: #0061f2; }
 
     /* Body */
     .chat-body {
@@ -177,24 +180,18 @@
         flex-direction: column;
         scrollbar-width: none;
     }
-
     .chat-body::-webkit-scrollbar { display: none; }
 
-    .chat-welcome {
-        text-align: center;
-        padding: 2rem 1rem;
-        color: #94a3b8;
-    }
-
     .msg-bubble {
-        max-width: 80%;
-        padding: 0.85rem 1.1rem;
-        border-radius: 20px;
+        max-width: 85%;
+        padding: 0.9rem 1.25rem;
+        border-radius: 24px;
         font-size: 0.9rem;
         font-weight: 600;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
         line-height: 1.5;
         word-wrap: break-word;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02);
     }
 
     .msg-me {
@@ -202,300 +199,328 @@
         background: #0061f2;
         color: white;
         border-bottom-right-radius: 4px;
-        box-shadow: 0 8px 15px rgba(0, 97, 242, 0.15);
     }
 
     .msg-other {
         align-self: flex-start;
         background: #fff;
-        color: #334155;
+        color: #1e293b;
         border-bottom-left-radius: 4px;
         border: 1px solid #f1f5f9;
     }
 
-    .thread-item {
-        background: #fff;
-        border-radius: 18px;
-        padding: 1.15rem;
-        margin-bottom: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 1px solid #f1f5f9;
-    }
-
-    .thread-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border-color: #0061f2;
-    }
-
-    .thread-item.unread {
-        border-left: 4px solid #0061f2;
-        background: #f0f7ff;
+    .msg-ai {
+        align-self: flex-start;
+        background: #eef2ff;
+        color: #0061f2;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #dbeafe;
     }
 
     /* Footer */
     .chat-footer {
-        padding: 1.25rem 2rem;
+        padding: 1.5rem 2rem;
         background: #fff;
         border-top: 1px solid #f1f5f9;
+        position: relative;
     }
-
-    .chat-footer.d-none { display: none !important; }
 
     .input-wrapper {
         background: #f8fafc;
         border-radius: 20px;
-        padding: 6px 6px 6px 1.25rem;
+        padding: 6px 6px 6px 1.5rem;
         display: flex;
         align-items: center;
         border: 1px solid #f1f5f9;
+        transition: 0.3s;
     }
+    .input-wrapper:focus-within { border-color: #0061f2; background: #fff; box-shadow: 0 5px 20px rgba(0, 97, 242, 0.05); }
 
-    .input-wrapper input {
-        border: none;
-        background: transparent;
-        flex-grow: 1;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #1e293b;
-        outline: none;
-    }
+    .input-wrapper input { border: none; background: transparent; flex-grow: 1; font-size: 0.9rem; font-weight: 600; color: #1e293b; outline: none; }
+    #chat-send { background: #0f172a; color: white; border: none; width: 44px; height: 44px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+    #chat-send:hover { background: #0061f2; transform: scale(1.05) rotate(-5deg); }
 
-    #chat-send {
-        background: #0061f2;
-        color: white;
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 14px;
+    .ai-typing-indicator {
+        position: absolute;
+        top: -30px;
+        left: 2rem;
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
+        gap: 8px;
+        background: #fff;
+        padding: 5px 15px;
+        border-radius: 100px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
     }
+    .ai-typing-indicator .dot { width: 5px; height: 5px; background: #0061f2; border-radius: 50%; opacity: 0.3; animation: aiBounce 1.4s infinite; }
+    .ai-typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+    .ai-typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+    .ai-typing-indicator small { font-size: 0.65rem; font-weight: 700; color: #0061f2; margin-left: 5px; text-transform: uppercase; }
 
-    #chat-send:hover {
-        background: #0052cc;
-        transform: scale(1.05);
+    @@keyframes aiBounce {
+        0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+        40% { transform: scale(1); opacity: 1; }
     }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
 <script>
-    const userProfile = {
-        uid: '@(currentUser?.Id ?? "guest")',
-        fullName: '@(currentUser?.FullName ?? currentUser?.UserName ?? "Guest")',
-        role: '@(currentUser?.Role ?? "User")'
-    };
-
-    let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-    let activeThreadId = userProfile.role === 'Admin' ? null : userProfile.uid;
-
-    connection.on("ReceiveMessage", function (message) {
-        if (userProfile.role === 'Admin') {
-            if (activeThreadId === message.threadId) {
-                appendMessage(message);
-            } else {
-                if (!document.getElementById('chat-window').classList.contains('d-none') && !activeThreadId) {
-                    loadThreads();
-                }
-                updateUnreadCount(1);
-            }
-        } else {
-            if (message.threadId === userProfile.uid) {
-                appendMessage(message);
-                if (message.senderRole === 'Admin' && !document.getElementById('chat-window').classList.contains('d-none')) {
-                    markAsRead(userProfile.uid);
-                } else if (message.senderRole === 'Admin') {
-                    updateUnreadCount(1);
-                }
-            }
-        }
-    });
-
-    connection.start().catch(err => console.error(err.toString()));
-
-    document.getElementById('chat-toggle').addEventListener('click', () => {
-        const win = document.getElementById('chat-window');
-        win.classList.toggle('d-none');
-        if (!win.classList.contains('d-none')) {
-            initChatView();
-        }
-    });
-
-    document.getElementById('chat-close').addEventListener('click', () => {
-        document.getElementById('chat-window').classList.add('d-none');
-    });
-
-    document.getElementById('chat-back-list').addEventListener('click', () => {
-        activeThreadId = null;
-        loadThreads();
-    });
-
-    document.getElementById('chat-send').addEventListener('click', sendMessage);
-    document.getElementById('chat-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    function initChatView() {
-        if (userProfile.role === 'Admin') {
-            if (!activeThreadId) {
-                loadThreads();
-            } else {
-                loadMessages(activeThreadId);
-            }
-        } else {
-            loadMessages(userProfile.uid);
-            markAsRead(userProfile.uid);
-        }
-    }
-
-    function loadThreads() {
-        activeThreadId = null;
-        document.getElementById('chat-footer').classList.add('d-none');
-        document.getElementById('chat-back-list').classList.add('d-none');
-        document.getElementById('chat-header-title').textContent = "Hội thoại gần đây";
-        document.getElementById('chat-header-subtitle').textContent = "Chọn một người dùng để hỗ trợ";
-
-        fetch('/api/chat/threads')
-            .then(res => res.json())
-            .then(threads => {
-                const container = document.getElementById('chat-messages');
-                container.innerHTML = '';
-                
-                if (threads.length === 0) {
-                    container.innerHTML = '<div class="chat-welcome"><p>Chưa có cuộc hội thoại nào.</p></div>';
-                    return;
-                }
-
-                threads.forEach(t => {
-                    const div = document.createElement('div');
-                    div.className = `thread-item ${t.unreadCount > 0 ? 'unread' : ''}`;
-                    div.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center gap-3">
-                                <div style="width:40px;height:40px;background:#f0f7ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#0061f2;">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight:800;color:#1e293b;font-size:0.85rem;">User #${t.threadId.substring(0,6).toUpperCase()}</div>
-                                    <div style="font-size:0.7rem;color:#94a3b8;font-weight:700;">${new Date(t.lastMessageAt * 1000).toLocaleTimeString()}</div>
-                                </div>
-                            </div>
-                            ${t.unreadCount > 0 ? `<span class="badge rounded-pill bg-primary">${t.unreadCount}</span>` : '<i class="fas fa-chevron-right text-muted" style="font-size:0.7rem;"></i>'}
-                        </div>
-                    `;
-                    div.onclick = () => {
-                        activeThreadId = t.threadId;
-                        loadMessages(t.threadId);
-                        markAsRead(t.threadId);
-                    };
-                    container.appendChild(div);
-                });
-            });
-    }
-
-    function loadMessages(threadId) {
-        document.getElementById('chat-footer').classList.remove('d-none');
-        if (userProfile.role === 'Admin') {
-            document.getElementById('chat-back-list').classList.remove('d-none');
-            document.getElementById('chat-header-title').textContent = "Hỗ trợ người dùng";
-            document.getElementById('chat-header-subtitle').textContent = "ID: " + threadId.substring(0,8).toUpperCase();
-        } else {
-            document.getElementById('chat-header-title').textContent = "Trợ giúp trực tuyến";
-            document.getElementById('chat-header-subtitle').textContent = "DLU Support Team";
-        }
-
-        const container = document.getElementById('chat-messages');
-        container.innerHTML = '<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
-
-        fetch(`/api/chat/messages/${threadId}`)
-            .then(res => res.json())
-            .then(messages => {
-                container.innerHTML = '';
-                if (messages.length === 0) {
-                    container.innerHTML = '<div class="chat-welcome"><i class="fas fa-hand-holding-heart mb-2"></i><p>Bắt đầu cuộc hội thoại...</p></div>';
-                }
-                messages.forEach(appendMessage);
-                container.scrollTop = container.scrollHeight;
-            });
-    }
-
-    function appendMessage(msg) {
-        const container = document.getElementById('chat-messages');
-        const welcome = container.querySelector('.chat-welcome');
-        if (welcome) welcome.remove();
-
-        const isMe = msg.senderId === userProfile.uid;
-        const div = document.createElement('div');
-        div.className = `msg-bubble ${isMe ? 'msg-me' : 'msg-other'}`;
-        div.textContent = msg.content;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const content = input.value.trim();
-        
-        if (!content || !activeThreadId) {
-            console.log("Send blocked:", { content, activeThreadId });
-            return;
-        }
-
-        const msg = {
-            threadId: activeThreadId,
-            senderId: userProfile.uid,
-            senderName: userProfile.fullName,
-            senderRole: userProfile.role,
-            content: content
+    (function() {
+        const userProfile = {
+            uid: '@(currentUser?.Id ?? "guest")',
+            fullName: '@(currentUser?.FullName ?? currentUser?.UserName ?? "Guest")',
+            role: '@(currentUser?.Role ?? "User")'
         };
 
-        // Clear UI immediately for responsiveness
-        input.value = '';
+        let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        let activeThreadId = userProfile.role === 'Admin' ? null : userProfile.uid;
+        let isAiMode = false;
 
-        fetch('/api/chat/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(msg)
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Server error");
-            return res.json();
-        })
-        .catch(err => {
-            console.error("Failed to send message:", err);
-            // Optionally restore content on failure
-            input.value = content;
-        });
-    }
-
-    function markAsRead(threadId) {
-        fetch(`/api/chat/read/${threadId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role: userProfile.role })
-        }).then(() => {
-            if (userProfile.role !== 'Admin') {
-                document.getElementById('unread-badge').classList.add('d-none');
-                document.getElementById('unread-badge').textContent = '0';
+        connection.on("ReceiveMessage", function (message) {
+            if (isAiMode) return; // Ignore standard messages in AI mode UI (for now)
+            
+            if (userProfile.role === 'Admin') {
+                if (activeThreadId === message.threadId) {
+                    appendMessage(message);
+                } else {
+                    if (!document.getElementById('chat-window').classList.contains('d-none') && !activeThreadId) {
+                        loadThreads();
+                    }
+                    updateUnreadCount(1);
+                }
             } else {
-                // If in list view, refresh
-                if (!activeThreadId) loadThreads();
+                if (message.threadId === userProfile.uid) {
+                    appendMessage(message);
+                    if (message.senderRole === 'Admin' && !document.getElementById('chat-window').classList.contains('d-none')) {
+                        markAsRead(userProfile.uid);
+                    } else if (message.senderRole === 'Admin') {
+                        updateUnreadCount(1);
+                    }
+                }
             }
         });
-    }
 
-    function updateUnreadCount(delta) {
-        const badge = document.getElementById('unread-badge');
-        let count = parseInt(badge.textContent) + delta;
-        if (count < 0) count = 0;
-        badge.textContent = count;
-        if (count > 0) badge.classList.remove('d-none');
-        else badge.classList.add('d-none');
-    }
+        connection.on("ReceiveAIResponse", function (response) {
+            document.getElementById('ai-typing').classList.add('d-none');
+            appendMessage({
+                senderId: 'AI',
+                senderRole: 'AI',
+                content: response.content
+            });
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        document.getElementById('chat-toggle').addEventListener('click', () => {
+            const win = document.getElementById('chat-window');
+            win.classList.toggle('d-none');
+            if (!win.classList.contains('d-none')) {
+                initChatView();
+            }
+        });
+
+        document.getElementById('chat-close').addEventListener('click', () => {
+            document.getElementById('chat-window').classList.add('d-none');
+        });
+
+        document.getElementById('toggle-ai-mode').addEventListener('click', function() {
+            isAiMode = !isAiMode;
+            this.classList.toggle('active');
+            const header = document.querySelector('.chat-header');
+            const title = document.getElementById('chat-header-title');
+            const subtitle = document.getElementById('chat-header-subtitle');
+            
+            if (isAiMode) {
+                header.classList.add('ai-active');
+                title.textContent = "Trợ lý AI Thông minh";
+                subtitle.textContent = "DLU INTELLIGENT CORE";
+                document.getElementById('chat-messages').innerHTML = '<div class="chat-welcome"><i class="fas fa-magic mb-2"></i><p>Chế độ AI đã sẵn sàng. Hãy đặt câu hỏi hoặc ra lệnh cho tôi.</p></div>';
+                document.getElementById('chat-back-list').classList.add('d-none');
+            } else {
+                header.classList.remove('ai-active');
+                initChatView();
+            }
+        });
+
+        document.getElementById('chat-back-list').addEventListener('click', () => {
+            activeThreadId = null;
+            loadThreads();
+        });
+
+        document.getElementById('chat-send').addEventListener('click', sendMessage);
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function initChatView() {
+            if (isAiMode) return;
+            
+            if (userProfile.role === 'Admin') {
+                if (!activeThreadId) {
+                    loadThreads();
+                } else {
+                    loadMessages(activeThreadId);
+                }
+            } else {
+                loadMessages(userProfile.uid);
+                markAsRead(userProfile.uid);
+            }
+        }
+
+        function loadThreads() {
+            activeThreadId = null;
+            document.getElementById('chat-back-list').classList.add('d-none');
+            document.getElementById('chat-header-title').textContent = "Hội thoại hỗ trợ";
+            document.getElementById('chat-header-subtitle').textContent = "Chọn một người dùng để hỗ trợ";
+
+            fetch('/api/chat/threads')
+                .then(res => res.json())
+                .then(threads => {
+                    const container = document.getElementById('chat-messages');
+                    container.innerHTML = '';
+                    
+                    if (threads.length === 0) {
+                        container.innerHTML = '<div class="chat-welcome"><p>Chưa có cuộc hội thoại nào.</p></div>';
+                        return;
+                    }
+
+                    threads.forEach(t => {
+                        const div = document.createElement('div');
+                        div.className = `thread-item ${t.unreadCount > 0 ? 'unread' : ''}`;
+                        div.style = "background:#fff;border-radius:18px;padding:1.15rem;margin-bottom:0.85rem;cursor:pointer;border:1px solid #f1f5f9;transition:0.2s;";
+                        div.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="width:40px;height:40px;background:#f0f7ff;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#0061f2;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:800;color:#1e293b;font-size:0.85rem;">User #${t.threadId.substring(0,6).toUpperCase()}</div>
+                                        <div style="font-size:0.7rem;color:#94a3b8;font-weight:700;">${new Date(t.lastMessageAt * 1000).toLocaleTimeString()}</div>
+                                    </div>
+                                </div>
+                                ${t.unreadCount > 0 ? `<span class="badge rounded-pill bg-primary">${t.unreadCount}</span>` : '<i class="fas fa-chevron-right text-muted" style="font-size:0.7rem;"></i>'}
+                            </div>
+                        `;
+                        div.onclick = () => {
+                            activeThreadId = t.threadId;
+                            loadMessages(t.threadId);
+                            markAsRead(t.threadId);
+                        };
+                        container.appendChild(div);
+                    });
+                });
+        }
+
+        function loadMessages(threadId) {
+            if (userProfile.role === 'Admin') {
+                document.getElementById('chat-back-list').classList.remove('d-none');
+                document.getElementById('chat-header-title').textContent = "Hỗ trợ trực tuyến";
+                document.getElementById('chat-header-subtitle').textContent = "ID: " + threadId.substring(0,8).toUpperCase();
+            } else {
+                document.getElementById('chat-header-title').textContent = "Trợ giúp trực tuyến";
+                document.getElementById('chat-header-subtitle').textContent = "DLU Support Team";
+            }
+
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+
+            fetch(`/api/chat/messages/${threadId}`)
+                .then(res => res.json())
+                .then(messages => {
+                    container.innerHTML = '';
+                    if (messages.length === 0) {
+                        container.innerHTML = '<div class="chat-welcome"><i class="fas fa-hand-holding-heart mb-2"></i><p>Bắt đầu cuộc hội thoại...</p></div>';
+                    }
+                    messages.forEach(appendMessage);
+                    container.scrollTop = container.scrollHeight;
+                });
+        }
+
+        function appendMessage(msg) {
+            const container = document.getElementById('chat-messages');
+            const welcome = container.querySelector('.chat-welcome');
+            if (welcome) welcome.remove();
+
+            const isMe = msg.senderId === userProfile.uid;
+            const isAi = msg.senderRole === 'AI';
+            
+            const div = document.createElement('div');
+            div.className = `msg-bubble ${isMe ? 'msg-me' : (isAi ? 'msg-ai' : 'msg-other')}`;
+            
+            // Handle newlines in AI response
+            if (isAi) {
+                div.innerHTML = msg.content.replace(/\n/g, '<br>');
+            } else {
+                div.textContent = msg.content;
+            }
+            
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const content = input.value.trim();
+            
+            if (!content) return;
+
+            if (isAiMode) {
+                appendMessage({ senderId: userProfile.uid, senderRole: 'User', content: content });
+                input.value = '';
+                document.getElementById('ai-typing').classList.remove('d-none');
+                connection.invoke("AskAI", userProfile.uid, content).catch(err => {
+                    console.error(err);
+                    document.getElementById('ai-typing').classList.add('d-none');
+                });
+                return;
+            }
+
+            if (!activeThreadId) return;
+
+            const msg = {
+                threadId: activeThreadId,
+                senderId: userProfile.uid,
+                senderName: userProfile.fullName,
+                senderRole: userProfile.role,
+                content: content
+            };
+
+            input.value = '';
+
+            fetch('/api/chat/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(msg)
+            }).catch(err => {
+                console.error("Failed to send message:", err);
+                input.value = content;
+            });
+        }
+
+        function markAsRead(threadId) {
+            fetch(`/api/chat/read/${threadId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role: userProfile.role })
+            }).then(() => {
+                if (userProfile.role !== 'Admin') {
+                    document.getElementById('unread-badge').classList.add('d-none');
+                    document.getElementById('unread-badge').textContent = '0';
+                }
+            });
+        }
+
+        function updateUnreadCount(delta) {
+            const badge = document.getElementById('unread-badge');
+            let count = parseInt(badge.textContent) + delta;
+            if (count < 0) count = 0;
+            badge.textContent = count;
+            if (count > 0) badge.classList.remove('d-none');
+            else badge.classList.add('d-none');
+        }
+    })();
 </script>

@@ -86,6 +86,12 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 }
+                                @if (isAdmin)
+                                {
+                                    <a href="javascript:void(0)" onclick="openUnitModal('/units/delete/@unit.Id')" class="btn-premium btn-premium-light p-2 px-3 text-danger" title="Xóa">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -143,7 +149,7 @@
             if (!modal || !body || !wrapper) return;
 
             // Adjust width based on content type
-            if (url.includes('/edit/') || url.includes('/create')) {
+            if (url.includes('/edit/') || url.includes('/create') || url.includes('/delete/')) {
                 wrapper.style.maxWidth = '800px';
             } else {
                 wrapper.style.maxWidth = '1100px';
@@ -194,6 +200,17 @@
                         editLink.onclick = (e) => {
                             e.preventDefault();
                             openUnitModal(editUrl);
+                        };
+                    }
+
+                    // Handle Delete Link inside Details modal to stay in modal
+                    const deleteLink = body.querySelector('.header-actions .btn-premium[style*="background: #fef2f2"]');
+                    if (deleteLink && deleteLink.getAttribute('href').includes('/delete/')) {
+                        const deleteUrl = deleteLink.getAttribute('href');
+                        deleteLink.href = 'javascript:void(0)';
+                        deleteLink.onclick = (e) => {
+                            e.preventDefault();
+                            openUnitModal(deleteUrl);
                         };
                     }
                 })

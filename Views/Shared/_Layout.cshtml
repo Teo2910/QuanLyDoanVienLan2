@@ -12,6 +12,79 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .search-container-global {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 0 15px;
+            height: 44px;
+            align-items: center;
+            gap: 12px;
+            width: 450px;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .search-container-global:focus-within {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            width: 500px;
+        }
+
+        .search-container-global i.fa-search { color: #94a3b8; font-size: 0.9rem; }
+        
+        .search-container-global input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+
+        .search-magic-badge {
+            background: #0f172a;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .search-results-premium {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 1px solid #f1f5f9;
+            z-index: 1000;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .search-result-item:hover { background: #f8fafc; transform: translateX(5px); }
+        .search-result-item:last-child { border-bottom: none; }
+        
+        .search-result-item .title { font-weight: 800; font-size: 0.9rem; color: #1e293b; display: block; }
+        .search-result-item .desc { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+    </style>
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -135,15 +208,21 @@
                     <a href="javascript:history.back()" class="close-btn d-none d-md-flex">
                         <i class="fas fa-chevron-left"></i>
                     </a>
-                    <div class="page-info">
+                    <div class="page-info d-none d-sm-block">
                         <h5>@ViewData["Title"]</h5>
-                        <span>Dự án Quản lý Đoàn</span>
+                        <span>DLU INTELLIGENT CORE</span>
+                    </div>
+                    <div class="search-container-global d-none d-xl-flex ms-4">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="global-search-input" placeholder="Tìm kiếm thông minh hoặc ra lệnh cho AI...">
+                        <div class="search-magic-badge"><i class="fas fa-magic"></i> AI</div>
+                        <div id="search-results-dropdown" class="search-results-premium d-none"></div>
                     </div>
                 </div>
                 <div class="user-nav-pill d-none d-lg-flex">
                     <div class="info">
                         <h6>@(user?.FullName ?? "User")</h6>
-                        <p>@(isAdmin ? "QUẢN TRỊ VIÊN" : "BÍ THƯ")</p>
+                        <p>@(isAdmin ? "QUẢN TRỊ VIÊN" : "BÍ THƯ HỆ THỐNG")</p>
                     </div>
                     <img src="@(string.IsNullOrEmpty(user?.AvatarUrl) ? "/images/default-avatar.png" : user.AvatarUrl)" alt="Avatar">
                 </div>
@@ -206,6 +285,62 @@
                     sidebar.removeClass('active');
                     overlay.removeClass('active');
                     $('body').removeClass('sidebar-open');
+                }
+            });
+
+            // Global Search Logic
+            let searchTimeout;
+            const searchInput = $('#global-search-input');
+            const searchDropdown = $('#search-results-dropdown');
+
+            searchInput.on('input', function() {
+                const query = $(this).val().trim();
+                clearTimeout(searchTimeout);
+
+                if (query.length < 3) {
+                    searchDropdown.addClass('d-none');
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    searchDropdown.removeClass('d-none').html('<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-primary"></div><div class="mt-2 small fw-bold text-muted">AI ĐANG TRUY XUẤT...</div></div>');
+                    
+                    fetch('/AIAssistant/Chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: "SEARCH: " + query })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        const response = data.response;
+                        let html = '';
+                        
+                        if (response.includes('Tìm thấy') || response.includes('kết quả')) {
+                            const lines = response.split('\n');
+                            html += `<div class="p-2 border-bottom mb-2"><span class="badge bg-primary">KẾT QUẢ TÌM KIẾM</span></div>`;
+                            lines.forEach(line => {
+                                if (line.startsWith('- ') || line.match(/^\d\./)) {
+                                    html += `<div class="search-result-item" onclick="location.href='/members'">
+                                        <span class="title">${line.replace(/^- |\d\./, '')}</span>
+                                        <span class="desc">Bấm để xem chi tiết trong danh sách</span>
+                                    </div>`;
+                                }
+                            });
+                        } else {
+                            html = `<div class="p-3 text-center"><div class="text-muted small fw-bold">${response}</div></div>`;
+                        }
+                        
+                        searchDropdown.html(html || `<div class="p-3 text-center text-muted small">Không tìm thấy thông tin phù hợp</div>`);
+                    })
+                    .catch(() => {
+                        searchDropdown.html('<div class="p-3 text-center text-danger small">Lỗi kết nối AI</div>');
+                    });
+                }, 800);
+            });
+
+            $(document).on('click', (e) => {
+                if (!$(e.target).closest('.search-container-global').length) {
+                    searchDropdown.addClass('d-none');
                 }
             });
         });

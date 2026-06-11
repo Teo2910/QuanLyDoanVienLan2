@@ -91,9 +91,56 @@
         }
 
         .custom-textarea {
-            min-height: 400px;
+            min-height: 250px;
             resize: vertical;
             line-height: 1.6;
+        }
+
+        /* File Upload Styling */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f8fbff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .file-label i {
+            font-size: 2rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+
+        .file-input:hover + .file-label {
+            border-color: #0061f2;
+            background: #f0f7ff;
+            color: #0061f2;
+        }
+
+        .file-input:hover + .file-label i {
+            color: #0061f2;
         }
 
         .submit-btn {
@@ -188,7 +235,7 @@
             <h2>Thêm Tài liệu mới</h2>
         </div>
 
-        <form method="post" action="/knowledgebase/create">
+        <form method="post" action="/knowledgebase/create" enctype="multipart/form-data">
             <div class="row">
                 <div class="col-md-8">
                     <div class="mb-4">
@@ -206,12 +253,23 @@
             </div>
 
             <div class="mb-4">
-                <label class="custom-label">Nội dung tài liệu *</label>
-                <textarea asp-for="Content" class="custom-input custom-textarea" placeholder="Nhập nội dung chi tiết..." required></textarea>
-                <span asp-validation-for="Content" class="text-danger" style="font-size: 0.75rem;"></span>
-                <div class="mt-2" style="font-size: 0.75rem; color: #888;">
-                    <i class="fas fa-info-circle me-1"></i> Hỗ trợ định dạng văn bản tự do.
+                <label class="custom-label">Đính kèm file tài liệu (PDF, Word, Excel, Ảnh...)</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" name="attachment" id="attachment" class="file-input" onchange="updateFileName(this)">
+                    <label for="attachment" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span id="fileNameDisplay">Nhấn để chọn file hoặc kéo thả vào đây</span>
+                    </label>
                 </div>
+                <div class="mt-2" style="font-size: 0.7rem; color: #94a3b8; font-weight: 600;">
+                    CHẤP NHẬN: .PDF, .DOC, .DOCX, .XLS, .XLSX, .JPG, .PNG
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="custom-label">Nội dung tóm tắt hoặc chi tiết *</label>
+                <textarea asp-for="Content" class="custom-input custom-textarea" placeholder="Nhập nội dung mô tả hoặc văn bản chi tiết..." required></textarea>
+                <span asp-validation-for="Content" class="text-danger" style="font-size: 0.75rem;"></span>
             </div>
 
             <div class="d-flex gap-3 mt-4 footer-actions">
@@ -225,6 +283,18 @@
         </form>
     </div>
 </div>
+
+<script>
+    function updateFileName(input) {
+        const fileName = input.files[0] ? input.files[0].name : "Nhấn để chọn file hoặc kéo thả vào đây";
+        document.getElementById('fileNameDisplay').textContent = fileName;
+        if (input.files[0]) {
+            document.querySelector('.file-label').style.borderColor = '#0061f2';
+            document.querySelector('.file-label').style.background = '#f0f7ff';
+            document.querySelector('.file-label i').style.color = '#0061f2';
+        }
+    }
+</script>
 
 <style>
     /* Final refinement for footer buttons on mobile */

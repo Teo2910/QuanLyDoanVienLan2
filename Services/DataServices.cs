@@ -309,10 +309,34 @@ namespace QLDV.Services
 
         public async Task<List<KnowledgeItem>> SearchItemsAsync(string searchTerm)
         {
-            return await _context.KnowledgeItems
-                .Where(k => k.Title.Contains(searchTerm) || k.Content.Contains(searchTerm))
-                .AsNoTracking()
-                .ToListAsync();
+            if (string.IsNullOrWhiteSpace(searchTerm)) return new List<KnowledgeItem>();
+
+            var keywords = searchTerm.Split(new[] { ' ', ',', '.', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(w => w.Length > 1 || char.IsDigit(w[0]) || "ivxlm".Contains(w.ToLower()))
+                .Select(w => w.ToLower().Trim())
+                .Distinct()
+                .ToList();
+
+            if (!keywords.Any()) keywords.Add(searchTerm.ToLower().Trim());
+
+            // For small to medium knowledge bases, fetching and filtering in memory is more reliable for keyword ranking
+            var allItems = await _context.KnowledgeItems.AsNoTracking().ToListAsync();
+            
+            return allItems
+                .Select(item => new
+                {
+                    Item = item,
+                    Score = keywords.Count(kw => 
+                        (item.Title != null && item.Title.ToLower().Contains(kw)) || 
+                        (item.Content != null && item.Content.ToLower().Contains(kw)) ||
+                        (item.AttachmentName != null && item.AttachmentName.ToLower().Contains(kw)))
+                })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ThenByDescending(x => x.Item.UpdatedAt)
+                .Select(x => x.Item)
+                .Take(10)
+                .ToList();
         }
 
         public async Task<KnowledgeItem> CreateItemAsync(KnowledgeItem item)
