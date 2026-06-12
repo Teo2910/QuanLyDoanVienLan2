@@ -145,6 +145,18 @@ namespace QLDV.Services
 
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Member");
         }
+
+        public async Task<bool> IsCCCDExistsAsync(string cccd, string? excludeMemberId = null)
+        {
+            if (string.IsNullOrEmpty(cccd)) return false;
+            
+            if (string.IsNullOrEmpty(excludeMemberId))
+            {
+                return await _context.Members.AnyAsync(m => m.CCCD == cccd);
+            }
+            
+            return await _context.Members.AnyAsync(m => m.CCCD == cccd && m.Id != excludeMemberId);
+        }
     }
 
     public class UnitService : IUnitService

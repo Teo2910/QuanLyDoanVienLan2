@@ -13,7 +13,7 @@
 }
 
 <style>
-    #hometownFilterContainer {
+    .filter-input-premium-container {
         background-color: #f8fafc !important;
         border: 1px solid #f1f5f9 !important;
         border-radius: 14px !important;
@@ -24,10 +24,11 @@
         width: 100% !important;
         transition: all 0.2s !important;
     }
-    #hometownFilterContainer:hover {
+    .filter-input-premium-container:hover {
         background-color: #f0f7ff !important;
+        border-color: #cbd5e1 !important;
     }
-    #hometownFilterInput {
+    .filter-input-premium-container input {
         background: transparent !important;
         border: none !important;
         outline: none !important;
@@ -36,6 +37,27 @@
         font-size: 0.75rem !important;
         color: #1e293b !important;
         padding: 0 !important;
+    }
+
+    /* Custom Searchable Dropdown Styles */
+    .filter-dropdown-trigger.has-input {
+        padding: 0 10px 0 15px !important;
+        cursor: text !important;
+    }
+    .filter-dropdown-trigger.has-input input {
+        border: none !important;
+        background: transparent !important;
+        outline: none !important;
+        width: 100% !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        color: #1e293b !important;
+        padding: 0 !important;
+        height: 100% !important;
+    }
+    .filter-dropdown-trigger.has-input i {
+        cursor: pointer !important;
+        padding: 5px !important;
     }
 </style>
 
@@ -142,19 +164,23 @@
                 <div class="col-md-4 col-lg-2">
                     <label class="form-label-premium">NIÊN KHÓA / NĂM HỌC</label>
                     <div class="filter-dropdown-container">
-                        <input type="hidden" name="year" id="yearFilterValue" value="@selectedYear">
-                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
-                            <span class="selected-text">@(string.IsNullOrEmpty(selectedYear) ? "Tất cả các khóa" : selectedYear)</span>
-                            <i class="fas fa-chevron-down"></i>
+                        <div class="filter-dropdown-trigger has-input">
+                            <input type="text" name="year" id="yearFilterInput" placeholder="Tất cả các khóa" value="@selectedYear" autocomplete="off" onfocus="window.toggleYearDropdown(this)">
+                            <i class="fas fa-chevron-down" onclick="window.toggleYearDropdown(this)"></i>
                         </div>
-                        <div class="filter-dropdown-menu">
-                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedYear) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'year', 'Tất cả các khóa')">
+                        <div class="filter-dropdown-menu" id="yearFilterMenu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedYear) ? "selected" : "")" data-value="" onclick="window.selectYearOption('')">
                                 Tất cả các khóa <i class="fas fa-check"></i>
                             </div>
-                            <div class="filter-dropdown-item @(selectedYear == "K20" ? "selected" : "")" data-value="K20" onclick="selectFilterOption(this, 'year', 'Khóa K20')">Khóa K20 <i class="fas fa-check"></i></div>
-                            <div class="filter-dropdown-item @(selectedYear == "K21" ? "selected" : "")" data-value="K21" onclick="selectFilterOption(this, 'year', 'Khóa K21')">Khóa K21 <i class="fas fa-check"></i></div>
-                            <div class="filter-dropdown-item @(selectedYear == "K22" ? "selected" : "")" data-value="K22" onclick="selectFilterOption(this, 'year', 'Khóa K22')">Khóa K22 <i class="fas fa-check"></i></div>
-                            <div class="filter-dropdown-item @(selectedYear == "K23" ? "selected" : "")" data-value="K23" onclick="selectFilterOption(this, 'year', 'Khóa K23')">Khóa K23 <i class="fas fa-check"></i></div>
+                            @if (ViewBag.AcademicYears != null)
+                            {
+                                @foreach (var year in (List<string>)ViewBag.AcademicYears)
+                                {
+                                    <div class="filter-dropdown-item @(selectedYear == year ? "selected" : "")" data-value="@year" onclick="window.selectYearOption('@year')">
+                                        Khóa @year <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
                         </div>
                     </div>
                 </div>
@@ -215,8 +241,11 @@
                 </div>
                 <div class="col-md-4 col-lg-2">
                     <label class="form-label-premium">QUÊ QUÁN</label>
-                    <div id="hometownFilterContainer">
-                        <input type="text" name="hometown" placeholder="VD: Hà Nội..." id="hometownFilterInput" value="@selectedHometown">
+                    <div class="filter-dropdown-container">
+                        <div class="filter-dropdown-trigger has-input">
+                            <input type="text" name="hometown" placeholder="VD: Hà Nội..." id="hometownFilterInput" value="@selectedHometown" autocomplete="off">
+                            <i class="fas fa-search" style="font-size: 0.7rem; color: #cbd5e1;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -307,7 +336,16 @@
                                     <b>@m.FullName</b>
                                     <span>
                                         <span class="meta-blue">@m.Gender</span>
-                                        <span class="meta-grey">— K@(m.AcademicYear ?? "XX")</span>
+                                        <span class="meta-grey">— 
+                                            @if (!string.IsNullOrEmpty(m.AcademicYear))
+                                            {
+                                                @(m.AcademicYear.Contains("Khóa", StringComparison.OrdinalIgnoreCase) ? m.AcademicYear : "Khóa " + m.AcademicYear)
+                                            }
+                                            else
+                                            {
+                                                @:KXX
+                                            }
+                                        </span>
                                     </span>
                                 </div>
                             </div>
@@ -315,7 +353,7 @@
                         <td>
                             <div class="id-badge-stack">
                                 <b>@m.MemberId</b>
-                                <span>SINH VIÊN</span>
+                                <span style="font-size: 0.7rem; color: #999;">CCCD: @(string.IsNullOrEmpty(m.CCCD) ? "--" : m.CCCD)</span>
                             </div>
                         </td>
                         <td>
@@ -328,15 +366,20 @@
                             <div class="d-flex align-items-center gap-2">
                                 <i class="far fa-calendar-alt text-muted" style="font-size: 0.8rem;"></i>
                                 <span class="text-dark fw-bold" style="font-size: 0.75rem;">
-                                    @{
+                                    @if (!string.IsNullOrEmpty(m.JoinDate))
+                                    {
                                         if (DateTime.TryParse(m.JoinDate, out var joinDate))
                                         {
                                             @joinDate.ToString("dd/MM/yyyy")
                                         }
                                         else
                                         {
-                                            @:--/--/----
+                                            @m.JoinDate
                                         }
+                                    }
+                                    else
+                                    {
+                                        @:--/--/----
                                     }
                                 </span>
                             </div>
@@ -516,7 +559,7 @@
                             deleteFiltered: true,
                             search: $("#advancedSearch").val(),
                             unit: $("#unitFilterValue").val(),
-                            year: $("#yearFilterValue").val(),
+                            year: $("#yearFilterInput").val(),
                             achievement: $("#achievementFilterValue").val(),
                             status: $("#statusFilterValue").val(),
                             gender: $("#genderFilterValue").val(),
@@ -562,6 +605,27 @@
             });
 
             // --- SERVER-SIDE FILTERING ---
+            // Custom Searchable Dropdown for Year
+            window.toggleYearDropdown = function(trigger) {
+                const menu = document.getElementById('yearFilterMenu');
+                if (!menu) return;
+                const isOpen = menu.classList.contains('show');
+                document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    $(trigger).closest('.filter-dropdown-trigger').addClass('active');
+                }
+            };
+
+            window.selectYearOption = function(value) {
+                const input = document.getElementById('yearFilterInput');
+                if (input) {
+                    input.value = value;
+                    filterForm.submit();
+                }
+            };
+
             window.toggleFilterDropdown = function(trigger) {
                 const menu = trigger.nextElementSibling;
                 const isOpen = menu.classList.contains('show');
@@ -580,7 +644,7 @@
                 filterForm.submit(); // Trigger server reload
             };
 
-            $("#advancedSearch, #hometownFilterInput").on("keypress", function(e) {
+            $("#advancedSearch, #hometownFilterInput, #yearFilterInput").on("keypress", function(e) {
                 if (e.which == 13) {
                     filterForm.submit();
                 }
@@ -588,6 +652,14 @@
 
             $("#resetFilters").on("click", function() {
                 location.href = "/members";
+            });
+
+            // Close dropdowns when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.filter-dropdown-container').length) {
+                    document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                    document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                }
             });
 
             // Confirmation Modal Helpers

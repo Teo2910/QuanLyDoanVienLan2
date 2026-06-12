@@ -304,8 +304,8 @@
             </h1>
             <div class="profile-meta-info">
                 <div class="meta-item"># @Model.MemberId</div>
+                <div class="meta-item"><i class="fas fa-id-card"></i> @(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật CCCD" : Model.CCCD)</div>
                 <div class="meta-item"><i class="fas fa-venus-mars"></i> @Model.Gender</div>
-                <div class="meta-item"><i class="fas fa-map-marker-alt"></i> @(Model.Hometown ?? "Chưa cập nhật")</div>
             </div>
         </div>
     </div>
@@ -318,6 +318,21 @@
             <div class="info-card-box">
                 <div class="info-card-label">CHI ĐOÀN & ĐƠN VỊ</div>
                 <div class="info-card-value"><i>@(Model.Unit?.Name ?? "Chưa phân bổ")</i></div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">MÃ SỐ ĐOÀN VIÊN / MSSV</div>
+                        <div class="info-card-value">@Model.MemberId</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="info-card-box">
+                        <div class="info-card-label">SỐ CCCD / ĐỊNH DANH</div>
+                        <div class="info-card-value">@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)</div>
+                    </div>
+                </div>
             </div>
 
             <div class="info-card-box">
@@ -376,15 +391,20 @@
                     <div class="info-card-box">
                         <div class="info-card-label">NGÀY VÀO ĐOÀN</div>
                         <div class="info-card-value">
-                            @{
+                            @if (!string.IsNullOrEmpty(Model.JoinDate))
+                            {
                                 if (DateTime.TryParse(Model.JoinDate, out var joinDate))
                                 {
                                     @joinDate.ToString("dd/MM/yyyy")
                                 }
                                 else
                                 {
-                                    @:Chưa cập nhật
+                                    @Model.JoinDate
                                 }
+                            }
+                            else
+                            {
+                                @:Chưa cập nhật
                             }
                         </div>
                     </div>
@@ -392,7 +412,16 @@
                 <div class="col-6">
                     <div class="info-card-box">
                         <div class="info-card-label">NIÊN KHÓA</div>
-                        <div class="info-card-value">@(Model.AcademicYear ?? "--")</div>
+                        <div class="info-card-value">
+                            @if (!string.IsNullOrEmpty(Model.AcademicYear))
+                            {
+                                @(Model.AcademicYear.Contains("Khóa", StringComparison.OrdinalIgnoreCase) ? Model.AcademicYear : "Khóa " + Model.AcademicYear)
+                            }
+                            else
+                            {
+                                @:--
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

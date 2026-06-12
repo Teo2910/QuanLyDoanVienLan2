@@ -113,16 +113,30 @@ namespace QLDV.Controllers
             {
                 allMembers = await _memberService.GetAllMembersAsync();
             }
+
+            // Get all unique academic years for the filter
+            var academicYears = allMembers
+                .Where(m => !string.IsNullOrEmpty(m.AcademicYear))
+                .Select(m => m.AcademicYear)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToList();
+            ViewBag.AcademicYears = academicYears;
             
             // Apply Filters (Server-side)
             var filteredMembers = allMembers.Where(m => 
-                (string.IsNullOrEmpty(search) || m.FullName.Contains(search, StringComparison.OrdinalIgnoreCase) || m.MemberId.Contains(search, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(search) || 
+                 m.FullName.Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                 m.MemberId.Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                 (m.CCCD != null && m.CCCD.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                 (m.AcademicYear != null && m.AcademicYear.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                 (m.Hometown != null && m.Hometown.Contains(search, StringComparison.OrdinalIgnoreCase))) &&
                 (string.IsNullOrEmpty(unit) || (m.Unit != null && m.Unit.Name.Equals(unit, StringComparison.OrdinalIgnoreCase))) &&
                 (string.IsNullOrEmpty(status) || m.Status.Equals(status, StringComparison.OrdinalIgnoreCase)) &&
                 (string.IsNullOrEmpty(achievement) || m.AchievementLevel.Equals(achievement, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(year) || m.AcademicYear == year || (m.FullName != null && m.FullName.Contains(year))) &&
+                (string.IsNullOrEmpty(year) || (m.AcademicYear != null && m.AcademicYear.Trim().Equals(year.Trim(), StringComparison.OrdinalIgnoreCase))) &&
                 (string.IsNullOrEmpty(gender) || m.Gender.Equals(gender, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(hometown) || (m.FullName != null && m.FullName.Contains(hometown, StringComparison.OrdinalIgnoreCase)))
+                (string.IsNullOrEmpty(hometown) || (m.Hometown != null && m.Hometown.Contains(hometown.Trim(), StringComparison.OrdinalIgnoreCase)))
             );
 
             // Sorting Logic
@@ -222,15 +236,23 @@ namespace QLDV.Controllers
         {
             if (ModelState.IsValid)
             {
-                try
+                if (!string.IsNullOrEmpty(member.CCCD) && await _memberService.IsCCCDExistsAsync(member.CCCD))
                 {
-                    await _memberService.CreateMemberAsync(member);
-                    TempData["Success"] = "Member created successfully!";
-                    return RedirectToAction(nameof(Details), new { id = member.Id });
+                    ModelState.AddModelError("CCCD", "Số CCCD/CMND này đã tồn tại trong hệ thống.");
                 }
-                catch (Exception ex)
+
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", $"Error creating member: {ex.Message}");
+                    try
+                    {
+                        await _memberService.CreateMemberAsync(member);
+                        TempData["Success"] = "Member created successfully!";
+                        return RedirectToAction(nameof(Details), new { id = member.Id });
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", $"Error creating member: {ex.Message}");
+                    }
                 }
             }
             var units = await _unitService.GetAllUnitsAsync();
@@ -278,21 +300,29 @@ namespace QLDV.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                if (!string.IsNullOrEmpty(member.CCCD) && await _memberService.IsCCCDExistsAsync(member.CCCD, member.Id))
                 {
-                    await _memberService.UpdateMemberAsync(member);
-                    
-                    if (isAjax)
-                    {
-                        return Ok(new { success = true, id = member.Id });
-                    }
-
-                    TempData["Success"] = "Member updated successfully!";
-                    return RedirectToAction(nameof(Details), new { id = member.Id });
+                    ModelState.AddModelError("CCCD", "Số CCCD/CMND này đã tồn tại trong hệ thống.");
                 }
-                catch (Exception ex)
+
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", $"Error updating member: {ex.Message}");
+                    try
+                    {
+                        await _memberService.UpdateMemberAsync(member);
+                        
+                        if (isAjax)
+                        {
+                            return Ok(new { success = true, id = member.Id });
+                        }
+
+                        TempData["Success"] = "Member updated successfully!";
+                        return RedirectToAction(nameof(Details), new { id = member.Id });
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", $"Error updating member: {ex.Message}");
+                    }
                 }
             }
 
@@ -383,13 +413,18 @@ namespace QLDV.Controllers
                 else if (request.DeleteFiltered)
                 {
                     membersToDelete = allowedMembers.Where(m => 
-                        (string.IsNullOrEmpty(request.Search) || m.FullName.Contains(request.Search, StringComparison.OrdinalIgnoreCase) || m.MemberId.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(request.Unit) || (m.Unit != null && m.Unit.Name.Contains(request.Unit, StringComparison.OrdinalIgnoreCase))) &&
-                        (string.IsNullOrEmpty(request.Status) || m.Status.Contains(request.Status, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(request.Achievement) || m.AchievementLevel.Contains(request.Achievement, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(request.Year) || m.AcademicYear == request.Year || (m.FullName != null && m.FullName.Contains(request.Year))) &&
+                        (string.IsNullOrEmpty(request.Search) || 
+                         m.FullName.Contains(request.Search, StringComparison.OrdinalIgnoreCase) || 
+                         m.MemberId.Contains(request.Search, StringComparison.OrdinalIgnoreCase) ||
+                         (m.CCCD != null && m.CCCD.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) ||
+                         (m.AcademicYear != null && m.AcademicYear.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) ||
+                         (m.Hometown != null && m.Hometown.Contains(request.Search, StringComparison.OrdinalIgnoreCase))) &&
+                        (string.IsNullOrEmpty(request.Unit) || (m.Unit != null && m.Unit.Name.Equals(request.Unit, StringComparison.OrdinalIgnoreCase))) &&
+                        (string.IsNullOrEmpty(request.Status) || m.Status.Equals(request.Status, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Achievement) || m.AchievementLevel.Equals(request.Achievement, StringComparison.OrdinalIgnoreCase)) &&
+                        (string.IsNullOrEmpty(request.Year) || (m.AcademicYear != null && m.AcademicYear.Trim().Equals(request.Year.Trim(), StringComparison.OrdinalIgnoreCase))) &&
                         (string.IsNullOrEmpty(request.Gender) || m.Gender.Equals(request.Gender, StringComparison.OrdinalIgnoreCase)) &&
-                        (string.IsNullOrEmpty(request.Hometown) || (m.FullName != null && m.FullName.Contains(request.Hometown, StringComparison.OrdinalIgnoreCase)))
+                        (string.IsNullOrEmpty(request.Hometown) || (m.Hometown != null && m.Hometown.Contains(request.Hometown.Trim(), StringComparison.OrdinalIgnoreCase)))
                     ).ToList();
                 }
                 else if (request.Ids != null && request.Ids.Any())

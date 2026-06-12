@@ -29,6 +29,7 @@ namespace QLDV.Services
         Task DeleteMemberAsync(string id);
         Task<List<Member>> SearchMembersAsync(string searchTerm, string? unitId = null, string? status = null);
         Task ChangeMemberStatusAsync(string memberId, string newStatus, string? reason = null);
+        Task<bool> IsCCCDExistsAsync(string cccd, string? excludeMemberId = null);
     }
 
     public interface IUnitService

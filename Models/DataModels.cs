@@ -36,6 +36,7 @@ namespace QLDV.Models
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string FullName { get; set; } = string.Empty;
         public string MemberId { get; set; } = string.Empty;
+        public string? CCCD { get; set; }
         public string DOB { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty; // Nam, Nữ, Khác
         public string? Ethnic { get; set; }

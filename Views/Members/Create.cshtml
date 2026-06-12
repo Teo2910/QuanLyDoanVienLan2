@@ -126,6 +126,32 @@
         box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.05);
     }
 
+    /* Custom Input Group for Year */
+    .custom-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+    }
+
+    .btn-close-custom {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 5px;
+        z-index: 5;
+    }
+
+    .btn-close-custom:hover {
+        color: var(--primary-color);
+    }
+
     .dropdown-menu-custom {
         position: absolute;
         top: calc(100% + 8px);
@@ -270,15 +296,61 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-4 mb-4">
                     <label class="custom-label">MSSV</label>
                     <input type="text" asp-for="MemberId" class="custom-input" placeholder="VD: 2024001" required>
                 </div>
-                <div class="col-md-6 mb-4">
+                <div class="col-md-4 mb-4">
+                    <label class="custom-label">SỐ CCCD / CMND</label>
+                    <input type="text" asp-for="CCCD" class="custom-input" placeholder="Nhập số CCCD" required>
+                    <span asp-validation-for="CCCD" class="text-danger small mt-1 d-block"></span>
+                </div>
+                <div class="col-md-4 mb-4">
                     <label class="custom-label">NGÀY SINH</label>
                     <div class="dropdown-container">
                         <input type="text" asp-for="DOB" class="custom-input date-picker" required placeholder="dd/mm/yyyy">
                         <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">NGÀY VÀO ĐOÀN</label>
+                    <div class="dropdown-container">
+                        <input type="text" asp-for="JoinDate" class="custom-input date-picker" placeholder="dd/mm/yyyy">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #ccc; pointer-events: none;"></i>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="custom-label">NIÊN KHÓA</label>
+                    <div class="dropdown-container">
+                        <input type="hidden" asp-for="AcademicYear" id="AcademicYearInput" />
+                        
+                        <!-- Standard Trigger -->
+                        <div class="custom-dropdown-trigger" id="academicYearDropdownTrigger">
+                            <span id="academicYearSelectedText">Chọn niên khóa...</span>
+                            <i class="fas fa-chevron-down" style="color: #ccc; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <!-- Inline Custom Input (Initially Hidden) -->
+                        <div class="custom-input-group" id="academicYearCustomGroup" style="display: none;">
+                            <input type="text" class="custom-input" id="academicYearCustomInput" placeholder="VD: K24, 2024-2028">
+                            <button type="button" class="btn-close-custom" id="closeCustomYear">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+
+                        <div class="dropdown-menu-custom" id="academicYearDropdownMenu">
+                            <div class="dropdown-item-custom" data-value="K20">Khóa K20 <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="K21">Khóa K21 <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="K22">Khóa K22 <i class="fas fa-check"></i></div>
+                            <div class="dropdown-item-custom" data-value="K23">Khóa K23 <i class="fas fa-check"></i></div>
+                            <div style="height: 1px; background: #eee; margin: 4px 8px;"></div>
+                            <div class="dropdown-item-custom" data-value="custom" style="color: var(--primary-color);">
+                                <span><i class="fas fa-plus-circle me-2"></i> Nhập niên khóa khác...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -358,6 +430,17 @@
                 items.forEach(item => {
                     item.addEventListener('click', () => {
                         const val = item.getAttribute('data-value');
+
+                        if (val === "custom" && triggerId === 'academicYearDropdownTrigger') {
+                            menu.classList.remove('show');
+                            trigger.style.display = 'none';
+                            const customGroup = document.getElementById('academicYearCustomGroup');
+                            const customInput = document.getElementById('academicYearCustomInput');
+                            customGroup.style.display = 'flex';
+                            customInput.focus();
+                            return;
+                        }
+
                         const label = item.textContent.trim();
                         input.value = val;
                         text.textContent = label;
@@ -369,8 +452,49 @@
                 });
             }
 
+            // Custom Input Handlers
+            const customInput = document.getElementById('academicYearCustomInput');
+            const customGroup = document.getElementById('academicYearCustomGroup');
+            const ayTrigger = document.getElementById('academicYearDropdownTrigger');
+            const ayInput = document.getElementById('AcademicYearInput');
+            const ayText = document.getElementById('academicYearSelectedText');
+
+            document.getElementById('closeCustomYear').addEventListener('click', () => {
+                customGroup.style.display = 'none';
+                ayTrigger.style.display = 'flex';
+            });
+
+            customInput.addEventListener('keypress', (e) => {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    let val = customInput.value.trim();
+                    if (val !== "") {
+                        // Strip redundant "Khóa " if typed manually
+                        val = val.replace(/^Khóa\s+/i, '');
+                        ayInput.value = val;
+                        ayText.textContent = val.startsWith('K') ? 'Khóa ' + val : val;
+                        customGroup.style.display = 'none';
+                        ayTrigger.style.display = 'flex';
+                        ayTrigger.classList.remove('active');
+                    }
+                }
+            });
+
+            customInput.addEventListener('blur', () => {
+                let val = customInput.value.trim();
+                if (val !== "") {
+                    // Strip redundant "Khóa " if typed manually
+                    val = val.replace(/^Khóa\s+/i, '');
+                    ayInput.value = val;
+                    ayText.textContent = val.startsWith('K') ? 'Khóa ' + val : val;
+                }
+                customGroup.style.display = 'none';
+                ayTrigger.style.display = 'flex';
+            });
+
             setupDropdown('genderDropdownTrigger', 'genderDropdownMenu', 'GenderInput', 'genderSelectedText');
             setupDropdown('unitDropdownTrigger', 'unitDropdownMenu', 'UnitIdInput', 'unitSelectedText');
+            setupDropdown('academicYearDropdownTrigger', 'academicYearDropdownMenu', 'AcademicYearInput', 'academicYearSelectedText');
 
             document.addEventListener('click', () => {
                 document.querySelectorAll('.dropdown-menu-custom').forEach(m => m.classList.remove('show'));

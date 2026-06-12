@@ -104,6 +104,11 @@ namespace QLDV.Data
             modelBuilder.Entity<Member>()
                 .HasIndex(m => m.Status);
 
+            modelBuilder.Entity<Member>()
+                .HasIndex(m => m.CCCD)
+                .IsUnique()
+                .HasFilter("[CCCD] IS NOT NULL");
+
             modelBuilder.Entity<Movement>()
                 .HasIndex(m => m.CreatorId);
 
