@@ -21,6 +21,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");
 
 // Add Database context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=qldv.db";
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IMovementService, MovementService>();
 builder.Services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 builder.Services.AddHttpClient<IGoogleAIService, GoogleAIService>();
 builder.Services.AddSession(options =>

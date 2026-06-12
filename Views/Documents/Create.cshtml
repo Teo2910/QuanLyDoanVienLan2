@@ -1,0 +1,506 @@
+@model QLDV.Models.Document
+@{
+    ViewData["Title"] = "Phát hành văn bản";
+    var categories = ViewBag.Categories as List<QLDV.Models.DocumentCategory>;
+    var units = ViewBag.Units as List<QLDV.Models.Unit>;
+}
+
+<style>
+    .form-layout-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+    }
+
+    .form-style-card {
+        background: #fff;
+        width: 100%;
+        max-width: 900px;
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        padding: 3.5rem;
+        position: relative;
+    }
+
+    .close-form-btn {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 42px;
+        height: 42px;
+        background: #f4f7fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .close-form-btn:hover {
+        background: #ffeded;
+        color: #dc3545;
+        transform: rotate(90deg);
+    }
+
+    .form-header {
+        margin-bottom: 3.5rem;
+        border-left: 5px solid var(--primary);
+        padding-left: 1.5rem;
+    }
+
+    .form-header h2 {
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header .subtext {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .custom-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #bbb;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.85rem;
+        display: block;
+    }
+
+    .custom-input {
+        background: #f8fbff;
+        border: 2px solid transparent;
+        border-radius: 18px;
+        padding: 1.1rem 1.4rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.3s;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .custom-input::placeholder {
+        color: #cbd5e1;
+    }
+
+    .custom-input:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0, 86, 179, 0.08);
+        outline: none;
+    }
+
+    textarea.custom-input {
+        min-height: 180px;
+        line-height: 1.6;
+    }
+
+    /* Unit Selection Area */
+    .unit-selection-card {
+        background: #fcfdfe;
+        border: 2px dashed #e2e8f0;
+        border-radius: 24px;
+        padding: 2rem;
+        margin-top: 1rem;
+    }
+
+    .unit-grid-container {
+        max-height: 350px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Scrollbar Styling */
+    .unit-grid-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .unit-grid-container::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .unit-item-box {
+        background: #fff;
+        border: 1px solid #f1f5f9;
+        border-radius: 14px;
+        padding: 12px 15px;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 100%;
+    }
+
+    .unit-item-box:hover {
+        border-color: var(--primary-light);
+        background: #f8fbff;
+        transform: translateY(-2px);
+    }
+
+    .unit-item-box.selected {
+        border-color: var(--primary);
+        background: #f0f7ff;
+    }
+
+    .unit-checkbox-custom {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .unit-item-box.selected .unit-checkbox-custom {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .unit-checkbox-custom i {
+        color: #fff;
+        font-size: 0.7rem;
+        display: none;
+    }
+
+    .unit-item-box.selected .unit-checkbox-custom i {
+        display: block;
+    }
+
+    .unit-name-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    .unit-item-box.selected .unit-name-label {
+        color: var(--primary);
+    }
+
+    /* File Input Styling */
+    .file-upload-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .file-upload-display {
+        background: #f1f5f9;
+        border-radius: 18px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 2px dashed #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .file-upload-display:hover {
+        background: #e2e8f0;
+        border-color: var(--primary);
+    }
+    .file-upload-display i {
+        font-size: 2rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+    }
+    .file-upload-display .text {
+        font-weight: 700;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    /* Custom Dropdown Styling for Create Page */
+    .filter-dropdown-container {
+        position: relative;
+    }
+    .filter-dropdown-trigger {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+    .filter-dropdown-trigger i {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        transition: transform 0.3s;
+    }
+    .filter-dropdown-trigger.active i {
+        transform: rotate(180deg);
+    }
+    .filter-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border: 1px solid #f1f5f9;
+        z-index: 100;
+        display: none;
+        max-height: 180px;
+        overflow-y: auto;
+        padding: 10px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .filter-dropdown-menu::-webkit-scrollbar {
+        display: none;
+    }
+    .filter-dropdown-menu.show {
+        display: block;
+        animation: dropdownFadeIn 0.2s ease-out;
+    }
+    .filter-dropdown-item {
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #475569;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .filter-dropdown-item:hover {
+        background: #f8fbff;
+        color: var(--primary);
+        padding-left: 22px;
+    }
+    .filter-dropdown-item i {
+        display: none;
+        font-size: 0.75rem;
+    }
+    .filter-dropdown-item.selected {
+        background: #f0f7ff;
+        color: var(--primary);
+    }
+    .filter-dropdown-item.selected i {
+        display: block;
+    }
+    @@keyframes dropdownFadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .submit-btn-premium {
+        background: linear-gradient(135deg, var(--primary) 0%, #004494 100%);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 1.4rem;
+        font-weight: 800;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        width: 100%;
+        margin-top: 3rem;
+        transition: all 0.3s;
+        box-shadow: 0 15px 35px rgba(0, 86, 179, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .submit-btn-premium:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 45px rgba(0, 86, 179, 0.35);
+        filter: brightness(1.1);
+    }
+</style>
+
+<div class="form-layout-container">
+    <div class="form-style-card">
+        <a href="/Documents" class="close-form-btn" title="Hủy bỏ">
+            <i class="fas fa-times"></i>
+        </a>
+
+        <div class="form-header">
+            <h2>Phát hành văn bản mới</h2>
+            <div class="subtext">HỆ THỐNG PHÁT HÀNH VÀ THEO DÕI VĂN BẢN ĐIỀU HÀNH</div>
+        </div>
+
+        <form method="post" action="/Documents/Create" enctype="multipart/form-data">
+            <div class="mb-5">
+                <label class="custom-label">TIÊU ĐỀ VĂN BẢN</label>
+                <input type="text" asp-for="Title" class="custom-input" placeholder="Nhập tiêu đề văn bản, kế hoạch hoặc thông báo..." required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-5">
+                    <label class="custom-label">LĨNH VỰC VĂN BẢN</label>
+                    <div class="filter-dropdown-container" style="width: 100%;">
+                        <input type="hidden" name="CategoryId" id="CategoryIdValue" required>
+                        <div class="filter-dropdown-trigger custom-input" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text" style="color: #cbd5e1;">-- Chọn lĩnh vực --</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item" data-value="" onclick="selectCreateOption(this, '-- Chọn lĩnh vực --')">
+                                -- Chọn lĩnh vực -- <i class="fas fa-check"></i>
+                            </div>
+                            @if (categories != null)
+                            {
+                                @foreach (var cat in categories)
+                                {
+                                    <div class="filter-dropdown-item" data-value="@cat.Id" onclick="selectCreateOption(this, '@cat.Name')">
+                                        @cat.Name <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-5">
+                    <label class="custom-label">HẠN XỬ LÝ / HOÀN THÀNH</label>
+                    <div style="position: relative;">
+                        <input type="date" name="deadlineDate" class="custom-input">
+                        <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="custom-label">NỘI DUNG TÓM TẮT / Ý KIẾN CHỈ ĐẠO</label>
+                <textarea asp-for="Content" class="custom-input" placeholder="Nhập nội dung tóm tắt hoặc ý kiến chỉ đạo của Ban Thường vụ đối với văn bản này..."></textarea>
+            </div>
+
+            <div class="mb-5">
+                <label class="custom-label">FILE ĐÍNH KÈM (PDF, DOCX, XLSX...)</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" name="file" id="documentFileInput" style="display: none;" onchange="updateFileName(this)">
+                    <div class="file-upload-display" onclick="document.getElementById('documentFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="text" id="fileNameText">BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY</div>
+                        <div class="small text-muted mt-1">Dung lượng tối đa 20MB</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="custom-label mb-0">ĐƠN VỊ TIẾP NHẬN VĂN BẢN</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAllUnits" style="cursor: pointer; width: 18px; height: 18px;">
+                        <label class="form-check-label small fw-bold ms-2" for="selectAllUnits" style="cursor: pointer; color: var(--primary);">CHỌN TẤT CẢ ĐƠN VỊ</label>
+                    </div>
+                </div>
+                
+                <div class="unit-selection-card">
+                    <div class="unit-grid-container">
+                        <div class="row g-3">
+                            @foreach (var unit in units ?? new List<QLDV.Models.Unit>())
+                            {
+                                <div class="col-md-6">
+                                    <div class="unit-item-box" onclick="toggleUnitSelection(this)">
+                                        <input type="checkbox" name="targetUnitIds" value="@unit.Id" id="unit_@unit.Id" class="unit-checkbox-hidden" style="display: none;">
+                                        <div class="unit-checkbox-custom">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="unit-name-label">@unit.Name</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn-premium">
+                <i class="fas fa-paper-plane"></i> XÁC NHẬN PHÁT HÀNH VĂN BẢN
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleUnitSelection(element) {
+            const checkbox = element.querySelector('.unit-checkbox-hidden');
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+                document.getElementById('selectAllUnits').checked = false;
+            }
+        }
+
+        function updateFileName(input) {
+            const fileName = input.files[0]?.name || "BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY";
+            document.getElementById('fileNameText').textContent = fileName;
+            if (input.files[0]) {
+                document.querySelector('.file-upload-display').style.borderColor = 'var(--primary)';
+                document.querySelector('.file-upload-display i').style.color = 'var(--primary)';
+            }
+        }
+
+        $(document).ready(function() {
+            $('#selectAllUnits').on('change', function() {
+                const isChecked = $(this).is(':checked');
+                $('.unit-checkbox-hidden').prop('checked', isChecked);
+                if (isChecked) {
+                    $('.unit-item-box').addClass('selected');
+                } else {
+                    $('.unit-item-box').removeClass('selected');
+                }
+            });
+
+            // Close dropdowns when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.filter-dropdown-container').length) {
+                    document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                    document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                }
+            });
+        });
+
+        // Custom Dropdown Handlers
+        window.toggleFilterDropdown = function(trigger) {
+            const menu = trigger.nextElementSibling;
+            const isOpen = menu.classList.contains('show');
+            document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+            if (!isOpen) {
+                menu.classList.add('show');
+                trigger.classList.add('active');
+            }
+        };
+
+        window.selectCreateOption = function(option, label) {
+            const container = option.closest('.filter-dropdown-container');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+            const trigger = container.querySelector('.filter-dropdown-trigger');
+            const selectedText = trigger.querySelector('.selected-text');
+            
+            const val = option.getAttribute('data-value');
+            hiddenInput.value = val;
+            selectedText.textContent = label;
+            
+            if (val === "") {
+                selectedText.style.color = "#cbd5e1";
+            } else {
+                selectedText.style.color = "#1a1a1a";
+            }
+            
+            // Highlight selected
+            container.querySelectorAll('.filter-dropdown-item').forEach(i => i.classList.remove('selected'));
+            option.classList.add('selected');
+            
+            // Close menu
+            container.querySelector('.filter-dropdown-menu').classList.remove('show');
+            trigger.classList.remove('active');
+        };
+    </script>
+}

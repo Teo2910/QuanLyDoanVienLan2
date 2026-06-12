@@ -20,10 +20,47 @@ namespace QLDV.Data
         public DbSet<KnowledgeItem> KnowledgeItems { get; set; }
         public DbSet<SystemLog> SystemLogs { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<DocumentCategory> DocumentCategories { get; set; }
+        public DbSet<DocumentDistribution> DocumentDistributions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Document configuration
+            modelBuilder.Entity<Document>()
+                .HasKey(d => d.Id);
+            
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.Category)
+                .WithMany()
+                .HasForeignKey(d => d.CategoryId);
+            
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.Sender)
+                .WithMany()
+                .HasForeignKey(d => d.SenderId);
+
+            // DocumentCategory configuration
+            modelBuilder.Entity<DocumentCategory>()
+                .HasKey(c => c.Id);
+
+            // DocumentDistribution configuration
+            modelBuilder.Entity<DocumentDistribution>()
+                .HasKey(dd => dd.Id);
+
+            modelBuilder.Entity<DocumentDistribution>()
+                .HasOne(dd => dd.Document)
+                .WithMany(d => d.Distributions)
+                .HasForeignKey(dd => dd.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<DocumentDistribution>()
+                .HasOne(dd => dd.Unit)
+                .WithMany()
+                .HasForeignKey(dd => dd.UnitId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // ChatMessage configuration
             modelBuilder.Entity<ChatMessage>()

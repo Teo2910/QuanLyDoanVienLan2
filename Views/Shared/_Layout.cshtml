@@ -150,6 +150,12 @@
                         <span>Thống kê</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Documents" ? "active" : "")" href="/documents">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Quản lý văn bản</span>
+                    </a>
+                </li>
                 @if (isAdmin)
                 {
                     <li class="nav-item">

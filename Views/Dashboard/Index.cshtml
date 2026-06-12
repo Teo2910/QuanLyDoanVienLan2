@@ -283,20 +283,29 @@
         $(document).ready(function() {
             // Load AI Insight
             function fetchAiInsight() {
-                $('#ai-insight-text').addClass('opacity-50');
+                const insightBox = $('#ai-insight-text');
+                insightBox.addClass('opacity-50');
                 
                 // Using the AIAssistant Chat endpoint for summary
                 fetch('/AIAssistant/Chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "Hãy phân tích tình hình hiện tại của hệ thống dựa trên dữ liệu bạn có và đưa ra một bản tóm tắt cực ngắn (khoảng 2 câu) về số lượng đoàn viên, đơn vị và một lời khuyên quản lý." })
+                    body: JSON.stringify({ message: "Hãy phân tích tình hình hiện tại của hệ thống dựa trên dữ liệu thực tế và đưa ra một bản tóm tắt cực ngắn (khoảng 2 câu) về số lượng đoàn viên, đơn vị và một lời khuyên quản lý chiến lược." })
                 })
                 .then(res => res.json())
                 .then(data => {
-                    $('#ai-insight-text').removeClass('opacity-50').text(data.response);
+                    if (data.response) {
+                        // Simple Markdown-ish formatting
+                        let formatted = data.response
+                            .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">$1</strong>')
+                            .replace(/- (.*?)\n/g, '• $1<br>')
+                            .replace(/\n/g, '<br>');
+                        
+                        insightBox.removeClass('opacity-50').hide().html(formatted).fadeIn(500);
+                    }
                 })
                 .catch(err => {
-                    $('#ai-insight-text').removeClass('opacity-50').text("Chào mừng bạn trở lại! Hãy sử dụng Trợ lý AI ở góc phải màn hình để được hỗ trợ tối đa trong việc quản trị dữ liệu.");
+                    insightBox.removeClass('opacity-50').text("Chào mừng bạn trở lại! Hệ thống đang hoạt động ổn định. Hãy sử dụng Trợ lý AI để tối ưu hóa việc quản trị.");
                 });
             }
 

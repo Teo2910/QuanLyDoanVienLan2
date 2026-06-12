@@ -532,16 +532,50 @@ namespace QLDV.Services
         {
             try
             {
+                using var scope = _serviceProvider.CreateScope();
+                var statsService = scope.ServiceProvider.GetRequiredService<IStatisticsService>();
+                var unitService = scope.ServiceProvider.GetRequiredService<IUnitService>();
+                var activityService = scope.ServiceProvider.GetRequiredService<IActivityService>();
+                var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
+                var kbService = scope.ServiceProvider.GetRequiredService<IKnowledgeBaseService>();
+                var movementService = scope.ServiceProvider.GetRequiredService<IMovementService>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+
+                // Fetch real-time stats for context
+                var totalMembers = await statsService.GetTotalMembersAsync();
+                var allUnits = await unitService.GetAllUnitsAsync();
+                var allActivities = await activityService.GetAllActivitiesAsync();
+                var allMembers = await memberService.GetAllMembersAsync();
+                var outstandingCount = allMembers.Count(m => m.IsOutstanding);
+                var upcomingActivitiesCount = allActivities.Count(a => {
+                    if (DateTime.TryParse(a.Date, out var date))
+                        return date >= DateTime.Now;
+                    return false;
+                });
+
+                var systemContext = $@"
+[BỐI CẢNH HỆ THỐNG THỰC TẾ - {DateTime.Now:dd/MM/yyyy HH:mm}]:
+- Tổng số đoàn viên: {totalMembers}
+- Tổng số chi đoàn (đơn vị): {allUnits.Count}
+- Số lượng đoàn viên tiêu biểu: {outstandingCount}
+- Số lượng hoạt động sắp tới: {upcomingActivitiesCount}
+- Danh sách các chi đoàn: {string.Join(", ", allUnits.Select(u => u.Name))}
+";
+
                 // System Prompt to guide the AI with more detail
-                var systemPrompt = @"Bạn là trợ lý AI cấp cao cho hệ thống Quản lý Đoàn (DLU Intelligent Core).
+                var systemPrompt = $@"Bạn là trợ lý AI cấp cao cho hệ thống Quản lý Đoàn (DLU Intelligent Core).
 Nhiệm vụ của bạn là chuyển đổi yêu cầu ngôn ngữ tự nhiên thành hành động dữ liệu JSON.
 
+{systemContext}
+
 DƯỚI ĐÂY LÀ QUY TẮC CỰC KỲ QUAN TRỌNG:
-1. LUÔN TRẢ VỀ JSON theo cấu trúc: {""action"": ""..."", ""data"": { ... }, ""reply"": ""...""}
-2. Nếu người dùng yêu cầu tạo/thêm (ví dụ: 'Tạo đoàn viên tên Huy'), hãy tự tạo các dữ liệu còn thiếu một cách hợp lý.
-3. Nếu người dùng chỉ hỏi bình thường, action là ""REPLY"".
-4. Nếu người dùng hỏi về quy định, hướng dẫn, nghiệp vụ Đoàn, hoặc yêu cầu đọc/tra cứu nội dung từ tệp/tài liệu trong hệ thống, hãy sử dụng action ""KNOWLEDGE_QUERY"".
-5. BẠN CÓ KHẢ NĂNG đọc nội dung từ các tệp đính kèm (DocX, TXT) trong Tài liệu nghiệp vụ. Khi người dùng yêu cầu đọc file, hãy dùng action ""KNOWLEDGE_QUERY"".
+1. LUÔN TRẢ VỀ JSON theo cấu trúc: {{""action"": ""..."", ""data"": {{ ... }}, ""reply"": ""...""}}
+2. Nếu người dùng yêu cầu phân tích/tóm tắt hệ thống, hãy sử dụng dữ liệu thực tế trong [BỐI CẢNH HỆ THỐNG THỰC TẾ] ở trên để trả lời trong trường ""reply"".
+3. Nếu người dùng yêu cầu tạo/thêm (ví dụ: 'Tạo đoàn viên tên Huy'), hãy tự tạo các dữ liệu còn thiếu một cách hợp lý.
+4. Nếu người dùng chỉ hỏi bình thường, action là ""REPLY"".
+5. Nếu người dùng hỏi về quy định, hướng dẫn, nghiệp vụ Đoàn, hoặc yêu cầu đọc/tra cứu nội dung từ tệp/tài liệu trong hệ thống, hãy sử dụng action ""KNOWLEDGE_QUERY"".
+6. BẠN CÓ KHẢ NĂNG đọc nội dung từ các tệp đính kèm (DocX, TXT) trong Tài liệu nghiệp vụ. Khi người dùng yêu cầu đọc file, hãy dùng action ""KNOWLEDGE_QUERY"".
 
 THÔNG TIN SCHEMA DỮ LIỆU:
 - ĐOÀN VIÊN (CREATE_MEMBER / UPDATE_MEMBER):
@@ -586,21 +620,21 @@ THÔNG TIN SCHEMA DỮ LIỆU:
 
 VÍ DỤ HÀNH ĐỘNG:
 - 'Tạo đoàn viên tên Huy':
-  {""action"": ""CREATE_MEMBER"", ""data"": {""FullName"": ""Nguyễn Quốc Huy"", ""MemberId"": ""DV009"", ""DOB"": ""2005-01-01"", ""Gender"": ""Nam"", ""UnitId"": ""U001"", ""Status"": ""Đang sinh hoạt""}, ""reply"": ""Đang tạo hồ sơ đoàn viên cho Huy...""}
+  {{""action"": ""CREATE_MEMBER"", ""data"": {{""FullName"": ""Nguyễn Quốc Huy"", ""MemberId"": ""DV009"", ""DOB"": ""2005-01-01"", ""Gender"": ""Nam"", ""UnitId"": ""U001"", ""Status"": ""Đang sinh hoạt""}}, ""reply"": ""Đang tạo hồ sơ đoàn viên cho Huy...""}}
 - 'Đổi quyền tài khoản teongu2910@gmail.com thành quản trị viên':
-  {""action"": ""UPDATE_USER_ROLE"", ""data"": {""Email"": ""teongu2910@gmail.com"", ""Role"": ""Admin""}, ""reply"": ""Đang cập nhật quyền quản trị viên cho tài khoản teongu2910@gmail.com trên hệ thống...""}
+  {{""action"": ""UPDATE_USER_ROLE"", ""data"": {{""Email"": ""teongu2910@gmail.com"", ""Role"": ""Admin""}}, ""reply"": ""Đang cập nhật quyền quản trị viên cho tài khoản teongu2910@gmail.com trên hệ thống...""}}
 - 'Tạo đơn vị Chi đoàn 10A1':
-  {""action"": ""CREATE_UNIT"", ""data"": {""Name"": ""Chi đoàn 10A1"", ""Code"": ""CD10A1""}, ""reply"": ""Đang khởi tạo đơn vị mới trên hệ thống...""}
+  {{""action"": ""CREATE_UNIT"", ""data"": {{""Name"": ""Chi đoàn 10A1"", ""Code"": ""CD10A1""}}, ""reply"": ""Đang khởi tạo đơn vị mới trên hệ thống...""}}
 - 'Quy định kết nạp Đoàn là gì?':
-  {""action"": ""KNOWLEDGE_QUERY"", ""data"": {""SearchTerm"": ""kết nạp Đoàn""}, ""reply"": ""Để tôi kiểm tra tài liệu nghiệp vụ về việc kết nạp Đoàn...""}
+  {{""action"": ""KNOWLEDGE_QUERY"", ""data"": {{""SearchTerm"": ""kết nạp Đoàn""}}, ""reply"": ""Để tôi kiểm tra tài liệu nghiệp vụ về việc kết nạp Đoàn...""}}
 - 'Đọc nội dung file trong tài liệu nghiệp vụ Test':
-  {""action"": ""KNOWLEDGE_QUERY"", ""data"": {""SearchTerm"": ""Test""}, ""reply"": ""Để tôi đọc nội dung tệp đính kèm trong tài liệu 'Test' cho bạn...""}
+  {{""action"": ""KNOWLEDGE_QUERY"", ""data"": {{""SearchTerm"": ""Test""}}, ""reply"": ""Để tôi đọc nội dung tệp đính kèm trong tài liệu 'Test' cho bạn...""}}
 - 'Phát động phong trào Mùa hè xanh':
-  {""action"": ""CREATE_MOVEMENT"", ""data"": {""Title"": ""Chi chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}
+  {{""action"": ""CREATE_MOVEMENT"", ""data"": {{""Title"": ""Chi chiến dịch Mùa hè xanh 2026"", ""Description"": ""Phong trào tình nguyện hè dành cho đoàn viên"", ""StartDate"": ""2026-06-01"", ""EndDate"": ""2026-08-31""}}, ""reply"": ""Đang khởi tạo phong trào Mùa hè xanh trên hệ thống...""}}
 - 'Xóa phong trào 285':
-  {""action"": ""DELETE_MOVEMENT"", ""data"": {""Name"": ""Phong trào 285""}, ""reply"": ""Đang thực hiện xóa phong trào 285 khỏi hệ thống quản lý...""}
+  {{""action"": ""DELETE_MOVEMENT"", ""data"": {{""Name"": ""Phong trào 285""}}, ""reply"": ""Đang thực hiện xóa phong trào 285 khỏi hệ thống quản lý...""}}
 - 'Xóa tài khoản Quá dơ':
-  {""action"": ""DELETE_USER"", ""data"": {""Name"": ""Quá dơ""}, ""reply"": ""Đang thực hiện xóa tài khoản hệ thống của người dùng này...""}
+  {{""action"": ""DELETE_USER"", ""data"": {{""Name"": ""Quá dơ""}}, ""reply"": ""Đang thực hiện xóa tài khoản hệ thống của người dùng này...""}}
 
 LƯU Ý QUAN TRỌNG VỀ TRÌNH BÀY:
 1. LUÔN TRÌNH BÀY thông tin một cách rõ ràng, dễ nhìn.
@@ -647,14 +681,6 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH, KHÔNG CHÈN VĂN BẢN NG
                     
                     if (command == null || string.IsNullOrEmpty(command.Action)) return aiRawResponse;
 
-                    using var scope = _serviceProvider.CreateScope();
-                    var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
-                    var activityService = scope.ServiceProvider.GetRequiredService<IActivityService>();
-                    var unitService = scope.ServiceProvider.GetRequiredService<IUnitService>();
-                    var kbService = scope.ServiceProvider.GetRequiredService<IKnowledgeBaseService>();
-                    var movementService = scope.ServiceProvider.GetRequiredService<IMovementService>();
-                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                    
                     var user = await userManager.FindByIdAsync(userId);
                     var isSecretary = user?.Role == "Secretary";
 
@@ -694,7 +720,6 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH, KHÔNG CHÈN VĂN BẢN NG
                                 member.Id = Guid.NewGuid().ToString();
                                 
                                 // Ensure a valid UnitId exists
-                                var allUnits = await unitService.GetAllUnitsAsync();
                                 var existingUnit = allUnits.FirstOrDefault(u => u.Id == member.UnitId || u.Name == member.UnitId);
                                 
                                 if (existingUnit != null)
@@ -861,8 +886,8 @@ YÊU CẦU TRẢ LỜI:
                             string memName = "";
                             if (command.Data is JsonElement d2 && d2.ValueKind == JsonValueKind.Object && d2.TryGetProperty("Name", out var p2)) memName = p2.GetString() ?? "";
                             if (string.IsNullOrEmpty(memName)) return "⚠️ Thiếu tên đoàn viên hoặc mã đoàn viên cần xóa.";
-                            var allMems = await memberService.GetAllMembersAsync();
-                            var memToDelete = allMems.FirstOrDefault(m => m.FullName.Contains(memName, StringComparison.OrdinalIgnoreCase) || m.MemberId.Equals(memName, StringComparison.OrdinalIgnoreCase));
+                            
+                            var memToDelete = allMembers.FirstOrDefault(m => m.FullName.Contains(memName, StringComparison.OrdinalIgnoreCase) || m.MemberId.Equals(memName, StringComparison.OrdinalIgnoreCase));
                             if (memToDelete != null) {
                                 await memberService.DeleteMemberAsync(memToDelete.Id);
                                 return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công đoàn viên: **{memToDelete.FullName}**)";
@@ -874,11 +899,11 @@ YÊU CẦU TRẢ LỜI:
                             string uName = "";
                             if (command.Data is JsonElement d3 && d3.ValueKind == JsonValueKind.Object && d3.TryGetProperty("Name", out var p3)) uName = p3.GetString() ?? "";
                             if (string.IsNullOrEmpty(uName)) return "⚠️ Thiếu tên đơn vị cần xóa.";
-                            var allUnitsD = await unitService.GetAllUnitsAsync();
+                            
                             // Try exact match first, then partial match
-                            var unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Equals(uName, StringComparison.OrdinalIgnoreCase) || u.Code.Equals(uName, StringComparison.OrdinalIgnoreCase));
+                            var unitToDelete = allUnits.FirstOrDefault(u => u.Name.Equals(uName, StringComparison.OrdinalIgnoreCase) || u.Code.Equals(uName, StringComparison.OrdinalIgnoreCase));
                             if (unitToDelete == null) {
-                                unitToDelete = allUnitsD.FirstOrDefault(u => u.Name.Contains(uName, StringComparison.OrdinalIgnoreCase));
+                                unitToDelete = allUnits.FirstOrDefault(u => u.Name.Contains(uName, StringComparison.OrdinalIgnoreCase));
                             }
                             
                             if (unitToDelete != null) {

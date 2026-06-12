@@ -1,0 +1,264 @@
+@model QLDV.Models.Document
+@{
+    ViewData["Title"] = "Chi tiết văn bản";
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    var stats = ViewBag.Stats as Dictionary<string, int>;
+}
+
+<div class="row g-4">
+    <!-- Left: Document Content -->
+    <div class="@(isAdmin ? "col-lg-8" : "col-12")">
+        <div class="card-premium mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a href="/Documents" class="btn btn-sm btn-outline-secondary" style="border-radius: 10px;">
+                    <i class="fas fa-arrow-left"></i> QUAY LẠI
+                </a>
+                <span class="badge-premium">@Model.Category?.Name</span>
+            </div>
+
+            <h1 class="document-detail-title mb-3">@Model.Title</h1>
+            
+            <div class="document-meta-bar mb-4">
+                <div class="meta-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Người gửi: <b>@Model.Sender?.FullName</b></span>
+                </div>
+                <div class="meta-item">
+                    <i class="far fa-calendar-alt"></i>
+                    <span>Ngày phát hành: <b>@DateTimeOffset.FromUnixTimeMilliseconds(Model.CreatedAt).ToString("dd/MM/yyyy HH:mm")</b></span>
+                </div>
+                @if (Model.Deadline.HasValue)
+                {
+                    <div class="meta-item deadline @(Model.Deadline < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() ? "overdue" : "")">
+                        <i class="far fa-clock"></i>
+                        <span>Hạn xử lý: <b>@DateTimeOffset.FromUnixTimeMilliseconds(Model.Deadline.Value).ToString("dd/MM/yyyy")</b></span>
+                    </div>
+                }
+            </div>
+
+            <div class="document-content-view mb-5">
+                @Html.Raw(Model.Content.Replace("\n", "<br/>"))
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.FileUrl))
+            {
+                <div class="attachment-box-premium">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="file-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">@Model.FileName</div>
+                            <div class="file-size text-muted small">Tài liệu đính kèm văn bản</div>
+                        </div>
+                    </div>
+                    <a href="@Model.FileUrl" class="btn-premium btn-premium-light px-4" target="_blank">
+                        <i class="fas fa-download"></i> TẢI XUỐNG
+                    </a>
+                </div>
+            }
+
+            @if (!isAdmin)
+            {
+                <div class="status-update-section mt-5 pt-4 border-top">
+                    <h5 class="fw-bold mb-3">Cập nhật trạng thái xử lý</h5>
+                    <form asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="documentId" value="@Model.Id" />
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <select name="status" class="custom-input" required>
+                                    <option value="Seen">Đã xem</option>
+                                    <option value="Processed">Đã xử lý / Hoàn thành</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <input type="text" name="feedback" class="custom-input" placeholder="Nhập ý kiến phản hồi hoặc kết quả xử lý...">
+                                    <button type="submit" class="btn-premium btn-premium-dark px-4 ms-2">CẬP NHẬT</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right: Stats & Tracking (Admin Only) -->
+    @if (isAdmin)
+    {
+        <div class="col-lg-4">
+            <div class="card-premium mb-4">
+                <h5 class="fw-bold mb-4">Thống kê tiếp nhận</h5>
+                <div class="stats-grid-v2">
+                    <div class="stat-item-v2">
+                        <div class="label">ĐÃ GỬI</div>
+                        <div class="value">@stats?["Total"]</div>
+                    </div>
+                    <div class="stat-item-v2">
+                        <div class="label">ĐÃ XEM</div>
+                        <div class="value text-primary">@stats?["Seen"]</div>
+                    </div>
+                    <div class="stat-item-v2">
+                        <div class="label">HOÀN THÀNH</div>
+                        <div class="value text-success">@stats?["Processed"]</div>
+                    </div>
+                    <div class="stat-item-v2">
+                        <div class="label">CHƯA XEM</div>
+                        <div class="value text-danger">@(stats?["Total"] - stats?["Seen"])</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-premium">
+                <h5 class="fw-bold mb-4">Trạng thái từng đơn vị</h5>
+                <div class="unit-tracking-list" style="max-height: 500px; overflow-y: auto;">
+                    @foreach (var dist in Model.Distributions.OrderBy(d => d.Status))
+                    {
+                        <div class="tracking-item">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="unit-name fw-bold small">@dist.Unit?.Name</div>
+                                <span class="status-badge-small @dist.Status.ToLower()">@dist.Status</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted" style="font-size: 0.7rem;">
+                                    @(dist.SeenAt.HasValue ? "Xem lúc: " + DateTimeOffset.FromUnixTimeMilliseconds(dist.SeenAt.Value).ToString("dd/MM HH:mm") : "Chưa xem")
+                                </span>
+                                <div class="tracking-actions">
+                                    <a href="/Chat?targetUnitId=@dist.UnitId" class="btn-chat-icon" title="Nhắn tin nhắc việc">
+                                        <i class="fas fa-comment-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .document-detail-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1.3;
+        color: #1a1a1a;
+    }
+    .document-meta-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        padding: 15px 0;
+        border-top: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #666;
+    }
+    .meta-item i {
+        color: var(--primary);
+        font-size: 1rem;
+    }
+    .meta-item.deadline.overdue {
+        color: #dc3545;
+    }
+    .document-content-view {
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #333;
+    }
+    .attachment-box-premium {
+        background: #f8fbff;
+        border: 1px dashed var(--primary-light);
+        padding: 20px;
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .file-icon {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #dc3545;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .file-name {
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+    .stats-grid-v2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    .stat-item-v2 {
+        background: #f8fbff;
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+    }
+    .stat-item-v2 .label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #999;
+        margin-bottom: 5px;
+    }
+    .stat-item-v2 .value {
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+    .unit-tracking-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .tracking-item {
+        padding: 12px;
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        border-radius: 14px;
+        transition: all 0.2s;
+    }
+    .tracking-item:hover {
+        border-color: var(--primary-light);
+        background: #fcfdfe;
+    }
+    .status-badge-small {
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+    }
+    .status-badge-small.sent { background: #eee; color: #888; }
+    .status-badge-small.seen { background: #e0f0ff; color: #007bff; }
+    .status-badge-small.processed { background: #e6ffed; color: #28a745; }
+    
+    .btn-chat-icon {
+        width: 32px;
+        height: 32px;
+        background: #f0f7ff;
+        color: var(--primary);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .btn-chat-icon:hover {
+        background: var(--primary);
+        color: #fff;
+    }
+</style>

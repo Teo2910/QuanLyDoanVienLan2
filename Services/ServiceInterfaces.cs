@@ -92,4 +92,23 @@ namespace QLDV.Services
         Task<string> AnalyzeDataAsync(string data, string query);
         Task<string> ProcessSmartCommandAsync(string userId, string message);
     }
+
+    public interface IDocumentService
+    {
+        // Category management
+        Task<List<DocumentCategory>> GetCategoriesAsync();
+        Task<DocumentCategory> CreateCategoryAsync(DocumentCategory category);
+        Task DeleteCategoryAsync(string id);
+
+        // Document management
+        Task<List<Document>> GetAllDocumentsAsync();
+        Task<List<Document>> GetDocumentsForUnitAsync(string unitId);
+        Task<Document?> GetDocumentByIdAsync(string id);
+        Task<Document> CreateDocumentAsync(Document document, List<string> targetUnitIds);
+        Task UpdateDocumentStatusAsync(string documentId, string unitId, string status, string? feedback = null);
+        Task DeleteDocumentAsync(string id);
+
+        // Statistics
+        Task<Dictionary<string, int>> GetDocumentStatsAsync(string documentId);
+    }
 }

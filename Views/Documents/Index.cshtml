@@ -1,0 +1,449 @@
+@model List<QLDV.Models.Document>
+@{
+    ViewData["Title"] = "Quản lý văn bản";
+    var categories = ViewBag.Categories as List<QLDV.Models.DocumentCategory>;
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+    string selectedCategoryId = ViewBag.SelectedCategory?.ToString() ?? "";
+}
+
+@if (isAdmin)
+{
+    <!-- Category Modal - Integrated with Project's Custom Modal System -->
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal-content-wrapper" style="max-width: 500px;">
+            <div class="modal-layout-container" style="padding: 0; overflow: hidden; border-radius: 30px;">
+                <a href="javascript:void(0)" onclick="closeCategoryModal()" class="close-modal-btn" style="top: 1.5rem; right: 1.5rem; z-index: 10;">
+                    <i class="fas fa-times"></i>
+                </a>
+
+                @Html.AntiForgeryToken()
+                
+                <div class="modal-header-premium" style="background: #f8fbff; padding: 2rem; border-bottom: 1px solid #f0f4f8;">
+                    <div class="header-content" style="display: flex; align-items: center; gap: 15px;">
+                        <div style="width: 40px; height: 40px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0, 86, 179, 0.1);">
+                            <i class="fas fa-tags" style="color: var(--primary); font-size: 1.1rem;"></i>
+                        </div>
+                        <h5 style="margin: 0; font-weight: 800; font-size: 1.15rem; color: #1a1a1a;">Quản lý lĩnh vực văn bản</h5>
+                    </div>
+                </div>
+
+                <div class="modal-body-premium" style="padding: 2.5rem;">
+                    <div class="add-category-section mb-4">
+                        <label class="premium-label-small" style="font-size: 0.65rem; font-weight: 800; color: #bbb; letter-spacing: 1px; margin-bottom: 0.75rem; display: block;">THÊM LĨNH VỰC MỚI</label>
+                        <div class="premium-input-group" style="display: flex; gap: 10px; background: #f1f5f9; padding: 8px; border-radius: 16px; border: 2px solid transparent; transition: all 0.2s;">
+                            <input type="text" id="newCategoryName" placeholder="VD: Văn bản hành chính, Thông báo..." autocomplete="off" style="border: none; background: transparent; flex-grow: 1; padding: 8px 12px; font-weight: 600; font-size: 0.9rem; outline: none;">
+                            <button type="button" class="btn-add-category" id="submitNewCategoryBtn" style="background: var(--primary); color: #fff; border: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 5px 15px rgba(0, 86, 179, 0.2);">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="category-list-section">
+                        <label class="premium-label-small" style="font-size: 0.65rem; font-weight: 800; color: #bbb; letter-spacing: 1px; margin-bottom: 0.75rem; display: block;">DANH SÁCH HIỆN CÓ</label>
+                        <div class="category-scroll-area" id="modalCategoryList" style="max-height: 180px; overflow-y: auto; padding-right: 10px;">
+                            @if (categories != null && categories.Any())
+                            {
+                                @foreach (var cat in categories)
+                                {
+                                    <div class="category-item-premium" data-id="@cat.Id" style="background: #fff; border: 1px solid #f1f5f9; border-radius: 14px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; transition: all 0.2s;">
+                                        <div class="cat-info" style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="dot" style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px rgba(0, 86, 179, 0.3);"></div>
+                                            <span class="cat-name" style="font-weight: 700; font-size: 0.85rem; color: #334155;">@cat.Name</span>
+                                        </div>
+                                        <button type="button" class="btn-delete-cat" onclick="stableDeleteCategory('@cat.Id', this)" style="background: transparent; border: none; color: #cbd5e1; padding: 5px; transition: all 0.2s; cursor: pointer;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-cats text-center py-4">
+                                    <i class="fas fa-layer-group mb-2" style="font-size: 2rem; color: #eee;"></i>
+                                    <p style="font-size: 0.8rem; font-weight: 600; color: #ccc;">Chưa có lĩnh vực nào</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-file-alt" style="color: var(--primary);"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Quản lý văn bản</h1>
+                <p>HỆ THỐNG PHÁT HÀNH VÀ THEO DÕI VĂN BẢN ĐIỀU HÀNH</p>
+            </div>
+        </div>
+        @if (isAdmin)
+        {
+            <div class="header-actions">
+                <button type="button" class="btn-premium btn-premium-light px-4 me-2" onclick="openCategoryModal()">
+                    <i class="fas fa-tags"></i> LĨNH VỰC
+                </button>
+                <a href="/Documents/Create" class="btn-premium btn-launch-dark px-4">
+                    <i class="fas fa-paper-plane"></i> PHÁT HÀNH VĂN BẢN
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card-premium mb-4">
+    <form method="get" action="/Documents" id="filterForm">
+        <div class="d-flex flex-wrap gap-4 align-items-end">
+            <div class="search-box-premium flex-grow-1" style="max-width: 500px;">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Tìm kiếm tiêu đề văn bản..." value="@ViewBag.Search">
+            </div>
+            
+            <div class="filter-dropdown-container" style="width: 250px;">
+                <label class="form-label-premium">LĨNH VỰC VĂN BẢN</label>
+                <input type="hidden" name="categoryId" id="categoryIdFilterValue" value="@selectedCategoryId">
+                <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                    @{
+                        var selectedCatName = categories?.FirstOrDefault(c => c.Id == selectedCategoryId)?.Name ?? "Tất cả lĩnh vực";
+                    }
+                    <span class="selected-text">@selectedCatName</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="filter-dropdown-menu">
+                    <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedCategoryId) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'categoryId', 'Tất cả lĩnh vực')">
+                        Tất cả lĩnh vực <i class="fas fa-check"></i>
+                    </div>
+                    @if (categories != null)
+                    {
+                        @foreach (var cat in categories)
+                        {
+                            <div class="filter-dropdown-item @(selectedCategoryId == cat.Id ? "selected" : "")" data-value="@cat.Id" onclick="selectFilterOption(this, 'categoryId', '@cat.Name')">
+                                @cat.Name <i class="fas fa-check"></i>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <button type="submit" class="btn-premium btn-premium-dark px-4" style="height: 44px;">LỌC DỮ LIỆU</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var doc in Model)
+        {
+            <div class="col-lg-6">
+                <div class="card-premium h-100 document-card-v2" onclick="location.href='/Documents/Details/@doc.Id'">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="badge-premium">@(doc.Category?.Name ?? "Chưa phân loại")</span>
+                        <span class="text-muted small">@DateTimeOffset.FromUnixTimeMilliseconds(doc.CreatedAt).ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <h3 class="document-title">@doc.Title</h3>
+                    <p class="document-excerpt">@(doc.Content?.Length > 150 ? doc.Content.Substring(0, 150) + "..." : doc.Content)</p>
+                    
+                    <div class="document-footer-v2 mt-auto">
+                        <div class="sender-info">
+                            <i class="fas fa-user-circle"></i>
+                            <span>@(doc.Sender?.FullName ?? "Hệ thống")</span>
+                        </div>
+                        @if (doc.Deadline.HasValue)
+                        {
+                            <div class="deadline-info @(doc.Deadline < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() ? "overdue" : "")">
+                                <i class="far fa-clock"></i>
+                                <span>Hạn: @DateTimeOffset.FromUnixTimeMilliseconds(doc.Deadline.Value).ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card-premium text-center py-5">
+                <div class="mb-4">
+                    <div style="width: 100px; height: 100px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                        <i class="fas fa-folder-open" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    </div>
+                </div>
+                <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 10px;">Không có văn bản nào</h4>
+                <p class="text-muted">Không tìm thấy văn bản nào khớp với tiêu chí tìm kiếm của bạn.</p>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Hide scrollbar for category scroll area and filter dropdown */
+    .category-scroll-area, .filter-dropdown-menu {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+    .category-scroll-area::-webkit-scrollbar, .filter-dropdown-menu::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
+    }
+    
+    .filter-dropdown-menu {
+        max-height: 180px; /* Force scroll after ~3-4 items */
+        overflow-y: auto;
+    }
+
+    /* Document Card V2 Styles */
+    .document-card-v2 {
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #f8fafc;
+        display: flex;
+        flex-direction: column;
+        padding: 2.5rem !important;
+    }
+    .document-card-v2:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-color: var(--primary-light);
+    }
+    .document-title {
+        font-weight: 800;
+        font-size: 1.25rem;
+        color: #1a1a1a;
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+        letter-spacing: -0.5px;
+    }
+    .document-excerpt {
+        color: #64748b;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    .badge-premium {
+        background: #f0f7ff;
+        color: var(--primary);
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .document-footer-v2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.75rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    .sender-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+    }
+    .sender-info i { color: #cbd5e1; font-size: 1.3rem; }
+    .deadline-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+    }
+    .deadline-info.overdue { color: #ef4444; }
+
+    /* Fix label margin in search bar */
+    .form-label-premium {
+        margin-bottom: 12px;
+        font-size: 0.65rem;
+        color: #94a3b8;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Modal Events
+            const modal = document.getElementById('categoryModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeCategoryModal();
+                    }
+                });
+            }
+
+            // Bind click for adding category
+            $(document).on('click', '#submitNewCategoryBtn', function(e) {
+                e.preventDefault();
+                createNewCategoryDefinitive();
+            });
+
+            // Bind enter for adding category
+            $(document).on('keypress', '#newCategoryName', function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    createNewCategoryDefinitive();
+                }
+            });
+
+            // Close dropdowns when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.filter-dropdown-container').length) {
+                    document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                    document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                }
+            });
+        });
+
+        // Dropdown Handlers
+        window.toggleFilterDropdown = function(trigger) {
+            const menu = trigger.nextElementSibling;
+            const isOpen = menu.classList.contains('show');
+            document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+            if (!isOpen) {
+                menu.classList.add('show');
+                trigger.classList.add('active');
+            }
+        };
+
+        window.selectFilterOption = function(option, name, label) {
+            const container = option.closest('.filter-dropdown-container');
+            const hiddenInput = container.querySelector('input[type="hidden"]');
+            const selectedText = container.querySelector('.selected-text');
+            
+            hiddenInput.value = option.getAttribute('data-value');
+            selectedText.textContent = label;
+            
+            // Highlight selected
+            container.querySelectorAll('.filter-dropdown-item').forEach(i => i.classList.remove('selected'));
+            option.classList.add('selected');
+            
+            // Close menu
+            container.querySelector('.filter-dropdown-menu').classList.remove('show');
+            container.querySelector('.filter-dropdown-trigger').classList.remove('active');
+            
+            // Auto submit
+            document.getElementById('filterForm').submit();
+        };
+
+        window.openCategoryModal = function() {
+            const modal = $('#categoryModal');
+            modal.addClass('show');
+            $('body').css('overflow', 'hidden');
+        };
+
+        window.closeCategoryModal = function() {
+            const modal = $('#categoryModal');
+            modal.removeClass('show');
+            $('body').css('overflow', '');
+        };
+
+        function createNewCategoryDefinitive() {
+            const nameInput = $('#newCategoryName');
+            const name = nameInput.val().trim();
+            if (!name) return;
+
+            const btn = $('#submitNewCategoryBtn');
+            const originalHtml = btn.html();
+            
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Documents/CreateCategory',
+                type: 'POST',
+                headers: { "RequestVerificationToken": token },
+                data: { name: name },
+                success: function(data) {
+                    if (data.success) {
+                        const cat = data.category;
+                        const catId = cat.id || cat.Id;
+                        const catName = cat.name || cat.Name;
+                        
+                        const list = $('#modalCategoryList');
+                        list.find('.empty-cats').remove();
+
+                        const html = `
+                            <div class="category-item-premium" style="background: #fff; border: 1px solid #f1f5f9; border-radius: 14px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; transition: all 0.2s;">
+                                <div class="cat-info" style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="dot" style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px rgba(0, 86, 179, 0.3);"></div>
+                                    <span class="cat-name" style="font-weight: 700; font-size: 0.85rem; color: #334155;">${catName}</span>
+                                </div>
+                                <button type="button" class="btn-delete-cat" onclick="stableDeleteCategory('${catId}', this)" style="background: transparent; border: none; color: #cbd5e1; padding: 5px; transition: all 0.2s; cursor: pointer;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>`;
+                        
+                        list.prepend(html);
+                        
+                        // Add to custom dropdown menu
+                        const menu = $('.filter-dropdown-menu');
+                        const newItemHtml = `<div class="filter-dropdown-item" data-value="${catId}" onclick="selectFilterOption(this, 'categoryId', '${catName}')">
+                            ${catName} <i class="fas fa-check"></i>
+                        </div>`;
+                        menu.append(newItemHtml);
+                        
+                        nameInput.val('');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 403) {
+                        alert('Bạn không có quyền thực hiện thao tác này.');
+                    } else {
+                        alert('Lỗi hệ thống: Không thể thêm lĩnh vực.');
+                    }
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html('<i class="fas fa-plus"></i>');
+                }
+            });
+        }
+
+        window.stableDeleteCategory = function(id, btn) {
+            if (confirm('Xác nhận xóa lĩnh vực này?')) {
+                const item = $(btn).closest('.category-item-premium');
+                item.css('opacity', '0.5').css('pointer-events', 'none');
+
+                const token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '/Documents/DeleteCategory',
+                    type: 'POST',
+                    headers: { "RequestVerificationToken": token },
+                    data: { id: id },
+                    success: function() {
+                        item.fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('#modalCategoryList .category-item-premium').length === 0) {
+                                $('#modalCategoryList').html('<div class="empty-cats text-center py-4"><i class="fas fa-layer-group mb-2" style="font-size: 2rem; color: #eee;"></i><p style="font-size: 0.8rem; font-weight: 600; color: #ccc;">Chưa có lĩnh vực nào</p></div>');
+                            }
+                        });
+                        
+                        // Remove from custom dropdown menu
+                        $(`.filter-dropdown-item[data-value="${id}"]`).remove();
+                    },
+                    error: function(xhr) {
+                        item.css('opacity', '1').css('pointer-events', 'auto');
+                        if (xhr.status === 403) {
+                            alert('Bạn không có quyền thực hiện thao tác này.');
+                        } else {
+                            alert('Lỗi hệ thống: Không thể xóa lĩnh vực.');
+                        }
+                    }
+                });
+            }
+        };
+    </script>
+}

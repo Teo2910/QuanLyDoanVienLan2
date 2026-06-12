@@ -414,4 +414,146 @@ namespace QLDV.Services
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Knowledge");
         }
     }
+
+    public class DocumentService : IDocumentService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
+        private readonly IHubContext<ChatHub> _hubContext;
+
+        public DocumentService(ApplicationDbContext context, ILogService logService, IHubContext<ChatHub> hubContext)
+        {
+            _context = context;
+            _logService = logService;
+            _hubContext = hubContext;
+        }
+
+        public async Task<List<DocumentCategory>> GetCategoriesAsync()
+        {
+            return await _context.DocumentCategories.OrderByDescending(c => c.CreatedAt).ToListAsync();
+        }
+
+        public async Task<DocumentCategory> CreateCategoryAsync(DocumentCategory category)
+        {
+            category.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.DocumentCategories.Add(category);
+            await _context.SaveChangesAsync();
+            return category;
+        }
+
+        public async Task DeleteCategoryAsync(string id)
+        {
+            var category = await _context.DocumentCategories.FindAsync(id);
+            if (category != null)
+            {
+                _context.DocumentCategories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<Document>> GetAllDocumentsAsync()
+        {
+            return await _context.Documents
+                .Include(d => d.Category)
+                .Include(d => d.Sender)
+                .OrderByDescending(d => d.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Document>> GetDocumentsForUnitAsync(string unitId)
+        {
+            return await _context.DocumentDistributions
+                .Where(dd => dd.UnitId == unitId)
+                .Include(dd => dd.Document)
+                    .ThenInclude(d => d!.Category)
+                .Include(dd => dd.Document)
+                    .ThenInclude(d => d!.Sender)
+                .OrderByDescending(dd => dd.Document!.CreatedAt)
+                .Select(dd => dd.Document!)
+                .ToListAsync();
+        }
+
+        public async Task<Document?> GetDocumentByIdAsync(string id)
+        {
+            return await _context.Documents
+                .Include(d => d.Category)
+                .Include(d => d.Sender)
+                .Include(d => d.Distributions)
+                    .ThenInclude(dd => dd.Unit)
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
+
+        public async Task<Document> CreateDocumentAsync(Document document, List<string> targetUnitIds)
+        {
+            document.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _context.Documents.Add(document);
+
+            foreach (var unitId in targetUnitIds)
+            {
+                _context.DocumentDistributions.Add(new DocumentDistribution
+                {
+                    DocumentId = document.Id,
+                    UnitId = unitId,
+                    Status = "Sent"
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await _logService.LogActivityAsync(document.SenderId, "", "CREATE", "Document", document.Id, $"Phát hành văn bản: {document.Title}");
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Document");
+            return document;
+        }
+
+        public async Task UpdateDocumentStatusAsync(string documentId, string unitId, string status, string? feedback = null)
+        {
+            var distribution = await _context.DocumentDistributions
+                .FirstOrDefaultAsync(dd => dd.DocumentId == documentId && dd.UnitId == unitId);
+
+            if (distribution != null)
+            {
+                distribution.Status = status;
+                if (status == "Received" && distribution.ReceivedAt == null)
+                    distribution.ReceivedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                else if (status == "Seen" && distribution.SeenAt == null)
+                {
+                    distribution.SeenAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                    if (distribution.ReceivedAt == null) distribution.ReceivedAt = distribution.SeenAt;
+                }
+                else if (status == "Processed" && distribution.ProcessedAt == null)
+                    distribution.ProcessedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+                if (feedback != null) distribution.Feedback = feedback;
+
+                await _context.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("DataUpdated", "DocumentStatus");
+            }
+        }
+
+        public async Task DeleteDocumentAsync(string id)
+        {
+            var document = await _context.Documents.FindAsync(id);
+            if (document != null)
+            {
+                _context.Documents.Remove(document);
+                await _context.SaveChangesAsync();
+                await _logService.LogActivityAsync("", "", "DELETE", "Document", id, $"Xóa văn bản: {document.Title}");
+            }
+        }
+
+        public async Task<Dictionary<string, int>> GetDocumentStatsAsync(string documentId)
+        {
+            var distributions = await _context.DocumentDistributions
+                .Where(dd => dd.DocumentId == documentId)
+                .ToListAsync();
+
+            return new Dictionary<string, int>
+            {
+                { "Sent", distributions.Count(dd => dd.Status == "Sent") },
+                { "Received", distributions.Count(dd => dd.Status == "Received") },
+                { "Seen", distributions.Count(dd => dd.Status == "Seen") },
+                { "Processed", distributions.Count(dd => dd.Status == "Processed") },
+                { "Total", distributions.Count }
+            };
+        }
+    }
 }

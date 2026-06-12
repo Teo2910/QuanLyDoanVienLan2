@@ -202,4 +202,50 @@ namespace QLDV.Models
         public long LastMessageAt { get; set; }
         public int UnreadCount { get; set; }
     }
+
+    /* --- DOCUMENT MANAGEMENT MODELS --- */
+
+    public class DocumentCategory
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public long CreatedAt { get; set; }
+    }
+
+    public class Document
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Title { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public string? FileUrl { get; set; }
+        public string? FileName { get; set; }
+        public string CategoryId { get; set; } = string.Empty;
+        public string SenderId { get; set; } = string.Empty;
+        public long CreatedAt { get; set; }
+        public long? Deadline { get; set; }
+        
+        // Navigation properties
+        public DocumentCategory? Category { get; set; }
+        public ApplicationUser? Sender { get; set; }
+        public ICollection<DocumentDistribution> Distributions { get; set; } = new List<DocumentDistribution>();
+    }
+
+    public class DocumentDistribution
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string DocumentId { get; set; } = string.Empty;
+        public string UnitId { get; set; } = string.Empty;
+        
+        // Status: Sent, Received, Seen, Processed
+        public string Status { get; set; } = "Sent"; 
+        public long? ReceivedAt { get; set; }
+        public long? SeenAt { get; set; }
+        public long? ProcessedAt { get; set; }
+        public string? Feedback { get; set; }
+        
+        // Navigation properties
+        public Document? Document { get; set; }
+        public Unit? Unit { get; set; }
+    }
 }
