@@ -97,12 +97,12 @@ namespace QLDV.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(int page = 1, string sortOrder = "", string search = "", string unit = "", string year = "", string achievement = "", string status = "", string gender = "", string hometown = "")
+        public async Task<IActionResult> Index(int page = 1, string sortOrder = "", string search = "", string unit = "", string year = "", string achievement = "", string status = "", string gender = "", string hometown = "", string ageGroup = "")
         {
             int pageSize = 10;
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             List<Models.Member> allMembers;
             if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
@@ -123,6 +123,23 @@ namespace QLDV.Controllers
                 .ToList();
             ViewBag.AcademicYears = academicYears;
             
+            int currentYear = 2026;
+            Func<string, string, bool> isInAgeGroup = (dob, group) => {
+                if (string.IsNullOrEmpty(dob)) return false;
+                // Parse DOB. Format could be "dd/MM/yyyy" or "yyyy-MM-dd".
+                if (DateTime.TryParse(dob, out DateTime birthDate) || DateTime.TryParseExact(dob, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out birthDate)) {
+                    int age = currentYear - birthDate.Year;
+                    return group switch {
+                        "Dưới 18 tuổi" => age < 18,
+                        "18 - 25 tuổi" => age >= 18 && age <= 25,
+                        "26 - 30 tuổi" => age >= 26 && age <= 30,
+                        "Trên 30 tuổi" => age > 30,
+                        _ => true
+                    };
+                }
+                return false;
+            };
+
             // Apply Filters (Server-side)
             var filteredMembers = allMembers.Where(m => 
                 (string.IsNullOrEmpty(search) || 
@@ -136,7 +153,8 @@ namespace QLDV.Controllers
                 (string.IsNullOrEmpty(achievement) || m.AchievementLevel.Equals(achievement, StringComparison.OrdinalIgnoreCase)) &&
                 (string.IsNullOrEmpty(year) || (m.AcademicYear != null && m.AcademicYear.Trim().Equals(year.Trim(), StringComparison.OrdinalIgnoreCase))) &&
                 (string.IsNullOrEmpty(gender) || m.Gender.Equals(gender, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(hometown) || (m.Hometown != null && m.Hometown.Contains(hometown.Trim(), StringComparison.OrdinalIgnoreCase)))
+                (string.IsNullOrEmpty(hometown) || (m.Hometown != null && m.Hometown.Contains(hometown.Trim(), StringComparison.OrdinalIgnoreCase))) &&
+                (string.IsNullOrEmpty(ageGroup) || isInAgeGroup(m.DOB, ageGroup))
             );
 
             // Sorting Logic
@@ -189,6 +207,7 @@ namespace QLDV.Controllers
             ViewBag.SelectedStatus = status;
             ViewBag.SelectedGender = gender;
             ViewBag.SelectedHometown = hometown;
+            ViewBag.SelectedAgeGroup = ageGroup;
             
             return View(paginatedMembers);
         }
@@ -200,8 +219,8 @@ namespace QLDV.Controllers
                 return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
             {
@@ -214,8 +233,8 @@ namespace QLDV.Controllers
         public async Task<IActionResult> Create()
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             List<Models.Unit> units;
             if (isSecretary && !isAdmin && !string.IsNullOrEmpty(currentUser?.UnitId))
@@ -267,8 +286,8 @@ namespace QLDV.Controllers
                 return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
             {
@@ -283,14 +302,16 @@ namespace QLDV.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string id, Models.Member member)
         {
-            if (id != member.Id)
-                return BadRequest();
+            if (string.IsNullOrEmpty(member.Id) || member.Id != id)
+            {
+                member.Id = id;
+            }
 
             bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
             {
@@ -343,8 +364,8 @@ namespace QLDV.Controllers
                 return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
             {
@@ -362,8 +383,8 @@ namespace QLDV.Controllers
                 return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-            var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+            var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
             if (isSecretary && !isAdmin && member.UnitId != currentUser?.UnitId)
             {
@@ -391,8 +412,8 @@ namespace QLDV.Controllers
             try
             {
                 var currentUser = await _userManager.GetUserAsync(User);
-                var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
-                var isSecretary = await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser?.Role == "Secretary";
+                var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
+                var isSecretary = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Secretary") || currentUser.Role == "Secretary");
 
                 List<Models.Member> membersToDelete = new List<Models.Member>();
                 List<Models.Member> allowedMembers;
@@ -822,8 +843,10 @@ namespace QLDV.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string id, Models.Unit unit)
         {
-            if (id != unit.Id)
-                return BadRequest();
+            if (string.IsNullOrEmpty(unit.Id) || unit.Id != id)
+            {
+                unit.Id = id;
+            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user != null && user.Role == "Secretary" && user.UnitId != id)
@@ -876,5 +899,28 @@ namespace QLDV.Controllers
                 return View(unit);
             }
         }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> UpdateCoordinates([FromBody] CoordinateUpdateRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Id)) return BadRequest();
+
+            var unit = await _unitService.GetUnitByIdAsync(request.Id);
+            if (unit == null) return NotFound();
+
+            unit.Latitude = request.Latitude;
+            unit.Longitude = request.Longitude;
+
+            await _unitService.UpdateUnitAsync(unit);
+            return Ok();
+        }
+    }
+
+    public class CoordinateUpdateRequest
+    {
+        public string Id { get; set; } = string.Empty;
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

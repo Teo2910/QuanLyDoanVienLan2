@@ -105,6 +105,7 @@ namespace QLDV.Services
         Task<List<Document>> GetDocumentsForUnitAsync(string unitId);
         Task<Document?> GetDocumentByIdAsync(string id);
         Task<Document> CreateDocumentAsync(Document document, List<string> targetUnitIds);
+        Task<Document> UpdateDocumentAsync(Document document, List<string> targetUnitIds);
         Task UpdateDocumentStatusAsync(string documentId, string unitId, string status, string? feedback = null);
         Task DeleteDocumentAsync(string id);
 

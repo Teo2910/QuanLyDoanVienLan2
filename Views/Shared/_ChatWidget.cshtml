@@ -23,6 +23,7 @@
                 <div class="title-group">
                     <h5 id="chat-header-title">Hệ thống Trợ giúp</h5>
                     <small id="chat-header-subtitle">DLU Support Team</small>
+                    <div id="debug-thread-id" style="font-size: 0.6rem; color: #fbbf24; margin-top: 2px;"></div>
                 </div>
             </div>
             <div class="header-actions">
@@ -268,19 +269,23 @@
     (function() {
         const userProfile = {
             uid: '@(currentUser?.Id ?? "guest")',
+            unitId: '@(currentUser?.UnitId ?? "")'.trim(),
             fullName: '@(currentUser?.FullName ?? currentUser?.UserName ?? "Guest")',
             role: '@(currentUser?.Role ?? "User")'
         };
 
+        console.log("[ChatWidget] Initialized for user:", userProfile);
+
         let connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-        let activeThreadId = userProfile.role === 'Admin' ? null : userProfile.uid;
+        let activeThreadId = userProfile.role === 'Admin' ? null : userProfile.unitId;
         let isAiMode = false;
 
         connection.on("ReceiveMessage", function (message) {
-            if (isAiMode) return; // Ignore standard messages in AI mode UI (for now)
+            console.log("[ChatWidget] ReceiveMessage:", message);
+            if (isAiMode) return; 
             
             if (userProfile.role === 'Admin') {
-                if (activeThreadId === message.threadId) {
+                if (activeThreadId && message.threadId && activeThreadId.toLowerCase() === message.threadId.toLowerCase()) {
                     appendMessage(message);
                 } else {
                     if (!document.getElementById('chat-window').classList.contains('d-none') && !activeThreadId) {
@@ -289,13 +294,17 @@
                     updateUnreadCount(1);
                 }
             } else {
-                if (message.threadId === userProfile.uid) {
+                console.log("[ChatWidget] Non-admin checking message thread:", message.threadId, "against unit:", userProfile.unitId);
+                if (message.threadId && userProfile.unitId && message.threadId.toLowerCase() === userProfile.unitId.toLowerCase()) {
+                    console.log("[ChatWidget] Message matched unit thread.");
                     appendMessage(message);
                     if (message.senderRole === 'Admin' && !document.getElementById('chat-window').classList.contains('d-none')) {
-                        markAsRead(userProfile.uid);
+                        markAsRead(userProfile.unitId);
                     } else if (message.senderRole === 'Admin') {
                         updateUnreadCount(1);
                     }
+                } else {
+                    console.log("[ChatWidget] Message ignored. Thread mismatch.");
                 }
             }
         });
@@ -365,8 +374,15 @@
                     loadMessages(activeThreadId);
                 }
             } else {
-                loadMessages(userProfile.uid);
-                markAsRead(userProfile.uid);
+                const targetThreadId = userProfile.unitId;
+                activeThreadId = targetThreadId;
+                if (!targetThreadId || targetThreadId === 'guest' || targetThreadId === '') {
+                    const container = document.getElementById('chat-messages');
+                    container.innerHTML = '<div class="chat-welcome"><i class="fas fa-exclamation-triangle mb-3 text-warning" style="font-size: 2rem;"></i><p class="text-danger fw-bold mb-1">Lỗi kết nối đơn vị</p><p class="small text-muted">Tài khoản của bạn chưa được cấp quyền quản lý Chi đoàn nào. Vui lòng liên hệ Quản trị viên để được gán đơn vị.</p></div>';
+                    return;
+                }
+                loadMessages(targetThreadId);
+                markAsRead(targetThreadId);
             }
         }
 
@@ -375,11 +391,17 @@
             document.getElementById('chat-back-list').classList.add('d-none');
             document.getElementById('chat-header-title').textContent = "Hội thoại hỗ trợ";
             document.getElementById('chat-header-subtitle').textContent = "Chọn một người dùng để hỗ trợ";
+            document.getElementById('debug-thread-id').textContent = "";
+
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
 
             fetch('/api/chat/threads')
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
                 .then(threads => {
-                    const container = document.getElementById('chat-messages');
                     container.innerHTML = '';
                     
                     if (threads.length === 0) {
@@ -412,6 +434,10 @@
                         };
                         container.appendChild(div);
                     });
+                })
+                .catch(err => {
+                    console.error("Error loading threads:", err);
+                    container.innerHTML = '<div class="chat-welcome"><i class="fas fa-exclamation-triangle mb-2 text-danger"></i><p>Lỗi kết nối máy chủ.</p></div>';
                 });
         }
 
@@ -424,12 +450,16 @@
                 document.getElementById('chat-header-title').textContent = "Trợ giúp trực tuyến";
                 document.getElementById('chat-header-subtitle').textContent = "DLU Support Team";
             }
+            document.getElementById('debug-thread-id').textContent = "Thread: " + threadId;
 
             const container = document.getElementById('chat-messages');
             container.innerHTML = '<div class="text-center p-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
 
             fetch(`/api/chat/messages/${threadId}`)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    return res.json();
+                })
                 .then(messages => {
                     container.innerHTML = '';
                     if (messages.length === 0) {
@@ -437,6 +467,10 @@
                     }
                     messages.forEach(appendMessage);
                     container.scrollTop = container.scrollHeight;
+                })
+                .catch(err => {
+                    console.error("Error loading messages:", err);
+                    container.innerHTML = '<div class="chat-welcome"><i class="fas fa-exclamation-triangle mb-2 text-danger"></i><p>Lỗi tải tin nhắn.</p></div>';
                 });
         }
 
@@ -522,5 +556,26 @@
             if (count > 0) badge.classList.remove('d-none');
             else badge.classList.add('d-none');
         }
+
+        // Expose globally for external triggers (e.g. from Documents Details)
+        window.startChatWithUnit = function(unitId, unitName) {
+            // For admins, we need to create or find the thread for this unit.
+            // Simplified logic: set threadId to something consistent, like the unitId itself,
+            // or fetch the thread list and find the corresponding one.
+            // Here we assume the unitId is the threadId for direct unit-to-admin communication.
+            
+            // Switch out of AI mode if active
+            if (isAiMode) {
+                document.getElementById('toggle-ai-mode').click();
+            }
+
+            activeThreadId = unitId;
+            loadMessages(unitId);
+            
+            // Override header for direct unit chat
+            document.getElementById('chat-header-title').textContent = unitName;
+            document.getElementById('chat-header-subtitle').textContent = "Nhắn tin trực tiếp";
+            document.getElementById('chat-back-list').classList.remove('d-none');
+        };
     })();
 </script>

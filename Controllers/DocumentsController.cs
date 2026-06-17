@@ -30,7 +30,7 @@ namespace QLDV.Controllers
         public async Task<IActionResult> Index(string? categoryId, string? status, string? search)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
             
             List<Document> documents;
             if (isAdmin)
@@ -70,6 +70,7 @@ namespace QLDV.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Document document, List<string> targetUnitIds, IFormFile? file, string? deadlineDate)
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -103,7 +104,7 @@ namespace QLDV.Controllers
             if (document == null) return NotFound();
 
             var currentUser = await _userManager.GetUserAsync(User);
-            var isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser?.Role == "Admin";
+            var isAdmin = currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || currentUser.Role == "Admin");
 
             if (!isAdmin)
             {
@@ -128,6 +129,53 @@ namespace QLDV.Controllers
 
             await _documentService.UpdateDocumentStatusAsync(documentId, currentUser.UnitId, status, feedback);
             return RedirectToAction(nameof(Details), new { id = documentId });
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            var document = await _documentService.GetDocumentByIdAsync(id);
+            if (document == null) return NotFound();
+
+            ViewBag.Categories = await _documentService.GetCategoriesAsync();
+            ViewBag.Units = await _unitService.GetAllUnitsAsync();
+            return View(document);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, Document document, List<string> targetUnitIds, IFormFile? file, string? deadlineDate)
+        {
+            // Ensure document.Id is set to the id from the route if it's not bound correctly
+            if (string.IsNullOrEmpty(document.Id) || document.Id != id)
+            {
+                document.Id = id;
+            }
+
+            if (file != null)
+            {
+                document.FileUrl = await _fileService.SaveFileAsync(file, "documents");
+                document.FileName = file.FileName;
+            }
+
+            if (DateTime.TryParse(deadlineDate, out var deadline))
+            {
+                document.Deadline = new DateTimeOffset(deadline).ToUnixTimeMilliseconds();
+            }
+            else if (string.IsNullOrEmpty(deadlineDate))
+            {
+                document.Deadline = null;
+            }
+
+            if (targetUnitIds == null || !targetUnitIds.Any())
+            {
+                var allUnits = await _unitService.GetAllUnitsAsync();
+                targetUnitIds = allUnits.Select(u => u.Id).ToList();
+            }
+
+            await _documentService.UpdateDocumentAsync(document, targetUnitIds);
+            return RedirectToAction(nameof(Details), new { id = document.Id });
         }
 
         [HttpPost]

@@ -1,8 +1,11 @@
 @model QLDV.Models.Document
 @{
-    ViewData["Title"] = "Phát hành văn bản";
+    ViewData["Title"] = "Chỉnh sửa văn bản";
     var categories = ViewBag.Categories as List<QLDV.Models.DocumentCategory>;
     var units = ViewBag.Units as List<QLDV.Models.Unit>;
+    
+    string deadlineStr = Model.Deadline.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(Model.Deadline.Value).ToString("yyyy-MM-dd") : "";
+    string selectedCatName = Model.Category?.Name ?? "-- Chọn lĩnh vực --";
 }
 
 <style>
@@ -218,7 +221,7 @@
         font-size: 0.9rem;
     }
 
-    /* Custom Dropdown Styling for Create Page */
+    /* Custom Dropdown Styling */
     .filter-dropdown-container {
         position: relative;
     }
@@ -322,16 +325,17 @@
 
 <div class="form-layout-container">
     <div class="form-style-card">
-        <a href="/Documents" class="close-form-btn" title="Hủy bỏ">
+        <a href="/Documents/Details/@Model.Id" class="close-form-btn" title="Hủy bỏ">
             <i class="fas fa-times"></i>
         </a>
 
         <div class="form-header">
-            <h2>Phát hành văn bản mới</h2>
-            <div class="subtext">HỆ THỐNG PHÁT HÀNH VÀ THEO DÕI VĂN BẢN ĐIỀU HÀNH</div>
+            <h2>Chỉnh sửa văn bản</h2>
+            <div class="subtext">CẬP NHẬT THÔNG TIN VÀ ĐIỀU CHỈNH ĐƠN VỊ TIẾP NHẬN</div>
         </div>
 
-        <form asp-action="Create" asp-controller="Documents" method="post" enctype="multipart/form-data">
+        <form asp-action="Edit" asp-controller="Documents" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
             <div class="mb-5">
                 <label class="custom-label">TIÊU ĐỀ VĂN BẢN</label>
                 <input type="text" asp-for="Title" class="custom-input" placeholder="Nhập tiêu đề văn bản, kế hoạch hoặc thông báo..." required>
@@ -343,18 +347,18 @@
                     <div class="filter-dropdown-container" style="width: 100%;">
                         <input type="hidden" asp-for="CategoryId" id="CategoryIdValue" required>
                         <div class="filter-dropdown-trigger custom-input" onclick="toggleFilterDropdown(this)">
-                            <span class="selected-text" style="color: #cbd5e1;">-- Chọn lĩnh vực --</span>
+                            <span class="selected-text" style="color: @(string.IsNullOrEmpty(Model.CategoryId) ? "#cbd5e1" : "#1a1a1a");">@selectedCatName</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="filter-dropdown-menu">
-                            <div class="filter-dropdown-item" data-value="" onclick="selectCreateOption(this, '-- Chọn lĩnh vực --')">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(Model.CategoryId) ? "selected" : "")" data-value="" onclick="selectCreateOption(this, '-- Chọn lĩnh vực --')">
                                 -- Chọn lĩnh vực -- <i class="fas fa-check"></i>
                             </div>
                             @if (categories != null)
                             {
                                 @foreach (var cat in categories)
                                 {
-                                    <div class="filter-dropdown-item" data-value="@cat.Id" onclick="selectCreateOption(this, '@cat.Name')">
+                                    <div class="filter-dropdown-item @(Model.CategoryId == cat.Id ? "selected" : "")" data-value="@cat.Id" onclick="selectCreateOption(this, '@cat.Name')">
                                         @cat.Name <i class="fas fa-check"></i>
                                     </div>
                                 }
@@ -365,7 +369,7 @@
                 <div class="col-md-6 mb-5">
                     <label class="custom-label">HẠN XỬ LÝ / HOÀN THÀNH</label>
                     <div style="position: relative;">
-                        <input type="date" name="deadlineDate" class="custom-input">
+                        <input type="date" name="deadlineDate" class="custom-input" value="@deadlineStr">
                         <i class="far fa-calendar-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
                     </div>
                 </div>
@@ -377,12 +381,15 @@
             </div>
 
             <div class="mb-5">
-                <label class="custom-label">FILE ĐÍNH KÈM (PDF, DOCX, XLSX...)</label>
+                <label class="custom-label">FILE ĐÍNH KÈM (Để trống nếu không muốn thay đổi file hiện tại)</label>
                 <div class="file-upload-wrapper">
                     <input type="file" name="file" id="documentFileInput" style="display: none;" onchange="updateFileName(this)">
                     <div class="file-upload-display" onclick="document.getElementById('documentFileInput').click()">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <div class="text" id="fileNameText">BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY</div>
+                        <i class="fas @(string.IsNullOrEmpty(Model.FileName) ? "fa-cloud-upload-alt" : "fa-file-alt")" 
+                           style="color: @(string.IsNullOrEmpty(Model.FileName) ? "#94a3b8" : "var(--primary)")"></i>
+                        <div class="text" id="fileNameText" style="color: @(string.IsNullOrEmpty(Model.FileName) ? "#64748b" : "var(--primary)")">
+                            @(string.IsNullOrEmpty(Model.FileName) ? "BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY" : $"File hiện tại: {Model.FileName} (Bấm để tải lên file mới)")
+                        </div>
                         <div class="small text-muted mt-1">Dung lượng tối đa 20MB</div>
                     </div>
                 </div>
@@ -398,27 +405,30 @@
                 </div>
                 
                 <div class="unit-selection-card">
-                    <div class="unit-grid-container">
-                        <div class="row g-3">
-                            @foreach (var unit in units ?? new List<QLDV.Models.Unit>())
+                    <div class="row g-3 unit-grid-container">
+                        @if (units != null)
+                        {
+                            @foreach (var u in units)
                             {
+                                bool isSelected = Model.Distributions != null && Model.Distributions.Any(d => d.UnitId == u.Id);
                                 <div class="col-md-6 col-lg-4">
-                                    <div class="unit-item-box" onclick="toggleUnitSelection(this)">
-                                        <input type="checkbox" name="targetUnitIds" value="@unit.Id" id="unit_@unit.Id" class="unit-checkbox-hidden d-none">
+                                    <div class="unit-item-box @(isSelected ? "selected" : "")" onclick="toggleUnitBoxSelection(this)">
+                                        <input type="checkbox" name="targetUnitIds" value="@u.Id" class="unit-checkbox-hidden d-none" @(isSelected ? "checked" : "")>
                                         <div class="unit-checkbox-custom">
                                             <i class="fas fa-check"></i>
                                         </div>
-                                        <div class="unit-name-label">@unit.Name</div>
+                                        <div class="unit-name-label">@u.Name</div>
                                     </div>
                                 </div>
                             }
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
 
             <button type="submit" class="submit-btn-premium">
-                <i class="fas fa-paper-plane"></i> XÁC NHẬN PHÁT HÀNH VĂN BẢN
+                <span>CẬP NHẬT VĂN BẢN</span>
+                <i class="fas fa-save"></i>
             </button>
         </form>
     </div>
@@ -426,7 +436,36 @@
 
 @section Scripts {
     <script>
-        function toggleUnitSelection(element) {
+        function updateFileName(input) {
+            const fileNameText = document.getElementById('fileNameText');
+            if (input.files && input.files[0]) {
+                fileNameText.textContent = input.files[0].name;
+                fileNameText.style.color = 'var(--primary)';
+                document.querySelector('.file-upload-display').style.borderColor = 'var(--primary)';
+                document.querySelector('.file-upload-display').style.background = '#f0f7ff';
+                document.querySelector('.file-upload-display i').className = 'fas fa-file-alt';
+                document.querySelector('.file-upload-display i').style.color = 'var(--primary)';
+            } else {
+                const existingFileName = '@Model.FileName';
+                if (existingFileName) {
+                    fileNameText.textContent = 'File hiện tại: ' + existingFileName + ' (Bấm để tải lên file mới)';
+                    fileNameText.style.color = 'var(--primary)';
+                    document.querySelector('.file-upload-display').style.borderColor = '#cbd5e1';
+                    document.querySelector('.file-upload-display').style.background = '#f1f5f9';
+                    document.querySelector('.file-upload-display i').className = 'fas fa-file-alt';
+                    document.querySelector('.file-upload-display i').style.color = 'var(--primary)';
+                } else {
+                    fileNameText.textContent = 'BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY';
+                    fileNameText.style.color = '#64748b';
+                    document.querySelector('.file-upload-display').style.borderColor = '#cbd5e1';
+                    document.querySelector('.file-upload-display').style.background = '#f1f5f9';
+                    document.querySelector('.file-upload-display i').className = 'fas fa-cloud-upload-alt';
+                    document.querySelector('.file-upload-display i').style.color = '#94a3b8';
+                }
+            }
+        }
+
+        function toggleUnitBoxSelection(element) {
             const checkbox = element.querySelector('.unit-checkbox-hidden');
             checkbox.checked = !checkbox.checked;
             if (checkbox.checked) {
@@ -434,15 +473,6 @@
             } else {
                 element.classList.remove('selected');
                 document.getElementById('selectAllUnits').checked = false;
-            }
-        }
-
-        function updateFileName(input) {
-            const fileName = input.files[0]?.name || "BẤM ĐỂ CHỌN FILE HOẶC KÉO THẢ VÀO ĐÂY";
-            document.getElementById('fileNameText').textContent = fileName;
-            if (input.files[0]) {
-                document.querySelector('.file-upload-display').style.borderColor = 'var(--primary)';
-                document.querySelector('.file-upload-display i').style.color = 'var(--primary)';
             }
         }
 

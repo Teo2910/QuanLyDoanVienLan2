@@ -279,6 +279,7 @@ namespace QLDV.Services
         public async Task<Activity?> GetActivityByIdAsync(string id)
         {
             return await _context.Activities
+                .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -296,6 +297,15 @@ namespace QLDV.Services
 
         public async Task UpdateActivityAsync(Activity activity)
         {
+            var local = _context.Activities
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(activity.Id));
+
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
             _context.Activities.Update(activity);
             await _context.SaveChangesAsync();
 
@@ -502,6 +512,55 @@ namespace QLDV.Services
             await _logService.LogActivityAsync(document.SenderId, "", "CREATE", "Document", document.Id, $"Phát hành văn bản: {document.Title}");
             await _hubContext.Clients.All.SendAsync("DataUpdated", "Document");
             return document;
+        }
+
+        public async Task<Document> UpdateDocumentAsync(Document document, List<string> targetUnitIds)
+        {
+            var existingDoc = await _context.Documents
+                .Include(d => d.Distributions)
+                .FirstOrDefaultAsync(d => d.Id == document.Id);
+
+            if (existingDoc == null) throw new Exception("Document not found");
+
+            existingDoc.Title = document.Title;
+            existingDoc.Content = document.Content;
+            existingDoc.CategoryId = document.CategoryId;
+            existingDoc.Deadline = document.Deadline;
+
+            if (document.FileUrl != null)
+            {
+                existingDoc.FileUrl = document.FileUrl;
+                existingDoc.FileName = document.FileName;
+            }
+
+            // Update distributions without resetting existing progress
+            var existingDistributions = existingDoc.Distributions.ToList();
+            var newUnitIds = targetUnitIds ?? new List<string>();
+
+            // Remove distributions for units that are no longer targeted
+            var toRemove = existingDistributions.Where(d => !newUnitIds.Contains(d.UnitId)).ToList();
+            _context.DocumentDistributions.RemoveRange(toRemove);
+
+            // Add distributions for newly targeted units
+            var existingUnitIds = existingDistributions.Select(d => d.UnitId).ToList();
+            foreach (var unitId in newUnitIds)
+            {
+                if (!existingUnitIds.Contains(unitId))
+                {
+                    _context.DocumentDistributions.Add(new DocumentDistribution
+                    {
+                        DocumentId = document.Id,
+                        UnitId = unitId,
+                        Status = "Sent"
+                    });
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await _logService.LogActivityAsync("", "", "UPDATE", "Document", document.Id, $"Cập nhật văn bản: {document.Title}");
+            await _hubContext.Clients.All.SendAsync("DataUpdated", "Document");
+            
+            return existingDoc;
         }
 
         public async Task UpdateDocumentStatusAsync(string documentId, string unitId, string status, string? feedback = null)

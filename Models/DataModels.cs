@@ -23,6 +23,8 @@ namespace QLDV.Models
         public string? Address { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public long CreatedAt { get; set; }
 
         // Navigation properties
@@ -86,6 +88,9 @@ namespace QLDV.Models
         public string? Description { get; set; }
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn phân loại hoạt động")]
         public string Type { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+        public string? ImagesJson { get; set; }
+        public string? UnitId { get; set; }
         public long CreatedAt { get; set; }
     }
 

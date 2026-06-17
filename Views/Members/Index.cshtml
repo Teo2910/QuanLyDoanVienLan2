@@ -10,6 +10,7 @@
     string selectedStatus = ViewBag.SelectedStatus ?? "";
     string selectedGender = ViewBag.SelectedGender ?? "";
     string selectedHometown = ViewBag.SelectedHometown ?? "";
+    string selectedAgeGroup = ViewBag.SelectedAgeGroup ?? "";
 }
 
 <style>
@@ -132,11 +133,11 @@
 
         <div class="collapse @(!string.IsNullOrEmpty(selectedUnit) || !string.IsNullOrEmpty(selectedYear) || 
         !string.IsNullOrEmpty(selectedAchievement) || !string.IsNullOrEmpty(selectedStatus) || !string.IsNullOrEmpty(selectedGender) ||
-        !string.IsNullOrEmpty(selectedHometown) ? "show" : "") mt-4" id="filterPanel">
+        !string.IsNullOrEmpty(selectedHometown) || !string.IsNullOrEmpty(selectedAgeGroup) ? "show" : "") mt-4" id="filterPanel">
             <div class="row g-3">
                 @if (ViewBag.IsAdmin == true)
                 {
-                    <div class="col-md-4 col-lg-2">
+                    <div class="col-md-4 col-lg">
                         <label class="form-label-premium">CHI ĐOÀN</label>
                         <div class="filter-dropdown-container">
                             <input type="hidden" name="unit" id="unitFilterValue" value="@selectedUnit">
@@ -161,7 +162,7 @@
                         </div>
                     </div>
                 }
-                <div class="col-md-4 col-lg-2">
+                <div class="col-md-4 col-lg">
                     <label class="form-label-premium">NIÊN KHÓA / NĂM HỌC</label>
                     <div class="filter-dropdown-container">
                         <div class="filter-dropdown-trigger has-input">
@@ -184,7 +185,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-2">
+                <div class="col-md-4 col-lg">
                     <label class="form-label-premium">XẾP LOẠI ĐOÀN VIÊN</label>
                     <div class="filter-dropdown-container">
                         <input type="hidden" name="achievement" id="achievementFilterValue" value="@selectedAchievement">
@@ -203,7 +204,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-2">
+                <div class="col-md-4 col-lg">
                     <label class="form-label-premium">TRẠNG THÁI</label>
                     <div class="filter-dropdown-container">
                         <input type="hidden" name="status" id="statusFilterValue" value="@selectedStatus">
@@ -222,7 +223,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-2">
+                <div class="col-md-4 col-lg">
                     <label class="form-label-premium">GIỚI TÍNH</label>
                     <div class="filter-dropdown-container">
                         <input type="hidden" name="gender" id="genderFilterValue" value="@selectedGender">
@@ -239,7 +240,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-2">
+                <div class="col-md-4 col-lg">
+                    <label class="form-label-premium">ĐỘ TUỔI (TÍNH ĐẾN NĂM 2026)</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="ageGroup" id="ageGroupFilterValue" value="@selectedAgeGroup">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedAgeGroup) ? "Tất cả độ tuổi" : selectedAgeGroup)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedAgeGroup) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'ageGroup', 'Tất cả độ tuổi')">
+                                Tất cả độ tuổi <i class="fas fa-check"></i>
+                            </div>
+                            <div class="filter-dropdown-item @(selectedAgeGroup == "Dưới 18 tuổi" ? "selected" : "")" data-value="Dưới 18 tuổi" onclick="selectFilterOption(this, 'ageGroup', 'Dưới 18 tuổi')">Dưới 18 tuổi <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAgeGroup == "18 - 25 tuổi" ? "selected" : "")" data-value="18 - 25 tuổi" onclick="selectFilterOption(this, 'ageGroup', '18 - 25 tuổi')">18 - 25 tuổi <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAgeGroup == "26 - 30 tuổi" ? "selected" : "")" data-value="26 - 30 tuổi" onclick="selectFilterOption(this, 'ageGroup', '26 - 30 tuổi')">26 - 30 tuổi <i class="fas fa-check"></i></div>
+                            <div class="filter-dropdown-item @(selectedAgeGroup == "Trên 30 tuổi" ? "selected" : "")" data-value="Trên 30 tuổi" onclick="selectFilterOption(this, 'ageGroup', 'Trên 30 tuổi')">Trên 30 tuổi <i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg">
                     <label class="form-label-premium">QUÊ QUÁN</label>
                     <div class="filter-dropdown-container">
                         <div class="filter-dropdown-trigger has-input">
@@ -290,7 +310,7 @@
                     </th>
                     <th style="width: 80px;">#</th>
                     <th>
-                        <a href="/members?sortOrder=@(ViewBag.SortOrder == "name_asc" ? "name_desc" : "name_asc")&page=@ViewBag.CurrentPage&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown" 
+                        <a href="/members?sortOrder=@(ViewBag.SortOrder == "name_asc" ? "name_desc" : "name_asc")&page=@ViewBag.CurrentPage&search=@currentSearch&unit=@selectedUnit&year=@selectedYear&achievement=@selectedAchievement&status=@selectedStatus&gender=@selectedGender&hometown=@selectedHometown&ageGroup=@selectedAgeGroup" 
                            class="sort-header-link @(!string.IsNullOrEmpty(ViewBag.SortOrder) ? "active" : "")">
                             THÔNG TIN CƠ BẢN 
                             <i class="fas @(ViewBag.SortOrder == "name_asc" ? "fa-long-arrow-alt-up" : (ViewBag.SortOrder == "name_desc" ? "fa-long-arrow-alt-down" : "fa-sort")) ms-2" 
@@ -418,7 +438,7 @@
         </div>
         <div class="pagination-btns-group">
             @{
-                string commonParams = $"&sortOrder={ViewBag.SortOrder}&search={currentSearch}&unit={selectedUnit}&year={selectedYear}&achievement={selectedAchievement}&status={selectedStatus}&gender={selectedGender}&hometown={selectedHometown}";
+                string commonParams = $"&sortOrder={ViewBag.SortOrder}&search={currentSearch}&unit={selectedUnit}&year={selectedYear}&achievement={selectedAchievement}&status={selectedStatus}&gender={selectedGender}&hometown={selectedHometown}&ageGroup={selectedAgeGroup}";
                 int totalPages = ViewBag.TotalPages;
                 int currentPage = ViewBag.CurrentPage;
             }

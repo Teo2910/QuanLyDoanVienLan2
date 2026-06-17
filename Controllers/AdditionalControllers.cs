@@ -16,12 +16,14 @@ namespace QLDV.Controllers
         private readonly IActivityService _activityService;
         private readonly IMovementService _movementService;
         private readonly ILogService _logService;
+        private readonly IFileService _fileService;
 
-        public ActivitiesController(IActivityService activityService, IMovementService movementService, ILogService logService)
+        public ActivitiesController(IActivityService activityService, IMovementService movementService, ILogService logService, IFileService fileService)
         {
             _activityService = activityService;
             _movementService = movementService;
             _logService = logService;
+            _fileService = fileService;
         }
 
         public async Task<IActionResult> Index()
@@ -45,12 +47,28 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Activity activity)
+        public async Task<IActionResult> Create(Activity activity, List<IFormFile> images)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if (images != null && images.Count > 0)
+                    {
+                        var imageList = new List<string>();
+                        foreach (var image in images)
+                        {
+                            if (image.Length > 0)
+                            {
+                                var fileName = await _fileService.SaveFileAsync(image, "activities");
+                                var url = _fileService.GetFileUrl(fileName, "activities");
+                                imageList.Add(url);
+                            }
+                        }
+                        activity.ImagesJson = System.Text.Json.JsonSerializer.Serialize(imageList);
+                        activity.ImageUrl = imageList.FirstOrDefault(); // Store first image for backward compatibility
+                    }
+
                     await _activityService.CreateActivityAsync(activity);
                     TempData["Success"] = "Tạo hoạt động mới thành công!";
                     return RedirectToAction(nameof(Details), new { id = activity.Id });
@@ -74,16 +92,64 @@ namespace QLDV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(string id, Activity activity)
+        public async Task<IActionResult> Edit(string id, Activity activity, List<IFormFile> images, string? deletedImagesJson)
         {
-            if (id != activity.Id)
-                return BadRequest();
+            if (string.IsNullOrEmpty(activity.Id) || activity.Id != id)
+            {
+                activity.Id = id;
+            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _activityService.UpdateActivityAsync(activity);
+                    var existingActivity = await _activityService.GetActivityByIdAsync(id);
+                    if (existingActivity == null) return NotFound();
+
+                    var currentImages = new List<string>();
+                    if (!string.IsNullOrEmpty(existingActivity.ImagesJson))
+                    {
+                        try { currentImages = System.Text.Json.JsonSerializer.Deserialize<List<string>>(existingActivity.ImagesJson) ?? new List<string>(); } catch { }
+                    }
+                    else if (!string.IsNullOrEmpty(existingActivity.ImageUrl))
+                    {
+                        currentImages.Add(existingActivity.ImageUrl);
+                    }
+
+                    // Handle deletions
+                    if (!string.IsNullOrEmpty(deletedImagesJson))
+                    {
+                        var deletedImages = System.Text.Json.JsonSerializer.Deserialize<List<string>>(deletedImagesJson) ?? new List<string>();
+                        foreach (var delImg in deletedImages)
+                        {
+                            currentImages.Remove(delImg);
+                            _fileService.DeleteFile(delImg);
+                        }
+                    }
+
+                    // Handle new uploads
+                    if (images != null && images.Count > 0)
+                    {
+                        foreach (var image in images)
+                        {
+                            if (image.Length > 0)
+                            {
+                                var fileName = await _fileService.SaveFileAsync(image, "activities");
+                                var url = _fileService.GetFileUrl(fileName, "activities");
+                                currentImages.Add(url);
+                            }
+                        }
+                    }
+
+                    existingActivity.Title = activity.Title;
+                    existingActivity.Date = activity.Date;
+                    existingActivity.Location = activity.Location;
+                    existingActivity.Description = activity.Description;
+                    existingActivity.Type = activity.Type;
+                    existingActivity.ImagesJson = System.Text.Json.JsonSerializer.Serialize(currentImages);
+                    existingActivity.ImageUrl = currentImages.FirstOrDefault();
+
+                    await _activityService.UpdateActivityAsync(existingActivity);
                     TempData["Success"] = "Cập nhật hoạt động thành công!";
                     return RedirectToAction(nameof(Details), new { id = activity.Id });
                 }
@@ -328,8 +394,10 @@ namespace QLDV.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string id, Movement movement)
         {
-            if (id != movement.Id)
-                return BadRequest();
+            if (string.IsNullOrEmpty(movement.Id) || movement.Id != id)
+            {
+                movement.Id = id;
+            }
 
             var existingMovement = await _movementService.GetMovementByIdAsync(id);
             if (existingMovement == null)
@@ -524,8 +592,10 @@ namespace QLDV.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(string id, KnowledgeItem item, IFormFile? attachment)
         {
-            if (id != item.Id)
-                return BadRequest();
+            if (string.IsNullOrEmpty(item.Id) || item.Id != id)
+            {
+                item.Id = id;
+            }
 
             if (ModelState.IsValid)
             {
@@ -581,12 +651,18 @@ namespace QLDV.Controllers
         private readonly IStatisticsService _statisticsService;
         private readonly IMemberService _memberService;
         private readonly IUnitService _unitService;
+        private readonly IActivityService _activityService;
 
-        public StatisticsController(IStatisticsService statisticsService, IMemberService memberService, IUnitService unitService)
+        public StatisticsController(
+            IStatisticsService statisticsService, 
+            IMemberService memberService, 
+            IUnitService unitService,
+            IActivityService activityService)
         {
             _statisticsService = statisticsService;
             _memberService = memberService;
             _unitService = unitService;
+            _activityService = activityService;
         }
 
         public async Task<IActionResult> Index()
@@ -640,6 +716,41 @@ namespace QLDV.Controllers
             };
 
             return Json(stats);
+        }
+
+        public async Task<IActionResult> Map()
+        {
+            var units = await _unitService.GetAllUnitsAsync();
+            return View(units);
+        }
+
+        [HttpGet("api/Statistics/MapData")]
+        public async Task<IActionResult> GetMapData()
+        {
+            var units = await _unitService.GetAllUnitsAsync();
+            var activities = await _activityService.GetAllActivitiesAsync();
+            
+            // Project to avoid circular references and reduce payload size
+            var projectedUnits = units.Select(u => new {
+                u.Id,
+                u.Name,
+                u.Address,
+                u.Phone,
+                u.Latitude,
+                u.Longitude
+            }).ToList();
+
+            var projectedActivities = activities.Select(a => new {
+                a.Id,
+                a.Title,
+                a.Date,
+                a.Location,
+                a.ImageUrl,
+                a.ImagesJson,
+                a.UnitId
+            }).ToList();
+            
+            return Json(new { units = projectedUnits, activities = projectedActivities });
         }
 
         [HttpGet]

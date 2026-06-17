@@ -289,8 +289,9 @@
             </div>
         </div>
 
-        <form method="post" action="/activities/edit/@Model.Id">
+        <form method="post" action="/activities/edit/@Model.Id" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
             
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3" style="font-size: 0.8rem; font-weight: 600;"></div>
             
@@ -348,9 +349,131 @@
                 <textarea asp-for="Description" class="custom-input custom-textarea" placeholder="Nêu ngắn gọn mục đích, ý nghĩa và nội dung sẽ diễn ra..."></textarea>
             </div>
 
+            <div class="mb-4">
+                <label class="custom-label">HÌNH ẢNH HOẠT ĐỘNG</label>
+                <div class="dropdown-container">
+                    <input type="file" name="images" id="activityImageInput" class="d-none" accept="image/*" multiple onchange="handleMultipleFiles(this)">
+                    <div class="file-upload-display" onclick="document.getElementById('activityImageInput').click()" style="border: 2px dashed #cbd5e1; border-radius: 20px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #f8fbff;">
+                        <i class="fas fa-images" style="font-size: 2.5rem; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                        <span style="font-size: 0.85rem; font-weight: 700; color: #64748b;">KÉO THẢ HOẶC BẤM ĐỂ TẢI NHIỀU ẢNH</span>
+                        <p class="text-muted small mb-0">Hỗ trợ JPG, PNG, WEBP (Tối đa 10 ảnh)</p>
+                    </div>
+
+                    <div id="imageGalleryContainer" class="mt-4 d-flex flex-wrap gap-3">
+                        @{
+                            var images = new List<string>();
+                            if (!string.IsNullOrEmpty(Model.ImagesJson))
+                            {
+                                try { images = System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.ImagesJson) ?? new List<string>(); } catch { }
+                            }
+                            else if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                images.Add(Model.ImageUrl);
+                            }
+                        }
+                        
+                        @foreach (var imgUrl in images)
+                        {
+                            <div class="gallery-item-wrapper" data-url="@imgUrl" style="position: relative; width: 100px; height: 100px;">
+                                <img src="@imgUrl" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" />
+                                <div class="remove-img-btn" onclick="markImageForDeletion(this, '@imgUrl')" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #ef4444; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; border: 2px solid #fff;">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" name="deletedImagesJson" id="deletedImagesInput" value="[]" />
+                </div>
+            </div>
+
             <button type="submit" class="submit-btn">
                 LƯU HOẠT ĐỘNG
             </button>
         </form>
     </div>
 </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Initialize Flatpickr
+        flatpickr(".date-picker", {
+            dateFormat: "d/m/Y",
+            allowInput: true,
+            altInput: true,
+            altFormat: "d/m/Y",
+        });
+
+        // Type Dropdown Logic
+        const typeTrigger = document.getElementById('typeDropdownTrigger');
+        const typeMenu = document.getElementById('typeDropdownMenu');
+        const typeInput = document.getElementById('TypeInput');
+        const typeSelectedText = document.getElementById('typeSelectedText');
+
+        typeTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            typeMenu.classList.toggle('show');
+        });
+
+        document.querySelectorAll('#typeDropdownMenu .dropdown-item-custom').forEach(item => {
+            item.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.childNodes[0].textContent.trim();
+                
+                typeInput.value = value;
+                typeSelectedText.textContent = text;
+                
+                document.querySelectorAll('#typeDropdownMenu .dropdown-item-custom').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                typeTrigger.classList.remove('active');
+                typeMenu.classList.remove('show');
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', function() {
+            typeTrigger.classList.remove('active');
+            typeMenu.classList.remove('show');
+        });
+
+        let deletedImages = [];
+
+        function markImageForDeletion(btn, url) {
+            event.stopPropagation();
+            deletedImages.push(url);
+            document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImages);
+            btn.closest('.gallery-item-wrapper').style.opacity = '0.3';
+            btn.closest('.gallery-item-wrapper').style.pointerEvents = 'none';
+            btn.innerHTML = '<i class="fas fa-undo"></i>';
+            btn.style.background = '#64748b';
+            btn.onclick = function() { undoDeletion(this, url); };
+            
+            // Actually just remove for now as per current UI flow, or keep it visual
+            btn.closest('.gallery-item-wrapper').remove(); 
+        }
+
+        function handleMultipleFiles(input) {
+            const gallery = document.getElementById('imageGalleryContainer');
+            
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'gallery-item-wrapper new-upload';
+                        div.style = 'position: relative; width: 100px; height: 100px; animation: slideUp 0.3s ease-out;';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" />
+                            <div class="remove-img-btn" onclick="this.closest('.gallery-item-wrapper').remove()" style="position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #ef4444; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,102,255,0.8); color: #fff; font-size: 8px; text-align: center; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; padding: 2px; font-weight: 700;">MỚI</div>
+                        `;
+                        gallery.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+    </script>

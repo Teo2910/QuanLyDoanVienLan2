@@ -145,9 +145,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Statistics" ? "active" : "")" href="/statistics">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Statistics" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/statistics">
                         <i class="fas fa-chart-line"></i>
                         <span>Thống kê</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Statistics" && ViewContext.RouteData.Values["Action"]?.ToString() == "Map" ? "active" : "")" href="/statistics/map">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Bản đồ số</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -247,6 +253,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
     <partial name="_Toast" />
+    <partial name="_ChatWidget" />
     <script>
         $(document).ready(function() {
             const toggle = $('#sidebarToggle');
@@ -350,6 +357,26 @@
                 }
             });
         });
+
+        // Global chat widget trigger
+        window.openChatWidget = function(unitId, unitName) {
+            const chatToggle = $('#chat-toggle');
+            const chatWindow = $('#chat-window');
+            
+            // If chat is closed, open it
+            if (chatWindow.hasClass('d-none')) {
+                chatToggle.click();
+            }
+
+            // Small delay to ensure widget is ready, then trigger internal function if it exists
+            setTimeout(() => {
+                if (typeof window.startChatWithUnit === 'function') {
+                    window.startChatWithUnit(unitId, unitName);
+                } else {
+                    console.warn("Chat widget not fully initialized.");
+                }
+            }, 300);
+        };
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

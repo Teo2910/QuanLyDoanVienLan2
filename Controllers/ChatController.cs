@@ -20,6 +20,13 @@ namespace QLDV.Controllers
             _hubContext = hubContext;
         }
 
+        [HttpGet("debug")]
+        public async Task<IActionResult> DebugUsers()
+        {
+            var users = await _context.Users.Select(u => new { u.Email, u.Role, u.UnitId }).ToListAsync();
+            return Ok(users);
+        }
+
         [HttpGet("threads")]
         public async Task<IActionResult> GetThreads()
         {
