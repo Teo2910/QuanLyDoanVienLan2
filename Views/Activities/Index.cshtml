@@ -258,6 +258,32 @@
         margin: 0 !important;
         position: relative;
     }
+
+    @@media (max-width: 768px) {
+        .page-header-new {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 15px !important;
+            margin-bottom: 2rem !important;
+        }
+
+        .header-right {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .header-right .search-input-wrapper {
+            max-width: none !important;
+            width: 100% !important;
+        }
+
+        .header-right .btn-add-activity {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+    }
 </style>
 
 <div id="activityModal" class="modal-overlay">

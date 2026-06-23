@@ -23,6 +23,8 @@ namespace QLDV.Data
         public DbSet<Document> Documents { get; set; }
         public DbSet<DocumentCategory> DocumentCategories { get; set; }
         public DbSet<DocumentDistribution> DocumentDistributions { get; set; }
+        public DbSet<Initiative> Initiatives { get; set; }
+        public DbSet<Award> Awards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -160,6 +162,42 @@ namespace QLDV.Data
 
             modelBuilder.Entity<SystemLog>()
                 .HasIndex(l => l.UserId);
+
+            // Initiative configuration
+            modelBuilder.Entity<Initiative>()
+                .HasKey(i => i.Id);
+            modelBuilder.Entity<Initiative>()
+                .HasOne(i => i.Author)
+                .WithMany()
+                .HasForeignKey(i => i.AuthorId)
+                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Initiative>()
+                .HasOne(i => i.Unit)
+                .WithMany()
+                .HasForeignKey(i => i.UnitId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Initiative>()
+                .HasIndex(i => i.UnitId);
+            modelBuilder.Entity<Initiative>()
+                .HasIndex(i => i.Field);
+
+            // Award configuration
+            modelBuilder.Entity<Award>()
+                .HasKey(a => a.Id);
+            modelBuilder.Entity<Award>()
+                .HasOne(a => a.Member)
+                .WithMany()
+                .HasForeignKey(a => a.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Award>()
+                .HasOne(a => a.Unit)
+                .WithMany()
+                .HasForeignKey(a => a.UnitId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Award>()
+                .HasIndex(a => a.UnitId);
+            modelBuilder.Entity<Award>()
+                .HasIndex(a => a.MemberId);
         }
     }
 }

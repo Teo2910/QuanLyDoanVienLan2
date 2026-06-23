@@ -580,4 +580,32 @@
         background: var(--primary);
         color: #fff;
     }
+
+    @@media (max-width: 768px) {
+        .document-title-v2 {
+            font-size: 1.5rem !important;
+            letter-spacing: -0.5px !important;
+        }
+
+        .document-meta-v2 {
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+
+        .attachment-premium-v2 {
+            flex-direction: column !important;
+            gap: 15px !important;
+            align-items: stretch !important;
+            text-align: center !important;
+        }
+
+        .attachment-premium-v2 .btn-download-v2 {
+            justify-content: center !important;
+        }
+
+        .document-body-content {
+            font-size: 1rem !important;
+            padding-top: 1.5rem !important;
+        }
+    }
 </style>

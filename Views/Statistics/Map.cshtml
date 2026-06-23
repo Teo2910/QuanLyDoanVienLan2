@@ -717,10 +717,46 @@
     }
 
     .btn-confirm-ok:hover { transform: translateY(-2px); box-shadow: 0 12px 20px -3px rgba(37, 99, 235, 0.4); }
+
+    @@media (max-width: 991px) {
+        .map-main-wrapper {
+            flex-direction: column !important;
+            height: auto !important;
+            gap: 15px !important;
+        }
+
+        .map-sidebar {
+            width: 100% !important;
+            height: 400px !important;
+        }
+
+        .map-container-inner {
+            width: 100% !important;
+            height: 450px !important;
+            min-height: 450px !important;
+        }
+
+        #map {
+            height: 450px !important;
+            min-height: 450px !important;
+        }
+
+        .floating-controls {
+            top: 15px !important;
+            right: 15px !important;
+        }
+
+        .map-legend-premium {
+            bottom: 15px !important;
+            right: 15px !important;
+            padding: 8px 12px !important;
+            border-radius: 12px !important;
+        }
+    }
 </style>
 
 <div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h2 class="fw-800 mb-0" style="letter-spacing: -1px; color: var(--text-dark); font-family: 'Inter', sans-serif;">Bản đồ số hóa <span class="text-primary">Tỉnh Lâm Đồng</span></h2>
             <div class="d-flex align-items-center gap-2 mt-1">
@@ -732,7 +768,7 @@
                 </span>
             </div>
         </div>
-        <div class="d-flex gap-3">
+        <div class="d-flex gap-2 gap-sm-3">
             <button class="btn btn-white shadow-sm border-0 rounded-pill px-4 py-2 fw-700" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;" onclick="resetMapView()">
                 <i class="fas fa-compress-arrows-alt me-2 text-primary"></i> Xem toàn bộ
             </button>
@@ -888,6 +924,8 @@
                     maxZoom: 20
                 }).on('tileload', () => {
                     document.getElementById('loader').classList.add('fade-out');
+                }).on('load', () => {
+                    if (map) map.invalidateSize();
                 }).addTo(map);
 
                 // Manual Pinning
@@ -905,7 +943,13 @@
                     }
                 });
 
-                [100, 500, 1000].forEach(d => setTimeout(() => map.invalidateSize(), d));
+                window.addEventListener('resize', function() {
+                    if (map) map.invalidateSize();
+                });
+
+                [100, 500, 1000, 2000, 4000].forEach(d => setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, d));
                 loadMapData();
             } catch (e) { console.error(e); }
         }, 100);
@@ -1231,6 +1275,9 @@
     }
 
     function resetMapView() {
+        if (map) {
+            map.invalidateSize();
+        }
         const allMarkers = [...markers, ...activityMarkers];
         if (allMarkers.length > 0) {
             const group = new L.featureGroup(allMarkers);

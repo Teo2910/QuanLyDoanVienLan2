@@ -73,6 +73,8 @@ builder.Services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IInitiativeService, InitiativeService>();
+builder.Services.AddScoped<IAwardService, AwardService>();
 
 builder.Services.AddHttpClient<IGoogleAIService, GoogleAIService>();
 builder.Services.AddSession(options =>

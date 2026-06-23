@@ -1,0 +1,46 @@
+@model QLDV.Models.Award
+@{
+    ViewData["Title"] = "Xóa khen thưởng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium text-danger">
+                <i class="fas fa-trash-alt" style="color: #ef4444;"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Xác nhận xóa khen thưởng</h1>
+                <p>HÀNH ĐỘNG NÀY SẼ GỠ BỎ HOÀN TOÀN THÀNH TÍCH KHEN THƯỞNG</p>
+            </div>
+        </div>
+        <div>
+            <a href="/awards" class="btn-premium btn-premium-light px-4">
+                <i class="fas fa-arrow-left"></i> HUỶ BỎ
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card-premium text-center" style="max-width: 600px; margin: 0 auto; padding: 4rem 3rem;">
+    <div class="confirm-icon-box mx-auto mb-4" style="width: 80px; height: 80px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; color: #ef4444;">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    
+    <h3 class="text-dark fw-bold mb-3">Bạn có chắc chắn muốn xóa?</h3>
+    <p class="text-muted mb-5 px-3">
+        Quyết định khen thưởng: <strong>"@Model.Content"</strong> dành cho 
+        <strong>@(Model.TargetType == "Cá nhân" ? Model.Member?.FullName : Model.Unit?.Name)</strong> 
+        sẽ bị xóa vĩnh viễn khỏi hệ thống.
+    </p>
+
+    <form asp-action="Delete" method="post" class="d-flex justify-content-center gap-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <a href="/awards" class="btn-premium btn-premium-light px-4">QUAY LẠI</a>
+        <button type="submit" class="btn-premium btn-premium-dark px-4" style="background: #ef4444; color: #fff; box-shadow: 0 10px 35px rgba(239, 68, 68, 0.2);">
+            XÁC NHẬN XÓA
+        </button>
+    </form>
+</div>

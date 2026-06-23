@@ -1,0 +1,242 @@
+@model QLDV.Models.Initiative
+@{
+    ViewData["Title"] = "Đăng ký sáng kiến mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-plus" style="color: var(--primary);"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Đăng ký sáng kiến mới</h1>
+                <p>KHỞI TẠO BẢN THUYẾT TRÌNH Ý TƯỞNG CẢI TIẾN</p>
+            </div>
+        </div>
+        <div>
+            <a href="/initiatives" class="btn-premium btn-premium-light px-4">
+                <i class="fas fa-arrow-left"></i> QUAY LẠI
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card-premium max-width-form-premium" style="max-width: 800px; margin: 0 auto;">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-4">
+            <label asp-for="Name" class="form-label-premium">TÊN SÁNG KIẾN / Ý TƯỞNG</label>
+            <input asp-for="Name" class="form-control-premium" placeholder="Nhập tên sáng kiến/ý tưởng..." required />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label asp-for="AuthorId" class="form-label-premium">TÁC GIẢ (ĐOÀN VIÊN)</label>
+                <div class="premium-select" id="authorSelect">
+                    <!-- Visible trigger -->
+                    <div class="premium-select-trigger" onclick="togglePremiumSelect('authorSelect')">
+                        <span class="premium-select-value text-muted">-- Chọn tác giả cá nhân (Không bắt buộc) --</span>
+                        <div class="premium-select-icons">
+                            <span class="premium-select-clear d-none" onclick="clearPremiumSelect(event, 'authorSelect')">
+                                <i class="fas fa-times"></i>
+                            </span>
+                            <span class="premium-select-arrow">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Hidden field for model binding -->
+                    <input type="hidden" asp-for="AuthorId" id="authorIdHidden" />
+                    
+                    <!-- Dropdown popover -->
+                    <div class="premium-select-dropdown d-none">
+                        <div class="premium-select-search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="premium-select-search" placeholder="Nhập tên, MSSV, đơn vị..." autocomplete="off" oninput="filterPremiumSelect('authorSelect', this.value)" />
+                        </div>
+                        <div class="premium-select-options">
+                            <div class="premium-select-option empty-option" data-value="" onclick="selectPremiumOption('authorSelect', '', '-- Chọn tác giả cá nhân (Không bắt buộc) --')">
+                                -- Chọn tác giả cá nhân (Không bắt buộc) --
+                            </div>
+                            @foreach (var member in ViewBag.Members)
+                            {
+                                <div class="premium-select-option" 
+                                     data-value="@member.Id" 
+                                     data-search="@member.FullName.ToLower() @member.MemberId.ToLower() @(member.Unit?.Name?.ToLower() ?? "")"
+                                     onclick="selectPremiumOption('authorSelect', '@member.Id', '@member.FullName (@member.MemberId)', '@member.FullName', '@member.MemberId', '@member.Unit?.Name')">
+                                    <div class="option-avatar">
+                                        @(!string.IsNullOrEmpty(member.FullName) && member.FullName.Length > 0 ? member.FullName.Substring(0, 1).ToUpper() : "M")
+                                    </div>
+                                    <div class="option-details">
+                                        <div class="option-name">@member.FullName</div>
+                                        <div class="option-meta">
+                                            <span class="badge-mssv"><i class="fas fa-id-card"></i> @member.MemberId</span>
+                                            <span class="badge-unit"><i class="fas fa-university"></i> @member.Unit?.Name</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <span asp-validation-for="AuthorId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CoAuthors" class="form-label-premium">NHÓM TÁC GIẢ</label>
+                <input asp-for="CoAuthors" class="form-control-premium" placeholder="Tên các thành viên khác (nếu có)..." />
+                <span asp-validation-for="CoAuthors" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            @if (ViewBag.IsAdmin == true)
+            {
+                <div class="col-md-6">
+                    <label asp-for="UnitId" class="form-label-premium">ĐƠN VỊ CHI ĐOÀN</label>
+                    <select asp-for="UnitId" class="form-control-premium form-select" required>
+                        <option value="">-- Chọn đơn vị --</option>
+                        @foreach (var unit in ViewBag.Units)
+                        {
+                            <option value="@unit.Id">@unit.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="UnitId" class="text-danger small"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="UnitId" value="@ViewBag.Units[0].Id" />
+                <div class="col-md-6">
+                    <label class="form-label-premium">ĐƠN VỊ CHI ĐOÀN</label>
+                    <input class="form-control-premium" value="@ViewBag.Units[0].Name" disabled />
+                </div>
+            }
+
+            <div class="col-md-6">
+                <label asp-for="Field" class="form-label-premium">LĨNH VỰC SÁNG KIẾN</label>
+                <select asp-for="Field" class="form-control-premium form-select" required>
+                    @foreach (var field in ViewBag.Fields)
+                    {
+                        <option value="@field">@field</option>
+                    }
+                </select>
+                <span asp-validation-for="Field" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label asp-for="Status" class="form-label-premium">TÌNH TRẠNG TRIỂN KHAI</label>
+                <select asp-for="Status" class="form-control-premium form-select" required>
+                    @foreach (var status in ViewBag.Statuses)
+                    {
+                        <option value="@status">@status</option>
+                    }
+                </select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Description" class="form-label-premium">MÔ TẢ CHI TIẾT NỘI DUNG</label>
+            <textarea asp-for="Description" class="form-control-premium" style="height: 150px; padding: 10px 15px !important;" placeholder="Mô tả mục tiêu, nội dung giải pháp, kết quả dự kiến của sáng kiến..."></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-5">
+            <a href="/initiatives" class="btn-premium btn-premium-light px-4">HỦY BỎ</a>
+            <button type="submit" class="btn-premium btn-launch-dark px-4">LƯU HỒ SƠ</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Toggle dropdown open/close
+            window.togglePremiumSelect = function(id) {
+                const select = $('#' + id);
+                const trigger = select.find('.premium-select-trigger');
+                const dropdown = select.find('.premium-select-dropdown');
+                
+                if (dropdown.hasClass('d-none')) {
+                    $('.premium-select-dropdown').addClass('d-none');
+                    $('.premium-select-trigger').removeClass('active');
+                    dropdown.removeClass('d-none');
+                    trigger.addClass('active');
+                    setTimeout(() => { select.find('.premium-select-search').focus(); }, 50);
+                } else {
+                    dropdown.addClass('d-none');
+                    trigger.removeClass('active');
+                }
+            };
+
+            // Filter options on input
+            window.filterPremiumSelect = function(id, query) {
+                const q = query.toLowerCase().trim();
+                const select = $('#' + id);
+                select.find('.premium-select-option').each(function() {
+                    if ($(this).hasClass('empty-option')) return;
+                    const search = $(this).data('search') || '';
+                    if (search.includes(q)) {
+                        $(this).removeClass('d-none');
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+            };
+
+            // Select option
+            window.selectPremiumOption = function(id, val, displayText, name, mssv, unit, extraData) {
+                const select = $('#' + id);
+                const hiddenInput = select.find('input[type="hidden"]');
+                const triggerValue = select.find('.premium-select-value');
+                const clearBtn = select.find('.premium-select-clear');
+                
+                hiddenInput.val(val);
+                
+                if (val === '') {
+                    triggerValue.text(displayText).addClass('text-muted');
+                    clearBtn.addClass('d-none');
+                } else {
+                    triggerValue.html(`<strong>${name}</strong> <span class="text-muted" style="font-size:0.7rem">(${mssv} — ${unit})</span>`).removeClass('text-muted');
+                    clearBtn.removeClass('d-none');
+                }
+                
+                select.find('.premium-select-option').removeClass('selected');
+                select.find(`[data-value="${val}"]`).addClass('selected');
+                
+                select.find('.premium-select-dropdown').addClass('d-none');
+                select.find('.premium-select-trigger').removeClass('active');
+                select.find('.premium-select-search').val('');
+                filterPremiumSelect(id, '');
+
+                if (extraData && id === 'memberSelect' && $('#unitSelect').length) {
+                    $('#unitSelect').val(extraData);
+                }
+            };
+
+            // Clear selection
+            window.clearPremiumSelect = function(e, id) {
+                e.stopPropagation();
+                const select = $('#' + id);
+                const defaultText = select.find('.premium-select-option[data-value=""]').text().trim();
+                selectPremiumOption(id, '', defaultText);
+            };
+
+            // Close when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.premium-select').length) {
+                    $('.premium-select-dropdown').addClass('d-none');
+                    $('.premium-select-trigger').removeClass('active');
+                }
+            });
+        });
+    </script>
+}

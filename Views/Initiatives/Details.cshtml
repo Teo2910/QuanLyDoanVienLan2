@@ -1,0 +1,90 @@
+@model QLDV.Models.Initiative
+@{
+    ViewData["Title"] = "Chi tiết sáng kiến";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var registrationDate = DateTimeOffset.FromUnixTimeMilliseconds(Model.CreatedAt).LocalDateTime;
+}
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-eye" style="color: var(--primary);"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Chi tiết sáng kiến / ý tưởng</h1>
+                <p>XEM TOÀN BỘ NỘI DUNG VÀ TIẾN ĐỘ THỰC TẾ</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/initiatives" class="btn-premium btn-premium-light px-4">
+                <i class="fas fa-arrow-left"></i> DANH SÁCH
+            </a>
+            <a href="/initiatives/edit/@Model.Id" class="btn-premium btn-launch-dark px-4">
+                <i class="fas fa-edit"></i> CHỈNH SỬA
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card-premium mb-4" style="max-width: 900px; margin: 0 auto;">
+    <div class="border-bottom pb-4 mb-4">
+        <span class="badge bg-primary p-2 mb-2" style="font-size: 0.75rem; border-radius: 8px;">@Model.Field</span>
+        <h2 class="text-dark fw-bold mb-1">@Model.Name</h2>
+        <p class="text-muted small mb-0">Ngày đăng ký: @registrationDate.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3" style="border: 1px solid #eef2f6;">
+                <label class="form-label-premium text-muted mb-1">TÁC GIẢ CHÍNH</label>
+                <div class="fw-bold text-dark fs-6">
+                    @if (Model.Author != null)
+                    {
+                        <a href="/members/details/@Model.AuthorId" class="text-decoration-none">@Model.Author.FullName</a>
+                        <span class="text-muted font-monospace d-block small" style="font-weight: normal;">Mã ĐV: @Model.Author.MemberId</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted fw-normal">Không liên kết cá nhân (Tập thể/Đơn vị)</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3" style="border: 1px solid #eef2f6;">
+                <label class="form-label-premium text-muted mb-1">NHÓM TÁC GIẢ ĐỒNG LẬP</label>
+                <div class="fw-bold text-dark fs-6">
+                    @(string.IsNullOrEmpty(Model.CoAuthors) ? "Không có" : Model.CoAuthors)
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3" style="border: 1px solid #eef2f6;">
+                <label class="form-label-premium text-muted mb-1">ĐƠN VỊ PHỤ TRÁCH</label>
+                <div class="fw-bold text-dark fs-6">
+                    @(Model.Unit?.Name ?? "N/A")
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3" style="border: 1px solid #eef2f6;">
+                <label class="form-label-premium text-muted mb-1">TÌNH TRẠNG TRIỂN KHAI</label>
+                <div class="d-flex align-items-center mt-1">
+                    <div class="dot-v2 @(Model.Status == "Đã áp dụng" ? "green" : (Model.Status == "Ý tưởng" ? "orange" : "blue")) me-2" style="width: 10px; height: 10px;"></div>
+                    <span class="fw-bold text-dark">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label-premium text-muted border-bottom pb-2 mb-3">MÔ TẢ CHI TIẾT NỘI DUNG</label>
+        <div class="text-dark bg-light p-4 rounded-3 text-justify" style="line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem; border: 1px solid #eef2f6;">
+            @(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả chi tiết." : Model.Description)
+        </div>
+    </div>
+</div>

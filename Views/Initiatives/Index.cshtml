@@ -1,0 +1,365 @@
+@model List<QLDV.Models.Initiative>
+@{
+    ViewData["Title"] = "Quản lý sáng kiến & ý tưởng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string currentSearch = ViewBag.Search ?? "";
+    string selectedUnit = ViewBag.SelectedUnit ?? "";
+    string selectedField = ViewBag.SelectedField ?? "";
+    string selectedStatus = ViewBag.SelectedStatus ?? "";
+}
+
+<div class="page-header-premium">
+    <div class="header-main">
+        <div class="header-left-box">
+            <div class="header-icon-premium">
+                <i class="fas fa-lightbulb" style="color: var(--primary);"></i>
+            </div>
+            <div class="header-text-premium">
+                <h1>Quản lý sáng kiến & ý tưởng</h1>
+                <p>NƠI KHỞI NGUỒN CÁC Ý TƯỞNG CẢI TIẾN & PHÁT TRIỂN</p>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 gap-sm-3 mt-3 mt-lg-0">
+            <a href="/initiatives/create" class="btn-premium btn-launch-dark px-3 px-sm-4">
+                <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">ĐĂNG KÝ SÁNG KIẾN</span><span class="d-sm-none">THÊM</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Thống kê nhanh sáng kiến -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card-new accent-blue">
+            <div class="icon-box">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <p>Tổng số sáng kiến</p>
+            <h2>@ViewBag.TotalCount</h2>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card-new accent-green">
+            <div class="icon-box">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p>Đã áp dụng thực tế</p>
+            <h2>@ViewBag.AppliedCount</h2>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card-new accent-amber">
+            <div class="icon-box">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <p>Đang triển khai/Thử nghiệm</p>
+            <h2>@ViewBag.InDevelopmentCount</h2>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card-new accent-red">
+            <div class="icon-box">
+                <i class="fas fa-brain"></i>
+            </div>
+            <p>Ý tưởng mới đăng ký</p>
+            <h2>@ViewBag.IdeaCount</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Phần biểu đồ thống kê -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
+            <div class="section-header mb-4">
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;">
+                    <i class="fas fa-chart-pie me-2"></i>THỐNG KÊ THEO LĨNH VỰC
+                </div>
+            </div>
+            <div style="height: 250px; position: relative;">
+                <canvas id="fieldChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-premium h-100 p-4" style="border-radius: 30px;">
+            <div class="section-header mb-4">
+                <div class="section-title" style="font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px;">
+                    <i class="fas fa-chart-bar me-2"></i>SỐ LƯỢNG THEO CHI ĐOÀN
+                </div>
+            </div>
+            <div style="height: 250px; position: relative;">
+                <canvas id="unitInitiativeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lọc và Tìm kiếm -->
+<div class="card-premium mb-5">
+    <form id="filterForm" method="get" action="/initiatives">
+        <div class="d-flex flex-wrap gap-4 align-items-center filter-row-premium">
+            <div class="search-box-premium flex-grow-1" style="max-width: 600px;">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Tìm tên sáng kiến, tác giả, nhóm tác giả..." id="advancedSearch" value="@currentSearch">
+            </div>
+            <div class="d-flex gap-2 filter-btns-group">
+                <button type="button" class="btn-premium btn-premium-dark px-4" id="toggleAdvancedFilter">
+                    <i class="fas fa-filter"></i> LỌC NÂNG CAO
+                </button>
+                <button type="button" class="btn-premium btn-premium-light px-3" id="resetFilters" title="Làm mới">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="collapse @(!string.IsNullOrEmpty(selectedUnit) || !string.IsNullOrEmpty(selectedField) || !string.IsNullOrEmpty(selectedStatus) ? "show" : "") mt-4" id="filterPanel">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label-premium">ĐƠN VỊ CHI ĐOÀN</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="unit" id="unitFilterValue" value="@selectedUnit">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedUnit) ? "Tất cả đơn vị" : selectedUnit)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedUnit) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'unit', 'Tất cả đơn vị')">
+                                Tất cả đơn vị <i class="fas fa-check"></i>
+                            </div>
+                            @if (ViewBag.Units != null)
+                            {
+                                @foreach (var unit in ViewBag.Units)
+                                {
+                                    <div class="filter-dropdown-item @(selectedUnit == unit.Name ? "selected" : "")" data-value="@unit.Name" onclick="selectFilterOption(this, 'unit', '@unit.Name')">
+                                        @unit.Name <i class="fas fa-check"></i>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label-premium">LĨNH VỰC</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="field" id="fieldFilterValue" value="@selectedField">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedField) ? "Tất cả lĩnh vực" : selectedField)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedField) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'field', 'Tất cả lĩnh vực')">
+                                Tất cả lĩnh vực <i class="fas fa-check"></i>
+                            </div>
+                            @foreach (var field in ViewBag.Fields)
+                            {
+                                <div class="filter-dropdown-item @(selectedField == field ? "selected" : "")" data-value="@field" onclick="selectFilterOption(this, 'field', '@field')">
+                                    @field <i class="fas fa-check"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label-premium">TÌNH TRẠNG TRIỂN KHAI</label>
+                    <div class="filter-dropdown-container">
+                        <input type="hidden" name="status" id="statusFilterValue" value="@selectedStatus">
+                        <div class="filter-dropdown-trigger" onclick="toggleFilterDropdown(this)">
+                            <span class="selected-text">@(string.IsNullOrEmpty(selectedStatus) ? "Tất cả tình trạng" : selectedStatus)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="filter-dropdown-menu">
+                            <div class="filter-dropdown-item @(string.IsNullOrEmpty(selectedStatus) ? "selected" : "")" data-value="" onclick="selectFilterOption(this, 'status', 'Tất cả tình trạng')">
+                                Tất cả tình trạng <i class="fas fa-check"></i>
+                            </div>
+                            @foreach (var status in ViewBag.Statuses)
+                            {
+                                <div class="filter-dropdown-item @(selectedStatus == status ? "selected" : "")" data-value="@status" onclick="selectFilterOption(this, 'status', '@status')">
+                                    @status <i class="fas fa-check"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Danh sách Sáng kiến -->
+<div class="member-list-card-premium">
+    <div class="list-title-header">
+        <div class="list-title-box">
+            <h2>Hồ sơ sáng kiến & cải tiến</h2>
+            <p>HỆ THỐNG TRUY XUẤT VÀ THEO DÕI Ý TƯỞNG</p>
+        </div>
+        <div class="result-count-badge">@Model.Count KẾT QUẢ</div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-members-v2">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">STT</th>
+                    <th>TÊN SÁNG KIẾN/Ý TƯỞNG</th>
+                    <th>TÁC GIẢ</th>
+                    <th>NHÓM TÁC GIẢ</th>
+                    <th>ĐƠN VỊ CHI ĐOÀN</th>
+                    <th>LĨNH VỰC</th>
+                    <th>TRẠNG THÁI</th>
+                    <th class="text-end" style="width: 150px;">HÀNH ĐỘNG</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int i = 1; }
+                @foreach (var item in Model)
+                {
+                    <tr class="member-row-v2" onclick="location.href='/initiatives/details/@item.Id'" style="cursor: pointer;">
+                        <td><span class="row-index">@(i < 10 ? "0" + i : i.ToString())</span></td>
+                        <td>
+                            <div class="fw-bold text-dark" style="font-size: 0.9rem;">@item.Name</div>
+                            <span class="text-muted" style="font-size: 0.75rem;">@((item.Description?.Length > 80) ? item.Description.Substring(0, 80) + "..." : item.Description)</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">@(item.Author?.FullName ?? "N/A")</div>
+                        </td>
+                        <td>
+                            <span>@(string.IsNullOrEmpty(item.CoAuthors) ? "--" : item.CoAuthors)</span>
+                        </td>
+                        <td>
+                            <div class="unit-text-v2">@(item.Unit?.Name ?? "N/A")</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary p-2" style="font-size: 0.7rem; border-radius: 8px;">@item.Field</span>
+                        </td>
+                        <td>
+                            <div class="status-row-v2">
+                                <div class="dot-v2 @(item.Status == "Đã áp dụng" ? "green" : (item.Status == "Ý tưởng" ? "orange" : "blue"))"></div>
+                                @item.Status
+                            </div>
+                        </td>
+                        <td class="text-end" onclick="event.stopPropagation()">
+                            <a href="/initiatives/details/@item.Id" class="btn btn-sm btn-outline-primary me-1" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                            <a href="/initiatives/edit/@item.Id" class="btn btn-sm btn-outline-warning me-1" title="Sửa"><i class="fas fa-edit"></i></a>
+                            <a href="/initiatives/delete/@item.Id" class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    i++;
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted fw-bold">Không tìm thấy sáng kiến/ý tưởng nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Biểu đồ lĩnh vực
+            const fieldStats = @Html.Raw(Json.Serialize(ViewBag.FieldStats));
+            const fieldCtx = document.getElementById('fieldChart').getContext('2d');
+            
+            const fieldLabels = Object.keys(fieldStats);
+            const fieldValues = Object.values(fieldStats);
+            
+            new Chart(fieldCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: fieldLabels.length > 0 ? fieldLabels : ['Chưa có dữ liệu'],
+                    datasets: [{
+                        data: fieldValues.length > 0 ? fieldValues : [1],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#94a3b8'],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: { weight: '700', family: 'Inter' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ chi đoàn
+            const unitStats = @Html.Raw(Json.Serialize(ViewBag.UnitStats));
+            const unitCtx = document.getElementById('unitInitiativeChart').getContext('2d');
+            
+            const unitLabels = Object.keys(unitStats);
+            const unitValues = Object.values(unitStats);
+
+            new Chart(unitCtx, {
+                type: 'bar',
+                data: {
+                    labels: unitLabels.length > 0 ? unitLabels : ['Chưa có'],
+                    datasets: [{
+                        label: 'Số lượng sáng kiến',
+                        data: unitValues.length > 0 ? unitValues : [0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { weight: '700' } } },
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } }
+                    }
+                }
+            });
+
+            // Panel nâng cao
+            $("#toggleAdvancedFilter").on("click", function() {
+                $("#filterPanel").collapse('toggle');
+                $(this).toggleClass('active');
+            });
+
+            $("#resetFilters").on("click", function() {
+                location.href = "/initiatives";
+            });
+
+            window.toggleFilterDropdown = function(trigger) {
+                const menu = trigger.nextElementSibling;
+                const isOpen = menu.classList.contains('show');
+                document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    trigger.classList.add('active');
+                }
+            };
+
+            window.selectFilterOption = function(option, name, label) {
+                const container = option.closest('.filter-dropdown-container');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+                hiddenInput.value = option.getAttribute('data-value');
+                $("#filterForm").submit();
+            };
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.filter-dropdown-container').length) {
+                    document.querySelectorAll('.filter-dropdown-menu').forEach(m => m.classList.remove('show'));
+                    document.querySelectorAll('.filter-dropdown-trigger').forEach(t => t.classList.remove('active'));
+                }
+            });
+        });
+    </script>
+}

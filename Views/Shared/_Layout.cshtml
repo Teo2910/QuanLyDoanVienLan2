@@ -145,6 +145,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Initiatives" ? "active" : "")" href="/initiatives">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Quản lý sáng kiến</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Awards" ? "active" : "")" href="/awards">
+                        <i class="fas fa-trophy"></i>
+                        <span>Quản lý khen thưởng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Statistics" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" href="/statistics">
                         <i class="fas fa-chart-line"></i>
                         <span>Thống kê</span>
@@ -284,6 +296,11 @@
 
                 // Save state to localStorage
                 localStorage.setItem('sidebarCollapsed', $('body').hasClass('sidebar-collapsed'));
+
+                // Dispatch resize event to update map sizes and other layout-dependent elements
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 300); // 300ms matches the sidebar CSS transition time
             });
 
             // Restore sidebar state
@@ -354,6 +371,106 @@
             $(document).on('click', (e) => {
                 if (!$(e.target).closest('.search-container-global').length) {
                     searchDropdown.addClass('d-none');
+                }
+            });
+
+            // Init Premium Dropdown Selects globally
+            window.initPremiumDropdownSelects = function() {
+                $('select.form-control-premium:not(.select-custom-processed)').each(function() {
+                    const select = $(this);
+                    select.addClass('select-custom-processed');
+                    
+                    select.css({
+                        position: 'absolute',
+                        width: '0',
+                        height: '0',
+                        opacity: '0',
+                        border: 'none',
+                        padding: '0',
+                        margin: '0',
+                        pointerEvents: 'none'
+                    });
+                    
+                    const wrapper = $('<div class="premium-select-custom-wrapper"></div>');
+                    select.after(wrapper);
+                    
+                    const selectedOption = select.find('option:selected');
+                    const triggerText = selectedOption.length ? selectedOption.text() : (select.find('option').first().text() || '-- Chọn --');
+                    const triggerClass = (!select.val()) ? 'premium-select-custom-trigger text-muted' : 'premium-select-custom-trigger';
+                    const trigger = $(`<div class="${triggerClass}">${triggerText}</div>`);
+                    wrapper.append(trigger);
+                    
+                    const menu = $('<div class="premium-select-custom-menu d-none"></div>');
+                    wrapper.append(menu);
+                    
+                    select.find('option').each(function() {
+                        const opt = $(this);
+                        const val = opt.val();
+                        const text = opt.text();
+                        const isSelected = opt.is(':selected');
+                        const isDisabled = opt.is(':disabled');
+                        
+                        let itemClass = 'premium-select-custom-item';
+                        if (isSelected) itemClass += ' selected';
+                        if (isDisabled) itemClass += ' disabled';
+                        
+                        const item = $(`<div class="${itemClass}" data-value="${val}">${text}</div>`);
+                        menu.append(item);
+                        
+                        if (!isDisabled) {
+                            item.on('click', function(e) {
+                                e.stopPropagation();
+                                select.val(val).trigger('change');
+                                trigger.text(text);
+                                if (val === '') {
+                                    trigger.addClass('text-muted');
+                                } else {
+                                    trigger.removeClass('text-muted');
+                                }
+                                menu.find('.premium-select-custom-item').removeClass('selected');
+                                item.addClass('selected');
+                                wrapper.removeClass('open');
+                                menu.addClass('d-none');
+                            });
+                        }
+                    });
+                    
+                    trigger.on('click', function(e) {
+                        e.stopPropagation();
+                        const isOpen = wrapper.hasClass('open');
+                        $('.premium-select-custom-wrapper').removeClass('open');
+                        $('.premium-select-custom-menu').addClass('d-none');
+                        if (!isOpen) {
+                            wrapper.addClass('open');
+                            menu.removeClass('d-none');
+                        }
+                    });
+                    
+                    select.on('change', function() {
+                        const val = select.val();
+                        const matchingOpt = select.find(`option[value="${val}"]`);
+                        if (matchingOpt.length) {
+                            trigger.text(matchingOpt.text());
+                            if (val === '') {
+                                trigger.addClass('text-muted');
+                            } else {
+                                trigger.removeClass('text-muted');
+                            }
+                            menu.find('.premium-select-custom-item').removeClass('selected');
+                            menu.find(`.premium-select-custom-item[data-value="${val}"]`).addClass('selected');
+                        }
+                    });
+                });
+            };
+
+            // Run initial conversion
+            initPremiumDropdownSelects();
+
+            // Close custom selects on click outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.premium-select-custom-wrapper').length) {
+                    $('.premium-select-custom-wrapper').removeClass('open');
+                    $('.premium-select-custom-menu').addClass('d-none');
                 }
             });
         });

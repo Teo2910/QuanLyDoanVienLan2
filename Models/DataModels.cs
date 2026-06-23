@@ -253,4 +253,63 @@ namespace QLDV.Models
         public Document? Document { get; set; }
         public Unit? Unit { get; set; }
     }
+
+    public class Initiative
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập tên sáng kiến/ý tưởng")]
+        public string Name { get; set; } = string.Empty;
+        
+        public string? AuthorId { get; set; }
+        public string? CoAuthors { get; set; }
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn đơn vị")]
+        public string UnitId { get; set; } = string.Empty;
+        
+        public string? Description { get; set; }
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn tình trạng triển khai")]
+        public string Status { get; set; } = "Ý tưởng"; // Ý tưởng, Đang triển khai, Đã áp dụng
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn lĩnh vực")]
+        public string Field { get; set; } = "Khác"; // Học tập, Nghiên cứu khoa học, Hoạt động Đoàn, Chuyên môn, Khác
+        
+        public long CreatedAt { get; set; }
+
+        // Navigation properties
+        public Member? Author { get; set; }
+        public Unit? Unit { get; set; }
+    }
+
+    public class Award
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn loại đối tượng khen thưởng")]
+        public string TargetType { get; set; } = "Cá nhân"; // Cá nhân, Đơn vị
+        
+        public string? MemberId { get; set; }
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn đơn vị")]
+        public string UnitId { get; set; } = string.Empty;
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập nội dung khen thưởng")]
+        public string Content { get; set; } = string.Empty;
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập hình thức khen thưởng")]
+        public string Form { get; set; } = string.Empty; // Bằng khen, Giấy khen, Danh hiệu,...
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng chọn thời gian khen thưởng")]
+        public string Date { get; set; } = string.Empty; // yyyy-MM-dd
+        
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập cấp khen thưởng")]
+        public string Level { get; set; } = string.Empty; // Cấp Trung ương, Cấp Tỉnh, Cấp Huyện/Trường, Cấp Cơ sở
+        
+        public long CreatedAt { get; set; }
+
+        // Navigation properties
+        public Member? Member { get; set; }
+        public Unit? Unit { get; set; }
+    }
 }
