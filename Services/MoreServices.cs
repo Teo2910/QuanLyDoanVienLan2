@@ -539,6 +539,8 @@ namespace QLDV.Services
                 var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
                 var kbService = scope.ServiceProvider.GetRequiredService<IKnowledgeBaseService>();
                 var movementService = scope.ServiceProvider.GetRequiredService<IMovementService>();
+                var initiativeService = scope.ServiceProvider.GetRequiredService<IInitiativeService>();
+                var awardService = scope.ServiceProvider.GetRequiredService<IAwardService>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
 
@@ -547,6 +549,8 @@ namespace QLDV.Services
                 var allUnits = await unitService.GetAllUnitsAsync();
                 var allActivities = await activityService.GetAllActivitiesAsync();
                 var allMembers = await memberService.GetAllMembersAsync();
+                var allInitiatives = await initiativeService.GetAllInitiativesAsync();
+                var allAwards = await awardService.GetAllAwardsAsync();
                 var outstandingCount = allMembers.Count(m => m.IsOutstanding);
                 var upcomingActivitiesCount = allActivities.Count(a => {
                     if (DateTime.TryParse(a.Date, out var date))
@@ -560,7 +564,11 @@ namespace QLDV.Services
 - Tổng số chi đoàn (đơn vị): {allUnits.Count}
 - Số lượng đoàn viên tiêu biểu: {outstandingCount}
 - Số lượng hoạt động sắp tới: {upcomingActivitiesCount}
+- Tổng số sáng kiến/ý tưởng: {allInitiatives.Count}
+- Tổng số khen thưởng: {allAwards.Count}
 - Danh sách các chi đoàn: {string.Join(", ", allUnits.Select(u => u.Name))}
+- Danh sách sáng kiến hiện có (Tên): {string.Join(", ", allInitiatives.Take(5).Select(i => i.Name))}
+- Danh sách khen thưởng hiện có (Nội dung): {string.Join(", ", allAwards.Take(5).Select(a => a.Content))}
 ";
 
                 // System Prompt to guide the AI with more detail
@@ -607,9 +615,29 @@ THÔNG TIN SCHEMA DỮ LIỆU:
   + StartDate (string, YYYY-MM-DD)
   + EndDate (string, YYYY-MM-DD)
 
-- XÓA DỮ LIỆU (DELETE_MEMBER / DELETE_UNIT / DELETE_ACTIVITY / DELETE_MOVEMENT / DELETE_USER):
-  + Name (string, Tên hoặc tiêu đề chính xác của đối tượng cần xóa)
-  + LƯU Ý: 'DELETE_MEMBER' dùng cho đoàn viên, 'DELETE_USER' dùng cho tài khoản bí thư/hệ thống.
+- SÁNG KIẾN (CREATE_INITIATIVE / UPDATE_INITIATIVE):
+  + TargetName (string, Tên sáng kiến gốc cần sửa - BẮT BUỘC KHI UPDATE)
+  + Name (string, Tên sáng kiến mới hoặc tên cần cập nhật, BẮT BUỘC khi tạo)
+  + AuthorId (string, tên hoặc mã đoàn viên tác giả, ví dụ: 'Hoàng Anh')
+  + CoAuthors (string, đồng tác giả)
+  + UnitId (string, tên/mã/Id của đơn vị chi đoàn, ví dụ: 'Đại học Đà Lạt')
+  + Description (string, mô tả chi tiết sáng kiến)
+  + Status (string, tình trạng: 'Ý tưởng', 'Đang triển khai', 'Đã áp dụng')
+  + Field (string, lĩnh vực: 'Học tập', 'Nghiên cứu khoa học', 'Hoạt động Đoàn', 'Chuyên môn', 'Khác')
+
+- KHEN THƯỞNG (CREATE_AWARD / UPDATE_AWARD):
+  + TargetContent (string, Nội dung khen thưởng gốc cần sửa - BẮT BUỘC KHI UPDATE)
+  + TargetType (string, loại: 'Cá nhân' hoặc 'Đơn vị')
+  + MemberId (string, tên hoặc mã đoàn viên được khen thưởng nếu là Cá nhân, ví dụ: 'Hoàng Anh')
+  + UnitId (string, tên/mã/Id của đơn vị nhận hoặc đơn vị quản lý, ví dụ: 'Đại học Đà Lạt')
+  + Content (string, nội dung khen thưởng chi tiết, BẮT BUỘC khi tạo)
+  + Form (string, hình thức: 'Bằng khen', 'Giấy khen', 'Danh hiệu',...)
+  + Date (string, ngày khen thưởng dạng YYYY-MM-DD)
+  + Level (string: 'Cấp Trung ương', 'Cấp Tỉnh', 'Cấp Huyện/Trường', 'Cấp Cơ sở')
+
+- XÓA DỮ LIỆU (DELETE_MEMBER / DELETE_UNIT / DELETE_ACTIVITY / DELETE_MOVEMENT / DELETE_USER / DELETE_INITIATIVE / DELETE_AWARD):
+  + Name (string, Tên hoặc tiêu đề hoặc nội dung chính xác của đối tượng cần xóa)
+  + LƯU Ý: 'DELETE_MEMBER' dùng cho đoàn viên, 'DELETE_USER' dùng cho tài khoản bí thư/hệ thống, 'DELETE_INITIATIVE' cho sáng kiến, 'DELETE_AWARD' cho khen thưởng.
 
 - KIẾN THỨC (KNOWLEDGE_QUERY):
   + SearchTerm (string, từ khóa để tìm tài liệu. Nếu người dùng nhắc đến tên tài liệu cụ thể như 'test', hãy dùng 'test' làm SearchTerm. Nếu nhắc đến file đính kèm, hãy dùng tên file hoặc từ khóa liên quan).
@@ -635,6 +663,18 @@ VÍ DỤ HÀNH ĐỘNG:
   {{""action"": ""DELETE_MOVEMENT"", ""data"": {{""Name"": ""Phong trào 285""}}, ""reply"": ""Đang thực hiện xóa phong trào 285 khỏi hệ thống quản lý...""}}
 - 'Xóa tài khoản Quá dơ':
   {{""action"": ""DELETE_USER"", ""data"": {{""Name"": ""Quá dơ""}}, ""reply"": ""Đang thực hiện xóa tài khoản hệ thống của người dùng này...""}}
+- 'Tạo sáng kiến Số hóa dữ liệu cho đoàn viên Hoàng Anh thuộc Đại học Đà Lạt':
+  {{""action"": ""CREATE_INITIATIVE"", ""data"": {{""Name"": ""Số hóa dữ liệu"", ""AuthorId"": ""Hoàng Anh"", ""UnitId"": ""Đại học Đà Lạt"", ""Status"": ""Ý tưởng"", ""Field"": ""Chuyên môn"", ""Description"": ""Dự án số hóa thông tin""}}, ""reply"": ""Đang khởi tạo sáng kiến Số hóa dữ liệu cho đoàn viên Hoàng Anh...""}}
+- 'Sửa trạng thái sáng kiến Số hóa dữ liệu thành Đã áp dụng':
+  {{""action"": ""UPDATE_INITIATIVE"", ""data"": {{""TargetName"": ""Số hóa dữ liệu"", ""Status"": ""Đã áp dụng""}}, ""reply"": ""Đang cập nhật trạng thái cho sáng kiến Số hóa dữ liệu...""}}
+- 'Xóa sáng kiến Số hóa dữ liệu':
+  {{""action"": ""DELETE_INITIATIVE"", ""data"": {{""Name"": ""Số hóa dữ liệu""}}, ""reply"": ""Đang xóa sáng kiến Số hóa dữ liệu khỏi hệ thống...""}}
+- 'Thêm khen thưởng Giấy khen cấp Tỉnh cho Hoàng Anh thuộc Đại học Đà Lạt ngày 2026-06-24 nội dung Hoàn thành xuất sắc nhiệm vụ':
+  {{""action"": ""CREATE_AWARD"", ""data"": {{""TargetType"": ""Cá nhân"", ""MemberId"": ""Hoàng Anh"", ""UnitId"": ""Đại học Đà Lạt"", ""Form"": ""Giấy khen"", ""Level"": ""Cấp Tỉnh"", ""Date"": ""2026-06-24"", ""Content"": ""Hoàn thành xuất sắc nhiệm vụ""}}, ""reply"": ""Đang thêm khen thưởng cá nhân cho Hoàng Anh...""}}
+- 'Sửa khen thưởng Hoàn thành xuất sắc nhiệm vụ thành cấp Trung ương':
+  {{""action"": ""UPDATE_AWARD"", ""data"": {{""TargetContent"": ""Hoàn thành xuất sắc nhiệm vụ"", ""Level"": ""Cấp Trung ương""}}, ""reply"": ""Đang cập nhật cấp khen thưởng cho đối tượng...""}}
+- 'Xóa khen thưởng Hoàn thành xuất sắc nhiệm vụ':
+  {{""action"": ""DELETE_AWARD"", ""data"": {{""Name"": ""Hoàn thành xuất sắc nhiệm vụ""}}, ""reply"": ""Đang thực hiện xóa khen thưởng này...""}}
 
 LƯU Ý QUAN TRỌNG VỀ TRÌNH BÀY:
 1. LUÔN TRÌNH BÀY thông tin một cách rõ ràng, dễ nhìn.
@@ -807,7 +847,415 @@ LƯU Ý: CHỈ TRẢ VỀ JSON, KHÔNG GIẢI THÍCH, KHÔNG CHÈN VĂN BẢN NG
                                 return $"✅ {command.Reply}\n(Hệ thống đã phát động phong trào: **{movement.Title}** thành công)";
                             }
                             break;
-                            
+
+                        case "CREATE_INITIATIVE":
+                            {
+                                string initData = JsonSerializer.Serialize(command.Data);
+                                var initiative = JsonSerializer.Deserialize<Initiative>(initData, options);
+                                if (initiative != null) {
+                                    initiative.Id = Guid.NewGuid().ToString();
+                                    
+                                    // Parse AuthorId if provided as name/id/memberCode
+                                    string authorInput = "";
+                                    if (command.Data is JsonElement initElem && initElem.ValueKind == JsonValueKind.Object)
+                                    {
+                                        if (initElem.TryGetProperty("AuthorId", out var authorProp))
+                                        {
+                                            authorInput = authorProp.GetString() ?? "";
+                                        }
+                                        else if (initElem.TryGetProperty("Author", out var authorProp2))
+                                        {
+                                            authorInput = authorProp2.GetString() ?? "";
+                                        }
+                                    }
+                                    if (string.IsNullOrEmpty(authorInput) && !string.IsNullOrEmpty(initiative.AuthorId))
+                                    {
+                                        authorInput = initiative.AuthorId;
+                                    }
+
+                                    initiative.AuthorId = null;
+                                    if (!string.IsNullOrEmpty(authorInput))
+                                    {
+                                        var matchedAuthor = allMembers.FirstOrDefault(m => 
+                                            m.Id == authorInput || 
+                                            m.FullName.Equals(authorInput, StringComparison.OrdinalIgnoreCase) || 
+                                            m.FullName.Contains(authorInput, StringComparison.OrdinalIgnoreCase) || 
+                                            m.MemberId.Equals(authorInput, StringComparison.OrdinalIgnoreCase));
+                                        if (matchedAuthor != null)
+                                        {
+                                            initiative.AuthorId = matchedAuthor.Id;
+                                            if (string.IsNullOrEmpty(initiative.UnitId))
+                                            {
+                                                initiative.UnitId = matchedAuthor.UnitId;
+                                            }
+                                        }
+                                    }
+
+                                    // Parse UnitId
+                                    string unitInput = initiative.UnitId;
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId))
+                                    {
+                                        initiative.UnitId = user.UnitId;
+                                    }
+                                    else
+                                    {
+                                        var matchedUnit = allUnits.FirstOrDefault(u => 
+                                            u.Id == unitInput || 
+                                            u.Name.Equals(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                            u.Name.Contains(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                            u.Code.Equals(unitInput, StringComparison.OrdinalIgnoreCase));
+                                        if (matchedUnit != null)
+                                        {
+                                            initiative.UnitId = matchedUnit.Id;
+                                        }
+                                        else
+                                        {
+                                            initiative.UnitId = null!;
+                                        }
+                                    }
+
+                                    if (string.IsNullOrEmpty(initiative.UnitId) || initiative.UnitId == "DEFAULT_UNIT")
+                                    {
+                                        initiative.UnitId = allUnits.FirstOrDefault()?.Id ?? string.Empty;
+                                        if (string.IsNullOrEmpty(initiative.UnitId))
+                                        {
+                                            var defaultUnit = new Unit 
+                                            { 
+                                                Id = "DEFAULT_UNIT",
+                                                Name = "Chi đoàn mặc định", 
+                                                Code = "CD001",
+                                                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                                            };
+                                            await unitService.CreateUnitAsync(defaultUnit);
+                                            initiative.UnitId = defaultUnit.Id;
+                                            allUnits = await unitService.GetAllUnitsAsync();
+                                        }
+                                    }
+
+                                    if (string.IsNullOrEmpty(initiative.Status)) initiative.Status = "Ý tưởng";
+                                    if (string.IsNullOrEmpty(initiative.Field)) initiative.Field = "Khác";
+
+                                    await initiativeService.CreateInitiativeAsync(initiative);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã lưu thành công sáng kiến: **{initiative.Name}** vào cơ sở dữ liệu)";
+                                }
+                            }
+                            break;
+
+                        case "UPDATE_INITIATIVE":
+                            {
+                                string targetName = "";
+                                if (command.Data is JsonElement initElem && initElem.ValueKind == JsonValueKind.Object)
+                                {
+                                    if (initElem.TryGetProperty("TargetName", out var targetProp))
+                                        targetName = targetProp.GetString() ?? "";
+                                    else if (initElem.TryGetProperty("Name", out var nameProp))
+                                        targetName = nameProp.GetString() ?? "";
+                                }
+
+                                if (string.IsNullOrEmpty(targetName)) return "⚠️ Thiếu tên sáng kiến cần cập nhật.";
+
+                                var initiativeToUpdate = allInitiatives.FirstOrDefault(i => 
+                                    i.Name.Equals(targetName, StringComparison.OrdinalIgnoreCase) || 
+                                    i.Name.Contains(targetName, StringComparison.OrdinalIgnoreCase) ||
+                                    i.Id.Equals(targetName, StringComparison.OrdinalIgnoreCase));
+
+                                if (initiativeToUpdate != null) {
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId) && initiativeToUpdate.UnitId != user.UnitId)
+                                    {
+                                        return "⚠️ Bạn không có quyền chỉnh sửa sáng kiến của đơn vị khác.";
+                                    }
+
+                                    if (command.Data is JsonElement dataObj && dataObj.ValueKind == JsonValueKind.Object)
+                                    {
+                                        if (dataObj.TryGetProperty("Name", out var newNameProp) && !string.IsNullOrEmpty(newNameProp.GetString()))
+                                        {
+                                            initiativeToUpdate.Name = newNameProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Status", out var statusProp) && !string.IsNullOrEmpty(statusProp.GetString()))
+                                        {
+                                            initiativeToUpdate.Status = statusProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Field", out var fieldProp) && !string.IsNullOrEmpty(fieldProp.GetString()))
+                                        {
+                                            initiativeToUpdate.Field = fieldProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Description", out var descProp))
+                                        {
+                                            initiativeToUpdate.Description = descProp.GetString();
+                                        }
+                                        if (dataObj.TryGetProperty("CoAuthors", out var coAuthProp))
+                                        {
+                                            initiativeToUpdate.CoAuthors = coAuthProp.GetString();
+                                        }
+                                        if (dataObj.TryGetProperty("AuthorId", out var authorProp))
+                                        {
+                                            var authInput = authorProp.GetString();
+                                            if (!string.IsNullOrEmpty(authInput))
+                                            {
+                                                var matchedAuthor = allMembers.FirstOrDefault(m => 
+                                                    m.Id == authInput || 
+                                                    m.FullName.Equals(authInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    m.FullName.Contains(authInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    m.MemberId.Equals(authInput, StringComparison.OrdinalIgnoreCase));
+                                                if (matchedAuthor != null)
+                                                {
+                                                    initiativeToUpdate.AuthorId = matchedAuthor.Id;
+                                                }
+                                            }
+                                        }
+                                        if (dataObj.TryGetProperty("UnitId", out var unitProp))
+                                        {
+                                            var unitInput = unitProp.GetString();
+                                            if (!string.IsNullOrEmpty(unitInput) && !(isSecretary && !string.IsNullOrEmpty(user?.UnitId)))
+                                            {
+                                                var matchedUnit = allUnits.FirstOrDefault(u => 
+                                                    u.Id == unitInput || 
+                                                    u.Name.Equals(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    u.Name.Contains(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    u.Code.Equals(unitInput, StringComparison.OrdinalIgnoreCase));
+                                                if (matchedUnit != null)
+                                                {
+                                                    initiativeToUpdate.UnitId = matchedUnit.Id;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    await initiativeService.UpdateInitiativeAsync(initiativeToUpdate);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã cập nhật thành công sáng kiến: **{initiativeToUpdate.Name}**)";
+                                }
+                                return $"❌ Không tìm thấy sáng kiến có tên '{targetName}'";
+                            }
+
+                        case "DELETE_INITIATIVE":
+                            {
+                                string initName = "";
+                                if (command.Data is JsonElement d7 && d7.ValueKind == JsonValueKind.Object && d7.TryGetProperty("Name", out var p7)) initName = p7.GetString() ?? "";
+                                if (string.IsNullOrEmpty(initName)) return "⚠️ Thiếu tên sáng kiến cần xóa.";
+                                
+                                var initToDelete = allInitiatives.FirstOrDefault(i => 
+                                    i.Name.Equals(initName, StringComparison.OrdinalIgnoreCase) ||
+                                    i.Name.Contains(initName, StringComparison.OrdinalIgnoreCase) ||
+                                    i.Id.Equals(initName, StringComparison.OrdinalIgnoreCase));
+                                if (initToDelete != null) {
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId) && initToDelete.UnitId != user.UnitId)
+                                    {
+                                        return "⚠️ Bạn không có quyền xóa sáng kiến của đơn vị khác.";
+                                    }
+
+                                    await initiativeService.DeleteInitiativeAsync(initToDelete.Id);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công sáng kiến: **{initToDelete.Name}**)";
+                                }
+                                return $"❌ Không tìm thấy sáng kiến: {initName}";
+                            }
+
+                        case "CREATE_AWARD":
+                            {
+                                string awData = JsonSerializer.Serialize(command.Data);
+                                var award = JsonSerializer.Deserialize<Award>(awData, options);
+                                if (award != null) {
+                                    award.Id = Guid.NewGuid().ToString();
+
+                                    // Parse MemberId if Cá nhân
+                                    string memberInput = "";
+                                    if (command.Data is JsonElement awElem && awElem.ValueKind == JsonValueKind.Object)
+                                    {
+                                        if (awElem.TryGetProperty("MemberId", out var memProp))
+                                        {
+                                            memberInput = memProp.GetString() ?? "";
+                                        }
+                                        else if (awElem.TryGetProperty("Member", out var memProp2))
+                                        {
+                                            memberInput = memProp2.GetString() ?? "";
+                                        }
+                                    }
+                                    if (string.IsNullOrEmpty(memberInput) && !string.IsNullOrEmpty(award.MemberId))
+                                    {
+                                        memberInput = award.MemberId;
+                                    }
+
+                                    award.MemberId = null;
+                                    if (award.TargetType == "Cá nhân" && !string.IsNullOrEmpty(memberInput))
+                                    {
+                                        var matchedMember = allMembers.FirstOrDefault(m => 
+                                            m.Id == memberInput || 
+                                            m.FullName.Equals(memberInput, StringComparison.OrdinalIgnoreCase) || 
+                                            m.FullName.Contains(memberInput, StringComparison.OrdinalIgnoreCase) || 
+                                            m.MemberId.Equals(memberInput, StringComparison.OrdinalIgnoreCase));
+                                        if (matchedMember != null)
+                                        {
+                                            award.MemberId = matchedMember.Id;
+                                            if (string.IsNullOrEmpty(award.UnitId))
+                                            {
+                                                award.UnitId = matchedMember.UnitId;
+                                            }
+                                        }
+                                    }
+
+                                    // Parse UnitId
+                                    string unitInput = award.UnitId;
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId))
+                                    {
+                                        award.UnitId = user.UnitId;
+                                    }
+                                    else
+                                    {
+                                        var matchedUnit = allUnits.FirstOrDefault(u => 
+                                            u.Id == unitInput || 
+                                            u.Name.Equals(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                            u.Name.Contains(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                            u.Code.Equals(unitInput, StringComparison.OrdinalIgnoreCase));
+                                        if (matchedUnit != null)
+                                        {
+                                            award.UnitId = matchedUnit.Id;
+                                        }
+                                        else
+                                        {
+                                            award.UnitId = null!;
+                                        }
+                                    }
+
+                                    if (string.IsNullOrEmpty(award.UnitId) || award.UnitId == "DEFAULT_UNIT")
+                                    {
+                                        award.UnitId = allUnits.FirstOrDefault()?.Id ?? string.Empty;
+                                        if (string.IsNullOrEmpty(award.UnitId))
+                                        {
+                                            var defaultUnit = new Unit 
+                                            { 
+                                                Id = "DEFAULT_UNIT",
+                                                Name = "Chi đoàn mặc định", 
+                                                Code = "CD001",
+                                                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                                            };
+                                            await unitService.CreateUnitAsync(defaultUnit);
+                                            award.UnitId = defaultUnit.Id;
+                                            allUnits = await unitService.GetAllUnitsAsync();
+                                        }
+                                    }
+
+                                    if (string.IsNullOrEmpty(award.TargetType)) award.TargetType = "Cá nhân";
+                                    if (string.IsNullOrEmpty(award.Form)) award.Form = "Giấy khen";
+                                    if (string.IsNullOrEmpty(award.Level)) award.Level = "Cấp Cơ sở";
+                                    if (string.IsNullOrEmpty(award.Date)) award.Date = DateTime.Now.ToString("yyyy-MM-dd");
+
+                                    await awardService.CreateAwardAsync(award);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã lưu thành công khen thưởng: **{award.Content}** vào cơ sở dữ liệu)";
+                                }
+                            }
+                            break;
+
+                        case "UPDATE_AWARD":
+                            {
+                                string targetContent = "";
+                                if (command.Data is JsonElement awElem && awElem.ValueKind == JsonValueKind.Object)
+                                {
+                                    if (awElem.TryGetProperty("TargetContent", out var targetProp))
+                                        targetContent = targetProp.GetString() ?? "";
+                                    else if (awElem.TryGetProperty("Content", out var contentProp))
+                                        targetContent = contentProp.GetString() ?? "";
+                                }
+
+                                if (string.IsNullOrEmpty(targetContent)) return "⚠️ Thiếu nội dung khen thưởng cần cập nhật.";
+
+                                var awardToUpdate = allAwards.FirstOrDefault(a => 
+                                    a.Content.Equals(targetContent, StringComparison.OrdinalIgnoreCase) || 
+                                    a.Content.Contains(targetContent, StringComparison.OrdinalIgnoreCase) ||
+                                    a.Id.Equals(targetContent, StringComparison.OrdinalIgnoreCase));
+
+                                if (awardToUpdate != null) {
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId) && awardToUpdate.UnitId != user.UnitId)
+                                    {
+                                        return "⚠️ Bạn không có quyền chỉnh sửa khen thưởng của đơn vị khác.";
+                                    }
+
+                                    if (command.Data is JsonElement dataObj && dataObj.ValueKind == JsonValueKind.Object)
+                                    {
+                                        if (dataObj.TryGetProperty("Content", out var newContentProp) && !string.IsNullOrEmpty(newContentProp.GetString()))
+                                        {
+                                            awardToUpdate.Content = newContentProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("TargetType", out var targetTypeProp) && !string.IsNullOrEmpty(targetTypeProp.GetString()))
+                                        {
+                                            awardToUpdate.TargetType = targetTypeProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Form", out var formProp) && !string.IsNullOrEmpty(formProp.GetString()))
+                                        {
+                                            awardToUpdate.Form = formProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Level", out var levelProp) && !string.IsNullOrEmpty(levelProp.GetString()))
+                                        {
+                                            awardToUpdate.Level = levelProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("Date", out var dateProp) && !string.IsNullOrEmpty(dateProp.GetString()))
+                                        {
+                                            awardToUpdate.Date = dateProp.GetString()!;
+                                        }
+                                        if (dataObj.TryGetProperty("MemberId", out var memProp))
+                                        {
+                                            var memInput = memProp.GetString();
+                                            if (!string.IsNullOrEmpty(memInput))
+                                            {
+                                                var matchedMember = allMembers.FirstOrDefault(m => 
+                                                    m.Id == memInput || 
+                                                    m.FullName.Equals(memInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    m.FullName.Contains(memInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    m.MemberId.Equals(memInput, StringComparison.OrdinalIgnoreCase));
+                                                if (matchedMember != null)
+                                                {
+                                                    awardToUpdate.MemberId = matchedMember.Id;
+                                                }
+                                            }
+                                        }
+                                        if (dataObj.TryGetProperty("UnitId", out var unitProp))
+                                        {
+                                            var unitInput = unitProp.GetString();
+                                            if (!string.IsNullOrEmpty(unitInput) && !(isSecretary && !string.IsNullOrEmpty(user?.UnitId)))
+                                            {
+                                                var matchedUnit = allUnits.FirstOrDefault(u => 
+                                                    u.Id == unitInput || 
+                                                    u.Name.Equals(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    u.Name.Contains(unitInput, StringComparison.OrdinalIgnoreCase) || 
+                                                    u.Code.Equals(unitInput, StringComparison.OrdinalIgnoreCase));
+                                                if (matchedUnit != null)
+                                                {
+                                                    awardToUpdate.UnitId = matchedUnit.Id;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    await awardService.UpdateAwardAsync(awardToUpdate);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã cập nhật thành công khen thưởng: **{awardToUpdate.Content}**)";
+                                }
+                                return $"❌ Không tìm thấy khen thưởng có nội dung '{targetContent}'";
+                            }
+
+                        case "DELETE_AWARD":
+                            {
+                                string awContent = "";
+                                if (command.Data is JsonElement d8 && d8.ValueKind == JsonValueKind.Object)
+                                {
+                                    if (d8.TryGetProperty("Name", out var p8)) awContent = p8.GetString() ?? "";
+                                    else if (d8.TryGetProperty("Content", out var p8Content)) awContent = p8Content.GetString() ?? "";
+                                }
+                                if (string.IsNullOrEmpty(awContent)) return "⚠️ Thiếu nội dung khen thưởng cần xóa.";
+                                
+                                var awToDelete = allAwards.FirstOrDefault(a => 
+                                    a.Content.Equals(awContent, StringComparison.OrdinalIgnoreCase) ||
+                                    a.Content.Contains(awContent, StringComparison.OrdinalIgnoreCase) ||
+                                    a.Id.Equals(awContent, StringComparison.OrdinalIgnoreCase));
+                                if (awToDelete != null) {
+                                    if (isSecretary && !string.IsNullOrEmpty(user?.UnitId) && awToDelete.UnitId != user.UnitId)
+                                    {
+                                        return "⚠️ Bạn không có quyền xóa khen thưởng của đơn vị khác.";
+                                    }
+
+                                    await awardService.DeleteAwardAsync(awToDelete.Id);
+                                    return $"✅ {command.Reply}\n(Hệ thống đã xóa thành công khen thưởng: **{awToDelete.Content}**)";
+                                }
+                                return $"❌ Không tìm thấy khen thưởng: {awContent}";
+                            }
+
                         case "SEARCH":
                             var results = await memberService.SearchMembersAsync(message);
                             if (results.Any()) {
