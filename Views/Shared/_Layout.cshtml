@@ -94,7 +94,7 @@
         bool isAdmin = user?.Role == "Admin" || User.IsInRole("Admin");
 
         <div class="mobile-header">
-            <a href="/" class="mobile-brand">
+            <a href="/dashboard" class="mobile-brand">
                 <div class="logo">QN</div>
                 <span>Quản lý Đoàn</span>
             </a>
@@ -107,7 +107,7 @@
 
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand-header">
-                <a href="/" class="sidebar-brand-new">
+                <a href="/dashboard" class="sidebar-brand-new">
                     <div class="brand-logo-badge">QN</div>
                     <div class="brand-text">
                         <h4>Quản lý Đoàn</h4>
@@ -121,7 +121,7 @@
 
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" href="/">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" href="/dashboard">
                         <i class="fas fa-th-large"></i>
                         <span>Tổng quan</span>
                     </a>
