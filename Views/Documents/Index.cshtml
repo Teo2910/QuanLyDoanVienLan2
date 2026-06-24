@@ -154,13 +154,28 @@
                             <i class="fas fa-user-circle"></i>
                             <span>@(doc.Sender?.FullName ?? "Hệ thống")</span>
                         </div>
-                        @if (doc.Deadline.HasValue)
-                        {
-                            <div class="deadline-info @(doc.Deadline < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() ? "overdue" : "")">
-                                <i class="far fa-clock"></i>
-                                <span>Hạn: @DateTimeOffset.FromUnixTimeMilliseconds(doc.Deadline.Value).ToString("dd/MM/yyyy")</span>
-                            </div>
-                        }
+                        
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            @if (isAdmin)
+                            {
+                                <div class="card-actions-premium" style="display: flex; gap: 8px; align-items: center; z-index: 2;">
+                                    <a href="/Documents/Edit/@doc.Id" onclick="event.stopPropagation();" class="btn-card-action-edit" title="Chỉnh sửa" style="color: var(--primary); background: #f0f7ff; border: 1px solid #e0effe; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; text-decoration: none;">
+                                        <i class="fas fa-edit" style="font-size: 0.85rem;"></i>
+                                    </a>
+                                    <button type="button" onclick="event.stopPropagation(); stableDeleteDocument('@doc.Id')" class="btn-card-action-delete" title="Xóa" style="color: #ef4444; background: #fee2e2; border: 1px solid #fecaca; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; cursor: pointer;">
+                                        <i class="fas fa-trash-alt" style="font-size: 0.85rem;"></i>
+                                    </button>
+                                </div>
+                            }
+                            
+                            @if (doc.Deadline.HasValue)
+                            {
+                                <div class="deadline-info @(doc.Deadline < DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() ? "overdue" : "")">
+                                    <i class="far fa-clock"></i>
+                                    <span>Hạn: @DateTimeOffset.FromUnixTimeMilliseconds(doc.Deadline.Value).ToString("dd/MM/yyyy")</span>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -267,6 +282,130 @@
         font-size: 0.65rem;
         color: #94a3b8;
     }
+
+    /* Card action button hover effects */
+    .btn-card-action-edit:hover {
+        background: var(--primary) !important;
+        color: #fff !important;
+        border-color: var(--primary) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 86, 179, 0.25);
+    }
+    .btn-card-action-delete:hover {
+        background: #ef4444 !important;
+        color: #fff !important;
+        border-color: #ef4444 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+    }
+</style>
+
+<!-- Custom Confirm Modal for Delete -->
+<div id="indexConfirmModal" class="custom-confirm-overlay">
+    <div class="custom-confirm-box">
+        <div class="custom-confirm-icon">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <div class="custom-confirm-title">Xác nhận xóa văn bản</div>
+        <div class="custom-confirm-msg">Bạn có chắc chắn muốn xóa văn bản này không?<br>Hành động này không thể hoàn tác.</div>
+        <div class="custom-confirm-actions">
+            <button class="confirm-btn-cancel" onclick="closeIndexDeleteConfirm()">Hủy bỏ</button>
+            <button class="confirm-btn-ok" id="indexConfirmDeleteBtn">Xác nhận xóa</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-confirm-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .custom-confirm-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .custom-confirm-box {
+        background: #fff;
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        opacity: 0;
+    }
+    .custom-confirm-overlay.show .custom-confirm-box {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    .custom-confirm-icon {
+        width: 60px;
+        height: 60px;
+        background: #fee2e2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 1.5rem;
+        color: #ef4444;
+    }
+    .custom-confirm-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    .custom-confirm-msg {
+        font-size: 0.875rem;
+        color: #64748b;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    .custom-confirm-actions { display: flex; gap: 12px; }
+    .confirm-btn-cancel {
+        flex: 1;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .confirm-btn-cancel:hover { background: #f1f5f9; border-color: #e2e8f0; }
+    .confirm-btn-ok {
+        flex: 1;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+    }
+    .confirm-btn-ok:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(239, 68, 68, 0.45); }
+    .confirm-btn-ok:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 </style>
 
 @section Scripts {
@@ -445,5 +584,74 @@
                 });
             }
         };
+
+        var _pendingDeleteId = null;
+
+        window.stableDeleteDocument = function(id) {
+            _pendingDeleteId = id;
+            document.getElementById('indexConfirmModal').classList.add('show');
+        };
+
+        window.closeIndexDeleteConfirm = function() {
+            _pendingDeleteId = null;
+            document.getElementById('indexConfirmModal').classList.remove('show');
+            var btn = document.getElementById('indexConfirmDeleteBtn');
+            btn.disabled = false;
+            btn.innerHTML = 'Xác nhận xóa';
+        };
+
+        document.getElementById('indexConfirmModal').addEventListener('click', function(e) {
+            if (e.target === this) closeIndexDeleteConfirm();
+        });
+
+        document.getElementById('indexConfirmDeleteBtn').addEventListener('click', function() {
+            if (!_pendingDeleteId) return;
+            var btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: '/Documents/Delete/' + _pendingDeleteId,
+                type: 'POST',
+                headers: { "RequestVerificationToken": token },
+                success: function() {
+                    closeIndexDeleteConfirm();
+                    showIndexToast('Xóa văn bản thành công!', 'success');
+                    setTimeout(function() { location.reload(); }, 1200);
+                },
+                error: function(xhr) {
+                    closeIndexDeleteConfirm();
+                    if (xhr.status === 403) {
+                        showIndexToast('Bạn không có quyền thực hiện thao tác này.', 'error');
+                    } else {
+                        showIndexToast('Lỗi hệ thống: Không thể xóa văn bản.', 'error');
+                    }
+                }
+            });
+        });
+
+        function showIndexToast(message, type) {
+            var existing = document.getElementById('indexDeleteToast');
+            if (existing) existing.remove();
+            var bg = type === 'success'
+                ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+                : 'linear-gradient(135deg,#ef4444,#dc2626)';
+            var icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+            var toast = document.createElement('div');
+            toast.id = 'indexDeleteToast';
+            toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:' + bg + ';color:#fff;padding:14px 22px;border-radius:16px;font-weight:700;font-size:0.875rem;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:99999;display:flex;align-items:center;gap:10px;transform:translateY(20px);opacity:0;transition:all 0.3s;font-family:inherit;';
+            toast.innerHTML = '<i class="fas ' + icon + '"></i>' + message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(function() {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+            });
+            setTimeout(function() {
+                toast.style.transform = 'translateY(20px)';
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 3000);
+        }
     </script>
 }

@@ -19,6 +19,9 @@
                         <a href="/Documents/Edit/@Model.Id" class="btn-edit-premium">
                             <i class="fas fa-edit"></i> CHỈNH SỬA
                         </a>
+                        <button type="button" onclick="showDeleteConfirm('@Model.Id')" class="btn-delete-premium">
+                            <i class="fas fa-trash-alt"></i> XÓA
+                        </button>
                     }
                 </div>
                 <div class="document-badge-v2">@Model.Category?.Name</div>
@@ -223,11 +226,40 @@
         background: #f0f7ff;
         border-radius: 12px;
         transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        letter-spacing: 0.5px;
     }
     .btn-edit-premium:hover {
         background: var(--primary);
         color: #fff;
         transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 86, 179, 0.25);
+    }
+
+    .btn-delete-premium {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #ef4444;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-decoration: none;
+        padding: 8px 16px;
+        background: #fee2e2;
+        border-radius: 12px;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        letter-spacing: 0.5px;
+    }
+    .btn-delete-premium:hover {
+        background: #ef4444;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
     }
 
     /* Document Viewer Styles */
@@ -609,3 +641,203 @@
         }
     }
 </style>
+
+@Html.AntiForgeryToken()
+
+<!-- Custom Confirm Modal for Delete -->
+<div id="customConfirmModal" class="custom-confirm-overlay">
+    <div class="custom-confirm-box">
+        <div class="custom-confirm-icon">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+        <div class="custom-confirm-title">Xác nhận xóa văn bản</div>
+        <div class="custom-confirm-msg">Bạn có chắc chắn muốn xóa văn bản này không?<br>Hành động này không thể hoàn tác.</div>
+        <div class="custom-confirm-actions">
+            <button class="confirm-btn-cancel" onclick="closeDeleteConfirm()">Hủy bỏ</button>
+            <button class="confirm-btn-ok" id="confirmDeleteBtn">Xác nhận xóa</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Confirm Modal */
+    .custom-confirm-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .custom-confirm-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .custom-confirm-box {
+        background: #fff;
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.25s ease, opacity 0.25s ease;
+        opacity: 0;
+    }
+    .custom-confirm-overlay.show .custom-confirm-box {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    .custom-confirm-icon {
+        width: 60px;
+        height: 60px;
+        background: #fee2e2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem;
+        font-size: 1.5rem;
+        color: #ef4444;
+    }
+    .custom-confirm-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    .custom-confirm-msg {
+        font-size: 0.875rem;
+        color: #64748b;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    .custom-confirm-actions {
+        display: flex;
+        gap: 12px;
+    }
+    .confirm-btn-cancel {
+        flex: 1;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .confirm-btn-cancel:hover {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+    }
+    .confirm-btn-ok {
+        flex: 1;
+        padding: 0.9rem;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+    }
+    .confirm-btn-ok:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(239, 68, 68, 0.45);
+    }
+    .confirm-btn-ok:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+
+@if (isAdmin)
+{
+    @section Scripts {
+        <script>
+            var _pendingDeleteId = null;
+
+            function showDeleteConfirm(id) {
+                _pendingDeleteId = id;
+                document.getElementById('customConfirmModal').classList.add('show');
+            }
+
+            function closeDeleteConfirm() {
+                _pendingDeleteId = null;
+                document.getElementById('customConfirmModal').classList.remove('show');
+                var btn = document.getElementById('confirmDeleteBtn');
+                btn.disabled = false;
+                btn.innerHTML = 'Xác nhận xóa';
+            }
+
+            document.getElementById('customConfirmModal').addEventListener('click', function(e) {
+                if (e.target === this) closeDeleteConfirm();
+            });
+
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                if (!_pendingDeleteId) return;
+                var btn = this;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+
+                const token = $('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: '/Documents/Delete/' + _pendingDeleteId,
+                    type: 'POST',
+                    headers: { "RequestVerificationToken": token },
+                    success: function() {
+                        closeDeleteConfirm();
+                        showToast('Xóa văn bản thành công!', 'success');
+                        setTimeout(function() { window.location.href = '/Documents'; }, 1200);
+                    },
+                    error: function(xhr) {
+                        closeDeleteConfirm();
+                        if (xhr.status === 403) {
+                            showToast('Bạn không có quyền thực hiện thao tác này.', 'error');
+                        } else {
+                            showToast('Lỗi hệ thống: Không thể xóa văn bản.', 'error');
+                        }
+                    }
+                });
+            });
+
+            function showToast(message, type) {
+                var existing = document.getElementById('deleteToast');
+                if (existing) existing.remove();
+                var bg = type === 'success'
+                    ? 'linear-gradient(135deg,#22c55e,#16a34a)'
+                    : 'linear-gradient(135deg,#ef4444,#dc2626)';
+                var icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+                var toast = document.createElement('div');
+                toast.id = 'deleteToast';
+                toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:' + bg + ';color:#fff;padding:14px 22px;border-radius:16px;font-weight:700;font-size:0.875rem;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:99999;display:flex;align-items:center;gap:10px;transform:translateY(20px);opacity:0;transition:all 0.3s;font-family:inherit;';
+                toast.innerHTML = '<i class="fas ' + icon + '"></i>' + message;
+                document.body.appendChild(toast);
+                requestAnimationFrame(function() {
+                    toast.style.transform = 'translateY(0)';
+                    toast.style.opacity = '1';
+                });
+                setTimeout(function() {
+                    toast.style.transform = 'translateY(20px)';
+                    toast.style.opacity = '0';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 3000);
+            }
+        </script>
+    }
+}
