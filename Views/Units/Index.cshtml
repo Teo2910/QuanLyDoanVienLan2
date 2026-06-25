@@ -60,13 +60,13 @@
                 @foreach (var unit in Model ?? new List<QLDV.Models.Unit>())
                 {
                     <tr class="unit-row">
-                        <td>
+                        <td data-label="MÃ ĐƠN VỊ">
                             <span class="status-pill status-pill-warning" style="background: #f1f5f9; color: #64748b; font-weight: 800;">@unit.Code</span>
                         </td>
-                        <td>
+                        <td data-label="TÊN ĐƠN VỊ">
                             <div class="fw-bold text-dark fs-5">@unit.Name</div>
                         </td>
-                        <td>
+                        <td data-label="LIÊN HỆ">
                             <div class="d-flex flex-column">
                                 <div class="d-flex align-items-center gap-2 fw-bold text-dark mb-1">
                                     <div style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%;"></div>
@@ -75,7 +75,7 @@
                                 <div class="text-muted small fw-bold ms-3">@unit.Address</div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="THAO TÁC">
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="javascript:void(0)" onclick="openUnitModal('/units/details/@unit.Id')" class="btn-premium btn-premium-light p-2 px-3" title="Chi tiết">
                                     <i class="fas fa-eye"></i>

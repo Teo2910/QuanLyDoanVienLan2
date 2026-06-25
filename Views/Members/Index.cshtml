@@ -370,19 +370,19 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="ĐỊNH DANH">
                             <div class="id-badge-stack">
                                 <b>@m.MemberId</b>
                                 <span style="font-size: 0.7rem; color: #999;">CCCD: @(string.IsNullOrEmpty(m.CCCD) ? "--" : m.CCCD)</span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="XẾP LOẠI">
                             <div class="achievement-pill-v2">@m.AchievementLevel</div>
                         </td>
-                        <td>
+                        <td data-label="CHI ĐOÀN">
                             <div class="unit-text-v2">@(m.Unit?.Name ?? "N/A")</div>
                         </td>
-                        <td>
+                        <td data-label="NGÀY VÀO">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="far fa-calendar-alt text-muted" style="font-size: 0.8rem;"></i>
                                 <span class="text-dark fw-bold" style="font-size: 0.75rem;">
@@ -404,7 +404,7 @@
                                 </span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="TRẠNG THÁI">
                             <div class="status-row-v2">
                                 <div class="dot-v2 @(m.Status == "Đang sinh hoạt" ? "green" : "")"></div>
                                 @m.Status

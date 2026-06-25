@@ -223,19 +223,19 @@
                             <div class="fw-bold text-dark" style="font-size: 0.9rem;">@item.Name</div>
                             <span class="text-muted" style="font-size: 0.75rem;">@((item.Description?.Length > 80) ? item.Description.Substring(0, 80) + "..." : item.Description)</span>
                         </td>
-                        <td>
+                        <td data-label="TÁC GIẢ">
                             <div class="fw-semibold">@(item.Author?.FullName ?? "N/A")</div>
                         </td>
-                        <td>
+                        <td data-label="NHÓM TÁC GIẢ">
                             <span>@(string.IsNullOrEmpty(item.CoAuthors) ? "--" : item.CoAuthors)</span>
                         </td>
-                        <td>
+                        <td data-label="CHI ĐOÀN">
                             <div class="unit-text-v2">@(item.Unit?.Name ?? "N/A")</div>
                         </td>
-                        <td>
+                        <td data-label="LĨNH VỰC">
                             <span class="badge bg-secondary p-2" style="font-size: 0.7rem; border-radius: 8px;">@item.Field</span>
                         </td>
-                        <td>
+                        <td data-label="TRẠNG THÁI">
                             <div class="status-row-v2">
                                 <div class="dot-v2 @(item.Status == "Đã áp dụng" ? "green" : (item.Status == "Ý tưởng" ? "orange" : "blue"))"></div>
                                 @item.Status

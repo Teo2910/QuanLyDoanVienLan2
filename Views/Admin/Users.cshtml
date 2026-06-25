@@ -139,23 +139,23 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="TÀI KHOẢN">
                             <div class="id-badge-stack">
                                 <b>@user.Email</b>
                                 <span>ONLINE</span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="QUẢN LÝ">
                             <div class="unit-text-v2">
                                 @(units.FirstOrDefault(u => u.Id == user.UnitId)?.Name ?? "---")
                             </div>
                         </td>
-                        <td>
+                        <td data-label="VAI TRÒ">
                             <div class="achievement-pill-v2 @(user.Role == "Admin" ? "bg-danger text-white" : "")">
                                 @user.Role
                             </div>
                         </td>
-                        <td>
+                        <td data-label="NGÀY TẠO">
                             <div class="status-row-v2">
                                 <div class="dot-v2"></div>
                                 @(DateTimeOffset.FromUnixTimeSeconds(user.CreatedAt).LocalDateTime.ToString("dd/MM/yyyy"))

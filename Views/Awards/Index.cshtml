@@ -198,13 +198,13 @@
                         <td>
                             <div class="fw-bold text-dark" style="font-size: 0.9rem;">@item.Content</div>
                         </td>
-                        <td>
+                        <td data-label="HÌNH THỨC">
                             <span class="badge bg-primary p-2" style="font-size: 0.7rem; border-radius: 8px;">@item.Form</span>
                         </td>
-                        <td>
+                        <td data-label="ĐỐI TƯỢNG">
                             <span class="badge @(item.TargetType == "Cá nhân" ? "bg-info text-dark" : "bg-warning text-dark") p-2" style="font-size: 0.7rem; border-radius: 8px;">@item.TargetType</span>
                         </td>
-                        <td>
+                        <td data-label="TẬP THỂ/CÁ NHÂN">
                             @if (item.TargetType == "Cá nhân")
                             {
                                 <div class="fw-semibold text-dark">@(item.Member?.FullName ?? "N/A")</div>
@@ -215,13 +215,13 @@
                                 <div class="fw-semibold text-primary">@(item.Unit?.Name ?? "N/A")</div>
                             }
                         </td>
-                        <td>
+                        <td data-label="CHI ĐOÀN">
                             <div class="unit-text-v2">@(item.Unit?.Name ?? "N/A")</div>
                         </td>
-                        <td>
+                        <td data-label="CẤP KT">
                             <span class="text-dark fw-bold" style="font-size: 0.75rem;">@item.Level</span>
                         </td>
-                        <td>
+                        <td data-label="THỜI GIAN">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="far fa-calendar-alt text-muted" style="font-size: 0.8rem;"></i>
                                 <span class="text-dark fw-bold" style="font-size: 0.75rem;">
